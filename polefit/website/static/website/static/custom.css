@@ -1,0 +1,170 @@
+.home_bg {
+  background: url(../images/IMG_8272_faded.jpg) no-repeat center center fixed;
+    -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+}
+
+.polefit_bg {
+  background: url(../images/polefit_faded.jpg) no-repeat center center fixed;
+    -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+}
+
+.hoop_bg {
+  background: url(../images/hoop_faded.jpg) no-repeat center center fixed;
+    -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+}
+
+.plain_bg {
+    background-color: #D0CCCC;
+}
+
+body {
+  background-color: transparent;
+}
+
+@media (max-width: 979px) {
+  body {
+    padding-top: 0px;
+  }
+}
+
+  html,
+  body {
+    height: 100%;
+    /* The html and body elements cannot have any padding or margin. */
+  }
+
+  /* Wrapper for page content to push down footer */
+  #wrap {
+    padding-top: 50px;
+    min-height: 100%;
+    height: auto !important;
+    height: 100%;
+    /* Negative indent footer by it's height */
+    margin: 0 auto -50px;
+  }
+
+
+  /* Set the fixed height of the footer here */
+  #push,
+  #footer {
+    height: 100px;
+  }
+  #footer {
+    background-color: transparent;
+  }
+
+  /* Lastly, apply responsive CSS fixes as necessary */
+  @media (max-width: 767px) {
+    #footer {
+      margin-left: -20px;
+      margin-right: -20px;
+      padding-left: 20px;
+      padding-right: 20px;
+    }
+  }
+
+.box {
+    border: 1px dashed red;
+}
+
+/* vertical alignment styles */
+.col-top {
+    vertical-align:top;
+}
+.col-middle {
+    vertical-align:middle;
+}
+.col-bottom {
+    vertical-align:bottom;
+}
+
+/* columns of same height styles */
+.container-sm-height {
+    display:table;
+    padding-left:0px;
+    padding-right:0px;
+}
+.row-sm-height {
+    display:table-row;
+}
+.col-sm-height {
+    display:table-cell;
+    float:none;
+}
+
+
+/* Half Page Height Carousel Customization */
+.carousel {
+height: 50%;
+}
+
+
+.item,
+.active,
+.carousel-inner {
+  height: 100%;
+}
+
+.fill {
+  width: 100%;
+  height: 100%;
+  background-position: center;
+  background-size: cover;
+}
+
+/* Responsive Styles */
+@media (max-width: 767px) {
+
+  .carousel {
+    height: 50%;
+ /* increases the carousel height so it looks good on phones */
+  }
+}
+
+/* carousel top caption */
+.caption-top {
+    top: 0;
+    right: 0;
+    bottom: auto;
+}
+
+
+.grid_ul {
+  padding:0 0 0 0;
+  margin:0 0 0 0;
+}
+.grid_ul_li {
+  list-style:none;
+  padding:0 0 0 0;
+  margin: 10px 0 0 0;
+}
+ul li img {
+  cursor: pointer;
+}
+
+.photogrid{
+width:100px;
+height:100px;
+padding:0 0 0 0;
+overflow:hidden;
+}
+
+#about_text{
+    color:white;
+}
+
+.ul_none
+{
+    list-style-type: none;
+}
+
+
