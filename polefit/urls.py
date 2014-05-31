@@ -5,6 +5,7 @@ admin.autodiscover()
 
 
 urlpatterns = patterns('',
-    url(r'^timetable/', include('timetable.urls')),
-    url(r'^admin/', include(admin.site.urls)),
+    url(r'',            include('polefit.website.urls')),
+    url(r'^timetable', include('timetable.urls')),
+    url(r'^admin/',     include(admin.site.urls)),
 )
