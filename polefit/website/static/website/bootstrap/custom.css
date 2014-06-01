@@ -53,13 +53,13 @@ body {
 	height: auto !important;
 	height: 100%;
 	/* Negative indent footer by it's height */
-	margin: 0 auto -50px;
+	margin: 0 auto -60px;
 }
 
 /* Set the fixed height of the footer here */
 #push,
 #footer {
-	height: 100px;
+	height: 60px;
 }
 
 #footer {
@@ -80,34 +80,25 @@ body {
 	border: 1px dashed red;
 }
 
-/* vertical alignment styles */
-.col-top {
-	vertical-align: top;
+
+/* footer boxes alignment */
+
+.footer_box {
+    position: relative;
 }
 
-.col-middle {
-	vertical-align: middle;
+.footer_fb {
+    position: absolute;
+    bottom:0;
+    left: 0;
 }
 
-.col-bottom {
-	vertical-align: bottom;
+.footer_logo {
+    position: absolute;
+    bottom:0;
+    right: 0;
 }
 
-/* columns of same height styles */
-.container-sm-height {
-	display: table;
-	padding-left: 0px;
-	padding-right: 0px;
-}
-
-.row-sm-height {
-	display: table-row;
-}
-
-.col-sm-height {
-	display: table-cell;
-	float: none;
-}
 
 /* Half Page Height Carousel Customization */
 .carousel {
@@ -165,8 +156,24 @@ ul li img {
 	overflow: hidden;
 }
 
-.ul_none {
-	list-style-type: none;
+.list-group-index {
+    background-color: transparent;
+    border:none;
+    padding-left: 0;
+    padding-bottom: 0;
+    padding-top: 0;
+    box-shadow: none;
 }
 
+.nav-logo {
+    max-height: 30px;
+    margin-top: -5px;
+}
 
+.footer-logo-image {
+    height:50px;
+}
+
+.instr-img {
+    padding-top:30px;
+}
