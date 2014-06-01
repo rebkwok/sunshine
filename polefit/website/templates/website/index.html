@@ -73,11 +73,11 @@
         <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
             <div class="list-group list-group-index">
             <h3>Classes</h3>
-                <a class="list-group-item list-group-index" href="classes_polefit.html">PoleFit</a></li>
-                <a class="list-group-item list-group-index" href="classes_bouncefit.html">Bounce Fit</a></li>
-                <a class="list-group-item list-group-index" href="classes_hoop.html">Aerial Hoop</a></li>
-                <a class="list-group-item list-group-index" href="classes_balletfit.html">Ballet Fit</a></li>
-                <a class="list-group-item list-group-index" href="classes_stretch.html">Stretch n Flex</a></li>
+                <a class="list-group-item list-group-index" href="{% url 'classes_polefit' %}">PoleFit</a>
+                <a class="list-group-item list-group-index" href="{% url 'classes_hoop' %}">Aerial Hoop</a>
+                <a class="list-group-item list-group-index" href="{% url 'classes_bouncefit' %}">Bounce Fit</a>
+                <a class="list-group-item list-group-index" href="{% url 'classes_balletfit' %}">Ballet Fit</a>
+                <a class="list-group-item list-group-index" href="{% url 'classes_stretch' %}">Stretch n Flex</a>
             </div>
         </div>
         <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
@@ -88,7 +88,6 @@
     <!-- /.row -->
 </div>
 <!-- /.container -->
-
 
 
 {% endblock %}
