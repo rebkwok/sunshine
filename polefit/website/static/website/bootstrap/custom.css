@@ -47,7 +47,7 @@ body {
 }
 
 /* Wrapper for page content to push down footer */
-#wrap {
+.wrap {
 	padding-top: 50px;
 	min-height: 100%;
 	height: auto !important;
@@ -57,18 +57,18 @@ body {
 }
 
 /* Set the fixed height of the footer here */
-#push,
-#footer {
+.push,
+.footer {
 	height: 60px;
 }
 
-#footer {
+.footer {
 	background-color: transparent;
 }
 
 /* Lastly, apply responsive CSS fixes as necessary */
 @media (max-width: 767px) {
-	#footer {
+	.footer {
 		margin-left: -20px;
 		margin-right: -20px;
 		padding-left: 20px;
@@ -122,9 +122,15 @@ body {
 @media (max-width: 767px) {
 
 	.carousel {
-		height: 50%;
+		height: 100%;
 		/* increases the carousel height so it looks good on phones */
 	}
+	.caption-img {
+	    height: 20px;
+	}
+    .carousel-cap-text {
+    font-size: 100%;
+    }
 }
 
 /* carousel top caption */
