@@ -90,3 +90,4 @@ ALLOWED_HOSTS = ['*']
 
 STATIC_URL = '/static/'
 STATIC_ROOT = 'staticfiles'
+TEMPLATE_DIRS = [os.path.join(BASE_DIR, 'templates')]
