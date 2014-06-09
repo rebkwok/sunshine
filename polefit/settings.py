@@ -91,3 +91,6 @@ ALLOWED_HOSTS = ['*']
 STATIC_URL = '/static/'
 STATIC_ROOT = 'staticfiles'
 TEMPLATE_DIRS = [os.path.join(BASE_DIR, 'templates')]
+# NEEDS TO BE MODIFIED FOR DEPLOYMENT!!
+MEDIA_ROOT = '/Users/becky/Projects/polefit_ext/timetable/static/images/'
+MEDIA_URL = '/media/'

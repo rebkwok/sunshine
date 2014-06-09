@@ -1,4 +1,6 @@
 {% load static %}
+
+
 <!DOCTYPE html>
 <html lang="en" class="{% block bg_class %}polefit_bg{%  endblock %}">
 <head>
@@ -36,21 +38,21 @@
                 </div>
                 <div class="navbar-collapse collapse">
                     <ul class="nav navbar-nav pull-left">
-                        <li {% if section == 'about' %}class="active"{% endif %}><a href="{% url 'about' %}">About us</a></li>
+                        <li {% if section == 'about' %}class="active"{% endif %}><a href="{% url 'website:about' %}">About us</a></li>
                         <li class="dropdown {% if dd_section == 'class_dd' %}active{% endif %}">
                           <a href="#" class="dropdown-toggle" data-toggle="dropdown">Classes <b class="caret"></b></a>
                           <ul class="dropdown-menu">
-                            <li {% if section == 'classes_polefit' %}class="active"{% endif %}><a href="{% url 'classes_polefit' %}">PoleFit</a></li>
-                            <li {% if section == 'classes_hoop' %}class="active"{% endif %}><a href="{% url 'classes_hoop' %}">Aerial Hoop</a></li>
-                            <li {% if section == 'classes_bouncefit' %}class="active"{% endif %}><a href="{% url 'classes_bouncefit' %}">Bounce Fit</a></li>
-                            <li {% if section == 'classes_balletfit' %}class="active"{% endif %}><a href="{% url 'classes_balletfit' %}">Ballet Fit</a></li>
-                            <li {% if section == 'classes_stretch' %}class="active"{% endif %}><a href="{% url 'classes_stretch' %}">Stretch n Flex</a></li>
+                            <li {% if section == 'classes_polefit' %}class="active"{% endif %}><a href="{% url 'website:classes_polefit' %}">PoleFit</a></li>
+                            <li {% if section == 'classes_hoop' %}class="active"{% endif %}><a href="{% url 'website:classes_hoop' %}">Aerial Hoop</a></li>
+                            <li {% if section == 'classes_bouncefit' %}class="active"{% endif %}><a href="{% url 'website:classes_bouncefit' %}">Bounce Fit</a></li>
+                            <li {% if section == 'classes_balletfit' %}class="active"{% endif %}><a href="{% url 'website:classes_balletfit' %}">Ballet Fit</a></li>
+                            <li {% if section == 'classes_stretch' %}class="active"{% endif %}><a href="{% url 'website:classes_stretch' %}">Stretch n Flex</a></li>
                           </ul>
                         </li>
-                        <li {% if section == 'instructors' %}class="active"{% endif %}><a href="{% url 'instructors' %}">Instructors</a></li>
-                        <li {% if section == 'venues' %}class="active"{% endif %}><a href="{% url 'venues' %}">Venues</a></li>
-                        <li {% if section == 'booking' %}class="active"{% endif %}><a href="{% url 'booking' %}">Booking</a></li>
-                        <li {% if section == 'gallery' %}class="active"{% endif %}><a href="{% url 'gallery' %}">Gallery</a></li>
+                        <li {% if section == 'instructors' %}class="active"{% endif %}><a href="{% url 'website:instructors' %}">Instructors</a></li>
+                        <li {% if section == 'venues' %}class="active"{% endif %}><a href="{% url 'website:venues' %}">Venues</a></li>
+                        <li {% if section == 'booking' %}class="active"{% endif %}><a href="{% url 'website:booking' %}">Booking</a></li>
+                        <li {% if section == 'gallery' %}class="active"{% endif %}><a href="{% url 'website:gallery' %}">Gallery</a></li>
                     </ul>
                 </div><!--/.nav-collapse -->
             </div>

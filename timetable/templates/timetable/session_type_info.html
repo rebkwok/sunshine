@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Classes</title>
+</head>
+<body>
+
+    <h2>{{ session_type_info.name }}</h2>
+
+    <p>{{ session_type_info.info }}</p>
+
+    {% if session_type_info.photo %}
+        <img src="{{ MEDIA_URL }}{{ session_type_info.photo.name }}" width="200px">
+    {% endif %}
+</body>
+</html>

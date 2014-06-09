@@ -1,6 +1,6 @@
 {% extends "website/_base.html" %}
 {% load static %}
-
+{% load url from future %}
 
 {% block bg_class %}polefit_bg{%  endblock %}
 
@@ -68,22 +68,22 @@
        <div class="row">
         <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
             <h3>About us</h3>
-            <p>See more <a href="{% url 'about' %}">here</a>. </p>
+            <p>See more <a href="{% url 'website:about' %}">here</a>. </p>
             <p>Find us on <a href="https://www.facebook.com/polefitstarlet.dunfermline">Facebook</a>. </p>
         </div>
         <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
             <div class="list-group list-group-index">
             <h3>Classes</h3>
-                <a class="list-group-item list-group-index" href="{% url 'classes_polefit' %}">PoleFit</a>
-                <a class="list-group-item list-group-index" href="{% url 'classes_hoop' %}">Aerial Hoop</a>
-                <a class="list-group-item list-group-index" href="{% url 'classes_bouncefit' %}">Bounce Fit</a>
-                <a class="list-group-item list-group-index" href="{% url 'classes_balletfit' %}">Ballet Fit</a>
-                <a class="list-group-item list-group-index" href="{% url 'classes_stretch' %}">Stretch n Flex</a>
+                <a class="list-group-item list-group-index" href="{% url 'website:classes_polefit' %}">PoleFit</a>
+                <a class="list-group-item list-group-index" href="{% url 'website:classes_hoop' %}">Aerial Hoop</a>
+                <a class="list-group-item list-group-index" href="{% url 'website:classes_bouncefit' %}">Bounce Fit</a>
+                <a class="list-group-item list-group-index" href="{% url 'website:classes_balletfit' %}">Ballet Fit</a>
+                <a class="list-group-item list-group-index" href="{% url 'website:classes_stretch' %}">Stretch n Flex</a>
             </div>
         </div>
         <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
             <h3>Booking</h3>
-            <p>Click <a href="{% url 'booking' %}">here</a> to book a class.</p>
+            <p>Click <a href="{% url 'website:booking' %}">here</a> to book a class.</p>
         </div>
     </div>
     <!-- /.row -->
