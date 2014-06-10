@@ -12,6 +12,16 @@ class Instructor(models.Model):
     def __unicode__(self):
         return self.name
 
+    def save(self, *args, **kwargs):
+        # delete old image file when replacing by updating the file
+        try:
+            this = Instructor.objects.get(id=self.id)
+            if this.photo != self.photo:
+                this.photo.delete(save=False)
+        except: pass # when new photo then we do nothing, normal case
+        super(Instructor, self).save(*args, **kwargs)
+
+
 class SessionType(models.Model):
     name = models.CharField(max_length=255)
     info = models.TextField('session description',  null=True)
@@ -21,6 +31,16 @@ class SessionType(models.Model):
     def __unicode__(self):
         return self.name
 
+    def save(self, *args, **kwargs):
+        # delete old image file when replacing by updating the file
+        try:
+            this = SessionType.objects.get(id=self.id)
+            if this.photo != self.photo:
+                this.photo.delete(save=False)
+        except: pass # when new photo then we do nothing, normal case
+        super(SessionType, self).save(*args, **kwargs)
+
+
 class Venue(models.Model):
     venue = models.CharField(max_length=255)
     address = models.CharField(max_length=255)
@@ -28,6 +48,7 @@ class Venue(models.Model):
 
     def __unicode__(self):
         return self.venue
+
 
 class Session(models.Model):
     level = models.CharField(max_length=255, default="All levels")
@@ -37,7 +58,6 @@ class Session(models.Model):
     session_type = models.ForeignKey(SessionType)
     venue = models.ForeignKey(Venue)
     spaces = models.BooleanField('spaces available', default=True)
-
 
     def get_weekday(self):
         session_weekday = self.session_date.weekday()
@@ -49,19 +69,11 @@ class Session(models.Model):
                 return weekdays[i]
     get_weekday.short_description = 'Day'
 
-    def is_future(self):
+    def bookable(self):
         now = timezone.now()
-        return self.session_date > now
-    is_future.short_description = 'future session'
-    is_future.boolean = True
-
-    def spaces_available(self):
-        now = timezone.now()
-        if self.session_date < now:
-            self.spaces = False
-        return self.spaces
-    spaces_available.short_description = 'spaces available'
-    spaces_available.boolean = True
+        return self.spaces and self.session_date > now
+    bookable.short_description = 'available to book'
+    bookable.boolean = True
 
 
 

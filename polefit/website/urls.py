@@ -9,6 +9,7 @@ urlpatterns = patterns(
     url(r'^classes_balletfit$', 'classes_balletfit', name='classes_balletfit'),
     url(r'^classes_bouncefit$', 'classes_bouncefit', name='classes_bouncefit'),
     url(r'^classes_stretch$',   'classes_stretch', name='classes_stretch'),
+    url(r'^(?P<session_type_id>\d+)/classes/$', 'classes', name='classes'),
     url(r'^instructors$',       'instructors', name='instructors'),
     url(r'^venues$',            'venues', name='venues'),
     url(r'^booking$',           'booking', name='booking'),

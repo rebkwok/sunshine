@@ -5,80 +5,37 @@
 
 {% block content %}
 
+    {% if instructors %}
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-sm-4 col-sm-offset-1">
+                    <h1>Instructors</h1>
+                </div>
+            </div>
+            {% for instructor in instructors %}
+                {% if instructor.regular_instructor %}
+                    <div class="row">
+                        <div class="col-xs-2 col-sm-2 col-sm-offset-1 instr-img">
+                             {% if instructor.photo %}
+                                <img src="{{ MEDIA_URL }}{{ instructor.photo.name }}" width="200px" class="img-responsive img-circle"
+                                        alt="instructor photo">
+                             {% else %}
+                                <img src="http://placehold.it/400&text=photo pending"
+                                        alt="instructor photo placeholder" class="img-responsive img-circle">
+                            {% endif %}
+                        </div>
+                        <div class="col-sm-6">
+                            <h3>{{ instructor.name }}</h3>
+                            <p>{{ instructor.info }}</p>
+                        </div>
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
 
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-sm-4 col-sm-offset-1">
-            <h1>Instructors</h1>
-        </div>
-    </div>
-    <!-- row1 -->
-    <div class="row">
-        <div class="col-xs-2 col-sm-2 col-sm-offset-1 instr-img">
-            <img src="{% static 'website/images/Emma.jpg' %}"
-                 title="Emma" alt="Emma" class="img-responsive img-circle">
-        </div>
-        <div class="col-sm-6">
-            <h3>Emma Junor</h3>
-            <p>Unum regione feugait ut quo. Porro aperiam labores in qui, est ea mollis philosophia. His scriptorem
-                consectetuer no, tota probo comprehensam cu pro. Pertinax assueverit ad nam, pro docendi senserit
-                persequeris ne. Est dicta feugait adversarium no,
-                sed at sale nominavi. Laudem aeterno definitionem ne per. Nam ad luptatum liberavisse signiferumque,
-                pri novum officiis inciderint at. Labores suscipiantur ei eos, purto invenire accommodare cu mea.
-            </p>
-        </div>
-    </div>
-
-    <!-- row2 -->
-    <div class="row">
-        <div class="col-xs-2 col-sm-2 col-sm-offset-1 instr-img">
-            <img src="{% static 'website/images/Kira.jpg' %}"
-                 title="Kira" alt="Kira" class="img-responsive img-circle">
-        </div>
-        <div class="col-sm-6">
-            <h3>Kira Grant</h3>
-            <p>Unum regione feugait ut quo. Porro aperiam labores in qui, est ea mollis philosophia. His scriptorem
-                consectetuer no, tota probo comprehensam cu pro. Pertinax assueverit ad nam, pro docendi senserit
-                persequeris ne. Est dicta feugait adversarium no,
-                sed at sale nominavi. Laudem aeterno definitionem ne per. Nam ad luptatum liberavisse signiferumque,
-                pri novum officiis inciderint at. Labores suscipiantur ei eos, purto invenire accommodare cu mea.
-            </p>
-        </div>
-    </div>
-
-    <!-- row3 -->
-    <div class="row">
-        <div class="col-xs-2 col-sm-2 col-sm-offset-1 instr-img">
-            <img src="http://placehold.it/400.jpg"
-                 title="Instructor Name" alt="instructor" class="img-responsive img-circle">
-        </div>
-        <div class="col-sm-6">
-            <h3>Instructor Name</h3>
-            <p>Unum regione feugait ut quo. Porro aperiam labores in qui, est ea mollis philosophia. His scriptorem
-                consectetuer no, tota probo comprehensam cu pro. Pertinax assueverit ad nam, pro docendi senserit
-                persequeris ne. Est dicta feugait adversarium no mea.  Laudem aeterno definitionem ne per. Nam ad luptatum liberavisse signiferumque,
-                pri novum officiis inciderint at. Labores suscipiantur ei eos, purto invenire accommodare cu mea.
-            </p>
-        </div>
-    </div>
-
-    <!-- row4 -->
-    <div class="row">
-        <div class="col-xs-2 col-sm-2 col-sm-offset-1 instr-img">
-            <img src="http://placehold.it/400.jpg"
-                 title="Instructor Name" alt="instructor" class="img-responsive img-circle">
-        </div>
-        <div class="col-sm-6">
-            <h3>Instructor Name</h3>
-            <p>Unum regione feugait ut quo. Porro aperiam labores in qui, est ea mollis philosophia. His scriptorem
-                consectetuer no, tota probo comprehensam cu pro. Pertinax assueverit ad nam, pro docendi senserit
-                persequeris ne. Est dicta feugait adversarium no mea.  Laudem aeterno definitionem ne per. Nam ad luptatum liberavisse signiferumque,
-                pri novum officiis inciderint at. Labores suscipiantur ei eos, purto invenire accommodare cu mea.
-            </p>
-        </div>
-    </div>
-
-</div>
+{% else %}
+    <p>No instructor information is available.</p>
+{% endif %}
 
 <br/>
 

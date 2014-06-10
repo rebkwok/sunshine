@@ -1,0 +1,53 @@
+{% extends "website/_base.html" %}
+
+{% block bg_class %}plain_bg{%  endblock %}
+
+{% block content %}
+
+
+
+
+
+<div class="container-fluid">
+
+    {% if selected_session.photo %}
+        <div class="row">
+
+            <div class="col-sm-4 col-sm-offset-1">
+                <h1>{{ selected_session.name }}</h1>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-4 col-sm-offset-1">
+                <p>{{ selected_session.info }}</p>
+
+                <h3>Class times</h3>
+                <p>Monday 6pm<br/>
+                ...</p>
+
+            </div>
+            <div class="col-sm-6">
+
+                <img src="{{ MEDIA_URL }}{{ selected_session.photo.name }}" title="{{ selected_session.name }} class"
+                     alt="{{ selected_session.name }} image" class="img-responsive"><br/>
+
+                <!-- https://fbcdn-sphotos-c-a.akamaihd.net/hphotos-ak-xaf1/t1.0-9/205163_184383554941680_5995944_n.jpg-->
+
+                <p>Click <a href="{% url 'website:booking' %}">here</a> to book a class.</p>
+            </div>
+        </div>
+    {% else %}
+
+        <div class="col-sm-8 col-sm-offset-1">
+                <h1>{{ selected_session.name }}</h1>
+                <p>{{ selected_session.info }}</p>
+
+                <h3>Class times</h3>
+                <p>Monday 6pm<br/>
+                ...</p>
+        </div>
+    {% endif %}
+</div>
+
+{%  endblock %}
+

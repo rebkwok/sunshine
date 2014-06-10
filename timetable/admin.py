@@ -22,7 +22,7 @@ class SessionTypeAdmin(admin.ModelAdmin):
 
 class SessionAdmin(admin.ModelAdmin):
     list_display = ('session_type', 'level', 'instructor', 'get_weekday', 'session_date', 'duration', 'venue',
-                    'spaces_available', 'is_future')
+                    'bookable')
     fieldsets = [
         ('Session information', {'fields': ['session_type', 'level', 'instructor', 'venue', 'spaces']}),
         ('Date and time',        {'fields': ['session_date', 'duration']}),

@@ -74,11 +74,9 @@
         <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
             <div class="list-group list-group-index">
             <h3>Classes</h3>
-                <a class="list-group-item list-group-index" href="{% url 'website:classes_polefit' %}">PoleFit</a>
-                <a class="list-group-item list-group-index" href="{% url 'website:classes_hoop' %}">Aerial Hoop</a>
-                <a class="list-group-item list-group-index" href="{% url 'website:classes_bouncefit' %}">Bounce Fit</a>
-                <a class="list-group-item list-group-index" href="{% url 'website:classes_balletfit' %}">Ballet Fit</a>
-                <a class="list-group-item list-group-index" href="{% url 'website:classes_stretch' %}">Stretch n Flex</a>
+                {% for type in session_types %}
+                    <a class="list-group-item list-group-index" href="{% url 'website:classes' type.id %}">{{ type.name }}</a>
+                {% endfor %}
             </div>
         </div>
         <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
