@@ -2,7 +2,7 @@ import datetime
 
 from django.contrib import admin
 
-from timetable.models import Instructor, Session, SessionType, Venue
+from timetable.models import Instructor, Session, SessionType, Venue, Event
 
 
 
@@ -31,11 +31,14 @@ class SessionAdmin(admin.ModelAdmin):
     date_hierarchy = 'session_date'
     save_as = True
     actions = [duplicate_event]
-    list_filter = ['session_type']
+    list_filter = ['session_type', 'instructor', 'venue']
 
+class EventAdmin(admin.ModelAdmin):
+    list_display = ('name', 'get_event_weekday', 'event_date', 'end_time')
 
 admin.site.register(Instructor, InstructorAdmin)
 admin.site.register(Session, SessionAdmin)
 admin.site.register(SessionType, SessionTypeAdmin)
+admin.site.register(Event, EventAdmin)
 admin.site.register(Venue)
 

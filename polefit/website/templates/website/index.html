@@ -75,7 +75,9 @@
             <div class="list-group list-group-index">
             <h3>Classes</h3>
                 {% for type in session_types %}
+                {% if type.regular_session %}
                     <a class="list-group-item list-group-index" href="{% url 'website:classes' type.id %}">{{ type.name }}</a>
+                {% endif %}
                 {% endfor %}
             </div>
         </div>

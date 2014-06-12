@@ -5,13 +5,13 @@
 
 {% block content %}
 
-    {% if instructors %}
         <div class="container-fluid">
             <div class="row">
                 <div class="col-sm-4 col-sm-offset-1">
                     <h1>Instructors</h1>
                 </div>
             </div>
+            {% if instructors %}
             {% for instructor in instructors %}
                 {% if instructor.regular_instructor %}
                     <div class="row">
@@ -26,16 +26,34 @@
                         </div>
                         <div class="col-sm-6">
                             <h3>{{ instructor.name }}</h3>
-                            <p>{{ instructor.info }}</p>
+                            <p>{{ instructor.info|linebreaks }}</p>
                         </div>
                     </div>
                 {% endif %}
             {% endfor %}
+
+            {% elif instructor %}
+                    <div class="row">
+                        <div class="col-xs-2 col-sm-2 col-sm-offset-1 instr-img">
+                             {% if instructor.photo %}
+                                <img src="{{ MEDIA_URL }}{{ instructor.photo.name }}" width="200px" class="img-responsive img-circle"
+                                        alt="instructor photo">
+                             {% else %}
+                                <img src="http://placehold.it/400&text=photo pending"
+                                        alt="instructor photo placeholder" class="img-responsive img-circle">
+                            {% endif %}
+                        </div>
+                        <div class="col-sm-6">
+                            <h3>{{ instructor.name }}</h3>
+                            <p>{{ instructor.info|linebreaks }}</p>
+                        </div>
+                    </div>
+            {% else %}
+                <p>No instructor information is available.</p>
+            {% endif %}
         </div>
 
-{% else %}
-    <p>No instructor information is available.</p>
-{% endif %}
+
 
 <br/>
 

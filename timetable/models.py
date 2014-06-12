@@ -42,8 +42,8 @@ class SessionType(models.Model):
 
 
 class Venue(models.Model):
-    venue = models.CharField(max_length=255)
-    address = models.CharField(max_length=255)
+    venue = models.CharField(max_length=255, null=True, default="Venue TBC")
+    address = models.CharField(max_length=255, null=True, blank=True)
     postcode = models.CharField(max_length=255, null=True, blank=True)
 
     def __unicode__(self):
@@ -75,6 +75,29 @@ class Session(models.Model):
     bookable.short_description = 'available to book'
     bookable.boolean = True
 
+class Event(models.Model):
+    name = models.CharField(max_length=255)
+    event_date = models.DateTimeField('event date')
+    end_time = models.TimeField('end time',  null=True, blank=True)
+    info = models.TextField('event description',  null=True, blank=True)
+    venue = models.ForeignKey(Venue,  null=True, blank=True)
+
+    def __unicode__(self):
+        return self.name
+
+    def get_event_weekday(self):
+        event_weekday = self.event_date.weekday()
+
+        weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+
+        for i in range(0, 7):
+            if event_weekday == i:
+                return weekdays[i]
+    get_event_weekday.short_description = 'Day'
+
+    def recent_events(self):
+        recent = timezone.now() - timedelta(days=7)
+        return self.event_date > recent
 
 
 
