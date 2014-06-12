@@ -2,3 +2,4 @@
 .env
 .idea
 db.sqlite3
+polefit/website/templates/website/gallery_old.html

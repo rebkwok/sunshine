@@ -1,5 +1,6 @@
 from django.shortcuts import render, HttpResponse, get_object_or_404
 from timetable.models import Instructor, Session, SessionType, Event
+from gallery.models import Category, Image
 from django.utils import timezone
 import datetime
 
@@ -40,7 +41,20 @@ def venues(request):
     return render(request, 'website/venues.html', {'section': 'venues', 'session_types': session_types})
 
 def gallery(request):
-    return render(request, 'website/gallery.html', {'section': 'gallery', 'session_types': session_types})
+    categories = Category.objects.all().order_by('name')
+    images = Image.objects.all()
+    return render(request, 'website/gallery.html', {'section': 'gallery', 'session_types': session_types,
+                                                    'categories': categories, 'images': images})
+
+def gallery_category(request, category_id):
+    cat = get_object_or_404(Category, pk=category_id)
+    categories = Category.objects.all().order_by('name')
+    images = Image.objects.filter(category_id=cat.id)
+    return render(request, 'website/gallery.html', {'images': images,
+                                                    'categories': categories,
+                                                    'session_types': session_types,
+                                                    'section': 'gallery',
+                                                    'cat': cat.id})
 
 def timetable(request):
     now = datetime.datetime.today()

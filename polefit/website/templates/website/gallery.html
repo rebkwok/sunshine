@@ -1,70 +1,65 @@
 {% extends "website/_base.html" %}
 
-{% block bg_class %}polefit_bg{%  endblock %}
+{% block bg_class %}plain_bg{%  endblock %}
 
 {% block content %}
 
+<div id="wrapper">
 
-    <div class="row">
-        <div class="col-sm-12 center">
-            <h1 class="text-center">Gallery</h1>
+        <!-- Sidebar -->
+        <div id="sidebar-wrapper">
+            <ul class="sidebar-nav">
+                <li class="sidebar-brand"></li>
+                <li><a href="{% url 'website:gallery' %}">All</a>
+                    {% for category in categories %}
+                        <li><a href="{% url 'website:gallery_category' category.id %}">
+                        {% if category.id == cat %}<span class="cat_list_active">{{ category.name }}</span>{% else %}{{ category.name }}{% endif %}</a></li>
+                    {% endfor %}
+            </ul>
         </div>
-    </div>
+
+        <!-- Page content -->
+        <div id="page-content-wrapper">
+            <div class="content-header">
+                <h1>
+                    <a id="menu-toggle" href="#" class="btn btn-default"><i class="icon-reorder"></i></a>
+                    Gallery
+                </h1>
+            </div>
+            <!-- Keep all page content within the page-content inset div! -->
+            <div class="page-content inset">
 
 
-    <div class="container">
-       <ul class="row grid_ul">
-           <li class="grid_ul_li col-lg-2 col-md-2 col-sm-2 col-xs-4"><img class="img-responsive photogrid" src="https://fbcdn-sphotos-a-a.akamaihd.net/hphotos-ak-xap1/t1.0-9/1382971_10151915666288162_309832360_n.jpg" alt="image"/></li>
-           <li class="grid_ul_li col-lg-2 col-md-2 col-sm-2 col-xs-4"><img class="img-responsive photogrid" src="https://fbcdn-sphotos-g-a.akamaihd.net/hphotos-ak-xfa1/t1.0-9/1391622_10151915666308162_1280375776_n.jpg" alt="image"/></li>
-           <li class="grid_ul_li col-lg-2 col-md-2 col-sm-2 col-xs-4"><img class="img-responsive photogrid" src="https://scontent-b-lhr.xx.fbcdn.net/hphotos-xfa1/t1.0-9/1174926_10151915666253162_1246646554_n.jpg"/></li>
-           <li class="grid_ul_li col-lg-2 col-md-2 col-sm-2 col-xs-4"><img class="img-responsive photogrid" src="https://fbcdn-sphotos-e-a.akamaihd.net/hphotos-ak-xpf1/t1.0-9/1393886_10151915666363162_1210916875_n.jpg"/></li>
-           <li class="grid_ul_li col-lg-2 col-md-2 col-sm-2 col-xs-4"><img class="img-responsive photogrid" src="https://fbcdn-sphotos-c-a.akamaihd.net/hphotos-ak-xaf1/t1.0-9/1382420_10151915666473162_424213020_n.jpg"/></li>
-           <li class="grid_ul_li col-lg-2 col-md-2 col-sm-2 col-xs-4"><img class="img-responsive photogrid" src="https://scontent-b-lhr.xx.fbcdn.net/hphotos-xpa1/t1.0-9/1391722_10151915666568162_1896636169_n.jpg"></li>
-           <li class="grid_ul_li col-lg-2 col-md-2 col-sm-2 col-xs-4"><img class="img-responsive photogrid" src="https://fbcdn-sphotos-f-a.akamaihd.net/hphotos-ak-xap1/t1.0-9/1385188_10151915666608162_803773376_n.jpg"></li>
-           <li class="grid_ul_li col-lg-2 col-md-2 col-sm-2 col-xs-4"><img class="img-responsive photogrid" src="https://scontent-a-lhr.xx.fbcdn.net/hphotos-xap1/t1.0-9/1380680_10151915666633162_117908927_n.jpg"></li>
-           <li class="grid_ul_li col-lg-2 col-md-2 col-sm-2 col-xs-4"><img class="img-responsive photogrid" src="https://fbcdn-sphotos-e-a.akamaihd.net/hphotos-ak-xap1/t1.0-9/1391579_10151915666723162_723744849_n.jpg"></li>
-           <li class="grid_ul_li col-lg-2 col-md-2 col-sm-2 col-xs-4"><img class="img-responsive photogrid" src="https://fbcdn-sphotos-c-a.akamaihd.net/hphotos-ak-xfp1/t1.0-9/1395184_10151915666773162_1862160021_n.jpg"></li>
-           <li class="grid_ul_li col-lg-2 col-md-2 col-sm-2 col-xs-4"><img class="img-responsive photogrid" src="https://scontent-b-lhr.xx.fbcdn.net/hphotos-xpf1/t1.0-9/1381525_10151915666793162_771362737_n.jpg"></li>
-           <li class="grid_ul_li col-lg-2 col-md-2 col-sm-2 col-xs-4"><img class="img-responsive photogrid" src="https://scontent-b-lhr.xx.fbcdn.net/hphotos-prn2/t1.0-9/1383902_10151915666838162_41066229_n.jpg"></li>
-           <li class="grid_ul_li col-lg-2 col-md-2 col-sm-2 col-xs-4"><img class="img-responsive photogrid" src="https://scontent-b-lhr.xx.fbcdn.net/hphotos-xap1/t1.0-9/1390757_10151915666913162_226175278_n.jpg"></li>
-           <li class="grid_ul_li col-lg-2 col-md-2 col-sm-2 col-xs-4"><img class="img-responsive photogrid" src="https://fbcdn-sphotos-d-a.akamaihd.net/hphotos-ak-prn2/t1.0-9/1383992_10151915666953162_1259447900_n.jpg"></li>
-           <li class="grid_ul_li col-lg-2 col-md-2 col-sm-2 col-xs-4"><img class="img-responsive photogrid" src="https://fbcdn-sphotos-c-a.akamaihd.net/hphotos-ak-xpf1/t1.0-9/1382267_10151915666973162_82070877_n.jpg"></li>
-           <li class="grid_ul_li col-lg-2 col-md-2 col-sm-2 col-xs-4"><img class="img-responsive photogrid" src="https://fbcdn-sphotos-e-a.akamaihd.net/hphotos-ak-xaf1/t1.0-9/1391683_10151915667063162_1182822971_n.jpg"></li>
-           <li class="grid_ul_li col-lg-2 col-md-2 col-sm-2 col-xs-4"><img class="img-responsive photogrid" src="https://fbcdn-sphotos-d-a.akamaihd.net/hphotos-ak-xaf1/t1.0-9/1385216_10151915667093162_1741889038_n.jpg"></li>
-           <li class="grid_ul_li col-lg-2 col-md-2 col-sm-2 col-xs-4"><img class="img-responsive photogrid" src="https://fbcdn-sphotos-g-a.akamaihd.net/hphotos-ak-xpa1/t1.0-9/1391579_10151915667423162_851319238_n.jpg"></li>
-           <li class="grid_ul_li col-lg-2 col-md-2 col-sm-2 col-xs-4"><img class="img-responsive photogrid" src="https://scontent-a-lhr.xx.fbcdn.net/hphotos-xfp1/t1.0-9/1375269_10151915667473162_286578510_n.jpg"></li>
-           <li class="grid_ul_li col-lg-2 col-md-2 col-sm-2 col-xs-4"><img class="img-responsive photogrid" src="https://scontent-b-lhr.xx.fbcdn.net/hphotos-xfp1/t1.0-9/1374256_10151915667498162_1230774291_n.jpg"></li>
-           <li class="grid_ul_li col-lg-2 col-md-2 col-sm-2 col-xs-4"><img class="img-responsive photogrid" src="https://scontent-b-lhr.xx.fbcdn.net/hphotos-xfp1/t1.0-9/1383368_10151915667868162_426571416_n.jpg"></li>
-           <li class="grid_ul_li col-lg-2 col-md-2 col-sm-2 col-xs-4"><img class="img-responsive photogrid" src="https://scontent-b-lhr.xx.fbcdn.net/hphotos-xpa1/t1.0-9/1394127_10151915667938162_439681825_n.jpg"></li>
-           <li class="grid_ul_li col-lg-2 col-md-2 col-sm-2 col-xs-4"><img class="img-responsive photogrid" src="https://fbcdn-sphotos-b-a.akamaihd.net/hphotos-ak-xap1/t1.0-9/1378712_10151915667988162_790049376_n.jpg"></li>
-           <li class="grid_ul_li col-lg-2 col-md-2 col-sm-2 col-xs-4"><img class="img-responsive photogrid" src="https://fbcdn-sphotos-d-a.akamaihd.net/hphotos-ak-xap1/t1.0-9/64227_10151915668168162_2044632623_n.jpg"></li>
-           <li class="grid_ul_li col-lg-2 col-md-2 col-sm-2 col-xs-4"><img class="img-responsive photogrid" src="https://fbcdn-sphotos-b-a.akamaihd.net/hphotos-ak-xfp1/t1.0-9/1379845_10151915668223162_1353232275_n.jpg"></li>
-           <li class="grid_ul_li col-lg-2 col-md-2 col-sm-2 col-xs-4"><img class="img-responsive photogrid" src="https://fbcdn-sphotos-h-a.akamaihd.net/hphotos-ak-xap1/t1.0-9/528302_10151915668248162_177329278_n.jpg"></li>
-           <li class="grid_ul_li col-lg-2 col-md-2 col-sm-2 col-xs-4"><img class="img-responsive photogrid" src="https://scontent-a-lhr.xx.fbcdn.net/hphotos-xpa1/v/t1.0-9/1378235_10151915668393162_482979324_n.jpg?oh=2da13b7e9623b389e00b559a8026b2bd&oe=53F4FE92"></li>
-           <li class="grid_ul_li col-lg-2 col-md-2 col-sm-2 col-xs-4"><img class="img-responsive photogrid" src="https://scontent-a-lhr.xx.fbcdn.net/hphotos-xfp1/t1.0-9/1375187_10151915668413162_1052460622_n.jpg"></li>
-           <li class="grid_ul_li col-lg-2 col-md-2 col-sm-2 col-xs-4"><img class="img-responsive photogrid" src="https://fbcdn-sphotos-a-a.akamaihd.net/hphotos-ak-xpf1/t1.0-9/1394257_10151915668658162_1703604785_n.jpg"></li>
-           <li class="grid_ul_li col-lg-2 col-md-2 col-sm-2 col-xs-4"><img class="img-responsive photogrid" src="https://fbcdn-sphotos-g-a.akamaihd.net/hphotos-ak-xpa1/v/t1.0-9/1381671_10151915668913162_1387587022_n.jpg?oh=4c6deb0710dc5300d41113c4d2fc1a1a&oe=53F1E88A&__gda__=1407970133_a4a68ee924bf94bdb5ae1366649445cc"></li>
-           <li class="grid_ul_li col-lg-2 col-md-2 col-sm-2 col-xs-4"><img class="img-responsive photogrid" src="https://scontent-a-lhr.xx.fbcdn.net/hphotos-xpf1/t1.0-9/1377213_10151915668958162_330147321_n.jpg"></li>
-           <li class="grid_ul_li col-lg-2 col-md-2 col-sm-2 col-xs-4"><img class="img-responsive photogrid" src=""></li>
-           <li class="grid_ul_li col-lg-2 col-md-2 col-sm-2 col-xs-4"><img class="img-responsive photogrid" src=""></li>
-           <li class="grid_ul_li col-lg-2 col-md-2 col-sm-2 col-xs-4"><img class="img-responsive photogrid" src=""></li>
-           <li class="grid_ul_li col-lg-2 col-md-2 col-sm-2 col-xs-4"><img class="img-responsive photogrid" src=""></li>
-
-       </ul>
-        <br/>
-    </div>
+                    <div class="container">
+                       <ul class="row grid_ul">
+                           {% for image in images %}
+                           <li class="grid_ul_li col-lg-2 col-md-2 col-sm-2 col-xs-4"><img class="img-responsive photogrid" src="{{ MEDIA_URL }}{{ image.photo.name }}" alt="image"/></li>
+                           {% endfor %}
+                       </ul>
+                        <br/>
+                    </div>
 
 
+                    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                      <div class="modal-dialog">
+                        <div class="modal-content">
+                          <div class="modal-header">
+                                <button class="close" type="button" data-dismiss="modal">×</button>
+                                <h3 class="modal-title">{{ image.category }}</h3>
+                            </div>
+                          <div class="modal-body">
+                          </div>
+                           <div class="modal-footer">
+                                <p>{{ image.caption }}</p>
+                            </div>
+                        </div><!-- /.modal-content -->
+                      </div><!-- /.modal-dialog -->
+                    </div><!-- /.modal -->
 
-    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-body">
-          </div>
-        </div><!-- /.modal-content -->
-      </div><!-- /.modal-dialog -->
-    </div><!-- /.modal -->
+                </div>  <!-- page content insert -->
+        </div> <!-- page content wrapper -->
 
+</div>  <!-- wrapper -->
 
 {%  endblock %}
 

@@ -11,6 +11,7 @@ urlpatterns = patterns(
     url(r'^venues$',            'venues', name='venues'),
     url(r'^booking$',           'booking', name='booking'),
     url(r'^gallery$',           'gallery', name='gallery'),
+    url(r'^(?P<category_id>\d+)/gallery/category/$', 'gallery_category', name='gallery_category'),
     url(r'^timetable',           'timetable', name='timetable'),
     url(r'^(?P<session_type_id>\d+)/classes/sessions/$', 'sessions_by_type', name='sessions_by_type'),
 )

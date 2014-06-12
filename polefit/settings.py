@@ -40,6 +40,7 @@ INSTALLED_APPS = (
     'bootstrap',
     'timetable',
     'polefit.website',
+    'gallery',
 )
 
 MIDDLEWARE_CLASSES = (
