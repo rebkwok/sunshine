@@ -10,7 +10,7 @@
         <div id="sidebar-wrapper">
             <ul class="sidebar-nav">
                 <li class="sidebar-brand"></li>
-                <li><a href="{% url 'website:gallery' %}">All</a>
+                <li><a href="{% url 'website:gallery' %}">{% if cat_selection == 'all' %}<span class="cat_list_active">All</span>{% else %}All{% endif %}</a>
                     {% for category in categories %}
                         <li><a href="{% url 'website:gallery_category' category.id %}">
                         {% if category.id == cat %}<span class="cat_list_active">{{ category.name }}</span>{% else %}{{ category.name }}{% endif %}</a></li>
@@ -33,7 +33,7 @@
                     <div class="container">
                        <ul class="row grid_ul">
                            {% for image in images %}
-                           <li class="grid_ul_li col-lg-2 col-md-2 col-sm-2 col-xs-4"><img class="img-responsive photogrid" src="{{ MEDIA_URL }}{{ image.photo.name }}" alt="image"/></li>
+                           <li class="grid_ul_li col-lg-2 col-md-2 col-sm-2 col-xs-4"><img title="{{ image.caption }}" class="img-responsive photogrid" src="{{ MEDIA_URL }}{{ image.photo.name }}" alt="image"/></li>
                            {% endfor %}
                        </ul>
                         <br/>
@@ -45,12 +45,10 @@
                         <div class="modal-content">
                           <div class="modal-header">
                                 <button class="close" type="button" data-dismiss="modal">×</button>
-                                <h3 class="modal-title">{{ image.category }}</h3>
                             </div>
                           <div class="modal-body">
                           </div>
                            <div class="modal-footer">
-                                <p>{{ image.caption }}</p>
                             </div>
                         </div><!-- /.modal-content -->
                       </div><!-- /.modal-dialog -->

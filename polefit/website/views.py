@@ -43,7 +43,7 @@ def venues(request):
 def gallery(request):
     categories = Category.objects.all().order_by('name')
     images = Image.objects.all()
-    return render(request, 'website/gallery.html', {'section': 'gallery', 'session_types': session_types,
+    return render(request, 'website/gallery.html', {'section': 'gallery', 'cat_selection': 'all', 'session_types': session_types,
                                                     'categories': categories, 'images': images})
 
 def gallery_category(request, category_id):

@@ -339,3 +339,27 @@ color: #000;
 .cat_list_active{
     color: #F78181
 }
+
+.modal-body {
+    padding: 15px;
+    padding-bottom: 0;
+    overflow-y: auto;
+ }
+
+  .modal-header {
+    padding-bottom: 5px;
+    padding-top: 5px;
+    overflow-y: auto;
+ }
+
+ .modal-footer {
+    text-align: center;
+    padding-bottom: 5px;
+    padding-top: 5px;
+    overflow-y: auto;
+ }
+
+
+
+
+
