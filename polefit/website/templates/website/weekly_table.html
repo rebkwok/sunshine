@@ -1,0 +1,146 @@
+{% extends "website/_base.html" %}
+
+{% block bg_class %}plain_bg{%  endblock %}
+
+{% block content %}
+
+
+<div id="wrapper">
+
+        <!-- Sidebar -->
+        <div id="sidebar-wrapper">
+            <ul class="sidebar-nav">
+                <li class="sidebar-brand"><a href="#">Show:</a></li>
+                <li><a href="{% url 'website:timetable' %}">{% if sidebar_section == 'all' %}
+                    <span class="sidebar_active">All scheduled classes</span>{% else %}All scheduled classes{% endif %}</a></li>
+                <li><a href="{% url 'website:this_week_table' %}">{% if sidebar_section == 'this_week' %}
+                    <span class="sidebar_active">This week</span>{% else %}This week{% endif %}</a></li>
+                <li><a href="{% url 'website:next_week_table' %}">{% if sidebar_section == 'next_week' %}
+                    <span class="sidebar_active">Next week</span>{% else %}Next week{% endif %}</a></li>
+                    {% for type in session_types %}
+                        <li><a href="{% url 'website:sessions_by_type' type.id %}">{% if sidebar_section == type.id %}
+                            <span class="sidebar_active">{{ type.name }}</span>{% else %}{{ type.name }}{% endif %}</a></li>
+                    {% endfor %}
+
+            </ul>
+        </div>
+
+        <!-- Page content -->
+        <div id="page-content-wrapper">
+            <div class="content-header">
+                <h2>
+                    <a id="menu-toggle" href="#" class="btn btn-default"><i class="icon-reorder"></i></a>
+                    Timetable for week beginning {{ start|date:"l d F"}}
+                </h2>
+                <p>Click on a class for more details.</p>
+
+            </div>
+            <!-- Keep all page content within the page-content inset div! -->
+
+
+            <div class="page-content inset">
+                <div class="table-responsive">
+                    </br>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th class="timetable-data">Mon</th>
+                                <th class="timetable-data">Tues</th>
+                                <th class="timetable-data">Wed</th>
+                                <th class="timetable-data">Thurs</th>
+                                <th class="timetable-data">Fri</th>
+                                <th class="timetable-data">Sat</th>
+                                <th class="timetable-data"  >Sun</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+
+                            <tr>
+                                <td class="timetable-data">
+                                    {% for session in mon_sessions %}
+                                    {{ session.session_date|time:"f a" }} <a href="#{{ session.id }}" data-toggle="modal" data-target="#{{ session.id }}">{{ session.session_type }}</a> </br></br>
+
+                                    {% block modalmon %}
+                                        {{ block.super }}
+                                    {% endblock modalmon %}
+
+                                    {% endfor %}
+                                </td>
+                                <td class="timetable-data">
+                                    {% for session in tues_sessions %}
+                                    {{ session.session_date|time:"f a" }} <a href="#{{ session.id }}" data-toggle="modal" data-target="#{{ session.id }}">{{ session.session_type }}</a> </br></br>
+
+                                    {% block modaltues %}
+                                        {{ block.super }}
+                                    {% endblock modaltues %}
+
+
+                                    {% endfor %}
+                                </td>
+                                <td class="timetable-data">
+                                    {% for session in wed_sessions %}
+                                    {{ session.session_date|time:"f a" }} <a href="#{{ session.id }}" data-toggle="modal" data-target="#{{ session.id }}">{{ session.session_type }}</a> </br></br>
+
+                                    {% block modalwed %}
+                                        {{ block.super }}
+                                    {% endblock modalwed %}
+
+                                    {% endfor %}
+                                </td>
+                                <td class="timetable-data">
+                                    {% for session in thurs_sessions %}
+                                    {{ session.session_date|time:"f a" }} <a href="#{{ session.id }}" data-toggle="modal" data-target="#{{ session.id }}">{{ session.session_type }}</a> </br></br>
+
+                                    {% block modalthurs %}
+                                        {{ block.super }}
+                                    {% endblock modalthurs %}
+                                    {% endfor %}
+                                </td>
+                                <td class="timetable-data">
+                                    {% for session in fri_sessions %}
+                                    {{ session.session_date|time:"f a" }} <a href="#{{ session.id }}" data-toggle="modal" data-target="#{{ session.id }}">{{ session.session_type }}</a> </br></br>
+
+                                    {% block modalfri %}
+                                        {{ block.super }}
+                                    {% endblock modalfri %}
+                                    {% endfor %}
+                                </td>
+                                <td class="timetable-data">
+                                    {% for session in sat_sessions %}
+                                    {{ session.session_date|time:"f a" }} <a href="#{{ session.id }}" data-toggle="modal" data-target="#{{ session.id }}">{{ session.session_type }}</a> </br></br>
+
+                                    {% block modalsat %}
+                                        {{ block.super }}
+                                    {% endblock modalsat %}
+                                    {% endfor %}
+                                </td>
+                                <td class="timetable-data">
+                                    {% for session in sun_sessions %}
+                                    {{ session.session_date|time:"f a" }} <a href="#{{ session.id }}" data-toggle="modal" data-target="#{{ session.id }}">{{ session.session_type }}</a> </br></br>
+
+                                    {% block modalsun %}
+                                        {{ block.super }}
+                                    {% endblock modalsun %}
+                                    {% endfor %}
+                                </td>
+
+                            </tr>
+                        </tbody>
+                    </table>
+
+                </div> <!-- table-responsive -->
+
+
+
+
+
+            </div>  <!-- page content insert -->
+        </div> <!-- page content wrapper -->
+
+</div>  <!-- wrapper -->
+
+
+
+
+
+{% endblock %}

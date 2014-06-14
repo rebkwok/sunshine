@@ -10,10 +10,10 @@
         <div id="sidebar-wrapper">
             <ul class="sidebar-nav">
                 <li class="sidebar-brand"></li>
-                <li><a href="{% url 'website:gallery' %}">{% if cat_selection == 'all' %}<span class="cat_list_active">All</span>{% else %}All{% endif %}</a>
+                <li><a href="{% url 'website:gallery' %}">{% if cat_selection == 'all' %}<span class="sidebar_active">All</span>{% else %}All{% endif %}</a>
                     {% for category in categories %}
                         <li><a href="{% url 'website:gallery_category' category.id %}">
-                        {% if category.id == cat %}<span class="cat_list_active">{{ category.name }}</span>{% else %}{{ category.name }}{% endif %}</a></li>
+                        {% if category.id == cat %}<span class="sidebar_active">{{ category.name }}</span>{% else %}{{ category.name }}{% endif %}</a></li>
                     {% endfor %}
             </ul>
         </div>

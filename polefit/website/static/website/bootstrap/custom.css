@@ -336,7 +336,7 @@ color: #000;
 }
 
 
-.cat_list_active{
+.sidebar_active{
     color: #F78181
 }
 
@@ -358,6 +358,14 @@ color: #000;
     padding-top: 5px;
     overflow-y: auto;
  }
+
+
+.timetable-data {
+    font-size: small;
+    width: 14%;
+    }
+
+
 
 
 

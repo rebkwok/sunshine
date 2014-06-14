@@ -95,3 +95,5 @@ TEMPLATE_DIRS = [os.path.join(BASE_DIR, 'templates')]
 # NEEDS TO BE MODIFIED FOR DEPLOYMENT!!
 MEDIA_ROOT = '/Users/becky/Projects/polefit/polefit/website/static/website/images/'
 MEDIA_URL = '/media/'
+
+

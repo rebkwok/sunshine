@@ -57,16 +57,50 @@ def gallery_category(request, category_id):
                                                     'cat': cat.id})
 
 def timetable(request):
-    now = datetime.datetime.today()
+    now = timezone.now()
     timetable_items = Session.objects.filter(session_date__gte=now).order_by('session_date')
     return render(request, 'website/timetable.html', {'timetable_items': timetable_items,
                                                     'session_types': session_types,
-                                                    'section': 'timetable'})
+                                                    'section': 'timetable',
+                                                     'sidebar_section':'all'})
+
+
+def weekly_table(request, week):
+    today = timezone.now()
+    if week == 'this':
+        sidebar_section = 'this_week'
+        offset = 0
+    elif week == 'next':
+        sidebar_section = 'next_week'
+        offset = 7
+
+    start = today.replace(hour=0, minute=0, second=0, microsecond=0) + datetime.timedelta(days=(0 - today.weekday() + offset))
+    end = start + datetime.timedelta(days=7)
+    mon_sessions = Session.objects.filter(session_date__range=[start, end], session_date__week_day=2).order_by('session_date')
+    tues_sessions = Session.objects.filter(session_date__range=[start, end], session_date__week_day=3).order_by('session_date')
+    wed_sessions = Session.objects.filter(session_date__range=[start, end], session_date__week_day=4).order_by('session_date')
+    thurs_sessions = Session.objects.filter(session_date__range=[start, end], session_date__week_day=5).order_by('session_date')
+    fri_sessions = Session.objects.filter(session_date__range=[start, end], session_date__week_day=6).order_by('session_date')
+    sat_sessions = Session.objects.filter(session_date__range=[start, end], session_date__week_day=7).order_by('session_date')
+    sun_sessions = Session.objects.filter(session_date__range=[start, end], session_date__week_day=1).order_by('session_date')
+    return render(request, 'website/weekly_table.html', {'mon_sessions': mon_sessions,
+                                                         'tues_sessions': tues_sessions,
+                                                         'wed_sessions': wed_sessions,
+                                                         'thurs_sessions': thurs_sessions,
+                                                         'fri_sessions': fri_sessions,
+                                                         'sat_sessions': sat_sessions,
+                                                         'sun_sessions': sun_sessions,
+                                                         'start': start,
+                                                         'session_types': session_types,
+                                                         'section': 'timetable',
+                                                         'sidebar_section':sidebar_section})
 
 def sessions_by_type(request, session_type_id):
-    today = datetime.datetime.today()
+    today = timezone.now()
     session_type = get_object_or_404(SessionType, pk=session_type_id)
     timetable_items = Session.objects.filter(session_type_id=session_type.id, session_date__gte=today).order_by('session_date')
     return render(request, 'website/timetable.html', {'timetable_items': timetable_items,
                                                     'session_types': session_types,
-                                                    'section': 'timetable'})
+                                                    'section': 'timetable',
+                                                    'sidebar_section':session_type.id})
+
