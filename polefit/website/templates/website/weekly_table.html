@@ -56,87 +56,53 @@
                         <tbody>
 
                             <tr>
+                                {% for session_week in sessions %}
                                 <td class="timetable-data">
-                                    {% for session in mon_sessions %}
-                                    {{ session.session_date|time:"f a" }} <a href="#{{ session.id }}" data-toggle="modal" data-target="#{{ session.id }}">{{ session.session_type }}</a> </br></br>
 
-                                    {% block modalmon %}
-                                        {{ block.super }}
-                                    {% endblock modalmon %}
+                                        {% for session in session_week %}
+                                            {{ session.session_date|time:"f a" }} <a href="#{{ session.id }}" data-toggle="modal"
+                                                                                     data-target="#{{ session.id }}">
+                                                                                    {{ session.session_type }}</a>
+                                                                                    {% if session.bookable %}<span class="glyphicon glyphicon-ok"></span>
+                                                                                    {% else %}<span class="glyphicon glyphicon-remove"></span>{% endif %}</br></br>
 
-                                    {% endfor %}
+                                            <div class="modal fade" id="{{ session.id }}" tabindex="-1" role="dialog" aria-labelledby="ttmodal" aria-hidden="true">
+                                                <div class="modal-dialog">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><span class="glyphicon glyphicon-remove"></span></button>
+                                                        <h4 class="modal-title" id="myModalLabel">{{ session.session_type }} details</h4>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            <p>Date: {{ session.session_date|date:"D d N" }}</br>
+                                                                Time: {{ session.session_date|time:"f a" }}</br>
+                                                                Duration: {{ session.duration }} minutes</br>
+                                                                Level: {{ session.level }}</br>
+                                                                Instructor: {{ session.instructor}}</br>
+                                                                Venue: {{ session.venue }}, {{ session.venue.address }}, {{ session.venue.postcode }}</br>
+                                                                Available to book: {% if session.bookable %}Yes{% else %}No{% endif %}
+                                                            </p>
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                                    </div>
+                                                </div>
+                                              </div>
+                                            </div>
+
+                                        {% empty %}
+                                            No sessions
+                                        {% endfor %}
+
                                 </td>
-                                <td class="timetable-data">
-                                    {% for session in tues_sessions %}
-                                    {{ session.session_date|time:"f a" }} <a href="#{{ session.id }}" data-toggle="modal" data-target="#{{ session.id }}">{{ session.session_type }}</a> </br></br>
-
-                                    {% block modaltues %}
-                                        {{ block.super }}
-                                    {% endblock modaltues %}
-
-
-                                    {% endfor %}
-                                </td>
-                                <td class="timetable-data">
-                                    {% for session in wed_sessions %}
-                                    {{ session.session_date|time:"f a" }} <a href="#{{ session.id }}" data-toggle="modal" data-target="#{{ session.id }}">{{ session.session_type }}</a> </br></br>
-
-                                    {% block modalwed %}
-                                        {{ block.super }}
-                                    {% endblock modalwed %}
-
-                                    {% endfor %}
-                                </td>
-                                <td class="timetable-data">
-                                    {% for session in thurs_sessions %}
-                                    {{ session.session_date|time:"f a" }} <a href="#{{ session.id }}" data-toggle="modal" data-target="#{{ session.id }}">{{ session.session_type }}</a> </br></br>
-
-                                    {% block modalthurs %}
-                                        {{ block.super }}
-                                    {% endblock modalthurs %}
-                                    {% endfor %}
-                                </td>
-                                <td class="timetable-data">
-                                    {% for session in fri_sessions %}
-                                    {{ session.session_date|time:"f a" }} <a href="#{{ session.id }}" data-toggle="modal" data-target="#{{ session.id }}">{{ session.session_type }}</a> </br></br>
-
-                                    {% block modalfri %}
-                                        {{ block.super }}
-                                    {% endblock modalfri %}
-                                    {% endfor %}
-                                </td>
-                                <td class="timetable-data">
-                                    {% for session in sat_sessions %}
-                                    {{ session.session_date|time:"f a" }} <a href="#{{ session.id }}" data-toggle="modal" data-target="#{{ session.id }}">{{ session.session_type }}</a> </br></br>
-
-                                    {% block modalsat %}
-                                        {{ block.super }}
-                                    {% endblock modalsat %}
-                                    {% endfor %}
-                                </td>
-                                <td class="timetable-data">
-                                    {% for session in sun_sessions %}
-                                    {{ session.session_date|time:"f a" }} <a href="#{{ session.id }}" data-toggle="modal" data-target="#{{ session.id }}">{{ session.session_type }}</a> </br></br>
-
-                                    {% block modalsun %}
-                                        {{ block.super }}
-                                    {% endblock modalsun %}
-                                    {% endfor %}
-                                </td>
-
+                                {% endfor %}
                             </tr>
                         </tbody>
                     </table>
 
                 </div> <!-- table-responsive -->
-
-
-
-
-
             </div>  <!-- page content insert -->
         </div> <!-- page content wrapper -->
-
 </div>  <!-- wrapper -->
 
 

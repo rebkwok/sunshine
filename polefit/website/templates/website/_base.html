@@ -1,4 +1,5 @@
 {% load static %}
+{% load bootstrap3 %}
 
 
 <!DOCTYPE html>
@@ -13,11 +14,13 @@
         href="{% static "website/images/polefit_favicon.png" %}">
 
         <!-- Bootstrap core CSS -->
-        <link href="{% static "website/bootstrap/bootstrap.css" %}" rel="stylesheet">
+        {% bootstrap_css %}
         <!-- Bootstrap theme -->
         <link href="{% static "website/bootstrap/bootstrap-theme.css" %}" rel="stylesheet">
         <!-- Custom styles  -->
         <link href="{% static "website/bootstrap/custom.css" %}" rel="stylesheet">
+
+
     </head>
 <body>
 
@@ -77,32 +80,6 @@
 		{% endblock %}
 
 
-        {% block modalmon %}{% block modaltues %}{% block modalwed %}{% block modalthurs %}{% block modalfri %}{% block modalsat %}{% block modalsun %}
-            <div class="modal fade" id="{{ session.id }}" tabindex="-1" role="dialog" aria-labelledby="ttmodal" aria-hidden="true">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">X</button>
-                        <h4 class="modal-title" id="myModalLabel">{{ session.session_type }} details</h4>
-                        </div>
-                        <div class="modal-body">
-                            <p>Date: {{ session.session_date|date:"D d N" }}</br>
-                                Time: {{ session.session_date|time:"f a" }}</br>
-                                Level: {{ session.level }}</br>
-                                Instructor: {{ session.instructor}}</br>
-                                Venue: {{ session.venue }}, {{ session.venue.address }}, {{ session.venue.postcode }}</br>
-                                Available to book: {% if session.bookable %}Yes{% else %}No{% endif %}
-                            </p>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                    </div>
-                </div>
-              </div>
-            </div>
-        {% endblock modalsun %}{% endblock modalsat %}{% endblock modalfri %}{% endblock modalthurs %}{% endblock modalwed %}{% endblock modaltues %}{% endblock modalmon %}
-
-
 
 <!--/.footer -->
         <div class="push"></div>
@@ -130,7 +107,8 @@
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
-    <script src="{% static "website/bootstrap/bootstrap.min.js" %}"></script>
+
+    {% bootstrap_javascript %}
 
     <div id="fb-root"></div>
     <script src="{% static "website/bootstrap/custom.js" %}"></script>

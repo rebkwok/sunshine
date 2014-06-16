@@ -28,7 +28,7 @@ def create():
                                           'eget eros faucibus tincidunt. Duis leo. Sed fringilla mauris sit amet nibh. '
                                           'Donec sodales sagittis magna.',
                                      regular_instructor=True)
-    pantera = Instructor.objects.create(name='Guest instructor',
+    guest = Instructor.objects.create(name='Guest instructor',
                                         info='Nam quam nunc, blandit vel, luctus pulvinar, '
                                           'hendrerit id, lorem. Maecenas nec odio et ante tincidunt tempus. Donec vitae '
                                           'sapien ut libero venenatis faucibus. Nullam quis ante. Etiam sit amet orci '
@@ -68,7 +68,7 @@ def create():
     stretch = SessionType.objects.create(name='Stretch n Flex', info='description - Stretch', regular_session=True)
     handspring = SessionType.objects.create(name='Handspring workshop', info='description - workshop', regular_session=False)
 
-    instructors = [kira, emma, pantera]
+    instructors = [kira, emma, guest]
     venues = [dunfermline, cowdenbeath]
     types = [polefit, bouncefit, hoop, handspring, stretch]
 
@@ -85,3 +85,13 @@ def create():
         Session.objects.create(session_date=rounded_datetime, instructor=random.choice(instructors),
                            session_type=random.choice(types), venue=random.choice(venues))
 
+def create_sessions():
+    instructors = Instructor.objects.all()
+    venues = Venue.objects.all()
+    types = SessionType.objects.all()
+
+    for i in range(20):
+        random_datetime = timezone.now() + datetime.timedelta(hours=random.randint(0,504)-random.randint(0,300))
+        rounded_datetime = random_datetime.replace(minute=0, second=0)
+        Session.objects.create(session_date=rounded_datetime, instructor=random.choice(instructors),
+                           session_type=random.choice(types), venue=random.choice(venues))

@@ -76,20 +76,16 @@ def weekly_table(request, week):
 
     start = today.replace(hour=0, minute=0, second=0, microsecond=0) + datetime.timedelta(days=(0 - today.weekday() + offset))
     end = start + datetime.timedelta(days=7)
-    mon_sessions = Session.objects.filter(session_date__range=[start, end], session_date__week_day=2).order_by('session_date')
-    tues_sessions = Session.objects.filter(session_date__range=[start, end], session_date__week_day=3).order_by('session_date')
-    wed_sessions = Session.objects.filter(session_date__range=[start, end], session_date__week_day=4).order_by('session_date')
-    thurs_sessions = Session.objects.filter(session_date__range=[start, end], session_date__week_day=5).order_by('session_date')
-    fri_sessions = Session.objects.filter(session_date__range=[start, end], session_date__week_day=6).order_by('session_date')
-    sat_sessions = Session.objects.filter(session_date__range=[start, end], session_date__week_day=7).order_by('session_date')
-    sun_sessions = Session.objects.filter(session_date__range=[start, end], session_date__week_day=1).order_by('session_date')
-    return render(request, 'website/weekly_table.html', {'mon_sessions': mon_sessions,
-                                                         'tues_sessions': tues_sessions,
-                                                         'wed_sessions': wed_sessions,
-                                                         'thurs_sessions': thurs_sessions,
-                                                         'fri_sessions': fri_sessions,
-                                                         'sat_sessions': sat_sessions,
-                                                         'sun_sessions': sun_sessions,
+    session_week = Session.objects.filter(session_date__range=[start, end]).order_by('session_date')
+    mon_sessions = [session for session in session_week if session.get_weekday() == 'Mon']
+    tues_sessions = [session for session in session_week if session.get_weekday() == 'Tues']
+    wed_sessions = [session for session in session_week if session.get_weekday() == 'Wed']
+    thurs_sessions = [session for session in session_week if session.get_weekday() == 'Thurs']
+    fri_sessions = [session for session in session_week if session.get_weekday() == 'Fri']
+    sat_sessions = [session for session in session_week if session.get_weekday() == 'Sat']
+    sun_sessions = [session for session in session_week if session.get_weekday() == 'Sun']
+    sessions = [mon_sessions, tues_sessions, wed_sessions, thurs_sessions, fri_sessions, sat_sessions, sun_sessions]
+    return render(request, 'website/weekly_table.html', {'sessions': sessions,
                                                          'start': start,
                                                          'session_types': session_types,
                                                          'section': 'timetable',

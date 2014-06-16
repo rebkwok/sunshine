@@ -362,8 +362,28 @@ color: #000;
 
 .timetable-data {
     font-size: small;
-    width: 14%;
-    }
+    width: 14%; }
+
+    /* unvisited link */
+.timetable-data > a:link {
+color: #FF0040;
+}
+
+/* visited link */
+.timetable-data > a:visited {
+color: #FF0040;
+}
+
+/* mouse over link */
+.timetable-data > a:hover {
+color: #FF0040;
+}
+
+/* selected link */
+.timetable-data > a:active {
+color: #000;
+}
+
 
 
 
