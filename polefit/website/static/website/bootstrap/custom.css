@@ -255,6 +255,7 @@ color: #000;
 .sidebar-nav li a {
   color: #000;
   display: block;
+
   text-decoration: none;
 }
 

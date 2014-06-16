@@ -10,7 +10,7 @@
         <!-- Sidebar -->
         <div id="sidebar-wrapper">
             <ul class="sidebar-nav">
-                <li class="sidebar-brand"><a href="#">Show:</a></li>
+                <li class="sidebar-brand"></li>
                 <li><a href="{% url 'website:timetable' %}">{% if sidebar_section == 'all' %}
                     <span class="sidebar_active">All scheduled classes</span>{% else %}All scheduled classes{% endif %}</a></li>
                 <li><a href="{% url 'website:this_week_table' %}">{% if sidebar_section == 'this_week' %}
@@ -91,7 +91,7 @@
                                             </div>
 
                                         {% empty %}
-                                            No sessions
+                                            No sessions scheduled
                                         {% endfor %}
 
                                 </td>

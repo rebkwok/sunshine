@@ -75,6 +75,12 @@ class Session(models.Model):
     bookable.short_description = 'available to book'
     bookable.boolean = True
 
+    def __unicode__(self):
+
+        session_str = str(self.session_type) + ", " + str(self.session_date.strftime('%a %d %b %Y, %I:%M%p'))
+
+        return session_str
+
 class Event(models.Model):
     name = models.CharField(max_length=255)
     event_date = models.DateTimeField('event date')
