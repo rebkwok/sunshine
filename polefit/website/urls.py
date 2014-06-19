@@ -10,6 +10,7 @@ urlpatterns = patterns(
     url(r'^events$',       'events', name='events'),
     url(r'^venues$',            'venues', name='venues'),
     url(r'^booking$',           'booking', name='booking'),
+    url(r'^parties$',           'parties', name='parties'),
     url(r'^gallery$',           'gallery', name='gallery'),
     url(r'^(?P<category_id>\d+)/gallery/category/$', 'gallery_category', name='gallery_category'),
     url(r'^timetable$',           'timetable', name='timetable'),

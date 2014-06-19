@@ -19,6 +19,9 @@ def classes(request, session_type_id):
                                                     'session_types': session_types,
                                                     'dd_section': 'class_dd'})
 
+def parties(request):
+    return render(request, 'website/parties.html', {'section': 'parties', 'session_types': session_types,})
+
 def booking(request):
     return render(request, 'website/booking.html', {'section': 'booking', 'session_types': session_types,})
 

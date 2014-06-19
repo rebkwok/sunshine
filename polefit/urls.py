@@ -9,6 +9,7 @@ admin.autodiscover()
 
 urlpatterns = patterns('',
     url(r'',            include('polefit.website.urls', namespace='website')),
+    (r'^grappelli/', include('grappelli.urls')), # grappelli URLS
     url(r'^admin/',     include(admin.site.urls)),
     url(r'^timetable/', include('timetable.urls', namespace='timetable')),
 ) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -6,11 +6,20 @@ from django.utils import timezone
 class Instructor(models.Model):
     name = models.CharField(max_length=255)
     info = models.TextField('instructor description', null=True)
-    regular_instructor = models.BooleanField(default=True)
+    regular_instructor = models.BooleanField(default=True,
+                help_text="Tick this box to list this instructor on the Instructors webpage")
     photo = models.ImageField(upload_to='instructors', null=True, blank=True, help_text="Please upload a .jpg image with equal height and width")
 
     def __unicode__(self):
         return self.name
+
+    def has_photo(self):
+        if self.photo:
+            return True
+        else:
+            return False
+    has_photo.short_description = 'Photo uploaded'
+    has_photo.boolean = True
 
     def save(self, *args, **kwargs):
         # delete old image file when replacing by updating the file
@@ -25,11 +34,20 @@ class Instructor(models.Model):
 class SessionType(models.Model):
     name = models.CharField(max_length=255)
     info = models.TextField('session description',  null=True)
-    regular_session = models.BooleanField(default=True)
+    regular_session = models.BooleanField(default=True,
+            help_text="Tick this box to list this class type on the homepage and class description pages")
     photo = models.ImageField(upload_to='sessions', null=True, blank=True)
 
     def __unicode__(self):
         return self.name
+
+    def has_photo(self):
+        if self.photo:
+            return True
+        else:
+            return False
+    has_photo.short_description = 'Photo uploaded'
+    has_photo.boolean = True
 
     def save(self, *args, **kwargs):
         # delete old image file when replacing by updating the file

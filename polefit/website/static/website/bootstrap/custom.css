@@ -6,10 +6,6 @@
 	background-size: cover;
 }
 
-.home_bg body {
-	color: white;
-}
-
 .polefit_bg {
 	background: url(../images/polefit_faded.jpg) no-repeat center center fixed;
 	-webkit-background-size: cover;
@@ -255,7 +251,7 @@ color: #000;
 .sidebar-nav li a {
   color: #000;
   display: block;
-
+  border-left, border-right, border-bottom: 1px solid #fff;
   text-decoration: none;
 }
 
@@ -361,29 +357,20 @@ color: #000;
  }
 
 
-.timetable-data {
+.timetable-data{
     font-size: small;
     width: 14%; }
 
     /* unvisited link */
-.timetable-data > a:link {
-color: #FF0040;
+a.timetable-data-full {
+color: #DF0101;
 }
 
-/* visited link */
-.timetable-data > a:visited {
-color: #FF0040;
+a.timetable-data-space {
+color: #088A08;
 }
 
-/* mouse over link */
-.timetable-data > a:hover {
-color: #FF0040;
-}
 
-/* selected link */
-.timetable-data > a:active {
-color: #000;
-}
 
 
 

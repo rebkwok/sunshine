@@ -14,12 +14,17 @@ def duplicate_event(modeladmin, request, queryset):
         object.save()
 duplicate_event.short_description = "Duplicate for next week"
 
-
 class InstructorAdmin(admin.ModelAdmin):
-    list_display = ('name', 'regular_instructor')
+    list_display = ('name', 'regular_instructor', 'has_photo')
+
+
+
+
+class VenueAdmin(admin.ModelAdmin):
+    list_display = ('venue', 'address', 'postcode')
 
 class SessionTypeAdmin(admin.ModelAdmin):
-    list_display = ('name', 'regular_session')
+    list_display = ('name', 'regular_session', 'has_photo')
 
 
 class SessionDateListFilter(admin.SimpleListFilter):
@@ -81,6 +86,8 @@ class SessionAdmin(admin.ModelAdmin):
     save_as = True
     actions = [duplicate_event]
     list_filter = [SessionDateListFilter, 'session_type', 'instructor', 'venue']
+    change_list_template = "admin/change_list_filter_sidebar.html"
+    change_list_filter_template = "admin/filter_listing.html"
 
 
 
@@ -91,5 +98,5 @@ admin.site.register(Instructor, InstructorAdmin)
 admin.site.register(Session, SessionAdmin)
 admin.site.register(SessionType, SessionTypeAdmin)
 admin.site.register(Event, EventAdmin)
-admin.site.register(Venue)
+admin.site.register(Venue, VenueAdmin)
 

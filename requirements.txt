@@ -10,4 +10,4 @@ static==1.0.2
 wsgiref==0.1.2
 pytz==2014.4
 Pillow==2.4.0
-
+django-grappelli==2.5.3

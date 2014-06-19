@@ -42,7 +42,7 @@
                 <h1>{{ selected_session.name }}</h1>
                 <p>{{ selected_session.info|linebreaks }}</p>
 
-                <p>Click <a href="{% url 'website:timetable' %}">here</a> to view class timetable.</p>
+                <p>Click <a href="{% url 'website:this_week_table' %}">here</a> to view class timetable.</p>
                 <p>Click <a href="{% url 'website:booking' %}">here</a> to book a class.</p>
         </div>
     {% endif %}

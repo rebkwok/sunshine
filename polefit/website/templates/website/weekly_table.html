@@ -57,14 +57,12 @@
 
                             <tr>
                                 {% for session_week in sessions %}
-                                <td class="timetable-data">
 
-                                        {% for session in session_week %}
-                                            {{ session.session_date|time:"f a" }} <a href="#{{ session.id }}" data-toggle="modal"
-                                                                                     data-target="#{{ session.id }}">
-                                                                                    {{ session.session_type }}</a>
-                                                                                    {% if session.bookable %}<span class="glyphicon glyphicon-ok"></span>
-                                                                                    {% else %}<span class="glyphicon glyphicon-remove"></span>{% endif %}</br></br>
+                                <td class="timetable-data">
+                                    {% for session in session_week %}
+                                                {{ session.session_date|time:"f a" }} <a href="#{{ session.id }}" class={% if session.bookable %}"timetable-data-space"{% else %}"timetable-data-full"{% endif %} data-toggle="modal" data-target="#{{ session.id }}">
+                                                                                    {{ session.session_type }}</a>{% if session.level != "All levels" %} ({{ session.level }}){% endif %}
+                                                                                    </br></br>
 
                                             <div class="modal fade" id="{{ session.id }}" tabindex="-1" role="dialog" aria-labelledby="ttmodal" aria-hidden="true">
                                                 <div class="modal-dialog">
@@ -91,7 +89,7 @@
                                             </div>
 
                                         {% empty %}
-                                            No sessions scheduled
+                                            No classes scheduled
                                         {% endfor %}
 
                                 </td>
