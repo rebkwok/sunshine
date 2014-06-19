@@ -14,9 +14,9 @@ def duplicate_event(modeladmin, request, queryset):
         object.save()
 duplicate_event.short_description = "Duplicate for next week"
 
+
 class InstructorAdmin(admin.ModelAdmin):
     list_display = ('name', 'regular_instructor', 'has_photo')
-
 
 
 
@@ -75,10 +75,10 @@ class SessionDateListFilter(admin.SimpleListFilter):
 
 
 class SessionAdmin(admin.ModelAdmin):
-    list_display = ('session_type', 'level', 'instructor', 'get_weekday', 'session_date', 'duration', 'venue',
-                    'bookable')
+    list_display = ('session_type', 'level', 'instructor', 'show_instructor', 'get_weekday', 'session_date', 'duration', 'venue',
+                    'bookable', )
     fieldsets = [
-        ('Session information', {'fields': ['session_type', 'level', 'instructor', 'venue', 'spaces']}),
+        ('Session information', {'fields': ['session_type', 'level', 'instructor', 'show_instructor', 'venue', 'spaces']}),
         ('Date and time',        {'fields': ['session_date', 'duration']}),
          ]
     ordering = ['session_date']

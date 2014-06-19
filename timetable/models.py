@@ -5,7 +5,7 @@ from django.utils import timezone
 
 class Instructor(models.Model):
     name = models.CharField(max_length=255)
-    info = models.TextField('instructor description', null=True)
+    info = models.TextField('instructor description', blank=True, null=True)
     regular_instructor = models.BooleanField(default=True,
                 help_text="Tick this box to list this instructor on the Instructors webpage")
     photo = models.ImageField(upload_to='instructors', null=True, blank=True, help_text="Please upload a .jpg image with equal height and width")
@@ -60,7 +60,7 @@ class SessionType(models.Model):
 
 
 class Venue(models.Model):
-    venue = models.CharField(max_length=255, null=True, default="Venue TBC")
+    venue = models.CharField(max_length=255, default="Venue TBC")
     address = models.CharField(max_length=255, null=True, blank=True)
     postcode = models.CharField(max_length=255, null=True, blank=True)
 
@@ -71,11 +71,16 @@ class Venue(models.Model):
 class Session(models.Model):
     level = models.CharField(max_length=255, default="All levels")
     session_date = models.DateTimeField('session date')
-    duration = models.IntegerField('duration (minutes)', default=60)
-    instructor = models.ForeignKey(Instructor)
+    duration = models.IntegerField('duration (mins)', default=60)
+    instructor = models.ForeignKey(Instructor, null=True, blank=True)
     session_type = models.ForeignKey(SessionType)
     venue = models.ForeignKey(Venue)
     spaces = models.BooleanField('spaces available', default=True)
+    show_instructor = models.BooleanField('show instructor', default=False,
+                                          help_text="Tick this box to show a link to the instructor on the timetable "
+                                                    "pages (mostly for workshops and one-off classes where the instructor "
+                                                    "is not a regular instructor and will not appear on the instructor "
+                                                    "pages by default)")
 
     def get_weekday(self):
         session_weekday = self.session_date.weekday()
@@ -96,7 +101,7 @@ class Session(models.Model):
     def __unicode__(self):
 
         session_str = str(self.session_type) + ", " + str(self.session_date.strftime('%a %d %b %Y, %I:%M%p'))
-
+        #session_str = str(self.session_type)
         return session_str
 
 class Event(models.Model):

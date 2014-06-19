@@ -17,7 +17,7 @@
                     <span class="sidebar_active">This week</span>{% else %}This week{% endif %}</a></li>
                 <li><a href="{% url 'website:next_week_table' %}">{% if sidebar_section == 'next_week' %}
                     <span class="sidebar_active">Next week</span>{% else %}Next week{% endif %}</a></li>
-                    {% for type in session_types %}
+                    {% for type in tt_session_types %}
                         <li><a href="{% url 'website:sessions_by_type' type.id %}">{% if sidebar_section == type.id %}
                             <span class="sidebar_active">{{ type.name }}</span>{% else %}{{ type.name }}{% endif %}</a></li>
                     {% endfor %}
@@ -76,7 +76,9 @@
                                                                 Time: {{ session.session_date|time:"f a" }}</br>
                                                                 Duration: {{ session.duration }} minutes</br>
                                                                 Level: {{ session.level }}</br>
+                                                                {% if session.show_instructor and session.instructor %}
                                                                 Instructor: {{ session.instructor}}</br>
+                                                                {% endif %}
                                                                 Venue: {{ session.venue }}, {{ session.venue.address }}, {{ session.venue.postcode }}</br>
                                                                 Available to book: {% if session.bookable %}Yes{% else %}No{% endif %}
                                                             </p>
