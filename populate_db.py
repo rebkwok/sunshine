@@ -18,12 +18,12 @@ def create():
     emma = Instructor.objects.create(name='Emma Junor',
                                      info="Emma's pole career started in 2000, dancing in many clubs and music festivals"
                                           ' all over the UK.\r\n\r\n'
-                                          'Due to her passion for pole dancing lead Emma to become the first person within '
-                                          'the Dunfermline area to start up pole & fitness classes.\r\n\r\n'
+                                          'Her passion for pole dancing led Emma to become the first person within '
+                                          'the Dunfermline area to start up pole and fitness classes.\r\n\r\n'
                                           'In 2009, Emma started her own company within "Starlet Studio" and today, beside '
                                           'Kira Grant, they teach over 200 pupils a week.\r\n\r\n'
                                           'Emma, alongside working, teaching and building her own business, studied in '
-                                          'physical aspects of health & wellbeing, exercise to music and many more '
+                                          'physical aspects of health and wellbeing, exercise to music and many more '
                                           'fitness courses.\r\n\r\n'
                                           'With an old school dance flow and fresh take on new moves, Emma has created her '
                                           'own unique style in pole fitness.\r\n\r\n',

@@ -56,8 +56,11 @@ def gallery(request):
     session_types = SessionType.objects.filter(regular_session=True).order_by('name')
     categories = Category.objects.all().order_by('name')
     images = Image.objects.all()
-    return render(request, 'website/gallery.html', {'section': 'gallery', 'cat_selection': 'all', 'session_types': session_types,
-                                                    'categories': categories, 'images': images})
+    return render(request, 'website/gallery.html', {'section': 'gallery',
+                                                    'cat_selection': 'all',
+                                                    'session_types': session_types,
+                                                    'categories': categories,
+                                                    'images': images})
 
 def gallery_category(request, category_id):
     session_types = SessionType.objects.filter(regular_session=True).order_by('name')

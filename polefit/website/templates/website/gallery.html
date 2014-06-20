@@ -32,7 +32,9 @@
 
                     <div class="container">
                        <ul class="row grid_ul">
+                           {% if images %}
                            {% for image in images %}
+
                            <li class="grid_ul_li col-lg-2 col-md-2 col-sm-2 col-xs-4"><img href="#{{ image.id }}"
                                                       data-toggle="modal"
                                                       data-target="#{{ image.id }}"
@@ -58,6 +60,9 @@
                          </li>
 
                            {% endfor %}
+                           {% else %}
+                           No gallery images currently available.
+                           {% endif %}
                        </ul>
                         <br/>
                     </div> <!-- container -->
