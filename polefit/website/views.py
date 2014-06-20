@@ -87,8 +87,6 @@ def timetable(request):
 
 def weekly_table(request, week):
     now = timezone.now()
-    session_types = SessionType.objects.filter(regular_session=True).order_by('name')
-    tt_session_types = SessionType.objects.filter(session__session_type__isnull=False, session__session_date__gte=now).distinct().order_by('name')
     if week == 'this':
         sidebar_section = 'this_week'
         offset = 0
@@ -98,6 +96,10 @@ def weekly_table(request, week):
 
     start = now.replace(hour=0, minute=0, second=0, microsecond=0) + datetime.timedelta(days=(0 - now.weekday() + offset))
     end = start + datetime.timedelta(days=7)
+
+    session_types = SessionType.objects.filter(regular_session=True).order_by('name')
+    tt_session_types = SessionType.objects.filter(session__session_type__isnull=False, session__session_date__gte=start).distinct().order_by('name')
+
     session_week = Session.objects.filter(session_date__range=[start, end]).order_by('session_date')
     mon_sessions = [session for session in session_week if session.get_weekday() == 'Mon']
     tues_sessions = [session for session in session_week if session.get_weekday() == 'Tues']

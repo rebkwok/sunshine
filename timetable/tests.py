@@ -173,12 +173,16 @@ class WeeklyTableViewTests(TestCase):
     def test_weekly_table_session_type_list_for_sidebar_with_future_sessions(self):
         """
         Sidebar should display all session types that have a session with that session type.  If a session type exists
-        but has no future scheduled sessions, the type will not display
+        but has no scheduled sessions beyond Monday of this week, the type will not display
         """
+
+        now = timezone.now()
+        mon_offset = 0 - now.weekday()
+
         type1 = create_session_type("type1", True)
         type2 =create_session_type("type2", False)
         type3 =create_session_type("type3", False)
-        create_session(2, type1)
+        create_session(mon_offset, type1)
         create_session(4, type2)
 
         response = self.client.get(reverse('website:this_week_table'))
@@ -189,10 +193,13 @@ class WeeklyTableViewTests(TestCase):
         Sidebar should display all session types that have a session with that session type.  If a session type exists
         but has no future scheduled sessions, the type will not display
         """
+        now = timezone.now()
+        mon_offset = 0 - now.weekday()
+        
         type1 = create_session_type("type1", True) # only has a past session
         type2 =create_session_type("type2", False) # has a future session so will be displayed, even though not a regular session type
         type3 =create_session_type("type3", True) # no associated session
-        create_session(-2, type1)
+        create_session(mon_offset-2, type1)
         create_session(4, type2)
 
         response = self.client.get(reverse('website:this_week_table'))
