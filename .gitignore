@@ -6,4 +6,6 @@ db.sqlite3
 envdir
 id_rsa*
 images
+media
 polefit/website/templates/website/gallery_old.html
+static

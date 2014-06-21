@@ -13,3 +13,6 @@
 
 - name: Add Upstart script for uWSGI
   copy: src=uwsgi-emperor.conf dest=/etc/init/uwsgi.conf
+
+- name: Ensure the Emperor is started
+  service: name=uwsgi state=started
