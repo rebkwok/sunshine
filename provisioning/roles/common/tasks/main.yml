@@ -8,6 +8,15 @@
     - chef
     - puppet
 
+- name: Install Pillow dependencies
+  apt: name="{{item}}"
+  with_items:
+    - libtiff4-dev
+    - libjpeg8-dev
+    - zlib1g-dev
+    - libfreetype6-dev
+    - libwebp-dev
+
 - name: Clean-Up Unneeded Packages
   shell: apt-get autoremove -y
 

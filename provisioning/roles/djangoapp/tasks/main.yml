@@ -1,4 +1,7 @@
 ---
+- name: Install git
+  apt: name=git
+
 - name: Create sites directory
   file: path=/opt/sites
 
@@ -27,3 +30,24 @@
 - name: Enable {{site}} config
   file: dest=/etc/nginx/sites-enabled/{{site}}.conf src=/etc/nginx/sites-available/{{site}}.conf state=link
   notify: restart nginx
+
+- name: ensure {{site}} database is created
+  sudo: true
+  sudo_user: postgres
+  postgresql_db: name={{site}}
+
+- name: ensure {{site}} user has access to {{site}} database
+  sudo: true
+  sudo_user: postgres
+  postgresql_user: db={{site}} name={{site}} password={{dbpassword}} priv=ALL
+
+- name: ensure user does not have unnecessary privilege
+  sudo: true
+  sudo_user: postgres
+  postgresql_user: name={{site}} role_attr_flags=NOSUPERUSER,NOCREATEDB
+
+- name: Create envdir
+  file: path={{app_root}}/envdir state=directory
+
+- name: Add db config to app {{app_root}}/envdir
+  template: dest={{app_root}}/envdir/DATABASE_URL src=envdir/DATABASE_URL.j2
