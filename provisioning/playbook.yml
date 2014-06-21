@@ -11,10 +11,10 @@
     - id_rsa.pub
 
   roles:
-  #- common
-  #- nginx
-  #- uwsgi
-  #- postgresql
+  - common
+  - nginx
+  - uwsgi
+  - postgresql
   - {
       role: djangoapp,
       site: polefit,
