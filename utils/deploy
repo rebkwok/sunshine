@@ -3,5 +3,5 @@
 virtualenv venv
 ./venv/bin/pip install -r requirements.txt
 ./utils/make_secret_key
-./venv/bin/envdir ./manage.py collectstatic
-./venv/bin/envdir ./manage.py syncdb
+./venv/bin/envdir envdir ./manage.py collectstatic
+./venv/bin/envdir envdir ./manage.py syncdb
