@@ -3,5 +3,7 @@
 .idea
 .vagrant
 db.sqlite3
+envdir
+id_rsa*
 images
 polefit/website/templates/website/gallery_old.html
