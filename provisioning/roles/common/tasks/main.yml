@@ -1,0 +1,24 @@
+---
+- name: Update apt cache
+  apt: update_cache=yes cache_valid_time=604800
+
+- name: Ensure Chef & Puppet Removed
+  apt: name="{{item}}" state=absent purge=yes
+  with_items:
+    - chef
+    - puppet
+
+- name: Clean-Up Unneeded Packages
+  shell: apt-get autoremove -y
+
+- name: Install packaged PIP
+  apt: name=python-pip
+
+- name: Upgrade Setuptools
+  pip: name=setuptools state=latest
+
+- name: Upgrade PIP
+  pip: name=pip state=latest
+
+- name: Install VirtualEnv
+  pip: name=virtualenv

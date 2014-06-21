@@ -1,6 +1,7 @@
 *.pyc
 .env
 .idea
+.vagrant
 db.sqlite3
-polefit/website/templates/website/gallery_old.html
 images
+polefit/website/templates/website/gallery_old.html

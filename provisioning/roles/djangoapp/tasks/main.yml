@@ -1,0 +1,29 @@
+---
+- name: Create sites directory
+  file: path=/opt/sites
+
+- name: Create project directory
+  file: path={{app_root}} state=directory
+
+- name: Create static serving directory
+  file: path={{app_root}}/static state=directory
+
+- name: Create media directory
+  file: path={{app_root}}/media state=directory owner=www-data group=www-data
+
+- name: Configure NginX
+  template: dest=/etc/nginx/sites-available/{{site}}.conf src=nginx_site.conf.j2
+  notify: restart nginx
+
+- name: Configure uWSGI
+  template: dest=/etc/uwsgi/{{site}}.ini src=site_uwsgi.ini.j2
+
+- name: Ensure the Emperor is started
+  service: name=uwsgi state=started
+
+- name: Disable default NginX config
+  file: path=/etc/nginx/sites-enabled/default state=absent
+
+- name: Enable {{site}} config
+  file: dest=/etc/nginx/sites-enabled/{{site}}.conf src=/etc/nginx/sites-available/{{site}}.conf state=link
+  notify: restart nginx
