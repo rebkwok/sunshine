@@ -1,7 +1,11 @@
 #!/bin/bash
 
 virtualenv venv
-./venv/bin/pip install -r requirements.txt
-./utils/make_secret_key
-./venv/bin/envdir envdir ./manage.py collectstatic
-./venv/bin/envdir envdir ./manage.py syncdb
+source venv/bin/activate && (
+    pip install -r requirements.txt
+    ./utils/make_secret_key
+    envdir envdir ./manage.py collectstatic
+    envdir envdir ./manage.py syncdb
+    service nginx restart
+    service uwsgi restart
+)
