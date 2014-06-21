@@ -92,11 +92,10 @@ ALLOWED_HOSTS = ['*']
 # https://docs.djangoproject.com/en/1.6/howto/bootstrap-files/
 
 STATIC_URL = '/static/'
-STATIC_ROOT = 'staticfiles'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 TEMPLATE_DIRS = [os.path.join(BASE_DIR, 'templates')]
 
-# NEEDS TO BE MODIFIED FOR DEPLOYMENT!!
-MEDIA_ROOT = '/Users/becky/Projects/polefit/polefit/website/static/website/images/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
 
 STATICFILES_FINDERS = (
@@ -111,5 +110,4 @@ TEMPLATE_CONTEXT_PROCESSORS = DEFAULT_SETTINGS.TEMPLATE_CONTEXT_PROCESSORS + (
 )
 
 GRAPPELLI_ADMIN_TITLE = "PoleFit Starlet Administration Page"
-
 GRAPPELLI_INDEX_DASHBOARD = 'polefit.dashboard.CustomIndexDashboard'
