@@ -1,6 +1,7 @@
 from django.shortcuts import render, HttpResponse, get_object_or_404
 from timetable.models import Instructor, Session, SessionType, Event
 from gallery.models import Category, Image
+from polefit.website.models import AboutInfo, PastEvent, Achievement
 from django.utils import timezone
 import datetime
 
@@ -12,7 +13,14 @@ def index(request):
 
 def about(request):
     session_types = SessionType.objects.filter(regular_session=True).order_by('name')
-    return render(request, 'website/about.html', {'section': 'about', 'session_types': session_types})
+    about_text = AboutInfo.objects.all()
+    events = PastEvent.objects.all().order_by('-id')
+    achievements = Achievement.objects.filter(display=True)
+    return render(request, 'website/about.html', {'section': 'about',
+                                                  'session_types': session_types,
+                                                  'about_text': about_text,
+                                                  'events' : events,
+                                                  'achievements': achievements})
 
 
 def classes(request, session_type_id):

@@ -1,5 +1,6 @@
 
 from timetable.models import Instructor, Venue, SessionType, Session, Event
+from polefit.website.models import AboutInfo, Achievement, PastEvent
 from django.utils import timezone
 import datetime
 import random
@@ -123,6 +124,59 @@ def create():
                          info='The annual Starlet Show takes place this year on Saturday 26th July at Lourenzos in '
                               'Dunfermline. Tickets can still be purchased by emailing: ______________________',
                         venue=lourenzos)
+
+    AboutInfo.objects.create(heading="About Starlet Pole Fit",
+                        content='Starlet Pole Fitness opened in 2009 at 4 Victoria Street, Dunfermline. 2013 was the'
+                                'official launch of Starlet Alternative Fitness, where new classes were added and the '
+                                'journey to becoming the school we are known for today began.\r\n\r\n'
+                                'Today, we run over 30 classes a week, which range from bounce fit to pole fitness and '
+                                'teach over 200 students. We are constantly expanding to different venues to make these '
+                                'funky alternative classes available to as many people as possible.\r\n\r\n'
+                                'Our aim as a school is to increase fitness, boost confidence and teach new skills and '
+                                'tricks efficiently and safely. Every class is designed to suit each individual.  With '
+                                'various intensity and ability ranges, it really is for any and every one.\r\n\r\n'
+                                'We are changing the way that pole dancing is seen, bringing it out of the clubs and '
+                                'into the fitness studios! Pole is not seedy, it is a skill which takes a lot of hard '
+                                'work and is an amazing workout.  Join the booming and supportive industry and see where '
+                                'pole can take you.')
+
+
+    ed14 = PastEvent.objects.create(name='Edinburgh Pole Competition 2014')
+    lou13 = PastEvent.objects.create(name='Lourenzos Competition 2013')
+    mmps13 = PastEvent.objects.create(name='Miss and Mister Pole Scotland 2013')
+    ed13 = PastEvent.objects.create(name='Edinburgh Pole Competition 2013')
+
+    Achievement.objects.create(event=ed13,
+                               category='Intermediate solo',
+                               placing='3rd place',)
+    Achievement.objects.create(event=ed13,
+                               category='Advanced solo',
+                               placing='2nd place',)
+    Achievement.objects.create(event=ed13,
+                               category='Doubles',
+                               placing='3rd place',)
+    Achievement.objects.create(event=mmps13,
+                               category='Instructor solo',
+                               placing='3rd place',)
+    Achievement.objects.create(event=lou13,
+                               category='Beginner solo',
+                               placing='1st place',)
+    Achievement.objects.create(event=lou13,
+                               category='Intermediate solo',
+                               placing='2nd and 3rd place',)
+    Achievement.objects.create(event=lou13,
+                               category='Advanced solo',
+                               placing='1st and 2nd place',)
+    Achievement.objects.create(event=lou13,
+                               category='Doubles',
+                               placing='1st and 2nd place',)
+    Achievement.objects.create(event=ed14,
+                               category='Advanced solo',
+                               placing='3rd place',)
+    Achievement.objects.create(event=ed14,
+                               category='Doubles',
+                               placing='1st, 2nd and 3rd place',)
+
 
 
 

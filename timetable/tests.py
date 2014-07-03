@@ -195,7 +195,7 @@ class WeeklyTableViewTests(TestCase):
         """
         now = timezone.now()
         mon_offset = 0 - now.weekday()
-        
+
         type1 = create_session_type("type1", True) # only has a past session
         type2 =create_session_type("type2", False) # has a future session so will be displayed, even though not a regular session type
         type3 =create_session_type("type3", True) # no associated session

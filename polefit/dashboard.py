@@ -36,7 +36,7 @@ class CustomIndexDashboard(Dashboard):
         self.children.append(modules.ModelList(
             _('Events'),
             collapsible=True,
-            column=1,
+            column=2,
             pre_content=('<h4>Shows, competitions and other events.</h4>'),
             css_classes=('collapse closed',),
             models=('timetable.models.Event',),
@@ -59,10 +59,21 @@ class CustomIndexDashboard(Dashboard):
         self.children.append(modules.ModelList(
             _('Gallery'),
             collapsible=True,
-            column=1,
+            column=2,
             pre_content=('<h4>Upload images for the gallery pages.</h4>'),
             css_classes=('collapse closed',),
             models=('gallery.models.Category',),
+            exclude=('django.contrib.*',),
+        ))
+
+        self.children.append(modules.ModelList(
+            _('About page'),
+            collapsible=True,
+            column=2,
+            pre_content=('<h4>Add content for the About page, including list of competitions and past achievements.</h4>'),
+            css_classes=('collapse closed',),
+            models=('polefit.website.models.AboutInfo',
+                    'polefit.website.models.PastEvent',),
             exclude=('django.contrib.*',),
         ))
 
@@ -85,7 +96,7 @@ class CustomIndexDashboard(Dashboard):
         # append another link list module for "support".
         self.children.append(modules.LinkList(
             _('Website links'),
-            column=2,
+            column=3,
             children=[
                 {
                     'title': _('Homepage'),
