@@ -1,18 +1,17 @@
 import datetime
+from django import forms
+from django.http import HttpResponse
+from django.template import RequestContext, loader
+from django.shortcuts import render_to_response
 from django.contrib import admin
 from django.contrib.admin import DateFieldListFilter
 from timetable.models import Instructor, Session, SessionType, Venue, Event
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
+from django.core.context_processors import csrf
 
 
 
-def duplicate_event(modeladmin, request, queryset):
-    for object in queryset:
-        object.id = None
-        object.session_date = object.session_date + datetime.timedelta(days=7)
-        object.save()
-duplicate_event.short_description = "Duplicate for next week"
 
 
 class InstructorAdmin(admin.ModelAdmin):
@@ -59,7 +58,6 @@ class SessionDateListFilter(admin.SimpleListFilter):
 
         today = timezone.now()
 
-
         if self.value() == 'this_week':
             start = today.replace(hour=0, minute=0, second=0, microsecond=0) + datetime.timedelta(days=(0 - today.weekday()))
             end = start + datetime.timedelta(days=7)
@@ -84,11 +82,47 @@ class SessionAdmin(admin.ModelAdmin):
     ordering = ['session_date']
     date_hierarchy = 'session_date'
     save_as = True
-    actions = [duplicate_event]
+    actions = ['duplicate_event']
     list_filter = [SessionDateListFilter, 'session_type', 'instructor', 'venue']
-    change_list_template = "admin/change_list_filter_sidebar.html"
-    change_list_filter_template = "admin/filter_listing.html"
+    #change_list_template = "admin/change_list_filter_sidebar.html"
+    #change_list_filter_template = "admin/filter_listing.html"
 
+
+    class DuplicateSessionForm(forms.Form):
+        _selected_action = forms.CharField(widget=forms.MultipleHiddenInput)
+
+
+    def duplicate_event(self, request, queryset):
+
+        form = None
+        if 'duplicate' in request.POST:
+            form = self.DuplicateSessionForm(request.POST)
+
+            for object in queryset:
+                object.id = None
+                object.session_date = object.session_date + datetime.timedelta(days=7)
+                object.save()
+
+            rows_updated = queryset.count()
+            if rows_updated == 1:
+                message_bit = "1 session was "
+            else:
+                message_bit = "%s sessions were" % rows_updated
+            self.message_user(request, "%s successfully duplicated for the following week." % message_bit)
+            return None
+
+        elif 'cancel' in request.POST:
+            return None
+
+        if not form:
+            form = self.DuplicateSessionForm(initial={'_selected_action': request.POST.getlist(admin.ACTION_CHECKBOX_NAME)})
+
+        data = {'sessions': queryset, 'duplicate_form': form,}
+        data.update(csrf(request))
+
+        return render_to_response('timetable/duplicate_session.html', data)
+
+    duplicate_event.short_description = "Duplicate for next week"
 
 
 class EventAdmin(admin.ModelAdmin):

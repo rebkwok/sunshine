@@ -1,0 +1,20 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+
+
+<form action="" method="post">{% csrf_token %}
+
+    {{ duplicate_form }}
+
+    <p>The following sessions will be duplicated for the same day/time in the following week:</p></br>
+
+    <ul>{{ sessions|unordered_list }}</ul></br>
+
+
+    <input type="hidden" name="action" value="duplicate_event" />
+    <input type="submit" name="duplicate" value="Confirm" />
+    <input type="submit" name="cancel" value="Cancel" />
+</form>
+
+{% endblock %}
