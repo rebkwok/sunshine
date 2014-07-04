@@ -10,9 +10,11 @@ class AchievementInline(admin.TabularInline):
 class PastEventAdmin(admin.ModelAdmin):
     list_display = ['name']
     inlines = [AchievementInline]
+    ordering = ['id']
 
 class AboutInfoAdmin(admin.ModelAdmin):
-    list_display = ['heading', 'subheading']
+    list_display = ['get_id', 'heading', 'subheading', 'content']
+    ordering = ['id']
 
 
 admin.site.register(AboutInfo, AboutInfoAdmin)

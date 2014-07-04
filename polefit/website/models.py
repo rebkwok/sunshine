@@ -3,10 +3,17 @@ from django.db import models
 class AboutInfo(models.Model):
     heading = models.CharField(max_length=255, null=True, blank=True)
     subheading = models.CharField(max_length=255, null=True, blank=True)
-    content= models.TextField('About page text')
+    content= models.TextField('Content (note line breaks do not display on the summary page)')
 
     class Meta:
         verbose_name_plural = 'About page information'
+
+    def __unicode__(self):
+        return "About page section " + str(self.id)
+
+    def get_id(self):
+        return self.id
+    get_id.short_description = 'Section number'
 
 
 class PastEvent(models.Model):

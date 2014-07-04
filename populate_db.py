@@ -66,11 +66,16 @@ def create():
                                               'exercise regimen in class begins with strength training, dance-based moves, '
                                               'squats, push-ups, and sit-ups and gradually works its way up to the spins, '
                                               'climbs and inversions.  Pole dancing is also generally reported by its '
-                                              'schools to be empowering for women in terms of building self-confidence.',
+                                              'schools to be empowering for women in terms of building self-confidence.\r\n\r\n'
+                                              'Classes are designed to suit every individual in terms of fitness levels '
+                                              'and ability. Classes are always suitable for beginners and are a great way '
+                                              'to get fit while having fun and doing something different. It is amazing '
+                                              'for boosting confidence as everyone supports each other and are able to '
+                                              'progress at their own pace.',
                                          regular_session=True)
     bouncefit = SessionType.objects.create(name='BounceFit',
                                            info='BounceFit is the newest and most fun way to improve your fitness.\r\n\r\n'
-                                            'Offering a high-intense, low impact training program, using mini trampolines,'
+                                            'Offering a high-intense, low impact training program, using mini trampolines, '
                                             'BounceFit will improve your cardio fitness, strengthen the core and firm and '
                                             'tone your muscles.',
                                            regular_session=True)
@@ -99,16 +104,24 @@ def create():
                                       regular_session=False)
 
     burlesque = SessionType.objects.create(name='Burlesque Dancing',
-                                      info='Burlesque dancing is form of theatrical performance.  Burlesque has a number '
+                                      info='Burlesque dancing is a form of theatrical performance.  Burlesque has a number '
                                            'of definitions, however, according to Mirriam-Webster, burlesque is "a literary '
                                            'or dramatic work that seeks to ridicule by means of grotesque exaggeration or '
                                            'comic imitation or theatrical entertainment of a broadly humorous often earthy '
-                                           'character consisting of short turns, comic skits, and sometimes striptease acts".',
+                                           'character consisting of short turns, comic skits, and sometimes striptease acts".'
+                                           'Classes are fun and relaxed, while learning some new skills and working out '
+                                           'without even knowing it!',
                                       regular_session=True)
 
 
-    stretch = SessionType.objects.create(name='Flex and Stretch', info='Stretching will help improve flexibilty and benefit'
-                                            'your progression in pole tricks.',
+    stretch = SessionType.objects.create(name='Flex and Stretch',
+                                         info='Stretching will help improve flexibilty and benefit your progression in'
+                                            'pole tricks.\r\n\r\n'
+                                            'There are many benefits to stretching and learning to do it properly is key. '
+                                            'Stretching can help to reduce muscle tension, increase range of movement in '
+                                            'the joints, enhance muscular coordination, increase circulation of the blood '
+                                            'to various parts of the body, increase energy levels as well as improving '
+                                            'posture by lengthening muscles. ',
                                             regular_session=True)
 
 

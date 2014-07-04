@@ -94,7 +94,19 @@ class SessionAdmin(admin.ModelAdmin):
 
     def duplicate_event(self, request, queryset):
 
+        """
+        Action which duplicates the selected session objects for the same day/time in the following week.
+
+        This action first displays a confirmation page whichs shows all the
+        selected sessions to be duplicated, with a Confirm and Cancel button.
+
+        Next, it duplicates all selected objects and redirects back to the change list. (Or ignores duplication and just
+        redirects back to change list if Cancel is chosen.
+        """
         form = None
+
+        # The user has already confirmed the duplication.
+        # Do the duplication and return a None to display the change list view again.
         if 'duplicate' in request.POST:
             form = self.DuplicateSessionForm(request.POST)
 
@@ -120,6 +132,7 @@ class SessionAdmin(admin.ModelAdmin):
         data = {'sessions': queryset, 'duplicate_form': form,}
         data.update(csrf(request))
 
+        # Display the confirmation page
         return render_to_response('timetable/duplicate_session.html', data)
 
     duplicate_event.short_description = "Duplicate for next week"

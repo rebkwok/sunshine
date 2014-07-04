@@ -1,5 +1,7 @@
 {% extends "admin/base_site.html" %}
 
+{% load my_filters %}
+
 {% block content %}
 
 
@@ -7,9 +9,24 @@
 
     {{ duplicate_form }}
 
-    <p>The following sessions will be duplicated for the same day/time in the following week:</p></br>
+    <h4>The following sessions were selected:</h4></br>
 
-    <ul>{{ sessions|unordered_list }}</ul></br>
+    {% for session in sessions %}
+    <ul>
+        <li>{{ session.session_type }}, {{ session.session_date|date:"D d N" }} {{ session.session_date|time:"f a" }}</li>
+   </ul>
+    {% endfor %}
+    </br></br>
+
+
+    <h4>The following sessions will be created:</h4></br>
+
+    {% for session in sessions %}
+
+    <ul>{{ session.session_type }}, {{ session.session_date|one_week_future|date:"D d N"}} {{ session.session_date|time:"f a" }}</ul>
+
+    {% endfor %}
+    </br>
 
 
     <input type="hidden" name="action" value="duplicate_event" />
