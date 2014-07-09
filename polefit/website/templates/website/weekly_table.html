@@ -15,8 +15,24 @@
                     <span class="sidebar_active">All scheduled classes</span>{% else %}All scheduled classes{% endif %}</a></li>
                 <li><a href="{% url 'website:this_week_table' %}">{% if sidebar_section == 'this_week' %}
                     <span class="sidebar_active">This week</span>{% else %}This week{% endif %}</a></li>
+                    <ul class="sidebar-nav-sub">
+                        <li><a href="{% url 'website:this_week_table' %}">{% if sidebar_section == 'this_week' and sidebar_venue_section == 'all' %}
+                        <span class="sidebar_active">All venues</span>{% else %}All venues{% endif %}</a></li>
+                        {% for venue in venues %}
+                        <li><a href="{% url 'website:this_week_table_venue' venue.id %}">{% if sidebar_section == 'this_week' and sidebar_venue_section == venue %}
+                        <span class="sidebar_active">{{ venue.venue }}</span>{% else %} {{venue.venue }}{% endif %}</a></li>
+                        {% endfor %}
+                    </ul>
                 <li><a href="{% url 'website:next_week_table' %}">{% if sidebar_section == 'next_week' %}
                     <span class="sidebar_active">Next week</span>{% else %}Next week{% endif %}</a></li>
+                    <ul class="sidebar-nav-sub">
+                        <li><a href="{% url 'website:next_week_table' %}">{% if sidebar_section == 'next_week' and sidebar_venue_section == 'all' %}
+                        <span class="sidebar_active">All venues</span>{% else %}All venues{% endif %}</a></li>
+                        {% for venue in venues %}
+                        <li><a href="{% url 'website:next_week_table_venue' venue.id %}">{% if sidebar_section == 'next_week' and sidebar_venue_section == venue %}
+                        <span class="sidebar_active">{{ venue.venue }}</span>{% else %} {{venue.venue }}{% endif %}</a></li>
+                        {% endfor %}
+                    </ul>
                     {% for type in tt_session_types %}
                         <li><a href="{% url 'website:sessions_by_type' type.id %}">{% if sidebar_section == type.id %}
                             <span class="sidebar_active">{{ type.name }}</span>{% else %}{{ type.name }}{% endif %}</a></li>
@@ -30,7 +46,8 @@
             <div class="content-header">
                 <h2>
                     <a id="menu-toggle" href="#" class="btn btn-default"><i class="icon-reorder"></i></a>
-                    Timetable for week beginning {{ start|date:"l d F"}}
+                    Timetable for week beginning {{ start|date:"l d F"}}</br>
+                    {% if venue_id == "all" %} All venues {% else %} Venue: {{ venue_id.venue }} {% endif %}
                 </h2>
                 <p>Click on a class for more details.</p>
 

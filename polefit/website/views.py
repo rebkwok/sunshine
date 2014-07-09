@@ -1,5 +1,5 @@
 from django.shortcuts import render, HttpResponse, get_object_or_404
-from timetable.models import Instructor, Session, SessionType, Event
+from timetable.models import Instructor, Session, SessionType, Event, Venue
 from gallery.models import Category, Image
 from polefit.website.models import AboutInfo, PastEvent, Achievement
 from django.utils import timezone
@@ -93,7 +93,7 @@ def timetable(request):
                                                      'sidebar_section':'all'})
 
 
-def weekly_table(request, week):
+def weekly_table(request, week, venue_id):
     now = timezone.now()
     if week == 'this':
         sidebar_section = 'this_week'
@@ -102,13 +102,21 @@ def weekly_table(request, week):
         sidebar_section = 'next_week'
         offset = 7
 
+
+
     start = now.replace(hour=0, minute=0, second=0, microsecond=0) + datetime.timedelta(days=(0 - now.weekday() + offset))
     end = start + datetime.timedelta(days=7)
 
     session_types = SessionType.objects.filter(regular_session=True).order_by('name')
     tt_session_types = SessionType.objects.filter(session__session_type__isnull=False, session__session_date__gte=start).distinct().order_by('name')
+    venues = Venue.objects.filter(session__venue__isnull=False).distinct().order_by('venue')
 
-    session_week = Session.objects.filter(session_date__range=[start, end]).order_by('session_date')
+    if venue_id == "all":
+        session_week = Session.objects.filter(session_date__range=[start, end]).order_by('session_date')
+    else:
+        venue_id = get_object_or_404(Venue, pk=venue_id)
+        session_week = Session.objects.filter(session_date__range=[start, end], venue=venue_id).order_by('session_date')
+
     mon_sessions = [session for session in session_week if session.get_weekday() == 'Mon']
     tues_sessions = [session for session in session_week if session.get_weekday() == 'Tues']
     wed_sessions = [session for session in session_week if session.get_weekday() == 'Wed']
@@ -121,8 +129,11 @@ def weekly_table(request, week):
                                                          'start': start,
                                                          'session_types': session_types,
                                                          'tt_session_types': tt_session_types,
+                                                         'venue_id': venue_id,
+                                                         'venues': venues,
                                                          'section': 'timetable',
-                                                         'sidebar_section':sidebar_section})
+                                                         'sidebar_section': sidebar_section,
+                                                         'sidebar_venue_section': venue_id})
 
 def sessions_by_type(request, session_type_id):
     session_types = SessionType.objects.filter(regular_session=True).order_by('name')
