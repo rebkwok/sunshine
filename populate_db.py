@@ -29,7 +29,7 @@ def create():
                                           'With an old school dance flow and fresh take on new moves, Emma has created her '
                                           'own unique style in pole fitness.\r\n\r\n',
                                      regular_instructor=True)
-    laura = Instructor.objects.create(name='Laura',
+    laura = Instructor.objects.create(name='Laura Gill',
                                      info='Laura joined the Starlet Pole Team in early 2014. After lots of hard work and '
                                           'dedication to the sport and school she is already making her mark in the pole '
                                           'industry.\r\n\r\n'
@@ -44,13 +44,18 @@ def create():
                                           'Team!',
                                      regular_instructor=True)
 
-    guest = Instructor.objects.create(name='Guest instructor',
-                                        info='Pending description',
-                                        regular_instructor=False)
+    sarah = Instructor.objects.create(name='Sarah Ford',
+                                      regular_instructor=False)
+
+    kira_emma = Instructor.objects.create(name='Kira Grant/Emma Junor',
+                                      regular_instructor=False)
+
+    nicole = Instructor.objects.create(name='Nicole Savage',
+                                      regular_instructor=False)
 
     na = Instructor.objects.create(name='N/A',
-                                        info='N/A',
-                                        regular_instructor=False)
+                                      regular_instructor=False)
+
 
 
     dunfermline = Venue.objects.create(venue='Starlet Dance Studio', address='4 Victoria Street, Dunfermline', postcode='KY12 0LW')
@@ -125,7 +130,7 @@ def create():
                                             regular_session=True)
 
 
-    instructors = [kira, emma, laura, siobhan, guest, na]
+    instructors = [kira, emma, laura, siobhan, sarah, kira_emma, nicole, na]
     venues = [dunfermline, cowdenbeath]
     types = [polefit, bouncefit, hoop, zumba, stretch, poletricks, rentahoop, burlesque]
 
@@ -209,8 +214,12 @@ def create_timetable():
     kira = Instructor.objects.filter(name='Kira Grant')[0]
     emma = Instructor.objects.filter(name='Emma Junor')[0]
     siobhan = Instructor.objects.filter(name='Siobhan')[0]
-    laura = Instructor.objects.filter(name='Laura')[0]
+    laura = Instructor.objects.filter(name='Laura Gill')[0]
+    sarah = Instructor.objects.filter(name='Sarah Ford')[0]
+    kira_emma = Instructor.objects.filter(name='Kira Grant/Emma Junor')[0]
+    nicole = Instructor.objects.filter(name='Nicole Savage')[0]
     na = Instructor.objects.filter(name='N/A')[0]
+
 
     dunfermline = Venue.objects.filter(venue='Starlet Dance Studio')[0]
     cowdenbeath = Venue.objects.filter(venue='Cowdenbeath Studio')[0]
@@ -239,25 +248,25 @@ def create_timetable():
     Session.objects.create(session_date=mon.replace(hour=9, minute=00), duration=30,
                            instructor=emma, session_type=bouncefit, venue=dunfermline)
     Session.objects.create(session_date=mon.replace(hour=10, minute=0),
-                           instructor=emma, session_type=polefit, venue=dunfermline)
+                           instructor=kira, session_type=polefit, venue=dunfermline)
     Session.objects.create(session_date=mon.replace(hour=15, minute=45),
-                           instructor=emma, session_type=polefit, venue=dunfermline)
+                           instructor=kira, session_type=polefit, venue=dunfermline)
     Session.objects.create(session_date=mon.replace(hour=16, minute=45),
-                           instructor=emma, session_type=polefit, level='Beginner', venue=dunfermline)
+                           instructor=laura, session_type=polefit, level='Beginner', venue=dunfermline)
     Session.objects.create(session_date=mon.replace(hour=17, minute=0),
-                           instructor=emma, session_type=zumba, venue=dunfermline)
+                           instructor=sarah, session_type=zumba, venue=dunfermline)
     Session.objects.create(session_date=mon.replace(hour=18, minute=0),
-                           instructor=emma, session_type=poletricks, venue=dunfermline)
+                           instructor=kira, session_type=poletricks, venue=dunfermline)
     Session.objects.create(session_date=mon.replace(hour=18, minute=0), duration=30,
                            instructor=emma, session_type=bouncefit, venue=dunfermline)
     Session.objects.create(session_date=mon.replace(hour=18, minute=30), duration=30,
                            instructor=emma, session_type=bouncefit, venue=dunfermline)
     Session.objects.create(session_date=mon.replace(hour=19, minute=0),
-                           instructor=emma, session_type=polefit, venue=dunfermline)
+                           instructor=kira, session_type=polefit, venue=dunfermline)
 
     # Tues
     Session.objects.create(session_date=tues.replace(hour=9, minute=0),
-                           instructor=emma, session_type=polefit, venue=dunfermline)
+                           instructor=kira, session_type=polefit, venue=dunfermline)
     Session.objects.create(session_date=tues.replace(hour=17, minute=30),
                            instructor=emma, session_type=polefit, venue=dunfermline)
     Session.objects.create(session_date=tues.replace(hour=18, minute=30),
@@ -281,9 +290,9 @@ def create_timetable():
 
     # Sat
     Session.objects.create(session_date=sat.replace(hour=15, minute=0),
-                           instructor=na, session_type=burlesque, venue=dunfermline)
+                           instructor=sarah, session_type=burlesque, venue=dunfermline)
     Session.objects.create(session_date=sat.replace(hour=15, minute=0),
-                           instructor=emma, session_type=polefit, venue=dunfermline)
+                           instructor=kira_emma, session_type=polefit, venue=dunfermline)
 
     # Sun
     Session.objects.create(session_date=sun.replace(hour=16, minute=0),
@@ -291,12 +300,12 @@ def create_timetable():
     Session.objects.create(session_date=sun.replace(hour=17, minute=0),
                        instructor=emma, session_type=polefit, venue=dunfermline)
     Session.objects.create(session_date=sun.replace(hour=17, minute=15), duration=45,
-                           instructor=emma, session_type=stretch, venue=dunfermline)
+                           instructor=nicole, session_type=stretch, venue=dunfermline)
     Session.objects.create(session_date=sun.replace(hour=18, minute=0), level="Intermediate/advanced",
-                           instructor=emma, session_type=polefit, venue=dunfermline)
+                           instructor=kira, session_type=polefit, venue=dunfermline)
     Session.objects.create(session_date=sun.replace(hour=18, minute=30), duration=30,
                        instructor=emma, session_type=bouncefit, venue=dunfermline)
     Session.objects.create(session_date=sun.replace(hour=19, minute=00), duration=30,
                        instructor=emma, session_type=bouncefit, venue=dunfermline)
     Session.objects.create(session_date=sun.replace(hour=19, minute=0),
-                           instructor=emma, session_type=polefit, level='Beginner', venue=dunfermline)
+                           instructor=kira, session_type=polefit, level='Beginner', venue=dunfermline)
