@@ -8,18 +8,29 @@ from timetable.models import Session, SessionType, Instructor, Venue, Event
 
 from django.core.urlresolvers import reverse
 
-def create_session(days, type=None):
+def create_session(days, type=None, venue=None):
     """
     Creates a session with session date the given number of
     `days` offset to now (negative for sessions in the past,
     positive for sessions in the future).
     """
-    if type:
+    if type and venue:
+        return Session.objects.create(session_date=timezone.now() + datetime.timedelta(days=days),
+                               session_type=type,
+                               venue=venue,
+                               )
+    elif type:
         test_venue = Venue.objects.create(venue="test venue")
         return Session.objects.create(session_date=timezone.now() + datetime.timedelta(days=days),
                                session_type=type,
                                venue=test_venue,
                                )
+    elif venue:
+        test_session_type = SessionType.objects.create(name="test session type")
+        return Session.objects.create(session_date=timezone.now() + datetime.timedelta(days=days),
+                                   session_type=test_session_type,
+                                   venue=venue,
+                                   )
     else:
         test_session_type = SessionType.objects.create(name="test session type")
         test_venue = Venue.objects.create(venue="test venue")
@@ -34,6 +45,11 @@ def create_session_type(name, regular):
     """
     return SessionType.objects.create(name=name, regular_session=regular)
 
+def create_venue(venue):
+    """
+    Creates a venue with the given name and value of regular_session.
+    """
+    return Venue.objects.create(venue=venue)
 
 class TimetableTests(TestCase):
 
@@ -204,3 +220,22 @@ class WeeklyTableViewTests(TestCase):
 
         response = self.client.get(reverse('website:this_week_table'))
         self.assertQuerysetEqual(response.context['tt_session_types'], ['<SessionType: type2>'])
+
+    def test_weekly_table_venues(self):
+        '''
+        sidebar should display all venues that have an associated session for that time period (this week or next week)
+        '''
+        now = timezone.now()
+        mon_offset = 0 - now.weekday()
+
+        venue1 = create_venue("venue1") # only has a past session
+        venue2 =create_venue("venue2") # has a session in this week, will be displayed for this week but not next
+        venue3 =create_venue("venue3") # has a session next week, will be displayed for next week but not this
+        venue4 =create_venue("venue4") # no associated session
+        create_session(mon_offset-2, venue=venue1)
+        create_session(mon_offset+4, venue=venue2)
+        create_session(mon_offset+8, venue=venue3)
+
+        response = self.client.get(reverse('website:this_week_table'))
+        self.assertQuerysetEqual(response.context['thisweek_venues'], ['<Venue: venue2>'])
+        self.assertQuerysetEqual(response.context['nextweek_venues'], ['<Venue: venue3>'])

@@ -109,7 +109,14 @@ def weekly_table(request, week, venue_id):
 
     session_types = SessionType.objects.filter(regular_session=True).order_by('name')
     tt_session_types = SessionType.objects.filter(session__session_type__isnull=False, session__session_date__gte=start).distinct().order_by('name')
-    venues = Venue.objects.filter(session__venue__isnull=False).distinct().order_by('venue')
+
+    if week == 'this':
+        thisweek_venues = Venue.objects.filter(session__session_date__range=[start, end], session__venue__isnull=False).distinct().order_by('venue')
+        nextweek_venues = Venue.objects.filter(session__session_date__range=[start+ datetime.timedelta(days=7), end+ datetime.timedelta(days=7)], session__venue__isnull=False).distinct().order_by('venue')
+    elif week == 'next':
+        thisweek_venues = Venue.objects.filter(session__session_date__range=[start - datetime.timedelta(days=7), end- datetime.timedelta(days=7)], session__venue__isnull=False).distinct().order_by('venue')
+        nextweek_venues = Venue.objects.filter(session__session_date__range=[start, end], session__venue__isnull=False).distinct().order_by('venue')
+
 
     if venue_id == "all":
         session_week = Session.objects.filter(session_date__range=[start, end]).order_by('session_date')
@@ -130,7 +137,8 @@ def weekly_table(request, week, venue_id):
                                                          'session_types': session_types,
                                                          'tt_session_types': tt_session_types,
                                                          'venue_id': venue_id,
-                                                         'venues': venues,
+                                                         'thisweek_venues': thisweek_venues,
+                                                         'nextweek_venues': nextweek_venues,
                                                          'section': 'timetable',
                                                          'sidebar_section': sidebar_section,
                                                          'sidebar_venue_section': venue_id})

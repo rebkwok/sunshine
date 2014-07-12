@@ -18,7 +18,7 @@
                     <ul class="sidebar-nav-sub">
                         <li><a href="{% url 'website:this_week_table' %}">{% if sidebar_section == 'this_week' and sidebar_venue_section == 'all' %}
                         <span class="sidebar_active">All venues</span>{% else %}All venues{% endif %}</a></li>
-                        {% for venue in venues %}
+                        {% for venue in thisweek_venues %}
                         <li><a href="{% url 'website:this_week_table_venue' venue.id %}">{% if sidebar_section == 'this_week' and sidebar_venue_section == venue %}
                         <span class="sidebar_active">{{ venue.venue }}</span>{% else %} {{venue.venue }}{% endif %}</a></li>
                         {% endfor %}
@@ -28,7 +28,7 @@
                     <ul class="sidebar-nav-sub">
                         <li><a href="{% url 'website:next_week_table' %}">{% if sidebar_section == 'next_week' and sidebar_venue_section == 'all' %}
                         <span class="sidebar_active">All venues</span>{% else %}All venues{% endif %}</a></li>
-                        {% for venue in venues %}
+                        {% for venue in nextweek_venues %}
                         <li><a href="{% url 'website:next_week_table_venue' venue.id %}">{% if sidebar_section == 'next_week' and sidebar_venue_section == venue %}
                         <span class="sidebar_active">{{ venue.venue }}</span>{% else %} {{venue.venue }}{% endif %}</a></li>
                         {% endfor %}

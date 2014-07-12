@@ -33,15 +33,7 @@ class CustomIndexDashboard(Dashboard):
             exclude=('django.contrib.*',),
         ))
 
-        self.children.append(modules.ModelList(
-            _('Events'),
-            collapsible=True,
-            column=2,
-            pre_content=('<h4>Shows, competitions and other events.</h4>'),
-            css_classes=('collapse closed',),
-            models=('timetable.models.Event',),
-            exclude=('django.contrib.*',),
-        ))
+
 
         self.children.append(modules.ModelList(
             _('Session types, Instructors and Venues'),
@@ -57,9 +49,19 @@ class CustomIndexDashboard(Dashboard):
         ))
 
         self.children.append(modules.ModelList(
+            _('Events'),
+            collapsible=True,
+            column=1,
+            pre_content=('<h4>Shows, competitions and other events.</h4>'),
+            css_classes=('collapse closed',),
+            models=('timetable.models.Event',),
+            exclude=('django.contrib.*',),
+        ))
+
+        self.children.append(modules.ModelList(
             _('Gallery'),
             collapsible=True,
-            column=2,
+            column=1,
             pre_content=('<h4>Upload images for the gallery pages.</h4>'),
             css_classes=('collapse closed',),
             models=('gallery.models.Category',),
@@ -69,7 +71,7 @@ class CustomIndexDashboard(Dashboard):
         self.children.append(modules.ModelList(
             _('About page'),
             collapsible=True,
-            column=2,
+            column=1,
             pre_content=('<h4>Add content for the About page, including list of competitions and past achievements.</h4>'),
             css_classes=('collapse closed',),
             models=('polefit.website.models.AboutInfo',
@@ -77,26 +79,19 @@ class CustomIndexDashboard(Dashboard):
             exclude=('django.contrib.*',),
         ))
 
-        self.children.append(modules.AppList(
-            _('Test applist to check all models are included in the real lists above'),
-            pre_content=('<h4>To be deleted later.</h4>'),
-            column=1,
-            collapsible=True,
-            css_classes=('collapse closed',),
-            exclude=('django.contrib.*',),
-        ))
-
-        self.children.append(modules.ModelList(
-            _('User Administration'),
-            column=1,
-            collapsible=False,
-            models=('django.contrib.*',),
-        ))
+       # self.children.append(modules.AppList(
+       #     _('Test applist to check all models are included in the real lists above'),
+       #     pre_content=('<h4>To be deleted later.</h4>'),
+       #     column=1,
+       #     collapsible=True,
+       #     css_classes=('collapse closed',),
+       #     exclude=('django.contrib.*',),
+       # ))
         
         # append another link list module for "support".
         self.children.append(modules.LinkList(
             _('Website links'),
-            column=3,
+            column=2,
             children=[
                 {
                     'title': _('Homepage'),
@@ -111,45 +106,19 @@ class CustomIndexDashboard(Dashboard):
             ]
         ))
 
-        '''
-        # append another link list module for "support".
-        self.children.append(modules.LinkList(
-            _('Support'),
-            column=2,
-            children=[
-                {
-                    'title': _('Django Documentation'),
-                    'url': 'http://docs.djangoproject.com/',
-                    'external': True,
-                },
-                {
-                    'title': _('Grappelli Documentation'),
-                    'url': 'http://packages.python.org/django-grappelli/',
-                    'external': True,
-                },
-                {
-                    'title': _('Grappelli Google-Code'),
-                    'url': 'http://code.google.com/p/django-grappelli/',
-                    'external': True,
-                },
-            ]
-        ))'''
-        
-        # append a feed module
-        '''
-        self.children.append(modules.Feed(
-            _('Latest Django News'),
-            column=2,
-            feed_url='http://www.djangoproject.com/rss/weblog/',
-            limit=5
-        ))'''
+        self.children.append(modules.ModelList(
+            _('User Administration'),
+            column=3,
+            collapsible=False,
+            models=('django.contrib.*',),
+        ))
         
         # append a recent actions module
         self.children.append(modules.RecentActions(
             _('Recent Actions'),
             limit=5,
             collapsible=False,
-            column=3,
+            column=2,
         ))
 
 
