@@ -106,9 +106,19 @@ class CustomIndexDashboard(Dashboard):
                     'url': '/timetable',
                     'external': False,
                 },
+
+            ]
+        ))
+
+        self.children.append(modules.LinkList(
+            _('Admin Help'),
+            pre_content=('<h4>Help pages for adminstration of the site</h4>'),
+            column=3,
+            children=[
+
                 {
                     'title': _('Admin Help'),
-                    'url': 'polefit_admin_help/help',
+                    'url': '/polefit_admin_help/help',
                     'external': False,
                 },
             ]
