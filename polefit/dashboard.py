@@ -108,7 +108,7 @@ class CustomIndexDashboard(Dashboard):
                 },
                 {
                     'title': _('Admin Help'),
-                    'url': '/polefit_admin_help/help',
+                    'url': 'polefit_admin_help/help',
                     'external': False,
                 },
             ]

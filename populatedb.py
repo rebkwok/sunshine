@@ -140,7 +140,7 @@ def create():
     Event.objects.create(name='Annual Starlet Show',
                          event_date=showdate,
                          info='The annual Starlet Show takes place this year on Saturday 26th July at Lourenzos in '
-                              'Dunfermline. Tickets can still be purchased by emailing: ______________________',
+                              'Dunfermline. Tickets can still be purchased by emailing starlet@polefitstarlet.co.uk',
                         venue=lourenzos)
 
     AboutInfo.objects.create(heading="About Starlet Pole Fit",
