@@ -58,23 +58,12 @@ ROOT_URLCONF = 'polefit.urls'
 
 WSGI_APPLICATION = 'polefit.wsgi.application'
 
-
-# Database
-# https://docs.djangoproject.com/en/1.6/ref/settings/#databases
-
 DATABASES = {}
 
-# Internationalization
-# https://docs.djangoproject.com/en/1.6/topics/i18n/
-
 LANGUAGE_CODE = 'en-GB'
-
 TIME_ZONE = 'Europe/London'
-
 USE_I18N = True
-
 USE_L10N = True
-
 USE_TZ = True
 
 
@@ -87,17 +76,12 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 # Allow all host headers
 ALLOWED_HOSTS = ['*']
 
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/1.6/howto/bootstrap-files/
-
 STATIC_URL = '/static/'
-STATIC_ROOT = 'staticfiles'
-TEMPLATE_DIRS = [os.path.join(BASE_DIR, 'templates')]
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
-# NEEDS TO BE MODIFIED FOR DEPLOYMENT!!
-MEDIA_ROOT = '/Users/becky/Projects/polefit/polefit/website/static/website/images/'
 MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
 
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
@@ -111,5 +95,4 @@ TEMPLATE_CONTEXT_PROCESSORS = DEFAULT_SETTINGS.TEMPLATE_CONTEXT_PROCESSORS + (
 )
 
 GRAPPELLI_ADMIN_TITLE = "PoleFit Starlet Administration Page"
-
 GRAPPELLI_INDEX_DASHBOARD = 'polefit.dashboard.CustomIndexDashboard'

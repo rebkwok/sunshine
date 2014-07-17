@@ -1,0 +1,53 @@
+---
+- name: Install git
+  apt: name=git
+
+- name: Create sites directory
+  file: path=/opt/sites state=directory
+
+- name: Check out {{repo}} to {{app_root}}
+  git: repo={{repo}}
+       dest={{app_root}}
+       version=vagrant
+       accept_hostkey=yes
+
+- name: Create static serving directory
+  file: path={{app_root}}/static state=directory
+
+- name: Create media directory
+  file: path={{app_root}}/media state=directory owner=www-data group=www-data
+
+- name: Configure NginX
+  template: dest=/etc/nginx/sites-available/{{site}}.conf src=nginx_site.conf.j2
+  notify: restart nginx
+
+- name: Configure uWSGI
+  template: dest=/etc/uwsgi/{{site}}.ini src=site_uwsgi.ini.j2
+
+- name: Disable default NginX config
+  file: path=/etc/nginx/sites-enabled/default state=absent
+
+- name: Enable {{site}} config
+  file: dest=/etc/nginx/sites-enabled/{{site}}.conf src=/etc/nginx/sites-available/{{site}}.conf state=link
+  notify: restart nginx
+
+- name: ensure {{site}} database is created
+  sudo: true
+  sudo_user: postgres
+  postgresql_db: name={{site}}
+
+- name: ensure {{site}} user has access to {{site}} database
+  sudo: true
+  sudo_user: postgres
+  postgresql_user: db={{site}} name={{site}} password={{dbpassword}} priv=ALL
+
+- name: ensure user does not have unnecessary privilege
+  sudo: true
+  sudo_user: postgres
+  postgresql_user: name={{site}} role_attr_flags=NOSUPERUSER,NOCREATEDB
+
+- name: Create envdir
+  file: path={{app_root}}/envdir state=directory
+
+- name: Add db config to app {{app_root}}/envdir
+  template: dest={{app_root}}/envdir/DATABASE_URL src=envdir/DATABASE_URL.j2

@@ -1,5 +1,10 @@
 *.pyc
 .env
 .idea
+.vagrant
 db.sqlite3
+envdir
+id_rsa*
 images
+media
+static

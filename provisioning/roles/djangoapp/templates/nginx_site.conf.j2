@@ -1,0 +1,32 @@
+# {{site}}_nginx.conf
+
+# the upstream component nginx needs to connect to
+upstream {{site}}_app {
+    server unix:///tmp/site_{{site}}.sock fail_timeout=0s;
+}
+
+# configuration of the server
+server {
+    listen      80;
+    # the domain name it will serve for
+    # server_name .example.com; # substitute your machine's IP address or FQDN
+    charset     utf-8;
+
+    # max upload size
+    client_max_body_size 2M;   # adjust to taste
+
+    # Django media
+    location /media  {
+        alias {{app_root}}/media;
+    }
+
+    location /static {
+        alias {{app_root}}/static;
+    }
+
+    # Finally, send all non-media requests to the Django server.
+    location / {
+        uwsgi_pass  {{site}}_app;
+        include     uwsgi_params;
+    }
+}

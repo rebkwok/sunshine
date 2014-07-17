@@ -1,0 +1,26 @@
+---
+- hosts: all
+  sudo: true
+  gather_facts: no
+
+  pre_tasks:
+  - name: Install deployment key
+    copy: src=../{{item}} dest=/root/.ssh/{{item}} mode=0600
+    with_items:
+    - id_rsa
+    - id_rsa.pub
+
+  roles:
+  - common
+  - nginx
+  - uwsgi
+  - postgresql
+  - {
+      role: djangoapp,
+      site: polefit,
+      app_root: "/opt/sites/{{site}}",
+      dbpassword: mysupersecretpassword,
+      repo: 'git@bitbucket.org:markandbecky/polefit.git'
+  }
+
+

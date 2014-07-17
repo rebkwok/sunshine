@@ -1,0 +1,18 @@
+---
+- name: Install uWSGI Dependencies
+  apt: name={{item}}
+  with_items:
+    - build-essential
+    - python-dev
+
+- name: Install uWSGI
+  pip: name=uwsgi
+
+- name: Create uWSGI config dir
+  file: path=/etc/uwsgi state=directory
+
+- name: Add Upstart script for uWSGI
+  copy: src=uwsgi-emperor.conf dest=/etc/init/uwsgi.conf
+
+- name: Ensure the Emperor is started
+  service: name=uwsgi state=started
