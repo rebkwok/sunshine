@@ -34,7 +34,7 @@ class Instructor(models.Model):
 class SessionType(models.Model):
     name = models.CharField(max_length=255)
     info = models.TextField('session description',  null=True)
-    regular_session = models.BooleanField(default=True,
+    regular_session = models.BooleanField('display session', default=True,
             help_text="Tick this box to list this class type on the homepage and class description pages")
     photo = models.ImageField(upload_to='sessions', null=True, blank=True)
 

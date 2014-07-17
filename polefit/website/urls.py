@@ -19,4 +19,12 @@ urlpatterns = patterns(
     url(r'^this_week/(?P<venue_id>\d+)/$',     'weekly_table', {'week':'this'}, name='this_week_table_venue'),
     url(r'^next_week$',     'weekly_table', {'week':'next', 'venue_id': 'all'}, name='next_week_table'),
     url(r'^next_week/(?P<venue_id>\d+)/$',     'weekly_table', {'week':'next'}, name='next_week_table_venue'),
+    url(r'^polefit_admin_help/help$',           'admin_help_login', name='admin_help_login'),
+    url(r'^polefit_admin_help/help/sessions$',           'admin_help_sessions', name='admin_help_sessions'),
+    url(r'^polefit_admin_help/help/sessiontypes$',           'admin_help_sessiontypes', name='admin_help_sessiontypes'),
+    url(r'^polefit_admin_help/help/instructors$',           'admin_help_instructors', name='admin_help_instructors'),
+    url(r'^polefit_admin_help/help/venues$',           'admin_help_venues', name='admin_help_venues'),
+    url(r'^polefit_admin_help/help/gallery$',           'admin_help_gallery', name='admin_help_gallery'),
+    url(r'^polefit_admin_help/help/about',           'admin_help_about', name='admin_help_about'),
+    url(r'^polefit_admin_help/help/events',           'admin_help_events', name='admin_help_events'),
 )

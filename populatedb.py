@@ -120,7 +120,7 @@ def create():
 
 
     stretch = SessionType.objects.create(name='Flex and Stretch',
-                                         info='Stretching will help improve flexibilty and benefit your progression in'
+                                         info='Stretching will help improve flexibilty and benefit your progression in '
                                             'pole tricks.\r\n\r\n'
                                             'There are many benefits to stretching and learning to do it properly is key. '
                                             'Stretching can help to reduce muscle tension, increase range of movement in '
@@ -159,10 +159,11 @@ def create():
                                 'pole can take you.')
 
 
-    ed14 = PastEvent.objects.create(name='Edinburgh Pole Competition 2014')
-    lou13 = PastEvent.objects.create(name='Lourenzos Competition 2013')
-    mmps13 = PastEvent.objects.create(name='Miss and Mister Pole Scotland 2013')
+
     ed13 = PastEvent.objects.create(name='Edinburgh Pole Competition 2013')
+    mmps13 = PastEvent.objects.create(name='Miss and Mister Pole Scotland 2013')
+    lou13 = PastEvent.objects.create(name='Lourenzos Competition 2013')
+    ed14 = PastEvent.objects.create(name='Edinburgh Pole Competition 2014')
 
     Achievement.objects.create(event=ed13,
                                category='Intermediate solo',

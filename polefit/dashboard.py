@@ -51,7 +51,7 @@ class CustomIndexDashboard(Dashboard):
         self.children.append(modules.ModelList(
             _('Events'),
             collapsible=True,
-            column=1,
+            column=2,
             pre_content=('<h4>Shows, competitions and other events.</h4>'),
             css_classes=('collapse closed',),
             models=('timetable.models.Event',),
@@ -61,17 +61,20 @@ class CustomIndexDashboard(Dashboard):
         self.children.append(modules.ModelList(
             _('Gallery'),
             collapsible=True,
-            column=1,
+            column=2,
             pre_content=('<h4>Upload images for the gallery pages.</h4>'),
             css_classes=('collapse closed',),
-            models=('gallery.models.Category',),
+            models=('gallery.models.Category',
+                    'gallery.models.Image'),
             exclude=('django.contrib.*',),
+            post_content=('<em>Use "Categories" for easier uploading, use "Images" if you need to change the category '
+                          'of an already uploaded image.</em>'),
         ))
 
         self.children.append(modules.ModelList(
             _('About page'),
             collapsible=True,
-            column=1,
+            column=2,
             pre_content=('<h4>Add content for the About page, including list of competitions and past achievements.</h4>'),
             css_classes=('collapse closed',),
             models=('polefit.website.models.AboutInfo',
@@ -91,7 +94,7 @@ class CustomIndexDashboard(Dashboard):
         # append another link list module for "support".
         self.children.append(modules.LinkList(
             _('Website links'),
-            column=2,
+            column=3,
             children=[
                 {
                     'title': _('Homepage'),
@@ -101,6 +104,11 @@ class CustomIndexDashboard(Dashboard):
                 {
                     'title': _('Timetable'),
                     'url': '/timetable',
+                    'external': False,
+                },
+                {
+                    'title': _('Admin Help'),
+                    'url': '/polefit_admin_help/help',
                     'external': False,
                 },
             ]

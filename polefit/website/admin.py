@@ -10,7 +10,7 @@ class AchievementInline(admin.TabularInline):
 class PastEventAdmin(admin.ModelAdmin):
     list_display = ['name']
     inlines = [AchievementInline]
-    ordering = ['id']
+    ordering = ['-id']
 
 class AboutInfoAdmin(admin.ModelAdmin):
     list_display = ['get_id', 'heading', 'subheading', 'content']

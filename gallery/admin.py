@@ -9,7 +9,10 @@ class ImageInline(admin.TabularInline):
 
 class CategoryAdmin(admin.ModelAdmin):
     list_display = ['name']
-
     inlines = [ImageInline]
 
+class ImageAdmin(admin.ModelAdmin):
+    list_display = ['photo', 'category', 'caption']
+
 admin.site.register(Category, CategoryAdmin)
+admin.site.register(Image, ImageAdmin)

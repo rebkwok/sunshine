@@ -153,3 +153,50 @@ def sessions_by_type(request, session_type_id):
                                                     'section': 'timetable',
                                                     'sidebar_section':session_type.id})
 
+def admin_help_login(request):
+    session_types = SessionType.objects.filter(regular_session=True).order_by('name')
+    return render(request, 'website/admin_help/admin_help.html', {'section': 'none',
+                                                    'session_types': session_types,
+                                                    })
+
+def admin_help_sessions(request):
+    session_types = SessionType.objects.filter(regular_session=True).order_by('name')
+    return render(request, 'website/admin_help/admin_help_sessions.html', {'section': 'none',
+                                                    'session_types': session_types,
+                                                    })
+
+def admin_help_sessiontypes(request):
+    session_types = SessionType.objects.filter(regular_session=True).order_by('name')
+    return render(request, 'website/admin_help/admin_help_sessiontypes.html', {'section': 'none',
+                                                    'session_types': session_types,
+                                                    })
+
+def admin_help_instructors(request):
+    session_types = SessionType.objects.filter(regular_session=True).order_by('name')
+    return render(request, 'website/admin_help/admin_help_instructors.html', {'section': 'none',
+                                                    'session_types': session_types,
+                                                    })
+
+def admin_help_venues(request):
+    session_types = SessionType.objects.filter(regular_session=True).order_by('name')
+    return render(request, 'website/admin_help/admin_help_venues.html', {'section': 'none',
+                                                    'session_types': session_types,
+                                                    })
+
+def admin_help_gallery(request):
+    session_types = SessionType.objects.filter(regular_session=True).order_by('name')
+    return render(request, 'website/admin_help/admin_help_gallery.html', {'section': 'none',
+                                                    'session_types': session_types,
+                                                    })
+
+def admin_help_about(request):
+    session_types = SessionType.objects.filter(regular_session=True).order_by('name')
+    return render(request, 'website/admin_help/admin_help_about.html', {'section': 'none',
+                                                    'session_types': session_types,
+                                                    })
+
+def admin_help_events(request):
+    session_types = SessionType.objects.filter(regular_session=True).order_by('name')
+    return render(request, 'website/admin_help/admin_help_events.html', {'section': 'none',
+                                                    'session_types': session_types,
+                                                    })

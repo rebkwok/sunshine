@@ -22,10 +22,12 @@
                         <div class="col-sm-4 event_date">
                             <h4>Date</h4>
                             <p>{{ event.event_date }}</p>
+                            {% if event.venue %}
                             <h4>Venue</h4>
                             <p>{{ event.venue }}</p>
                             <p>{{ event.venue.address }}</p>
                             <p>{{ event.venue.postcode }}</p>
+                            {% endif %}
                         </div>
                     </div>
                     </br></br>
