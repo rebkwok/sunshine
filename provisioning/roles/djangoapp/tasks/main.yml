@@ -11,6 +11,9 @@
        version=vagrant
        accept_hostkey=yes
 
+- name: Install virtualenv
+  pip: virtualenv={{app_root}}/venv requirements={{app_root}}/requirements.txt
+
 - name: Create static serving directory
   file: path={{app_root}}/static state=directory
 
@@ -46,8 +49,11 @@
   sudo_user: postgres
   postgresql_user: name={{site}} role_attr_flags=NOSUPERUSER,NOCREATEDB
 
-- name: Create envdir
+- name: Create {{site}} envdir
   file: path={{app_root}}/envdir state=directory
 
-- name: Add db config to app {{app_root}}/envdir
+- name: Add db config to {{site}} envdir
   template: dest={{app_root}}/envdir/DATABASE_URL src=envdir/DATABASE_URL.j2
+
+- name: Install backup script
+  template: dest=/etc/cron.daily/{{site}}_backup src=site_backup.j2
