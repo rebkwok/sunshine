@@ -11,6 +11,9 @@
        version=vagrant
        accept_hostkey=yes
 
+- name: Install virtualenv
+  pip: virtualenv={{app_root}}/venv requirements={{app_root}}/requirements.txt
+
 - name: Create static serving directory
   file: path={{app_root}}/static state=directory
 
