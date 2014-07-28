@@ -21,9 +21,8 @@
             <div class="col-sm-4 col-sm-offset-1">
                 <p>{{ selected_session.info|linebreaks}}</p>
 
-                <h3>Class times</h3>
-                <p>Monday 6pm<br/>
-                ...</p>
+                <p>Click <a href="{% url 'website:this_week_table' %}">here</a> to view class timetable.</p>
+                <p>Click <a href="{% url 'website:booking' %}">here</a> to book a class.</p>
 
             </div>
             <div class="col-sm-6">
