@@ -43,19 +43,17 @@
 
         <!-- Page content -->
         <div id="page-content-wrapper">
-            <div class="content-header">
+            <!-- Keep all page content within the page-content inset div! -->
+
+            <div class="page-content inset">
+                <div>
                 <h2>
                     <a id="menu-toggle" href="#" class="btn btn-default"><i class="icon-reorder"></i></a>
                     Timetable for week beginning {{ start|date:"l d F"}}</br>
                     {% if venue_id == "all" %} All venues {% else %} Venue: {{ venue_id.venue }} {% endif %}
                 </h2>
                 <p>Click on a class for more details.</p>
-
-            </div>
-            <!-- Keep all page content within the page-content inset div! -->
-
-
-            <div class="page-content inset">
+                </div>
                 <div class="table-responsive">
                     </br>
                     <table class="table">
