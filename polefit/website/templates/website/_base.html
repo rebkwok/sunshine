@@ -50,7 +50,7 @@
                               {% endfor %}
                           </ul>
                         </li>
-                        <li {% if section == 'timetable' %}class="active"{% endif %}><a href="{% url 'website:this_week_table' %}">Timetable</a></li>
+                        <li {% if section == 'timetable' %}class="active"{% endif %}><a href="{% url 'website:fixed_week_table' %}">Timetable</a></li>
                         <li {% if section == 'events' %}class="active"{% endif %}><a href="{% url 'website:events' %}">Events</a></li>
                         <li {% if section == 'instructors' %}class="active"{% endif %}><a href="{% url 'website:instructors' %}">Instructors</a></li>
                         <li class = "hidden-sm" {% if section == 'venues' %}class="active"{% endif %}><a href="{% url 'website:venues' %}">Venues</a></li>

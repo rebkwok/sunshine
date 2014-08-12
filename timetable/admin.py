@@ -5,7 +5,7 @@ from django.template import RequestContext, loader
 from django.shortcuts import render_to_response
 from django.contrib import admin
 from django.contrib.admin import DateFieldListFilter
-from timetable.models import Instructor, Session, SessionType, Venue, Event
+from timetable.models import Instructor, Session, SessionType, Venue, Event, FixedSession
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from django.core.context_processors import csrf
@@ -137,12 +137,26 @@ class SessionAdmin(admin.ModelAdmin):
 
     duplicate_event.short_description = "Duplicate for next week"
 
+class FixedSessionAdmin(admin.ModelAdmin):
+    list_display = ('session_type', 'level', 'instructor', 'show_instructor', 'session_day', 'session_time', 'duration', 'venue',
+                    'bookable', )
+    fieldsets = [
+        ('Session information', {'fields': ['session_type', 'level', 'instructor', 'show_instructor', 'venue', 'spaces']}),
+        ('Date and time',        {'fields': ['session_day', 'session_time', 'duration']}),
+         ]
+    ordering = ['session_day']
+
+    list_filter = ['session_type', 'instructor', 'venue']
+    #change_list_template = "admin/change_list_filter_sidebar.html"
+    #change_list_filter_template = "admin/filter_listing.html"
+
 
 class EventAdmin(admin.ModelAdmin):
     list_display = ('name', 'get_event_weekday', 'event_date', 'end_time')
 
 admin.site.register(Instructor, InstructorAdmin)
 admin.site.register(Session, SessionAdmin)
+admin.site.register(FixedSession, FixedSessionAdmin)
 admin.site.register(SessionType, SessionTypeAdmin)
 admin.site.register(Event, EventAdmin)
 admin.site.register(Venue, VenueAdmin)

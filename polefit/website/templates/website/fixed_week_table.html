@@ -1,0 +1,95 @@
+{% extends "website/_base.html" %}
+
+{% block bg_class %}plain_bg{%  endblock %}
+
+{% block content %}
+
+<div class="container-fluid row fixed-table" >
+
+                <h2>
+                    Timetable{% if venue_id == "all" %}: All venues {% else %}: {{ venue_id.venue }} {% endif %}
+                </h2>
+                <p>Click on a class for more details.</p>
+
+
+    </div>
+<div class="container-fluid row fixed-table" >
+    <p>Show by: <a href="{% url 'website:fixed_week_table' %}">{% if venue_id == 'all' %}
+                        <span class="sidebar_active">All venues</span>{% else %}<span class="sidebar_inactive">All venues</span>{% endif %}</a>
+                {% for venue in venues %}
+                <a href="{% url 'website:fixed_week_table_venue' venue.id %}">{% if venue_id == venue %}|
+                        <span class="sidebar_active">{{ venue.venue }}</span>{% else %}|<span class="sidebar_inactive">{{venue.venue }}</span>{% endif %}</a>
+                {% endfor %}
+    </p>
+</div>
+
+<div class="container-fluid row fixed-table" >
+<div class="table-responsive">
+    </br>
+    <table class="table">
+        <thead>
+            <tr>
+                <th class="timetable-data">Mon</th>
+                <th class="timetable-data">Tues</th>
+                <th class="timetable-data">Wed</th>
+                <th class="timetable-data">Thurs</th>
+                <th class="timetable-data">Fri</th>
+                <th class="timetable-data">Sat</th>
+                <th class="timetable-data"  >Sun</th>
+            </tr>
+        </thead>
+        <tbody>
+
+            <tr>
+                {% for session_week in sessions %}
+
+                <td class="timetable-data">
+                    {% for session in session_week %}
+                                {{ session.session_time|time:"f a" }} <a href="#{{ session.id }}" class={% if session.bookable %}"timetable-data-space"{% else %}"timetable-data-full"{% endif %} data-toggle="modal" data-target="#{{ session.id }}">
+                                                                    {{ session.session_type }}</a>{% if session.level != "All levels" %} ({{ session.level }}){% endif %}
+                                                                    </br></br>
+
+                            <div class="modal fade" id="{{ session.id }}" tabindex="-1" role="dialog" aria-labelledby="ttmodal" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><span class="glyphicon glyphicon-remove"></span></button>
+                                        <h4 class="modal-title" id="myModalLabel">{{ session.session_type }} details</h4>
+                                        </div>
+                                        <div class="modal-body">
+                                            <p>Day: {{ session.get_weekday }}</br>
+                                                Time: {{ session.session_time|time:"f a" }}</br>
+                                                Duration: {{ session.duration }} minutes</br>
+                                                Level: {{ session.level }}</br>
+                                                {% if session.show_instructor and session.instructor %}
+                                                Instructor: {{ session.instructor}}</br>
+                                                {% endif %}
+                                                Venue: {{ session.venue }}, {{ session.venue.address }}, {{ session.venue.postcode }}</br>
+                                                Available to book: {% if session.bookable %}Yes{% else %}No{% endif %}
+                                            </p>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                    </div>
+                                </div>
+                              </div>
+                            </div>
+
+                        {% empty %}
+                            No classes scheduled
+                        {% endfor %}
+
+                </td>
+                {% endfor %}
+            </tr>
+        </tbody>
+    </table>
+
+</div> <!-- table-responsive -->
+</div>
+
+
+
+
+
+{% endblock %}

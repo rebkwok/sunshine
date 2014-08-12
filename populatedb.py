@@ -1,5 +1,5 @@
 
-from timetable.models import Instructor, Venue, SessionType, Session, Event
+from timetable.models import Instructor, Venue, SessionType, Session, Event, FixedSession
 from polefit.website.models import AboutInfo, Achievement, PastEvent
 from django.utils import timezone
 import datetime
@@ -309,4 +309,94 @@ def create_timetable():
     Session.objects.create(session_date=sun.replace(hour=19, minute=00), duration=30,
                        instructor=emma, session_type=bouncefit, venue=dunfermline)
     Session.objects.create(session_date=sun.replace(hour=19, minute=0),
+                           instructor=kira, session_type=polefit, level='Beginner', venue=dunfermline)
+
+
+def create_fixed():
+
+    kira = Instructor.objects.filter(name='Kira Grant')[0]
+    emma = Instructor.objects.filter(name='Emma Junor')[0]
+    siobhan = Instructor.objects.filter(name='Siobhan')[0]
+    laura = Instructor.objects.filter(name='Laura Gill')[0]
+    sarah = Instructor.objects.filter(name='Sarah Ford')[0]
+    kira_emma = Instructor.objects.filter(name='Kira Grant/Emma Junor')[0]
+    nicole = Instructor.objects.filter(name='Nicole Savage')[0]
+    na = Instructor.objects.filter(name='N/A')[0]
+
+
+    dunfermline = Venue.objects.filter(venue='Starlet Dance Studio')[0]
+    cowdenbeath = Venue.objects.filter(venue='Cowdenbeath Studio')[0]
+
+    polefit = SessionType.objects.filter(name='PoleFit')[0]
+    bouncefit = SessionType.objects.filter(name='BounceFit')[0]
+    hoop = SessionType.objects.filter(name='Aerial Hoop')[0]
+    zumba = SessionType.objects.filter(name='Zumba')[0]
+    stretch = SessionType.objects.filter(name='Flex and Stretch')[0]
+    poletricks = SessionType.objects.filter(name='Pole Fitness and Tricks')[0]
+    rentahoop = SessionType.objects.filter(name='Rent a Hoop')[0]
+    burlesque = SessionType.objects.filter(name='Burlesque Dancing')[0]
+
+
+    # Monday
+    FixedSession.objects.create(session_day="01MO", session_time=datetime.time(hour=10, minute=00), duration=30,
+                           instructor=emma, session_type=bouncefit, venue=dunfermline)
+    FixedSession.objects.create(session_day="01MO", session_time=datetime.time(hour=11, minute=0),
+                           instructor=kira, session_type=polefit, venue=dunfermline)
+    FixedSession.objects.create(session_day="01MO", session_time=datetime.time(hour=16, minute=45),
+                           instructor=kira, session_type=polefit, venue=dunfermline)
+    FixedSession.objects.create(session_day="01MO", session_time=datetime.time(hour=17, minute=45),
+                           instructor=laura, session_type=polefit, level='Beginner', venue=dunfermline)
+    FixedSession.objects.create(session_day="01MO", session_time=datetime.time(hour=17, minute=0),
+                           instructor=sarah, session_type=zumba, venue=dunfermline)
+    FixedSession.objects.create(session_day="01MO", session_time=datetime.time(hour=19, minute=0),
+                           instructor=kira, session_type=poletricks, venue=dunfermline)
+    FixedSession.objects.create(session_day="01MO", session_time=datetime.time(hour=19, minute=0), duration=30,
+                           instructor=emma, session_type=bouncefit, venue=dunfermline)
+    FixedSession.objects.create(session_day="01MO", session_time=datetime.time(hour=19, minute=30), duration=30,
+                           instructor=emma, session_type=bouncefit, venue=dunfermline)
+    FixedSession.objects.create(session_day="01MO", session_time=datetime.time(hour=20, minute=0),
+                           instructor=kira, session_type=polefit, venue=dunfermline)
+
+    # Tues
+    FixedSession.objects.create(session_day="02TU", session_time=datetime.time(hour=10, minute=0),
+                           instructor=kira, session_type=polefit, venue=dunfermline)
+    FixedSession.objects.create(session_day="02TU", session_time=datetime.time(hour=18, minute=30),
+                           instructor=emma, session_type=polefit, venue=dunfermline)
+    FixedSession.objects.create(session_day="02TU", session_time=datetime.time(hour=19, minute=30),
+                           instructor=emma, session_type=polefit, venue=dunfermline)
+    FixedSession.objects.create(session_day="02TU", session_time=datetime.time(hour=20, minute=30),
+                            instructor=emma, session_type=polefit, venue=dunfermline)
+
+
+    # Wed
+    FixedSession.objects.create(session_day="03WE", session_time=datetime.time(hour=18, minute=0),
+                           instructor=kira, session_type=polefit, venue=cowdenbeath)
+    FixedSession.objects.create(session_day="03WE", session_time=datetime.time(hour=19, minute=0),
+                            instructor=na, session_type=rentahoop, venue=cowdenbeath)
+    FixedSession.objects.create(session_day="03W", session_time=datetime.time(hour=19, minute=0),
+                           instructor=kira, session_type=polefit, venue=cowdenbeath)
+    FixedSession.objects.create(session_day="03WE", session_time=datetime.time(hour=20, minute=0),
+                           instructor=emma, session_type=polefit, venue=cowdenbeath)
+    FixedSession.objects.create(session_day="03WE", session_time=datetime.time(hour=20, minute=0),
+                           instructor=kira, session_type=hoop, venue=cowdenbeath)
+
+
+    # Sat
+    FixedSession.objects.create(session_day="06SA", session_time=datetime.time(hour=16, minute=0),
+                           instructor=sarah, session_type=burlesque, venue=dunfermline)
+    FixedSession.objects.create(session_day="06SA", session_time=datetime.time(hour=16, minute=0),
+                           instructor=kira_emma, session_type=polefit, venue=dunfermline)
+
+    # Sun
+    FixedSession.objects.create(session_day="07SU", session_time=datetime.time(hour=17, minute=0),
+                           instructor=emma, session_type=polefit, venue=dunfermline)
+    FixedSession.objects.create(session_day="07SU", session_time=datetime.time(hour=18, minute=0),
+                       instructor=emma, session_type=polefit, venue=dunfermline)
+    FixedSession.objects.create(session_day="07SU", session_time=datetime.time(hour=19, minute=0), level="Intermediate/advanced",
+                           instructor=kira, session_type=polefit, venue=dunfermline)
+    FixedSession.objects.create(session_day="07SU", session_time=datetime.time(hour=19, minute=30), duration=30,
+                       instructor=emma, session_type=bouncefit, venue=dunfermline)
+    FixedSession.objects.create(session_day="07SU", session_time=datetime.time(hour=20, minute=00), duration=30,
+                       instructor=emma, session_type=bouncefit, venue=dunfermline)
+    FixedSession.objects.create(session_day="07SU", session_time=datetime.time(hour=20, minute=0),
                            instructor=kira, session_type=polefit, level='Beginner', venue=dunfermline)
