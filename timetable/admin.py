@@ -144,7 +144,7 @@ class FixedSessionAdmin(admin.ModelAdmin):
         ('Session information', {'fields': ['session_type', 'level', 'instructor', 'show_instructor', 'venue', 'spaces']}),
         ('Date and time',        {'fields': ['session_day', 'session_time', 'duration']}),
          ]
-    ordering = ['session_day']
+    ordering = ['session_day', 'session_time']
 
     list_filter = ['session_type', 'instructor', 'venue']
     #change_list_template = "admin/change_list_filter_sidebar.html"
