@@ -338,7 +338,7 @@ def create_fixed():
 
 
     # Monday
-    FixedSession.objects.create(session_day="01MO", session_time=datetime.time(hour=10, minute=00), duration=30,
+    FixedSession.objects.create(session_day="01MO", session_time=datetime.time(hour=10, minute=30), duration=30,
                            instructor=emma, session_type=bouncefit, venue=dunfermline)
     FixedSession.objects.create(session_day="01MO", session_time=datetime.time(hour=11, minute=0),
                            instructor=kira, session_type=polefit, venue=dunfermline)
@@ -346,13 +346,11 @@ def create_fixed():
                            instructor=kira, session_type=polefit, venue=dunfermline)
     FixedSession.objects.create(session_day="01MO", session_time=datetime.time(hour=17, minute=45),
                            instructor=laura, session_type=polefit, level='Beginner', venue=dunfermline)
-    FixedSession.objects.create(session_day="01MO", session_time=datetime.time(hour=17, minute=0),
+    FixedSession.objects.create(session_day="01MO", session_time=datetime.time(hour=18, minute=0),
                            instructor=sarah, session_type=zumba, venue=dunfermline)
     FixedSession.objects.create(session_day="01MO", session_time=datetime.time(hour=19, minute=0),
                            instructor=kira, session_type=poletricks, venue=dunfermline)
     FixedSession.objects.create(session_day="01MO", session_time=datetime.time(hour=19, minute=0), duration=30,
-                           instructor=emma, session_type=bouncefit, venue=dunfermline)
-    FixedSession.objects.create(session_day="01MO", session_time=datetime.time(hour=19, minute=30), duration=30,
                            instructor=emma, session_type=bouncefit, venue=dunfermline)
     FixedSession.objects.create(session_day="01MO", session_time=datetime.time(hour=20, minute=0),
                            instructor=kira, session_type=polefit, venue=dunfermline)

@@ -18,7 +18,7 @@
                         <span class="sidebar_active">All venues</span>{% else %}<span class="sidebar_inactive">All venues</span>{% endif %}</a>
                 {% for venue in venues %}
                 <a href="{% url 'website:fixed_week_table_venue' venue.id %}">{% if venue_id == venue %}|
-                        <span class="sidebar_active">{{ venue.venue }}</span>{% else %}|<span class="sidebar_inactive">{{venue.venue }}</span>{% endif %}</a>
+                        <span class="sidebar_active">{{ venue.venue }}</span>{% else %} | <span class="sidebar_inactive">{{venue.venue }}</span>{% endif %}</a>
                 {% endfor %}
     </p>
 </div>
