@@ -371,7 +371,7 @@ def create_fixed():
                            instructor=kira, session_type=polefit, venue=cowdenbeath)
     FixedSession.objects.create(session_day="03WE", session_time=datetime.time(hour=19, minute=0),
                             instructor=na, session_type=rentahoop, venue=cowdenbeath)
-    FixedSession.objects.create(session_day="03W", session_time=datetime.time(hour=19, minute=0),
+    FixedSession.objects.create(session_day="03WE", session_time=datetime.time(hour=19, minute=0),
                            instructor=kira, session_type=polefit, venue=cowdenbeath)
     FixedSession.objects.create(session_day="03WE", session_time=datetime.time(hour=20, minute=0),
                            instructor=emma, session_type=polefit, venue=cowdenbeath)
