@@ -12,15 +12,22 @@ Create a file in the top-level directory (the one containing this README file) c
     SECRET_KEY=put-something-random-here-not-important-for-dev
     DEBUG=true
 
-## Deploying to Heroku
+## Deploying to EC2
 
-This site is deployed as polefit.heroku.com.  Unfortunately, organisation
-accounts cost money, so to deploy to Heroku, you will need the correct private
-ssh key and ssh configuration to use it for heroku.com.  If you want Mark to
-send it to you, you will need a Keybase account.
+On a new server, the following will be required:
 
-Once you have this stuff, you can deploy to heroku by running:
+create `/opt/sites/<site>/envdir/SECRET_KEY`
 
-    git push heroku master
+run
+    
+    source venv/bin/activate
+    envdir envdir ./manage.py syncdb
+    envdir envdir ./manage.py collectstatic
+    # ... and any other manage commands you need
+    touch /etc/uwsgi/<site>.ini
 
-... but you'll probably need to do some other stuff with Heroku first.
+## To Do
+
+* Add hostname filtering to nginx config
+* Add `SECRET_KEY` for each site to the vault
+* Configure logging in some way for uwsgi
