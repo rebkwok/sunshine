@@ -22,5 +22,11 @@
       dbpassword: mysupersecretpassword,
       repo: 'git@bitbucket.org:markandbecky/polefit.git'
   }
-
+  - {
+      role: djangoapp,
+      site: pipsevents,
+      app_root: "/opt/sites/{{site}}",
+      dbpassword: anothersupersecretpassword,
+      repo: 'https://github.com/rebkwok/pipsevents.git'
+  }
 
