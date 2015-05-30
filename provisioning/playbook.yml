@@ -3,6 +3,9 @@
   sudo: true
   gather_facts: no
 
+  vars_files:
+  - vault.yml
+
   pre_tasks:
   - name: Install deployment key
     copy: src=../{{item}} dest=/root/.ssh/{{item}} mode=0600
@@ -19,7 +22,7 @@
       role: djangoapp,
       site: polefit,
       app_root: "/opt/sites/{{site}}",
-      dbpassword: mysupersecretpassword,
+      dbpassword: "{{ polefit_db_password }}",
       repo: 'git@bitbucket.org:markandbecky/polefit.git'
   }
   - {
