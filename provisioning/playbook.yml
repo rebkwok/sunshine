@@ -21,6 +21,7 @@
   - {
       role: djangoapp,
       site: polefit,
+      server_name: ".polefitstarlet.co.uk",
       app_root: "/opt/sites/{{site}}",
       dbpassword: "{{ polefit_db_password }}",
       secret_key: "{{ polefit_secret_key }}",
@@ -29,6 +30,7 @@
   - {
       role: djangoapp,
       site: pipsevents,
+      server_name: ".pipsevents.co.uk",
       app_root: "/opt/sites/{{site}}",
       dbpassword: "{{ pipsevents_db_password }}",
       secret_key: "{{ pipsevents_secret_key }}",
