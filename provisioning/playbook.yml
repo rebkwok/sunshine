@@ -23,13 +23,15 @@
       site: polefit,
       app_root: "/opt/sites/{{site}}",
       dbpassword: "{{ polefit_db_password }}",
-      repo: 'git@bitbucket.org:markandbecky/polefit.git'
+      secret_key: "{{ polefit_secret_key }}",
+      repo: 'git@bitbucket.org:markandbecky/polefit.git',
   }
   - {
       role: djangoapp,
       site: pipsevents,
       app_root: "/opt/sites/{{site}}",
-      dbpassword: anothersupersecretpassword,
-      repo: 'https://github.com/rebkwok/pipsevents.git'
+      dbpassword: "{{ pipsevents_db_password }}",
+      secret_key: "{{ pipsevents_secret_key }}",
+      repo: "https://github.com/rebkwok/pipsevents.git",
   }
 

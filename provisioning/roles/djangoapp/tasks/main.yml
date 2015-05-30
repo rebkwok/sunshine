@@ -10,6 +10,7 @@
        dest={{app_root}}
        version=vagrant
        accept_hostkey=yes
+       update=no
 
 - name: Install virtualenv
   pip: virtualenv={{app_root}}/venv requirements={{app_root}}/requirements.txt
@@ -54,6 +55,9 @@
 
 - name: Add db config to {{site}} envdir
   template: dest={{app_root}}/envdir/DATABASE_URL src=envdir/DATABASE_URL.j2
+
+- name: Add secret key to {{site}} envdir
+  copy: dest={{app_root}}/envdir/SECRET_KEY content={{ secret_key }}
 
 - name: Install backup script
   template: dest=/etc/cron.daily/{{site}}_backup src=site_backup.j2

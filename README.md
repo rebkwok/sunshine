@@ -29,5 +29,4 @@ run
 ## To Do
 
 * Add hostname filtering to nginx config
-* Add `SECRET_KEY` for each site to the vault
 * Configure logging in some way for uwsgi
