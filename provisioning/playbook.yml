@@ -34,6 +34,7 @@
       app_root: "/opt/sites/{{site}}",
       dbpassword: "{{ pipsevents_db_password }}",
       secret_key: "{{ pipsevents_secret_key }}",
-      repo: "https://github.com/rebkwok/pipsevents.git",
+      repo: "git@github.com:rebkwok/pipsevents.git",
+      uwsgi_plugin: "python3",
+      python: "/usr/bin/python3",
   }
-

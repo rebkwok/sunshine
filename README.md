@@ -19,7 +19,7 @@ On a new server, the following will be required:
 create `/opt/sites/<site>/envdir/SECRET_KEY`
 
 run
-    
+
     source venv/bin/activate
     envdir envdir ./manage.py syncdb
     envdir envdir ./manage.py collectstatic
@@ -28,5 +28,6 @@ run
 
 ## To Do
 
-* Add hostname filtering to nginx config
 * Configure logging in some way for uwsgi
+* Move the ssh keys into the vault.
+* Configure uwsgi to run in emperor mode.

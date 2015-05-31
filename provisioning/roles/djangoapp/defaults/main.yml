@@ -1,0 +1,3 @@
+---
+uwsgi_plugin: python
+python: /usr/bin/python

@@ -2,14 +2,14 @@
 
 # the upstream component nginx needs to connect to
 upstream {{site}}_app {
-    server unix:///tmp/site_{{site}}.sock fail_timeout=0s;
+    server unix:///var/run/uwsgi/app/{{site}}/socket fail_timeout=0s;
 }
 
 # configuration of the server
 server {
     listen      80;
+    
     # the domain name it will serve for
-    # server_name .example.com; # substitute your machine's IP address or FQDN
     server_name {{server_name}};
     charset     utf-8;
 
@@ -22,7 +22,7 @@ server {
     }
 
     location /static {
-        alias {{app_root}}/static;
+        alias {{app_root}}/collected-static;
     }
 
     # Finally, send all non-media requests to the Django server.
