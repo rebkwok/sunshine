@@ -31,3 +31,4 @@ run
 * Configure logging in some way for uwsgi
 * Move the ssh keys into the vault.
 * Configure uwsgi to run in emperor mode.
+* Modify manage.py so that it automatically loads in envdir

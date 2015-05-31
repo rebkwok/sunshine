@@ -20,6 +20,9 @@
   pip: virtualenv={{app_root}}/venv
        requirements="{{app_root}}/requirements.txt"
 
+- name: Install envdir
+  pip: virtualenv={{app_root}}/venv name=envdir
+
 - name: Create static serving directory
   file: path={{app_root}}/collected-static state=directory
 
@@ -73,5 +76,19 @@
 - name: Add secret key to {{site}} envdir
   copy: dest={{app_root}}/envdir/SECRET_KEY content={{ secret_key }}
 
+- name: Check for install script
+  shell: ls {{app_root}}/install
+  ignore_errors: true
+  register: install_exists
+
+- name: Run site installation script
+  command: ./venv/bin/envdir envdir ./install
+  args:
+    chdir: "{{app_root}}"
+  when: install_exists|success
+
 - name: Install backup script
   template: dest=/etc/cron.daily/{{site}}_backup src=site_backup.j2
+
+- name: Start uWSGI
+  service: name=uwsgi state=started
