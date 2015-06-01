@@ -89,6 +89,7 @@
 
 - name: Install backup script
   template: dest=/etc/cron.daily/{{site}}_backup src=site_backup.j2
+            mode="u=rwx,g=rx,o=rx"
 
 - name: Start uWSGI
   service: name=uwsgi state=restarted

@@ -41,5 +41,11 @@
   - pip
   - pip3
 
+- name: Remove apt-installed AWS CLI
+  apt: name=awscli state=absent
+
+- name: Install AWS CLI
+  pip: name=awscli state=present
+
 - name: Install VirtualEnv
   pip: name=virtualenv
