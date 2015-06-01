@@ -30,7 +30,7 @@
   - {
       role: djangoapp,
       site: pipsevents,
-      server_name: ".pipsevents.co.uk",
+      server_name: "booking.ninjarocksar.guru booking.thewatermelonstudio.co.uk",
       app_root: "/opt/sites/{{site}}",
       dbpassword: "{{ pipsevents_db_password }}",
       secret_key: "{{ pipsevents_secret_key }}",
