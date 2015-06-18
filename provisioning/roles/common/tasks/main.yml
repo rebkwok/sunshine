@@ -49,6 +49,3 @@
 
 - name: Install VirtualEnv
   pip: name=virtualenv
-
-- name: Create log folders
-  file: path={{ log_path }} state=directory mode=750 owner=www-data group=adm

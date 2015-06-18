@@ -29,19 +29,8 @@ A Vagrantfile is provided that will provision a Vagrant VM as a production-like 
 
 On a new server, the following will be required:
 
-create `/opt/sites/<site>/envdir/SECRET_KEY`
-
-run
-
-    source venv/bin/activate
-    envdir envdir ./manage.py syncdb
-    envdir envdir ./manage.py collectstatic
-    # ... and any other manage commands you need
-    touch /etc/uwsgi/<site>.ini
-
 ## To Do
 
 * Configure logging in some way for uwsgi
-* Move the ssh keys into the vault.
 * Configure uwsgi to run in emperor mode.
 * Modify manage.py so that it automatically loads in envdir

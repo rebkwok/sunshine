@@ -1,10 +1,31 @@
 ---
+
+# Git Prerequisites -----------------------------------------------------------
 - name: Install git
   apt: name=git
+
+- name: Install deployment key
+  template: src={{item}}.j2 dest=/root/.ssh/{{item}} mode=0600
+  with_items:
+  - id_rsa
+  - id_rsa.pub
+
+
+# Create app directories ------------------------------------------------------
+- name: Create static serving directory
+  file: path={{app_root}}/collected-static state=directory
+
+- name: Create media directory
+  file: path={{app_root}}/media state=directory owner=www-data group=www-data
 
 - name: Create sites directory
   file: path=/opt/sites state=directory
 
+- name: Create log folders
+  file: path={{ log_path }} state=directory mode=750 owner=www-data group=adm
+
+
+# Install App -----------------------------------------------------------------
 - name: Check out {{repo}} to {{app_root}}
   git: repo={{repo}}
        dest={{app_root}}
@@ -23,16 +44,8 @@
 - name: Install envdir
   pip: virtualenv={{app_root}}/venv name=envdir
 
-- name: Create static serving directory
-  file: path={{app_root}}/collected-static state=directory
 
-- name: Create media directory
-  file: path={{app_root}}/media state=directory owner=www-data group=www-data
-
-- name: Configure NginX
-  template: dest=/etc/nginx/sites-available/{{site}}.conf src=nginx_site.conf.j2
-  notify: restart nginx
-
+# uWSGI Configuration ---------------------------------------------------------
 - name: Configure uWSGI
   template: dest=/etc/uwsgi/apps-available/{{site}}.ini src=site_uwsgi.ini.j2
 
@@ -45,13 +58,23 @@
         state=link
         force=yes
 
+
+# NginX Configuration ---------------------------------------------------------
+- name: Configure NginX
+  template: dest=/etc/nginx/sites-available/{{site}}.conf src=nginx_site.conf.j2
+  notify: restart nginx
+
 - name: Disable default NginX config
   file: path=/etc/nginx/sites-enabled/default state=absent
 
 - name: Enable {{site}} config
-  file: dest=/etc/nginx/sites-enabled/{{site}}.conf src=/etc/nginx/sites-available/{{site}}.conf state=link
+  file: dest=/etc/nginx/sites-enabled/{{site}}.conf
+        src=/etc/nginx/sites-available/{{site}}.conf
+        state=link
   notify: restart nginx
 
+
+# Configure database ----------------------------------------------------------
 - name: ensure {{site}} database is created
   sudo: true
   sudo_user: postgres
@@ -67,6 +90,8 @@
   sudo_user: postgres
   postgresql_user: name={{site}} role_attr_flags=NOSUPERUSER,NOCREATEDB
 
+
+# Configure environment vars --------------------------------------------------
 - name: Create {{site}} envdir
   file: path={{app_root}}/envdir state=directory
 
@@ -76,6 +101,8 @@
 - name: Add secret key to {{site}} envdir
   copy: dest={{app_root}}/envdir/SECRET_KEY content={{ secret_key }}
 
+
+# Install app -----------------------------------------------------------------
 - name: Check for install script
   shell: ls {{app_root}}/install
   ignore_errors: true
@@ -91,5 +118,7 @@
   template: dest=/etc/cron.daily/{{site}}_backup src=site_backup.j2
             mode="u=rwx,g=rx,o=rx"
 
+
+# Restart uWSGI ---------------------------------------------------------------
 - name: Start uWSGI
   service: name=uwsgi state=restarted

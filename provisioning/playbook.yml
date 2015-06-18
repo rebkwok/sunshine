@@ -6,13 +6,6 @@
   vars_files:
   - vault.yml
 
-  pre_tasks:
-  - name: Install deployment key
-    copy: src=../{{item}} dest=/root/.ssh/{{item}} mode=0600
-    with_items:
-    - id_rsa
-    - id_rsa.pub
-
   roles:
   - common
   - nginx
