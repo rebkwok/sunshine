@@ -17,7 +17,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       "siteserver" => ["default"],
     }
     ansible.playbook = "provisioning/playbook.yml"
-    ansible.ask_vault_pass = true
+    #ansible.ask_vault_pass = true
     #ansible.verbose='vvvv'
   end
 

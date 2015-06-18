@@ -12,7 +12,20 @@ Create a file in the top-level directory (the one containing this README file) c
     SECRET_KEY=put-something-random-here-not-important-for-dev
     DEBUG=true
 
+# Deployment
+
+Ansible deployment for this (and other sites) is configured in this repository (and should probably be extracted).
+
+## Testing deployment
+
+A Vagrantfile is provided that will provision a Vagrant VM as a production-like machine.
+
+* Create a file called `.vaultpass` containing the ansible-vault file's password.
+* Run `vagrant up` (or `vagrant provision`)
+
 ## Deploying to EC2
+
+**Always test with Vagrant before running against EC2.**
 
 On a new server, the following will be required:
 

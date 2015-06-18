@@ -3,6 +3,7 @@
 .env
 .idea
 .vagrant
+.vaultpass
 collected-static
 db.sqlite3
 envdir
