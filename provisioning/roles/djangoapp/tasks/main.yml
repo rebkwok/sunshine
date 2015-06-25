@@ -101,6 +101,8 @@
 - name: Add secret key to {{site}} envdir
   copy: dest={{app_root}}/envdir/SECRET_KEY content={{ secret_key }}
 
+- name: Add logging directory to {{site}} envdir
+  copy: dest={{app_root}}/envdir/LOG_FOLDER content={{log_path}}
 
 # Install app -----------------------------------------------------------------
 - name: Check for install script
