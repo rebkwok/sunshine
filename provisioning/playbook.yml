@@ -31,3 +31,4 @@
       uwsgi_plugin: "python3",
       python: "/usr/bin/python3",
   }
+  - pipsevents_extras
