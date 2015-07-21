@@ -1,7 +1,7 @@
 from django.conf.urls import patterns, url
 
 urlpatterns = patterns(
-    'polefit.website.views',
+    'website.views',
     url(r'^$',                  'index', name='index'),
     url(r'^about$',             'about', name='about'),
     url(r'^(?P<session_type_id>\d+)/classes/$', 'classes', name='classes'),

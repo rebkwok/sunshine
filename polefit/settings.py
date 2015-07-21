@@ -41,7 +41,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'bootstrap3',
     'timetable',
-    'polefit.website',
+    'website',
     'gallery',
 )
 

@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from polefit.website.models import AboutInfo, PastEvent, Achievement
+from website.models import AboutInfo, PastEvent, Achievement
 
 
 class AchievementInline(admin.TabularInline):

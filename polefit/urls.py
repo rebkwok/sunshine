@@ -8,7 +8,7 @@ admin.autodiscover()
 
 
 urlpatterns = patterns('',
-    url(r'',            include('polefit.website.urls', namespace='website')),
+    url(r'',            include('website.urls', namespace='website')),
     (r'^grappelli/', include('grappelli.urls')), # grappelli URLS
     url(r'^pf_admin/',     include(admin.site.urls)),
     url(r'^timetable/', include('timetable.urls', namespace='timetable')),

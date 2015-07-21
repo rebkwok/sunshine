@@ -160,4 +160,3 @@ admin.site.register(FixedSession, FixedSessionAdmin)
 admin.site.register(SessionType, SessionTypeAdmin)
 admin.site.register(Event, EventAdmin)
 admin.site.register(Venue, VenueAdmin)
-

@@ -1,7 +1,7 @@
 from django.shortcuts import render, HttpResponse, get_object_or_404
 from timetable.models import Instructor, Session, SessionType, Event, Venue, FixedSession
 from gallery.models import Category, Image
-from polefit.website.models import AboutInfo, PastEvent, Achievement
+from website.models import AboutInfo, PastEvent, Achievement
 from django.utils import timezone
 import datetime
 

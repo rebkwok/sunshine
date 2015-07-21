@@ -31,6 +31,3 @@ class Achievement(models.Model):
     def __unicode__(self):
         achievement_str = str(self.event) + ", " + str(self.category)
         return achievement_str
-
-
-
