@@ -10,6 +10,10 @@
     - ipython
     - django-extensions
 
+- name: Set secret key
+  sudo: yes
+  shell: export SECRET_KEY={{ secret_key }} virtualenv={{ virtualenv_path }}
+
 - name: Django db
   django_manage: command={{ item }} app_path={{ project_root_path }} virtualenv={{ virtualenv_path }}
   with_items:
