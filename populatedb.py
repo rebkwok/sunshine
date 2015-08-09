@@ -1,6 +1,6 @@
 
 from timetable.models import Instructor, Venue, SessionType, Session, Event, FixedSession
-from polefit.website.models import AboutInfo, Achievement, PastEvent
+from website.models import AboutInfo, Achievement, PastEvent
 from django.utils import timezone
 import datetime
 import random
@@ -136,7 +136,7 @@ def create():
 
 
     tz = timezone.get_current_timezone()
-    showdate = datetime.datetime(2014, 07, 26, 17, 0, tzinfo=tz)
+    showdate = datetime.datetime(2014, 7, 26, 17, 0, tzinfo=tz)
     Event.objects.create(name='Annual Starlet Show',
                          event_date=showdate,
                          info='The annual Starlet Show takes place this year on Saturday 26th July at Lourenzos in '

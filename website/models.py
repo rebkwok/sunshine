@@ -8,7 +8,7 @@ class AboutInfo(models.Model):
     class Meta:
         verbose_name_plural = 'About page information'
 
-    def __unicode__(self):
+    def __str__(self):
         return "About page section " + str(self.id)
 
     def get_id(self):
@@ -18,7 +18,7 @@ class AboutInfo(models.Model):
 
 class PastEvent(models.Model):
     name = models.CharField('Past Competition/Show/Event', max_length=255)
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
 
@@ -28,6 +28,6 @@ class Achievement(models.Model):
     placing = models.CharField('Placing or other achievement', max_length=255, null=True, blank=True)
     display = models.BooleanField('Display this entry on the About page', default=True)
 
-    def __unicode__(self):
+    def __str__(self):
         achievement_str = str(self.event) + ", " + str(self.category)
         return achievement_str

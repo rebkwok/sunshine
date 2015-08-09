@@ -10,5 +10,4 @@ envdir
 id_rsa*
 images
 inventory.ini
-media
-static
+venv

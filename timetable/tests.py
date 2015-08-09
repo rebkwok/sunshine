@@ -83,7 +83,7 @@ class TimetableTests(TestCase):
         get_weekday should return the correct weekday as a string: 'Mon', 'Tues', 'Wed', 'Thurs', 'Fri', 'Sat', 'Sun'
         """
         tz = timezone.get_current_timezone()
-        wed_date = datetime.datetime(2014, 06, 18, 12, 0, tzinfo=tz)
+        wed_date = datetime.datetime(2014, 6, 18, 12, 0, tzinfo=tz)
         wednesday_session = create_session(1)
         wednesday_session.session_date = wed_date
         self.assertEqual(wednesday_session.get_weekday(), 'Wed')
@@ -121,18 +121,18 @@ class TimetableViewTests(TestCase):
         """
         If future sessions exist, future sessions should be displayed.
         """
-        create_session(4)
+        future = create_session(4)
         response = self.client.get(reverse('website:timetable'))
-        self.assertEqual([session.pk for session in response.context['timetable_items']], [1])
+        self.assertEqual([session.pk for session in response.context['timetable_items']], [future.id])
 
     def test_timetable_view_with_past_and_future_sessions(self):
         """
         If past and future sessions exist, only future sessions should be displayed.
         """
-        create_session(2)
-        create_session(-2)
+        future = create_session(2)
+        past = create_session(-2)
         response = self.client.get(reverse('website:timetable'))
-        self.assertEqual([session.pk for session in response.context['timetable_items']], [1])
+        self.assertEqual([session.pk for session in response.context['timetable_items']], [future.id])
 
     def test_timetable_session_type_list_for_navbar(self):
         """

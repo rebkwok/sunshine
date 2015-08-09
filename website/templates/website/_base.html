@@ -42,14 +42,7 @@
                 <div class="navbar-collapse collapse">
                     <ul class="nav navbar-nav pull-left">
                         <li {% if section == 'about' %}class="active"{% endif %}><a href="{% url 'website:about' %}">About us</a></li>
-                        <li class="dropdown {% if dd_section == 'class_dd' %}active{% endif %}">
-                          <a href="#" class="dropdown-toggle" data-toggle="dropdown">Classes <b class="caret"></b></a>
-                          <ul class="dropdown-menu">
-                              {% for type in session_types %}
-                            <li><a href="{% url 'website:classes' type.id %}">{{ type.name }}</a></li>
-                              {% endfor %}
-                          </ul>
-                        </li>
+                        <li {% if section == 'classes' %}class="active"{% endif %}><a href="{% url 'website:classes' %}">Classes</a></li>
                         <li {% if section == 'timetable' %}class="active"{% endif %}><a href="{% url 'website:fixed_week_table' %}">Timetable</a></li>
                         <li {% if section == 'events' %}class="active"{% endif %}><a href="{% url 'website:events' %}">Events</a></li>
                         <li {% if section == 'instructors' %}class="active"{% endif %}><a href="{% url 'website:instructors' %}">Instructors</a></li>
@@ -71,21 +64,41 @@
             </div>
         </div>
 
-		{% block content %}
-
-        <div class="container-fluid">
-            <p>You need to define a content block!</p>
-        </div>
-
-		{% endblock %}
-
-
+        {% block content %}
+        <p>You need to define a content block!</p>
+        {% endblock %}
 
 <!--/.footer -->
-        <div class="push"></div>
+    <div class="push">
+    </div>
     </div> <!--/end of page .wrap -->
 
     <div class="footer">
+        <!-- <div class="container-fluid">
+               <div class="row">
+                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
+                    <h3>About us</h3>
+                    <p>See more <a href="{% url 'website:about' %}">here</a>. </p>
+                    <p>Find us on <a href="https://www.facebook.com/polefitstarlet.dunfermline" target="_blank">Facebook</a>. </p>
+                </div>
+                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
+                    <div class="list-group list-group-index">
+                    <h3><a href="{% url 'website:classes' %}">Classes</a></h3>
+                        {% for type in session_types %}
+                        {% if type.regular_session %}
+                            <div class="list-group-item list-group-index">{{ type.name }}</div>
+                        {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
+                    <h3>Booking</h3>
+                    <p>Click <a href="{% url 'website:booking' %}">here</a> to book a class.</p>
+                </div>
+            </div> -->
+            <!-- /.row -->
+            <span class="divider"></span>
+
         <div class="container-fluid">
             <div class="row footer_box">
                 <div class="col-sm-6 footer-fb pull-left">

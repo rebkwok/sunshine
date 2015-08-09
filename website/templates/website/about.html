@@ -1,12 +1,17 @@
 {% extends 'website/_base.html' %}
-
-{% block bg_class %}home_bg{%  endblock %}
+{% load static %}
+{% load url from future %}
 
 {% block content %}
+<div class="col-sm-10 col-sm-offset-1 main-panel">
 
-<div class="container-fluid">
-	<div class="row">
+	<div class="extra-top-margin container-fluid row">
 		<div class="col-sm-10 col-sm-offset-1">
+
+			<div id="cf">
+			  <img class="bottom" src="{% static 'website/images/kitten.jpg' %}" alt="carousel image" />
+			  <img class="top" src="{% static 'website/images/kitten1.jpg' %}" alt="carousel image" />
+			</div>
 
             {% for entry in about_text %}
                 {% if entry.heading %}
@@ -17,41 +22,10 @@
                 {% endif %}
                 <p>{{ entry.content|linebreaks }}</p>
             {% endfor %}
-
 		</div>
-	</div>
-
-    <div class="row">
-        <div class="col-sm-11 col-sm-offset-1">
-            <h3>Competitions and Shows</h3>
-            <p>Previous acheivements by our students and instructors.</p>
-        </div>
-    </div>
-
-    <div class="row">  <!-- Edinburgh 2014 pole comp top level row wrapper -->
-        <div class="col-sm-11 col-sm-offset-1">
-        {% for event in events %}
-            <h4>{{ event.name }}</h4>
-            {% for achievement in achievements %}
-                {% if achievement.event == event %}
-                        <div class="row">
-                            <div class="col-sm-5 col-sm-offset-1">
-                                <p><strong>{{ achievement.category }}</strong></p>
-                            </div>
-                            <div class="col-sm-5">
-                                <p>{{ achievement.placing }}</p>
-                            </div>
-                        </div>
-                {% endif %}
-            {% endfor %}
-        {% endfor %}
-        </div>
-    </div>
-
 
 
 </div>  <!-- container-fluid -->
 
+</div>
 {% endblock %}
-
-

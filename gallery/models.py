@@ -3,7 +3,7 @@ from django.db import models
 class Category(models.Model):
     name = models.CharField(max_length=255)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     class Meta:
@@ -16,7 +16,7 @@ class Image(models.Model):
     category = models.ForeignKey(Category)
     caption = models.CharField(max_length=255, null=True, blank=True)
 
-    def __unicode__(self):
+    def __str__(self):
         return "Photo id: " + str(self.id)
 
     def save(self, *args, **kwargs):

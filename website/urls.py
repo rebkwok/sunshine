@@ -1,10 +1,11 @@
 from django.conf.urls import patterns, url
+from django.views.generic import RedirectView
+
 
 urlpatterns = patterns(
     'website.views',
-    url(r'^$',                  'index', name='index'),
-    url(r'^about$',             'about', name='about'),
-    url(r'^(?P<session_type_id>\d+)/classes/$', 'classes', name='classes'),
+    url(r'^about/$',             'about', name='about'),
+    url(r'^classes/$', 'classes', name='classes'),
     url(r'^(?P<instructor_id>\d+)/instructor/$', 'instructor_info', name='instructor_info'),
     url(r'^instructors$',       'instructors', name='instructors'),
     url(r'^events$',       'events', name='events'),
@@ -29,4 +30,5 @@ urlpatterns = patterns(
     url(r'^polefit_admin_help/help/gallery$',           'admin_help_gallery', name='admin_help_gallery'),
     url(r'^polefit_admin_help/help/about',           'admin_help_about', name='admin_help_about'),
     url(r'^polefit_admin_help/help/events',           'admin_help_events', name='admin_help_events'),
+    url(r'^$', RedirectView.as_view(url='/about/', permanent=True)),
 )

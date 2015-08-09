@@ -6,11 +6,6 @@ from django.utils import timezone
 import datetime
 
 
-
-def index(request):
-    session_types = SessionType.objects.filter(regular_session=True).order_by('name')
-    return render(request, 'website/index.html', {'session_types': session_types})
-
 def about(request):
     session_types = SessionType.objects.filter(regular_session=True).order_by('name')
     about_text = AboutInfo.objects.all()
@@ -23,11 +18,9 @@ def about(request):
                                                   'achievements': achievements})
 
 
-def classes(request, session_type_id):
+def classes(request):
     session_types = SessionType.objects.filter(regular_session=True).order_by('name')
-    selected_session = get_object_or_404(SessionType, pk=session_type_id)
-    return render(request, 'website/classes.html', {'selected_session': selected_session,
-                                                    'session_types': session_types,
+    return render(request, 'website/classes.html', {'session_types': session_types,
                                                     'dd_section': 'class_dd'})
 
 def parties(request):

@@ -10,7 +10,7 @@ class Instructor(models.Model):
                 help_text="Tick this box to list this instructor on the Instructors webpage")
     photo = models.ImageField(upload_to='instructors', null=True, blank=True, help_text="Please upload a .jpg image with equal height and width")
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     def has_photo(self):
@@ -38,7 +38,7 @@ class SessionType(models.Model):
             help_text="Tick this box to list this class type on the homepage and class description pages")
     photo = models.ImageField(upload_to='sessions', null=True, blank=True)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     def has_photo(self):
@@ -64,7 +64,7 @@ class Venue(models.Model):
     address = models.CharField(max_length=255, null=True, blank=True)
     postcode = models.CharField(max_length=255, null=True, blank=True)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.venue
 
 
@@ -98,7 +98,7 @@ class Session(models.Model):
     bookable.short_description = 'available to book'
     bookable.boolean = True
 
-    def __unicode__(self):
+    def __str__(self):
 
         session_str = str(self.session_type) + ", " + str(self.session_date.strftime('%a %d %b %Y, %I:%M%p'))
         #session_str = str(self.session_type)
@@ -164,7 +164,7 @@ class FixedSession(models.Model):
     bookable.short_description = 'available to book'
     bookable.boolean = True
 
-    def __unicode__(self):
+    def __str__(self):
 
         session_str = str(self.session_type) + ", " + str(self.session_day) + (self.session_time.strftime('%I:%M%p'))
 
@@ -177,7 +177,7 @@ class Event(models.Model):
     info = models.TextField('event description',  null=True, blank=True)
     venue = models.ForeignKey(Venue,  null=True, blank=True)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     def get_event_weekday(self):
@@ -193,6 +193,3 @@ class Event(models.Model):
     def recent_events(self):
         recent = timezone.now() - timedelta(days=7)
         return self.event_date > recent
-
-
-
