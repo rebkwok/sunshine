@@ -19,7 +19,7 @@ def about(request):
 
 
 def classes(request):
-    session_types = SessionType.objects.filter(regular_session=True).order_by('name')
+    session_types = SessionType.objects.filter(regular_session=True).order_by('index')
     return render(request, 'website/classes.html', {'session_types': session_types,
                                                     'dd_section': 'class_dd'})
 

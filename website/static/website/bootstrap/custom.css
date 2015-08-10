@@ -26,6 +26,14 @@
 	background-color: #fff;
 }
 
+.logo_bg {
+	background: url(../images/carousel_logo_faded.jpg) no-repeat center center fixed;
+	-webkit-background-size: cover;
+	-moz-background-size: cover;
+	-o-background-size: cover;
+	background-size: cover;
+}
+
 body {
 	background-color: transparent;
 }
@@ -49,13 +57,13 @@ body {
 	height: auto !important;
 	height: 100%;
 	/* Negative indent footer by it's height */
-	margin: 0 auto -60px;
+	margin: 0 auto -120px;
 }
 
 /* Set the fixed height of the footer here */
 .push,
 .footer {
-	height: 60px;
+	height: 110px;
 }
 
 .footer {
@@ -71,11 +79,6 @@ body {
 		padding-right: 20px;
 	}
 }
-
-.box {
-	border: 1px dashed red;
-}
-
 
 /* footer boxes alignment */
 
@@ -192,22 +195,22 @@ border-bottom: 1px solid black;
 
 /* unvisited link */
 a:link {
-color: #F78181;
+color: #FACC2E;
 }
 
 /* visited link */
 a:visited {
-color: #F78181;
+color: #FACC2E;
 }
 
 /* mouse over link */
 a:hover {
-color: #F78181;
+color: #FACC2E;
 }
 
 /* selected link */
 a:active {
-color: #000;
+color: #FACC2E;
 }
 
 
@@ -339,7 +342,7 @@ color: #000;
 
 
 .sidebar_active{
-    color: #F78181
+    color: #FACC2E
 }
 .sidebar_inactive{
     color: #000
@@ -399,7 +402,7 @@ border-left: 1px solid white;
   display:block; /* for use on default inline elements like span */
   margin: 9px 0;
   overflow: hidden;
-  background-color: #e5e5e5;
+  background-color: #4B088A;
 }
 
 #cf {
@@ -419,28 +422,42 @@ border-left: 1px solid white;
 }
 
 @keyframes cfFadeInOut {
-0% {
-opacity:1;
-}
-45% {
-opacity:1;
-}
-55% {
-opacity:0;
-}
-100% {
-opacity:0;
-}
+  0% {
+    opacity:1;
+  }
+  17% {
+    opacity:1;
+  }
+  25% {
+    opacity:0;
+  }
+  92% {
+    opacity:0;
+  }
+  100% {
+    opacity:1;
+  }
 }
 
-#cf img.top {
+#cf img {
 animation-name: cfFadeInOut;
 animation-timing-function: ease-in-out;
 animation-iteration-count: infinite;
-animation-duration: 3s;
-animation-direction: alternate;
+animation-duration: 8s;
 }
 
+#cf img:nth-of-type(1) {
+  animation-delay: 6s;
+}
+#cf img:nth-of-type(2) {
+  animation-delay: 4s;
+}
+#cf img:nth-of-type(3) {
+  animation-delay: 2s;
+}
+#cf img:nth-of-type(4) {
+  animation-delay: 0;
+}
 
 .extra-top-margin {
     padding-top: 30px;
@@ -455,12 +472,22 @@ animation-direction: alternate;
     left:0;
     right:0;
     margin-top:50px;
-    margin-bottom:50px;
+    margin-bottom:100px;
     margin-right:80px;
     margin-left:80px;
 }
 
 .main-panel {
-	border-left: 1px solid red;
-	border-right: 1px solid red;
+	border-left: 1px solid #4B088A;
+	border-right: 1px solid #4B088A;
 }
+
+.navbar { background-color: #4B088A; border-color: #FACC2E}
+.navbar .container-fluid { background-color: #4B088A}
+.navbar .navbar-nav { background-color: #4B088A}
+.navbar .navbar-brand { background-color: #4B088A}
+.navbar .navbar-collapse { background-color: #4B088A}
+.navbar .navbar-toggle .icon-bar { background-color: #FACC2E}
+.navbar .navbar-nav>.active-nav>a:hover {background-color: #FACC2E; color: #4B088A}
+.navbar .navbar-nav>li>a:hover {background-color: #FACC2E; color: #4B088A}
+.navbar .navbar-nav>li>a {background-color: #4B088A; color: #FACC2E}

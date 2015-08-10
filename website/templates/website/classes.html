@@ -4,13 +4,23 @@
 <div class="col-sm-10 col-sm-offset-1 main-panel">
 
 <div class="container-fluid">
+    <div class="col-sm-10 col-sm-offset-1">
+
+        <h1>Classes</h1>
+
+        <p>
+            For more information or to book a class please <a href="mailto:starletpolefitness@gmail.com?Subject=Booking%20enquiry" target="_blank">
+            email us</a>, call 01383 626006, or contact us on <a href="https://www.facebook.com/polefitstarlet.dunfermline">Facebook</a>.
+        </p>
+    </div>
+
     {% for selected_session in session_types %}
 
     {% if selected_session.photo %}
         <div class="row">
 
             <div class="col-sm-4 col-sm-offset-1">
-                <h1>{{ selected_session.name }}</h1>
+                <h3>{{ selected_session.name }}</h3>
             </div>
         </div>
         <div class="row">
@@ -30,8 +40,8 @@
         </div>
     {% else %}
 
-        <div class="col-sm-8 col-sm-offset-1">
-                <h1>{{ selected_session.name }}</h1>
+        <div class="col-sm-10 col-sm-offset-1">
+                <h3>{{ selected_session.name }}</h3>
                 <p>{{ selected_session.info|linebreaks }}</p>
 
         </div>

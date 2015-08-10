@@ -32,6 +32,7 @@ class Instructor(models.Model):
 
 
 class SessionType(models.Model):
+    index = models.PositiveIntegerField(null=True, blank=True)
     name = models.CharField(max_length=255)
     info = models.TextField('session description',  null=True)
     regular_session = models.BooleanField('display session', default=True,

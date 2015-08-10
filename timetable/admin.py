@@ -23,7 +23,7 @@ class VenueAdmin(admin.ModelAdmin):
     list_display = ('venue', 'address', 'postcode')
 
 class SessionTypeAdmin(admin.ModelAdmin):
-    list_display = ('name', 'regular_session', 'has_photo')
+    list_display = ('index', 'name', 'regular_session', 'has_photo')
 
 
 class SessionDateListFilter(admin.SimpleListFilter):
