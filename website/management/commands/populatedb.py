@@ -371,3 +371,57 @@ class Command(BaseCommand):
                            instructor=emma, session_type=bouncefit, venue=dunfermline)
         FixedSession.objects.get_or_create(session_day="07SU", session_time=datetime.time(hour=20, minute=0),
                                instructor=kira, session_type=polefit, level='Beginner', venue=dunfermline)
+
+
+"""
+CAROUSEL NEW info
+
+About:
+
+Carousel Fitness (formerly Starlet Pole Fitness) began in 2009 in Dunfermline.
+Today, we run over 30 classes a week, teaching alternative fitness classes ranging from
+pole fitness, to bounce fit to burlesque, and teach over 200 students at venues in
+Inverkeithing, Cowdenbeath and Edinburgh.
+
+Our aim as a school is to increase fitness, boost confidence and teach new skills and
+tricks efficiently and safely. Every class is designed to suit each individual student.
+With various intensity and ability ranges, there is something for anyone and everyone!
+
+Pole Fit:
+
+Pole dancing has gained popularity as a form of exercise with increased awareness
+of the benefits to general strength and fitness. This form of exercise increases
+core and general body strength by using the body itself as resistance, while toning
+the body as a whole. A typical pole dance exercise regimen in class begins with
+strength training, dance-based moves, squats, push-ups, and sit-ups and gradually
+works its way up to the spins, climbs and inversions.  Pole dancing is also generally
+reported by its schools to be empowering for women in terms of building self-confidence.
+
+Classes are designed to suit every individual in terms of fitness levels and ability.
+Classes are always suitable for beginners and are a great way to get fit while having
+fun and doing something different. It is amazing for boosting confidence as everyone
+supports each other and are able to progress at their own pace.
+
+What to wear: shorts and vest/t-shirt are best as you will need bare skin for grip.
+
+Hoop:
+Aerial hoop is a metal ring suspended from the ceiling.  It is a great way to:
+ - Increase Strength & Muscle tone
+ - Improve co-ordination, agility, flexibility and confidence
+
+Classes are suitable for all levels.  Learn tricks, skills, combinations and routines.
+
+What to wear: long layers such as leggings and footless tights are best,
+a fitted t-shirt (long sleeves may be preferable for some moves).
+
+BounceFit:
+BounceFit is the newest and most fun way to improve your fitness.
+
+These are high-intensity, low impact cardio workouts, using mini trampoline.
+BounceFit will improve your cardio fitness, strengthen the core and firm and
+tone your muscles.
+
+Burlesque:
+Burlesque dancing is a form of theatrical performance.  Learning walks, poses and 'the art of tease'.
+
+Classes are fun and relaxed, you'll learn some new skills and work out without even knowing it!

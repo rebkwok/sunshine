@@ -17,10 +17,10 @@ class CustomIndexDashboard(Dashboard):
     """
     Custom index dashboard for www.
     """
-    
+
     def init_with_context(self, context):
         site_name = get_admin_site_name(context)
-        
+
 
         self.children.append(modules.ModelList(
             _('Timetable sessions'),
@@ -78,8 +78,8 @@ class CustomIndexDashboard(Dashboard):
             column=2,
             pre_content=('<h4>Add content for the About page, including list of competitions and past achievements.</h4>'),
             css_classes=('collapse closed',),
-            models=('polefit.website.models.AboutInfo',
-                    'polefit.website.models.PastEvent',),
+            models=('website.models.AboutInfo',
+                    'website.models.PastEvent',),
             exclude=('django.contrib.*',),
         ))
 
@@ -91,7 +91,7 @@ class CustomIndexDashboard(Dashboard):
        #     css_classes=('collapse closed',),
        #     exclude=('django.contrib.*',),
        # ))
-        
+
         # append another link list module for "support".
         self.children.append(modules.LinkList(
             _('Website links'),
@@ -131,7 +131,7 @@ class CustomIndexDashboard(Dashboard):
             collapsible=False,
             models=('django.contrib.*',),
         ))
-        
+
         # append a recent actions module
         self.children.append(modules.RecentActions(
             _('Recent Actions'),
@@ -139,5 +139,3 @@ class CustomIndexDashboard(Dashboard):
             collapsible=False,
             column=2,
         ))
-
-

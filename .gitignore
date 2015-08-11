@@ -8,6 +8,5 @@ collected-static
 db.sqlite3
 envdir
 id_rsa*
-images
 inventory.ini
 venv

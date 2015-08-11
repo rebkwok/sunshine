@@ -10,8 +10,8 @@
         <title>Carousel Fitness</title>
 
         <link rel="icon"
-        type="image/png"
-        href="{% static "website/images/carousel_favicon.png" %}">
+        type="image/jpg"
+        href="{% static "website/images/logo_no_text.jpg" %}">
 
         <!-- Bootstrap core CSS -->
         {% bootstrap_css %}
@@ -26,7 +26,7 @@
 
     <div class="wrap">
         <!-- Fixed navbar -->
-        <div class="navbar navbar-fixed-top" role="navigation">
+        <div style="margin-top: 45px" class="navbar navbar-fixed-top" role="navigation">
             <div class="container-fluid">
                 <div class="navbar-header">
                     <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
@@ -36,7 +36,7 @@
                         <span class="icon-bar"></span>
                     </button>
                     <a class="navbar-brand" rel="home" href="/" title="Carousel Fitness">
-                        <img class="nav-logo" src="{% static "website/images/carousel_logo.jpg" %}">
+                        <img  style="max-width:150px; margin-top: -58px; margin-left: 0; padding-left: 0;" src="{% static "website/images/logo_wide_no_text.jpg" %}">
                     </a>
                 </div>
                 <div class="navbar-collapse collapse">
@@ -46,14 +46,14 @@
                         <li {% if section == 'timetable' %}class="active"{% endif %}><a href="{% url 'website:fixed_week_table' %}">Timetable</a></li>
                         <li {% if section == 'instructors' %}class="active"{% endif %}><a href="{% url 'website:instructors' %}">Instructors</a></li>
                         <li class = "hidden-sm" {% if section == 'venues' %}class="active"{% endif %}><a href="{% url 'website:venues' %}">Venues</a></li>
-                        <li class = "hidden-sm" {% if section == 'booking' %}class="active"{% endif %}><a href="{% url 'website:booking' %}">Booking</a></li>
+                        <li class = "hidden-sm" {% if section == 'booking' %}class="active"{% endif %}><a href="{% url 'website:booking' %}">Booking & Membership</a></li>
                         <li class = "hidden-sm" {% if section == 'parties' %}class="active"{% endif %}><a href="{% url 'website:parties' %}">Parties</a></li>
                         <li class = "hidden-sm" {% if section == 'gallery' %}class="active"{% endif %}><a href="{% url 'website:gallery' %}">Gallery</a></li>
                         <li class="visible-sm dropdown">
                           <a href="#" class="dropdown-toggle" data-toggle="dropdown">More<b class="caret"></b></a>
                           <ul class="dropdown-menu">
                                 <li {% if section == 'venues' %}class="active"{% endif %}><a href="{% url 'website:venues' %}">Venues</a></li>
-                                <li {% if section == 'booking' %}class="active"{% endif %}><a href="{% url 'website:booking' %}">Booking</a></li>
+                                <li {% if section == 'booking' %}class="active"{% endif %}><a href="{% url 'website:booking' %}">Booking & Membership</a></li>
                                 <li {% if section == 'parties' %}class="active"{% endif %}><a href="{% url 'website:parties' %}">Parties</a></li>
                                 <li {% if section == 'gallery' %}class="active"{% endif %}><a href="{% url 'website:gallery' %}">Gallery</a></li>
                           </ul>
@@ -73,29 +73,6 @@
     </div> <!--/end of page .wrap -->
 
     <div class="footer">
-        <!-- <div class="container-fluid">
-               <div class="row">
-                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
-                    <h3>About us</h3>
-                    <p>See more <a href="{% url 'website:about' %}">here</a>. </p>
-                    <p>Find us on <a href="https://www.facebook.com/polefitstarlet.dunfermline" target="_blank">Facebook</a>. </p>
-                </div>
-                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
-                    <div class="list-group list-group-index">
-                    <h3><a href="{% url 'website:classes' %}">Classes</a></h3>
-                        {% for type in session_types %}
-                        {% if type.regular_session %}
-                            <div class="list-group-item list-group-index">{{ type.name }}</div>
-                        {% endif %}
-                        {% endfor %}
-                    </div>
-                </div>
-                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
-                    <h3>Booking</h3>
-                    <p>Click <a href="{% url 'website:booking' %}">here</a> to book a class.</p>
-                </div>
-            </div> -->
-            <!-- /.row -->
             <span class="divider"></span>
 
         <div class="container-fluid">
@@ -108,7 +85,7 @@
                     <div class="footer-credit">Site developed by <a href="https://twitter.com/rebkwok" target="_blank" style="color: #0B0B61">Becky Smith</a></div>
                 </div>
                 <div class="col-sm-6 footer-logo pull-right">
-                    <img class="pull-right img-responsive" style="height=50%" src="{% static "website/images/carousel_logo_footer.jpg" %}">
+                    <img class="pull-right img-responsive" style="max-height:50px; margin-bottom:5px"; src="{% static "website/images/logo_text_only.jpg" %}">
                 </div>
             </div>
         </div>
