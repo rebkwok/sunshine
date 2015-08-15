@@ -43,7 +43,7 @@
                     <ul class="nav navbar-nav pull-left">
                         <li {% if section == 'about' %}class="active"{% endif %}><a href="{% url 'website:about' %}">About us</a></li>
                         <li {% if section == 'classes' %}class="active"{% endif %}><a href="{% url 'website:classes' %}">Classes</a></li>
-                        <li {% if section == 'timetable' %}class="active"{% endif %}><a href="{% url 'website:fixed_week_table' %}">Timetable</a></li>
+                        <li {% if section == 'timetable' %}class="active"{% endif %}><a href="{% url 'website:timetable' %}">Timetable</a></li>
                         <li {% if section == 'instructors' %}class="active"{% endif %}><a href="{% url 'website:instructors' %}">Instructors</a></li>
                         <li class = "hidden-sm" {% if section == 'venues' %}class="active"{% endif %}><a href="{% url 'website:venues' %}">Venues</a></li>
                         <li class = "hidden-sm" {% if section == 'booking' %}class="active"{% endif %}><a href="{% url 'website:booking' %}">Booking & Membership</a></li>

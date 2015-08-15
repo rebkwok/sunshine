@@ -69,43 +69,7 @@ class Venue(models.Model):
         return self.venue
 
 
-class Session(models.Model):
-    level = models.CharField(max_length=255, default="All levels")
-    session_date = models.DateTimeField('session date')
-    duration = models.IntegerField('duration (mins)', default=60)
-    instructor = models.ForeignKey(Instructor, null=True, blank=True)
-    session_type = models.ForeignKey(SessionType)
-    venue = models.ForeignKey(Venue)
-    spaces = models.BooleanField('spaces available', default=True)
-    show_instructor = models.BooleanField('show instructor', default=False,
-                                          help_text="Tick this box to show a link to the instructor on the timetable "
-                                                    "pages (mostly for workshops and one-off classes where the instructor "
-                                                    "is not a regular instructor and will not appear on the instructor "
-                                                    "pages by default)")
-
-    def get_weekday(self):
-        session_weekday = self.session_date.weekday()
-
-        weekdays = ['Mon', 'Tues', 'Wed', 'Thurs', 'Fri', 'Sat', 'Sun']
-
-        for i in range(0, 7):
-            if session_weekday == i:
-                return weekdays[i]
-    get_weekday.short_description = 'Day'
-
-    def bookable(self):
-        now = timezone.now()
-        return self.spaces and self.session_date > now
-    bookable.short_description = 'available to book'
-    bookable.boolean = True
-
-    def __str__(self):
-
-        session_str = str(self.session_type) + ", " + str(self.session_date.strftime('%a %d %b %Y, %I:%M%p'))
-        #session_str = str(self.session_type)
-        return session_str
-
-class FixedSession(models.Model):
+class TimetableSession(models.Model):
     level = models.CharField(max_length=255, default="All levels")
 
     MON = '01MO'
@@ -125,45 +89,13 @@ class FixedSession(models.Model):
         (SUN, 'Sunday'),
 
     )
-    session_day = models.CharField(max_length=4, choices=WEEKDAY_CHOICES, default=MON)
+    session_day = models.CharField(max_length=4, choices=WEEKDAY_CHOICES)
     session_time = models.TimeField()
-
     duration = models.IntegerField('duration (mins)', default=60)
     instructor = models.ForeignKey(Instructor, null=True, blank=True)
+    name = models.CharField(max_length=255, default="")
     session_type = models.ForeignKey(SessionType)
     venue = models.ForeignKey(Venue)
-    spaces = models.BooleanField('spaces available', default=True)
-    show_instructor = models.BooleanField('show instructor', default=False,
-                                          help_text="Tick this box to show a link to the instructor on the timetable "
-                                                    "pages (mostly for workshops and one-off classes where the instructor "
-                                                    "is not a regular instructor and will not appear on the instructor "
-                                                    "pages by default)")
-
-    def get_weekday(self):
-        weekday = ''
-        if self.session_day == self.MON:
-            weekday = 'Monday'
-        if self.session_day == self.TUE:
-            weekday = 'Tuesday'
-        if self.session_day == self.WED:
-            weekday = 'Wednesday'
-        if self.session_day == self.THU:
-            weekday = 'Thursday'
-        if self.session_day == self.FRI:
-            weekday = 'Friday'
-        if self.session_day == self.SAT:
-            weekday = 'Saturday'
-        if self.session_day == self.SUN:
-            weekday = 'Sunday'
-
-
-        return weekday
-
-
-    def bookable(self):
-        return self.spaces
-    bookable.short_description = 'available to book'
-    bookable.boolean = True
 
     def __str__(self):
 
@@ -171,26 +103,3 @@ class FixedSession(models.Model):
 
         return session_str
 
-class Event(models.Model):
-    name = models.CharField(max_length=255)
-    event_date = models.DateTimeField('event date')
-    end_time = models.TimeField('end time',  null=True, blank=True)
-    info = models.TextField('event description',  null=True, blank=True)
-    venue = models.ForeignKey(Venue,  null=True, blank=True)
-
-    def __str__(self):
-        return self.name
-
-    def get_event_weekday(self):
-        event_weekday = self.event_date.weekday()
-
-        weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
-
-        for i in range(0, 7):
-            if event_weekday == i:
-                return weekdays[i]
-    get_event_weekday.short_description = 'Day'
-
-    def recent_events(self):
-        recent = timezone.now() - timedelta(days=7)
-        return self.event_date > recent

@@ -481,3 +481,10 @@ animation-duration: 8s;
 .venue-address {
 	min-height: 130px;
 }
+
+td.timetable-row {
+    padding-top: 3px !important;
+    padding-bottom: 3px !important;
+    font-size: small;
+	vertical-align: middle !important;
+}

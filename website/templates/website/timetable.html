@@ -1,72 +1,47 @@
 {% extends "website/_base.html" %}
+{% load customtags %}
 
 {% block content %}
+<div class="col-sm-10 col-sm-offset-1">
 
+    <div class="container-fluid row fixed-table" >
+        <h2>
+            Timetable
+        </h2>
+    </div>
 
-<div id="wrapper">
+    {% if timetable_sessions %}
+        <div class="row">
+            <div class="panel" style="background-color: rgba(255,255,255,0.6);">
+                <div class="table-responsive">
+                    <table class="table">
+                        <tr>
+                            <th>Day</th>
+                            <th>Time</th>
+                            <th>Class</th>
+                            <th>Level</th>
+                            <th>Location</th>
+                        </tr>
 
-        <!-- Sidebar -->
-        <div id="sidebar-wrapper">
-            <ul class="sidebar-nav">
-                <li class="sidebar-brand"></li>
-                <li><a href="{% url 'website:timetable' %}">{% if sidebar_section == 'all' %}
-                    <span class="sidebar_active">All scheduled classes</span>{% else %}All scheduled classes{% endif %}</a></li>
-                <li><a href="{% url 'website:this_week_table' %}">{% if sidebar_section == 'this_week' %}
-                    <span class="sidebar_active">This week</span>{% else %}This week{% endif %}</a></li>
-                <li><a href="{% url 'website:next_week_table' %}">{% if sidebar_section == 'next_week' %}
-                    <span class="sidebar_active">Next week</span>{% else %}Next week{% endif %}</a></li>
-                    {% for type in tt_session_types %}
-                        <li><a href="{% url 'website:sessions_by_type' type.id %}">{% if sidebar_section == type.id %}
-                            <span class="sidebar_active">{{ type.name }}</span>{% else %}{{ type.name }}{% endif %}</a></li>
-                    {% endfor %}
-
-            </ul>
+                        {% for session in timetable_sessions %}
+                        <tr>
+                            <td class="timetable-row">{{ session.session_day|format_day }}</td>
+                            <td class="timetable-row">{{ session.session_time|time:"H:i" }}</td>
+                            <td class="timetable-row">{{ session.name }}</td>
+                            <td class="timetable-row">{{ session.level }}</td>
+                            <td class="timetable-row">{{ session.venue }}</td>
+                        </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+            </div>
         </div>
 
-        <!-- Page content -->
-        <div id="page-content-wrapper">
-            <div class="content-header">
-                <h1>
-                    <a id="menu-toggle" href="#" class="btn btn-default"><i class="icon-reorder"></i></a>
-                    Class and Workshop Timetable
-                </h1>
-            </div>
-            <!-- Keep all page content within the page-content inset div! -->
+    {% else %}
+        <h4>Timetable not currently available</h4>
+    {% endif %}
 
-
-            <div class="page-content inset">
-                {% if timetable_items %}
-                    {% for session in timetable_items %}
-                        <div class="row ">
-                            <div class="col-sm-2">
-                                <p>{{ session.session_date|date:"D d N" }}</br>{{ session.session_date|time:"f a" }}</p>
-                            </div>
-                            <div class="col-sm-5">
-                                <p><strong>{{ session.session_type }}</strong> - {{ session.level }}</br>
-                                Duration: {{ session.duration }} minutes</br>
-                                {% if session.show_instructor and session.instructor %}
-                                Instructor: <a href="{% url 'website:instructor_info' session.instructor.id %}">{{ session.instructor }}</a></p>
-                                {% endif %}
-                            </div>
-                            <div class="col-sm-5">
-                                <p>
-                                Venue: {{ session.venue }}</br>
-                                {% if session.spaces %}Spaces available{% else %}Currently full{% endif %}</p>
-                            </div>
-                        </div>
-                    {% endfor %}
-                {% else %}
-                    <div class="col-sm-8 col-sm-offset-4">
-                        <p>No classes are scheduled.</p>
-                    </div>
-                {% endif %}
-            </div>  <!-- page content insert -->
-        </div> <!-- page content wrapper -->
-
-</div>  <!-- wrapper -->
-
-
-
+</div>
 
 
 {% endblock %}
