@@ -488,3 +488,7 @@ td.timetable-row {
     font-size: small;
 	vertical-align: middle !important;
 }
+
+.label-rounded {
+    border-radius: 25px;
+}

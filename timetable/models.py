@@ -69,6 +69,16 @@ class Venue(models.Model):
         return self.venue
 
 
+class MembershipClassLevel(models.Model):
+    """
+    Model to categorize a type of class for membership purposes
+    Currently 2 levels:
+    1 - pole and hoop classes
+    2 - general fitness and conditioning classes
+    """
+    membership_level = models.PositiveIntegerField()
+
+
 class TimetableSession(models.Model):
     level = models.CharField(max_length=255, default="All levels")
 
@@ -96,10 +106,14 @@ class TimetableSession(models.Model):
     name = models.CharField(max_length=255, default="")
     session_type = models.ForeignKey(SessionType)
     venue = models.ForeignKey(Venue)
+    membership_level = models.ForeignKey(
+        MembershipClassLevel, null=True,
+        help_text="Categorise for membership; 1=pole/hoop classes, 2=general " \
+                  "fitness/conditioning classes"
+        )
 
     def __str__(self):
 
         session_str = str(self.session_type) + ", " + str(self.session_day) + (self.session_time.strftime('%I:%M%p'))
 
         return session_str
-
