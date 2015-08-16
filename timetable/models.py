@@ -64,6 +64,7 @@ class Venue(models.Model):
     venue = models.CharField(max_length=255, default="Venue TBC")
     address = models.CharField(max_length=255, null=True, blank=True)
     postcode = models.CharField(max_length=255, null=True, blank=True)
+    abbreviation = models.CharField(max_length=20, default="")
 
     def __str__(self):
         return self.venue
@@ -75,6 +76,7 @@ class MembershipClassLevel(models.Model):
     Currently 2 levels:
     1 - pole and hoop classes
     2 - general fitness and conditioning classes
+    3 - open training
     """
     membership_level = models.PositiveIntegerField()
 
@@ -100,8 +102,8 @@ class TimetableSession(models.Model):
 
     )
     session_day = models.CharField(max_length=4, choices=WEEKDAY_CHOICES)
-    session_time = models.TimeField()
-    duration = models.IntegerField('duration (mins)', default=60)
+    start_time = models.TimeField()
+    end_time = models.TimeField()
     instructor = models.ForeignKey(Instructor, null=True, blank=True)
     name = models.CharField(max_length=255, default="")
     session_type = models.ForeignKey(SessionType)

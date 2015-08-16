@@ -76,7 +76,7 @@ def timetable(request):
     session_types = SessionType.objects.filter(regular_session=True).order_by('name')
 
     venues = Venue.objects.all()
-    timetable_sessions = TimetableSession.objects.all().order_by('venue', 'session_day', 'session_time')
+    timetable_sessions = TimetableSession.objects.all().order_by('session_day', 'start_time', 'venue')
     return render(request, 'website/timetable.html', {'timetable_sessions': timetable_sessions,
                                                          'session_types': session_types,
                                                          'section': 'timetable',

@@ -489,6 +489,22 @@ td.timetable-row {
 	vertical-align: middle !important;
 }
 
-.label-rounded {
+.label.label-rounded {
+    display: block;
     border-radius: 25px;
+    width: 130px;
+    padding-left: 0;
+    padding-right: 0;
+    font-size: 85%;
+    font-weight: 300;
+}
+
+.venue-edinburgh {
+    background-color: rgba(220,0,0,0.1);
+}
+.venue-inverkeithing {
+    background-color: rgba(122,62,126,0.1);
+}
+.venue-cowdenbeath {
+    background-color: rgba(242,189,73,0.1);
 }

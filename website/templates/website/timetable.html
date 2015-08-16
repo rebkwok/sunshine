@@ -24,9 +24,16 @@
                         </tr>
 
                         {% for session in timetable_sessions %}
-                        <tr>
+                        <tr
+                            {% if session.venue.venue == "The Watermelon Studio" %}
+                                class="venue-edinburgh"
+                            {% elif session.venue.venue == "Carousel Fitness Studio" %}
+                                class="venue-inverkeithing"
+                            {% elif session.venue.venue == "Cowdenbeath Studio" %}
+                                class="venue-cowdenbeath"
+                            {% endif %}>
                             <td class="timetable-row">{{ session.session_day|format_day }}</td>
-                            <td class="timetable-row">{{ session.session_time|time:"H:i" }}</td>
+                            <td class="timetable-row">{{ session.start_time|time:"H:i" }} - {{ session.end_time|time:"H:i" }}</td>
                             <td class="timetable-row">
                                 {% if session.membership_level.membership_level == 1 %}
                                     <span class="label label-warning label-rounded">
@@ -38,7 +45,7 @@
                                     {{ session.name }}
                                 </span></td>
                             <td class="timetable-row">{{ session.level }}</td>
-                            <td class="timetable-row">{{ session.venue }}</td>
+                            <td class="timetable-row">{{ session.venue.abbreviation }}</td>
                         </tr>
                         {% endfor %}
                     </table>

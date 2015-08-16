@@ -82,20 +82,25 @@ class Command(BaseCommand):
         inverkeithing, _ = Venue.objects.get_or_create(
             venue='Carousel Fitness Studio',
             address='Preston House, Inverkeithing',
-            postcode='KY11'
+            postcode='KY11',
+            abbreviation="Inverkeithing"
         )
         cowdenbeath, _ = Venue.objects.get_or_create(
             venue='Cowdenbeath Studio',
             address='Phoenix Martial Art & Fitness Studio, '
                     '39 Broad Street, Cowdenbeath',
-            postcode='KY4 8JQ')
+            postcode='KY4 8JQ',
+            abbreviation="Cowdenbeath"
+        )
         edinburgh, _ = Venue.objects.get_or_create(
             venue="The Watermelon Studio",
             address="19 Beaverbank Place, Edinburgh",
-            postcode="EH7 4FB"
+            postcode="EH7 4FB",
+            abbreviation="Edinburgh"
         )
         tbc, _ = Venue.objects.get_or_create(
             venue="Venue TBC",
+            abbreviation="TBC"
         )
 
         polefit, new = SessionType.objects.get_or_create(
@@ -173,6 +178,9 @@ class Command(BaseCommand):
         kettle, new = SessionType.objects.get_or_create(
             name='Kettle Bells', regular_session=False
         )
+        open, new = SessionType.objects.get_or_create(
+            name='Open Training', regular_session=False
+        )
 
         AboutInfo.objects.get_or_create(
             heading="About us",
@@ -196,12 +204,16 @@ class Command(BaseCommand):
         membership2, _ = MembershipClassLevel.objects.get_or_create(
                 membership_level=2
         )
+        membership3, _ = MembershipClassLevel.objects.get_or_create(
+                membership_level=3
+        )
 
         # create timetable:
         # Monday
         TimetableSession.objects.get_or_create(
             session_day=TimetableSession.MON,
-            session_time=datetime.time(hour=10, minute=0),
+            start_time=datetime.time(hour=10, minute=0),
+            end_time=datetime.time(hour=11, minute=0),
             name="Pole Fitness",
             session_type=polefit,
             venue=inverkeithing,
@@ -209,7 +221,8 @@ class Command(BaseCommand):
         )
         TimetableSession.objects.get_or_create(
             session_day=TimetableSession.MON,
-            session_time=datetime.time(hour=11, minute=0),
+            start_time=datetime.time(hour=11, minute=0),
+            end_time=datetime.time(hour=12, minute=0),
             name="Legs, Bums and Tums",
             session_type=general_fitness,
             venue=inverkeithing,
@@ -217,7 +230,17 @@ class Command(BaseCommand):
         )
         TimetableSession.objects.get_or_create(
             session_day=TimetableSession.MON,
-            session_time=datetime.time(hour=17, minute=0),
+            start_time=datetime.time(hour=12, minute=0),
+            end_time=datetime.time(hour=17, minute=0),
+            name="Open Training",
+            session_type=open,
+            venue=inverkeithing,
+            membership_level=membership3
+        )
+        TimetableSession.objects.get_or_create(
+            session_day=TimetableSession.MON,
+            start_time=datetime.time(hour=17, minute=0),
+            end_time=datetime.time(hour=18, minute=0),
             name="Stretch and Conditioning",
             session_type=stretch,
             venue=inverkeithing,
@@ -225,7 +248,8 @@ class Command(BaseCommand):
         )
         TimetableSession.objects.get_or_create(
             session_day=TimetableSession.MON,
-            session_time=datetime.time(hour=18, minute=0),
+            start_time=datetime.time(hour=18, minute=0),
+            end_time=datetime.time(hour=19, minute=0),
             name="Aerial Hoop",
             session_type=hoop,
             venue=inverkeithing,
@@ -233,7 +257,8 @@ class Command(BaseCommand):
         )
         TimetableSession.objects.get_or_create(
             session_day=TimetableSession.MON,
-            session_time=datetime.time(hour=19, minute=0),
+            start_time=datetime.time(hour=19, minute=0),
+            end_time=datetime.time(hour=20, minute=0),
             name="Pole Fitness",
             session_type=polefit,
             venue=inverkeithing,
@@ -242,7 +267,8 @@ class Command(BaseCommand):
         )
         TimetableSession.objects.get_or_create(
             session_day=TimetableSession.MON,
-            session_time=datetime.time(hour=20, minute=0),
+            start_time=datetime.time(hour=20, minute=0),
+            end_time=datetime.time(hour=21, minute=0),
             name="Pole Fitness",
             session_type=polefit,
             venue=inverkeithing,
@@ -253,15 +279,26 @@ class Command(BaseCommand):
         # Tuesday
         TimetableSession.objects.get_or_create(
             session_day=TimetableSession.TUE,
-            session_time=datetime.time(hour=10, minute=0),
+            start_time=datetime.time(hour=10, minute=0),
+            end_time=datetime.time(hour=11, minute=0),
             name="Pole Fitness",
             session_type=polefit,
             venue=inverkeithing,
             membership_level=membership1
         )
         TimetableSession.objects.get_or_create(
+            session_day=TimetableSession.MON,
+            start_time=datetime.time(hour=11, minute=0),
+            end_time=datetime.time(hour=17, minute=0),
+            name="Open Training",
+            session_type=open,
+            venue=inverkeithing,
+            membership_level=membership3
+        )
+        TimetableSession.objects.get_or_create(
             session_day=TimetableSession.TUE,
-            session_time=datetime.time(hour=17, minute=0),
+            start_time=datetime.time(hour=17, minute=0),
+            end_time=datetime.time(hour=18, minute=0),
             name="Kettle Bells",
             session_type=kettle,
             venue=inverkeithing,
@@ -269,7 +306,8 @@ class Command(BaseCommand):
         )
         TimetableSession.objects.get_or_create(
             session_day=TimetableSession.TUE,
-            session_time=datetime.time(hour=18, minute=0),
+            start_time=datetime.time(hour=18, minute=0),
+            end_time=datetime.time(hour=19, minute=0),
             name="Pole Fitness",
             session_type=polefit,
             venue=inverkeithing,
@@ -278,7 +316,8 @@ class Command(BaseCommand):
         )
         TimetableSession.objects.get_or_create(
             session_day=TimetableSession.TUE,
-            session_time=datetime.time(hour=19, minute=0),
+            start_time=datetime.time(hour=19, minute=0),
+            end_time=datetime.time(hour=20, minute=0),
             name="Pole Fitness",
             session_type=polefit,
             venue=inverkeithing,
@@ -286,7 +325,8 @@ class Command(BaseCommand):
         )
         TimetableSession.objects.get_or_create(
             session_day=TimetableSession.TUE,
-            session_time=datetime.time(hour=20, minute=0),
+            start_time=datetime.time(hour=20, minute=0),
+            end_time=datetime.time(hour=21, minute=0),
             name="Pole Fitness",
             session_type=polefit,
             venue=inverkeithing,
@@ -296,8 +336,18 @@ class Command(BaseCommand):
 
         # Wednesday
         TimetableSession.objects.get_or_create(
+            session_day=TimetableSession.MON,
+            start_time=datetime.time(hour=11, minute=0),
+            end_time=datetime.time(hour=18, minute=0),
+            name="Open Training",
+            session_type=open,
+            venue=inverkeithing,
+            membership_level=membership3
+        )
+        TimetableSession.objects.get_or_create(
             session_day=TimetableSession.WED,
-            session_time=datetime.time(hour=18, minute=0),
+            start_time=datetime.time(hour=18, minute=0),
+            end_time=datetime.time(hour=19, minute=0),
             name="Pole Fitness",
             session_type=polefit,
             venue=inverkeithing,
@@ -305,7 +355,8 @@ class Command(BaseCommand):
         )
         TimetableSession.objects.get_or_create(
             session_day=TimetableSession.WED,
-            session_time=datetime.time(hour=19, minute=0),
+            start_time=datetime.time(hour=19, minute=0),
+            end_time=datetime.time(hour=20, minute=0),
             name="Pole stretching",
             session_type=polefit,
             venue=inverkeithing,
@@ -313,7 +364,8 @@ class Command(BaseCommand):
         )
         TimetableSession.objects.get_or_create(
             session_day=TimetableSession.WED,
-            session_time=datetime.time(hour=20, minute=0),
+            start_time=datetime.time(hour=20, minute=0),
+            end_time=datetime.time(hour=21, minute=0),
             name="Pole Fitness",
             session_type=polefit,
             venue=inverkeithing,
@@ -322,7 +374,8 @@ class Command(BaseCommand):
         )
         TimetableSession.objects.get_or_create(
             session_day=TimetableSession.WED,
-            session_time=datetime.time(hour=18, minute=0),
+            start_time=datetime.time(hour=18, minute=0),
+            end_time=datetime.time(hour=19, minute=0),
             name="Pole Fitness",
             session_type=polefit,
             venue=cowdenbeath,
@@ -330,7 +383,8 @@ class Command(BaseCommand):
         )
         TimetableSession.objects.get_or_create(
             session_day=TimetableSession.WED,
-            session_time=datetime.time(hour=18, minute=0),
+            start_time=datetime.time(hour=18, minute=0),
+            end_time=datetime.time(hour=19, minute=0),
             name="Aerial Hoop",
             session_type=hoop,
             venue=cowdenbeath,
@@ -338,7 +392,8 @@ class Command(BaseCommand):
         )
         TimetableSession.objects.get_or_create(
             session_day=TimetableSession.WED,
-            session_time=datetime.time(hour=19, minute=0),
+            start_time=datetime.time(hour=19, minute=0),
+            end_time=datetime.time(hour=20, minute=0),
             name="Pole Fitness",
             session_type=polefit,
             venue=cowdenbeath,
@@ -346,7 +401,8 @@ class Command(BaseCommand):
         )
         TimetableSession.objects.get_or_create(
             session_day=TimetableSession.WED,
-            session_time=datetime.time(hour=19, minute=0),
+            start_time=datetime.time(hour=19, minute=0),
+            end_time=datetime.time(hour=20, minute=0),
             name="Aerial Hoop",
             session_type=hoop,
             venue=cowdenbeath,
@@ -354,7 +410,8 @@ class Command(BaseCommand):
         )
         TimetableSession.objects.get_or_create(
             session_day=TimetableSession.WED,
-            session_time=datetime.time(hour=20, minute=0),
+            start_time=datetime.time(hour=20, minute=0),
+            end_time=datetime.time(hour=21, minute=0),
             name="Gym training",
             session_type=general_fitness,
             venue=cowdenbeath,
@@ -364,7 +421,8 @@ class Command(BaseCommand):
         # Thursday
         TimetableSession.objects.get_or_create(
             session_day=TimetableSession.THU,
-            session_time=datetime.time(hour=18, minute=0),
+            start_time=datetime.time(hour=18, minute=0),
+            end_time=datetime.time(hour=19, minute=0),
             name="Pole Fitness",
             session_type=polefit,
             venue=inverkeithing,
@@ -372,7 +430,8 @@ class Command(BaseCommand):
         )
         TimetableSession.objects.get_or_create(
             session_day=TimetableSession.THU,
-            session_time=datetime.time(hour=19, minute=0),
+            start_time=datetime.time(hour=19, minute=0),
+            end_time=datetime.time(hour=20, minute=0),
             name="Stretch and Flex",
             session_type=stretch,
             venue=inverkeithing,
@@ -380,7 +439,8 @@ class Command(BaseCommand):
         )
         TimetableSession.objects.get_or_create(
             session_day=TimetableSession.THU,
-            session_time=datetime.time(hour=20, minute=0),
+            start_time=datetime.time(hour=20, minute=0),
+            end_time=datetime.time(hour=21, minute=0),
             name="Circuits",
             session_type=general_fitness,
             venue=inverkeithing,
@@ -388,28 +448,32 @@ class Command(BaseCommand):
         )
         TimetableSession.objects.get_or_create(
             session_day=TimetableSession.THU,
-            session_time=datetime.time(hour=18, minute=0),
+            start_time=datetime.time(hour=18, minute=0),
+            end_time=datetime.time(hour=19, minute=0),
             name="Aerial Hoop",
             session_type=hoop,
             venue=cowdenbeath,
         )
         TimetableSession.objects.get_or_create(
             session_day=TimetableSession.THU,
-            session_time=datetime.time(hour=19, minute=0),
+            start_time=datetime.time(hour=19, minute=0),
+            end_time=datetime.time(hour=20, minute=0),
             name="Pole Fitness",
             session_type=polefit,
             venue=cowdenbeath,
         )
         TimetableSession.objects.get_or_create(
             session_day=TimetableSession.THU,
-            session_time=datetime.time(hour=20, minute=0),
+            start_time=datetime.time(hour=20, minute=0),
+            end_time=datetime.time(hour=21, minute=0),
             name="Aerial Hoop",
             session_type=hoop,
             venue=cowdenbeath,
         )
         TimetableSession.objects.get_or_create(
             session_day=TimetableSession.THU,
-            session_time=datetime.time(hour=19, minute=0),
+            start_time=datetime.time(hour=19, minute=0),
+            end_time=datetime.time(hour=20, minute=0),
             name="Pole Fitness",
             session_type=polefit,
             venue=edinburgh,
@@ -419,8 +483,18 @@ class Command(BaseCommand):
 
         # Friday
         TimetableSession.objects.get_or_create(
+            session_day=TimetableSession.MON,
+            start_time=datetime.time(hour=10, minute=0),
+            end_time=datetime.time(hour=17, minute=0),
+            name="Open Training",
+            session_type=open,
+            venue=inverkeithing,
+            membership_level=membership3
+        )
+        TimetableSession.objects.get_or_create(
             session_day=TimetableSession.FRI,
-            session_time=datetime.time(hour=17, minute=0),
+            start_time=datetime.time(hour=17, minute=0),
+            end_time=datetime.time(hour=18, minute=0),
             name="Aerial Hoop",
             session_type=hoop,
             venue=inverkeithing,
@@ -428,25 +502,46 @@ class Command(BaseCommand):
         )
         TimetableSession.objects.get_or_create(
             session_day=TimetableSession.FRI,
-            session_time=datetime.time(hour=18, minute=0),
+            start_time=datetime.time(hour=18, minute=0),
+            end_time=datetime.time(hour=19, minute=0),
             name="Lyrical Pole Fitness",
             session_type=polefit,
             venue=inverkeithing,
             membership_level=membership1
         )
+        TimetableSession.objects.get_or_create(
+            session_day=TimetableSession.MON,
+            start_time=datetime.time(hour=19, minute=0),
+            end_time=datetime.time(hour=20, minute=0),
+            name="Open Training",
+            session_type=open,
+            venue=inverkeithing,
+            membership_level=membership3
+        )
 
         # Saturday
         TimetableSession.objects.get_or_create(
             session_day=TimetableSession.SAT,
-            session_time=datetime.time(hour=10, minute=0),
+            start_time=datetime.time(hour=10, minute=0),
+            end_time=datetime.time(hour=11, minute=0),
             name="Kettle Bells",
             session_type=kettle,
             venue=inverkeithing,
             membership_level=membership2
         )
         TimetableSession.objects.get_or_create(
+            session_day=TimetableSession.MON,
+            start_time=datetime.time(hour=13, minute=0),
+            end_time=datetime.time(hour=16, minute=0),
+            name="Open Training",
+            session_type=open,
+            venue=inverkeithing,
+            membership_level=membership3
+        )
+        TimetableSession.objects.get_or_create(
             session_day=TimetableSession.SAT,
-            session_time=datetime.time(hour=16, minute=0),
+            start_time=datetime.time(hour=16, minute=0),
+            end_time=datetime.time(hour=17, minute=0),
             name="Burlesque",
             session_type=burlesque,
             venue=inverkeithing,
@@ -456,7 +551,8 @@ class Command(BaseCommand):
         # Sunday
         TimetableSession.objects.get_or_create(
             session_day=TimetableSession.SUN,
-            session_time=datetime.time(hour=17, minute=0),
+            start_time=datetime.time(hour=17, minute=0),
+            end_time=datetime.time(hour=18, minute=0),
             name="Pole Fitness",
             session_type=polefit,
             venue=inverkeithing,
@@ -464,7 +560,8 @@ class Command(BaseCommand):
         )
         TimetableSession.objects.get_or_create(
             session_day=TimetableSession.SUN,
-            session_time=datetime.time(hour=18, minute=0),
+            start_time=datetime.time(hour=18, minute=0),
+            end_time=datetime.time(hour=19, minute=0),
             name="Conditioning Pole Fitness",
             session_type=polefit,
             venue=inverkeithing,
@@ -472,7 +569,8 @@ class Command(BaseCommand):
         )
         TimetableSession.objects.get_or_create(
             session_day=TimetableSession.SUN,
-            session_time=datetime.time(hour=18, minute=0),
+            start_time=datetime.time(hour=19, minute=0),
+            end_time=datetime.time(hour=20, minute=0),
             name="Pole Fitness",
             session_type=polefit,
             venue=inverkeithing,
@@ -481,7 +579,8 @@ class Command(BaseCommand):
         )
         TimetableSession.objects.get_or_create(
             session_day=TimetableSession.SUN,
-            session_time=datetime.time(hour=18, minute=0),
+            start_time=datetime.time(hour=20, minute=0),
+            end_time=datetime.time(hour=21, minute=0),
             name="Pole Fitness",
             session_type=polefit,
             venue=inverkeithing,

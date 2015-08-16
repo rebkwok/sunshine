@@ -23,16 +23,16 @@ class SessionTypeAdmin(admin.ModelAdmin):
 
 class TimetableSessionAdmin(admin.ModelAdmin):
     list_display = ('name', 'session_type', 'level', 'instructor', 'session_day',
-                    'session_time', 'duration', 'venue',)
+                    'start_time', 'end_time', 'venue',)
     fieldsets = [
         ('Session information', {
             'fields': ['name', 'session_type', 'level', 'instructor', 'venue']
         }),
         ('Date and time', {
-            'fields': ['session_day', 'session_time', 'duration']
+            'fields': ['session_day', 'start_time', 'end_time']
         }),
          ]
-    ordering = ['session_day', 'session_time']
+    ordering = ['session_day', 'start_time']
 
     list_filter = ['session_type', 'instructor', 'venue']
     #change_list_template = "admin/change_list_filter_sidebar.html"
