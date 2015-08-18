@@ -15,4 +15,6 @@ alias set_envs="
 export SECRET_KEY=sdfjhasleiwoefnd
 export DATABASE_URL=postgres://starlet:sdjgh34iutwefhfgbqkj3@localhost/polefit
 export DEBUG=True
+export EMAIL_HOST_PASSWORD=qznyykjfppbtajij
+export USE_MAILCATCHER=False
 "

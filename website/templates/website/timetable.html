@@ -11,11 +11,20 @@
     </div>
 
     {% if timetable_sessions %}
+
+
+        <form class="filter-row" action="" method="get">
+            <strong>Show classes by: </strong>{{ form.filtered_session_type }} {{ form.filtered_venue }}
+            <input class="btn btn-info table-btn" type="submit" value="Go" />
+        </form>
+
+
         <div class="row">
             <div class="panel" style="background-color: rgba(255,255,255,0.6);">
                 <div class="table-responsive">
                     <table class="table">
                         <tr>
+                            <th></th>
                             <th>Day</th>
                             <th>Time</th>
                             <th>Class</th>
@@ -31,7 +40,13 @@
                                 class="venue-inverkeithing"
                             {% elif session.venue.venue == "Cowdenbeath Studio" %}
                                 class="venue-cowdenbeath"
+                            {% elif session.venue.venue == "Energy Zone" %}
+                                class="venue-energyzone"
                             {% endif %}>
+                            <td class="timetable-row">
+                                <a href="{% url 'website:booking_request' session.pk %}">
+                                <div class="btn btn-info table-btn booking-btn">Request to Book</div></a>
+                            </td>
                             <td class="timetable-row">{{ session.session_day|format_day }}</td>
                             <td class="timetable-row">{{ session.start_time|time:"H:i" }} - {{ session.end_time|time:"H:i" }}</td>
                             <td class="timetable-row">
@@ -39,6 +54,8 @@
                                     <span class="label label-warning label-rounded">
                                 {% elif session.membership_level.membership_level == 2 %}
                                     <span class="label label-success label-rounded">
+                                {% elif session.membership_level.membership_level == 3 %}
+                                    <span class="label label-primary label-rounded">
                                 {% else %}
                                     <span>
                                 {% endif %}

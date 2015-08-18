@@ -2,7 +2,7 @@
 - hosts: all
   roles:
       - setup
-      #- mailcatcher
+      - mailcatcher
       - deploy
   environment:
       SECRET_KEY: "{{ secret_key }}"

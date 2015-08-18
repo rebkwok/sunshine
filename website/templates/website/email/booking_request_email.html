@@ -1,0 +1,16 @@
+{% extends 'website/email/email_base.html' %}
+
+{% block messagecontent %}
+
+    <p>{{ first_name }} {{ last_name }} ({{ email_address }}) has requested to book for {{ session }}</p>
+
+    <ul>
+        <li>Date: {{ date_booked }}</li>
+        {% if additonal_msg %}<li>Additional message from {{ first_name }}:</li>{% endif %}
+    </ul>
+
+    <p>{{ additional_msg }}</p>
+
+    <p>To confirm {{ first_name }}'s booking, please reply to this email.</p>
+
+{% endblock messagecontent %}

@@ -1,19 +1,22 @@
 from django.conf.urls import patterns, url
 from django.views.generic import RedirectView
 
+from website.views import TimetableListView
 
 urlpatterns = patterns(
     'website.views',
     url(r'^about/$',             'about', name='about'),
     url(r'^classes/$', 'classes', name='classes'),
+    url(r'^(?P<session_pk>\d+)/book/$', 'booking_request',
+        name='booking_request'),
     url(r'^instructors$',       'instructors', name='instructors'),
     url(r'^events$',       'events', name='events'),
     url(r'^venues$',            'venues', name='venues'),
-    url(r'^booking$',           'booking', name='booking'),
+    url(r'^membership',           'membership', name='membership'),
     url(r'^parties$',           'parties', name='parties'),
     url(r'^gallery$',           'gallery', name='gallery'),
     url(r'^(?P<category_id>\d+)/gallery/category/$', 'gallery_category', name='gallery_category'),
-    url(r'^timetable$',           'timetable', name='timetable'),
+    url(r'^timetable$', TimetableListView.as_view(), name='timetable'),
     url(r'^polefit_admin_help/help$',           'admin_help_login', name='admin_help_login'),
     url(r'^polefit_admin_help/help/sessions$',           'admin_help_sessions', name='admin_help_sessions'),
     url(r'^polefit_admin_help/help/sessiontypes$',           'admin_help_sessiontypes', name='admin_help_sessiontypes'),

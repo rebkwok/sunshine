@@ -1,6 +1,7 @@
 from django.db import models
 import datetime
 from django.utils import timezone
+from django_extensions.db.fields import AutoSlugField
 
 
 class Instructor(models.Model):
@@ -116,6 +117,8 @@ class TimetableSession(models.Model):
 
     def __str__(self):
 
-        session_str = str(self.session_type) + ", " + str(self.session_day) + (self.session_time.strftime('%I:%M%p'))
-
-        return session_str
+        return "{}, {} {}".format(
+            self.name,
+            (dict(self.WEEKDAY_CHOICES))[self.session_day],
+            self.start_time.strftime('%H:%M')
+        )
