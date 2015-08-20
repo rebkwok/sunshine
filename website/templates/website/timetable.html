@@ -14,13 +14,19 @@
 
 
         <form class="filter-row" action="" method="get">
-            <strong>Show classes by: </strong>{{ form.filtered_session_type }} {{ form.filtered_venue }}
-            <input class="btn btn-info table-btn" type="submit" value="Go" />
+            <div class="row">
+                <div class="col-sm-2">
+                    <strong>Show classes by: </strong>
+                </div>
+                <div class="col-sm-2 filter">{{ form.filtered_session_type }}</div>
+                <div class="col-sm-2 filter">{{ form.filtered_venue }}</div>
+                <div class="col-sm-1"><input class="btn btn-info table-btn" type="submit" value="Go" /></div>
+            </div>
         </form>
-
+        </br>
 
         <div class="row">
-            <div class="panel" style="background-color: rgba(255,255,255,0.6);">
+            <div class="panel" style="background-color: rgba(230,230,230,0.6);">
                 <div class="table-responsive">
                     <table class="table">
                         <tr>
@@ -43,13 +49,13 @@
                             {% elif session.venue.venue == "Energy Zone" %}
                                 class="venue-energyzone"
                             {% endif %}>
-                            <td class="timetable-row">
+                            <td class="table-center timetable-row">
                                 <a href="{% url 'website:booking_request' session.pk %}">
-                                <div class="btn btn-info table-btn booking-btn">Request to Book</div></a>
+                                <div class="btn btn-info table-btn booking-btn">Book</div></a>
                             </td>
                             <td class="timetable-row">{{ session.session_day|format_day }}</td>
                             <td class="timetable-row">{{ session.start_time|time:"H:i" }} - {{ session.end_time|time:"H:i" }}</td>
-                            <td class="timetable-row">
+                            <td class="table-center timetable-row">
                                 {% if session.membership_level.membership_level == 1 %}
                                     <span class="label label-warning label-rounded">
                                 {% elif session.membership_level.membership_level == 2 %}

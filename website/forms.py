@@ -35,8 +35,15 @@ def get_venues():
 
 
 class TimetableFilter(forms.Form):
-    filtered_session_type = forms.ChoiceField(choices=get_session_types())
-    filtered_venue = forms.ChoiceField(choices=get_venues())
+    filtered_session_type = forms.ChoiceField(
+        choices=get_session_types(),
+        widget=forms.Select(attrs={'class': 'form-control input-xs'})
+    )
+
+    filtered_venue = forms.ChoiceField(
+        choices=get_venues(),
+        widget=forms.Select(attrs={'class': 'form-control input-xs'})
+    )
 
 
 DAYS = {

@@ -468,6 +468,7 @@ animation-duration: 8s;
 .navbar .navbar-toggle .icon-bar { background-color: #f2bd49}
 .navbar .navbar-nav>.active-nav>a:hover {background-color: #f2bd49; color: #664067}
 .navbar .navbar-nav>li>a:hover {background-color: #f2bd49; color: #664067}
+.navbar .navbar-nav>li>a .active {background-color: #f2bd49; color: #664067}
 .navbar .navbar-nav>li>a {background-color: #664067; color: #f2bd49}
 
 .navbar .navbar-nav .open .dropdown-menu>li>a, .navbar .navbar-nav .open .dropdown-menu {
@@ -495,6 +496,7 @@ td.timetable-row {
     display: block;
     border-radius: 25px;
     width: 130px;
+    line-height: 1.25;
     padding-left: 0;
     padding-right: 0;
     font-size: 85%;
@@ -520,13 +522,13 @@ td.timetable-row {
 	padding-left: 0;
 	padding-right: 0;
     font-size: 85%;
-    width: 50px;
+    line-height: 1.5;
+    width: 80px;
 }
 
-.table-btn.booking-btn {
-    width: 110px;
+.table-center {
+    text-align: center !important;
 }
-
 .required {
     color: red;
     font-weight: bold;
@@ -578,3 +580,16 @@ label {
     background-color: rgba(220,220,220, 0.3);
     border: solid 1px #4B088A;
 }
+
+.filter {
+    padding-left: 0;
+    padding-right: 5px;
+}
+
+.input-xs {
+    height: 22px;
+    padding: 2px 5px;
+    font-size: 12px;
+    line-height: 1.5;
+    border-radius: 3px;
+    }

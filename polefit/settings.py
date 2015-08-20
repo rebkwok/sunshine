@@ -121,3 +121,9 @@ if os.environ.get('USE_MAILCATCHER', "False").lower() == "true":
     EMAIL_HOST_PASSWORD = ''
     EMAIL_PORT = 1025
     EMAIL_USE_TLS = False
+
+
+from django.contrib import messages
+MESSAGE_TAGS = {
+    messages.ERROR: 'danger'
+}

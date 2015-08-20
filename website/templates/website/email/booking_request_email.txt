@@ -5,7 +5,7 @@
 {{ first_name }} {{ last_name }} ({{ email_address }}) has requested to book for {{ session }}:
 
     - Date: {{ date_booked }}
-    {% if additonal_msg %}- Additional message from {{ first_name }}:{% endif %}
+    {% if additional_msg %}- Additional message from {{ first_name }}:{% endif %}
 
     {{ additional_msg }}
 
