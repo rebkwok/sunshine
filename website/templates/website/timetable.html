@@ -34,6 +34,9 @@
                             <th>Day</th>
                             <th>Time</th>
                             <th>Class</th>
+                            <th>Cost <span class="help-text"></br>
+                                <a href="{% url 'website:membership' %}">Membership options</a></span>
+                            </th>
                             <th>Level</th>
                             <th>Location</th>
                         </tr>
@@ -67,6 +70,7 @@
                                 {% endif %}
                                     {{ session.name }}
                                 </span></td>
+                            <td class="table-center timetable-row">£ {{ session.cost | format_cost }}{% if session.alt_cost != None %} / £ {{ session.alt_cost | format_cost }}{% endif %}</td>
                             <td class="timetable-row">{{ session.level }}</td>
                             <td class="timetable-row">{{ session.venue.abbreviation }}</td>
                         </tr>

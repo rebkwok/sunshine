@@ -252,7 +252,9 @@ class Command(BaseCommand):
             name="Pole Fitness",
             session_type=polefit,
             venue=inverkeithing,
-            membership_level=membership1
+            membership_level=membership1,
+            cost=7,
+            alt_cost=5
         )
         TimetableSession.objects.get_or_create(
             session_day=TimetableSession.MON,
@@ -261,7 +263,9 @@ class Command(BaseCommand):
             name="Legs, Bums and Tums",
             session_type=general_fitness,
             venue=inverkeithing,
-            membership_level=membership2
+            membership_level=membership2,
+            cost=4.50,
+            alt_cost=3.50
         )
         TimetableSession.objects.get_or_create(
             session_day=TimetableSession.MON,
@@ -270,7 +274,9 @@ class Command(BaseCommand):
             name="Open Training",
             session_type=open,
             venue=inverkeithing,
-            membership_level=membership3
+            membership_level=membership3,
+            cost=10,
+            alt_cost=0
         )
         TimetableSession.objects.get_or_create(
             session_day=TimetableSession.MON,
@@ -279,7 +285,9 @@ class Command(BaseCommand):
             name="Stretch and Conditioning",
             session_type=stretch,
             venue=inverkeithing,
-            membership_level=membership2
+            membership_level=membership2,
+            cost=4.50,
+            alt_cost=3.50
         )
         TimetableSession.objects.get_or_create(
             session_day=TimetableSession.MON,
@@ -288,7 +296,9 @@ class Command(BaseCommand):
             name="Aerial Hoop",
             session_type=hoop,
             venue=inverkeithing,
-            membership_level=membership1
+            membership_level=membership1,
+            cost=7,
+            alt_cost=5
         )
         TimetableSession.objects.get_or_create(
             session_day=TimetableSession.MON,
@@ -298,7 +308,9 @@ class Command(BaseCommand):
             session_type=polefit,
             venue=inverkeithing,
             level="Beginer/Intermediate",
-            membership_level=membership1
+            membership_level=membership1,
+            cost=7,
+            alt_cost=5
         )
         TimetableSession.objects.get_or_create(
             session_day=TimetableSession.MON,
@@ -308,7 +320,9 @@ class Command(BaseCommand):
             session_type=polefit,
             venue=inverkeithing,
             level="Intermediate/Advanced",
-            membership_level=membership1
+            membership_level=membership1,
+            cost=7,
+            alt_cost=5
         )
 
         # Tuesday
@@ -319,7 +333,9 @@ class Command(BaseCommand):
             name="Pole Fitness",
             session_type=polefit,
             venue=inverkeithing,
-            membership_level=membership1
+            membership_level=membership1,
+            cost=7,
+            alt_cost=5
         )
         TimetableSession.objects.get_or_create(
             session_day=TimetableSession.MON,
@@ -328,7 +344,9 @@ class Command(BaseCommand):
             name="Open Training",
             session_type=open,
             venue=inverkeithing,
-            membership_level=membership3
+            membership_level=membership3,
+            cost=10,
+            alt_cost=0
         )
         TimetableSession.objects.get_or_create(
             session_day=TimetableSession.TUE,
@@ -337,7 +355,9 @@ class Command(BaseCommand):
             name="Kettle Bells",
             session_type=general_fitness,
             venue=inverkeithing,
-            membership_level=membership2
+            membership_level=membership2,
+            cost=4.50,
+            alt_cost=3.50
         )
         TimetableSession.objects.get_or_create(
             session_day=TimetableSession.TUE,
@@ -347,7 +367,9 @@ class Command(BaseCommand):
             session_type=polefit,
             venue=inverkeithing,
             level="Beginner/Intermediate",
-            membership_level=membership1
+            membership_level=membership1,
+            cost=7,
+            alt_cost=5
         )
         TimetableSession.objects.get_or_create(
             session_day=TimetableSession.TUE,
@@ -356,7 +378,9 @@ class Command(BaseCommand):
             name="Pole Fitness",
             session_type=polefit,
             venue=inverkeithing,
-            membership_level=membership1
+            membership_level=membership1,
+            cost=7,
+            alt_cost=5
         )
         TimetableSession.objects.get_or_create(
             session_day=TimetableSession.TUE,
@@ -366,7 +390,9 @@ class Command(BaseCommand):
             session_type=polefit,
             venue=inverkeithing,
             level="Intermediate/Advanced",
-            membership_level=membership1
+            membership_level=membership1,
+            cost=7,
+            alt_cost=5
         )
         TimetableSession.objects.get_or_create(
             session_day=TimetableSession.TUE,
@@ -375,7 +401,9 @@ class Command(BaseCommand):
             name="BounceFit",
             session_type=bouncefit,
             venue=energyzone,
-            membership_level=membership2
+            membership_level=membership2,
+            cost=4.50,
+            alt_cost=3.50
         )
         TimetableSession.objects.get_or_create(
             session_day=TimetableSession.TUE,
@@ -384,7 +412,9 @@ class Command(BaseCommand):
             name="BounceFit",
             session_type=bouncefit,
             venue=energyzone,
-            membership_level=membership2
+            membership_level=membership2,
+            cost=4.50,
+            alt_cost=3.50
         )
         # Wednesday
         TimetableSession.objects.get_or_create(
@@ -394,7 +424,9 @@ class Command(BaseCommand):
             name="Open Training",
             session_type=open,
             venue=inverkeithing,
-            membership_level=membership3
+            membership_level=membership3,
+            cost=10,
+            alt_cost=0
         )
         TimetableSession.objects.get_or_create(
             session_day=TimetableSession.WED,
@@ -403,7 +435,9 @@ class Command(BaseCommand):
             name="Pole Fitness",
             session_type=polefit,
             venue=inverkeithing,
-            membership_level=membership1
+            membership_level=membership1,
+            cost=7,
+            alt_cost=5
         )
         TimetableSession.objects.get_or_create(
             session_day=TimetableSession.WED,
@@ -412,7 +446,9 @@ class Command(BaseCommand):
             name="Pole stretching",
             session_type=polefit,
             venue=inverkeithing,
-            membership_level=membership2
+            membership_level=membership2,
+            cost=4.50,
+            alt_cost=3.50
         )
         TimetableSession.objects.get_or_create(
             session_day=TimetableSession.WED,
@@ -422,7 +458,9 @@ class Command(BaseCommand):
             session_type=polefit,
             venue=inverkeithing,
             level="Intermediate/Advanced",
-            membership_level=membership1
+            membership_level=membership1,
+            cost=7,
+            alt_cost=5
         )
         TimetableSession.objects.get_or_create(
             session_day=TimetableSession.WED,
@@ -431,7 +469,9 @@ class Command(BaseCommand):
             name="Pole Fitness",
             session_type=polefit,
             venue=cowdenbeath,
-            membership_level=membership1
+            membership_level=membership1,
+            cost=7,
+            alt_cost=5
         )
         TimetableSession.objects.get_or_create(
             session_day=TimetableSession.WED,
@@ -440,7 +480,9 @@ class Command(BaseCommand):
             name="Aerial Hoop",
             session_type=hoop,
             venue=cowdenbeath,
-            membership_level=membership1
+            membership_level=membership1,
+            cost=7,
+            alt_cost=5
         )
         TimetableSession.objects.get_or_create(
             session_day=TimetableSession.WED,
@@ -449,7 +491,9 @@ class Command(BaseCommand):
             name="Pole Fitness",
             session_type=polefit,
             venue=cowdenbeath,
-            membership_level=membership1
+            membership_level=membership1,
+            cost=7,
+            alt_cost=5
         )
         TimetableSession.objects.get_or_create(
             session_day=TimetableSession.WED,
@@ -458,7 +502,9 @@ class Command(BaseCommand):
             name="Aerial Hoop",
             session_type=hoop,
             venue=cowdenbeath,
-            membership_level=membership1
+            membership_level=membership1,
+            cost=7,
+            alt_cost=5
         )
         TimetableSession.objects.get_or_create(
             session_day=TimetableSession.WED,
@@ -467,7 +513,9 @@ class Command(BaseCommand):
             name="Gym training",
             session_type=general_fitness,
             venue=cowdenbeath,
-            membership_level=membership2
+            membership_level=membership2,
+            cost=4.50,
+            alt_cost=3.50
         )
 
         # Thursday
@@ -478,7 +526,9 @@ class Command(BaseCommand):
             name="Pole Fitness",
             session_type=polefit,
             venue=inverkeithing,
-            membership_level=membership1
+            membership_level=membership1,
+            cost=7,
+            alt_cost=5
         )
         TimetableSession.objects.get_or_create(
             session_day=TimetableSession.THU,
@@ -487,7 +537,9 @@ class Command(BaseCommand):
             name="Stretch and Flex",
             session_type=stretch,
             venue=inverkeithing,
-            membership_level=membership2
+            membership_level=membership2,
+            cost=4.50,
+            alt_cost=3.50
         )
         TimetableSession.objects.get_or_create(
             session_day=TimetableSession.THU,
@@ -496,7 +548,9 @@ class Command(BaseCommand):
             name="Circuits",
             session_type=general_fitness,
             venue=inverkeithing,
-            membership_level=membership2
+            membership_level=membership2,
+            cost=4.50,
+            alt_cost=3.50
         )
         TimetableSession.objects.get_or_create(
             session_day=TimetableSession.THU,
@@ -505,6 +559,8 @@ class Command(BaseCommand):
             name="Aerial Hoop",
             session_type=hoop,
             venue=cowdenbeath,
+            cost=7,
+            alt_cost=None
         )
         TimetableSession.objects.get_or_create(
             session_day=TimetableSession.THU,
@@ -513,6 +569,8 @@ class Command(BaseCommand):
             name="Pole Fitness",
             session_type=polefit,
             venue=cowdenbeath,
+            cost=7,
+            alt_cost=None
         )
         TimetableSession.objects.get_or_create(
             session_day=TimetableSession.THU,
@@ -521,6 +579,8 @@ class Command(BaseCommand):
             name="Aerial Hoop",
             session_type=hoop,
             venue=cowdenbeath,
+            cost=7,
+            alt_cost=None
         )
         TimetableSession.objects.get_or_create(
             session_day=TimetableSession.THU,
@@ -530,7 +590,9 @@ class Command(BaseCommand):
             session_type=polefit,
             venue=edinburgh,
             level="Advanced",
-            membership_level=membership1
+            membership_level=membership1,
+            cost=7,
+            alt_cost=5
         )
 
         # Friday
@@ -541,7 +603,9 @@ class Command(BaseCommand):
             name="Open Training",
             session_type=open,
             venue=inverkeithing,
-            membership_level=membership3
+            membership_level=membership3,
+            cost=10,
+            alt_cost=0
         )
         TimetableSession.objects.get_or_create(
             session_day=TimetableSession.FRI,
@@ -550,7 +614,9 @@ class Command(BaseCommand):
             name="Aerial Hoop",
             session_type=hoop,
             venue=inverkeithing,
-            membership_level=membership1
+            membership_level=membership1,
+            cost=7,
+            alt_cost=5
         )
         TimetableSession.objects.get_or_create(
             session_day=TimetableSession.FRI,
@@ -559,7 +625,9 @@ class Command(BaseCommand):
             name="Lyrical Pole Fitness",
             session_type=polefit,
             venue=inverkeithing,
-            membership_level=membership1
+            membership_level=membership1,
+            cost=7,
+            alt_cost=5
         )
         TimetableSession.objects.get_or_create(
             session_day=TimetableSession.MON,
@@ -568,7 +636,9 @@ class Command(BaseCommand):
             name="Open Training",
             session_type=open,
             venue=inverkeithing,
-            membership_level=membership3
+            membership_level=membership3,
+            cost=10,
+            alt_cost=0
         )
 
         # Saturday
@@ -579,7 +649,9 @@ class Command(BaseCommand):
             name="Kettle Bells",
             session_type=general_fitness,
             venue=inverkeithing,
-            membership_level=membership2
+            membership_level=membership2,
+            cost=4.50,
+            alt_cost=3.50
         )
         TimetableSession.objects.get_or_create(
             session_day=TimetableSession.MON,
@@ -588,7 +660,9 @@ class Command(BaseCommand):
             name="Open Training",
             session_type=open,
             venue=inverkeithing,
-            membership_level=membership3
+            membership_level=membership3,
+            cost=10,
+            alt_cost=0
         )
         TimetableSession.objects.get_or_create(
             session_day=TimetableSession.SAT,
@@ -597,7 +671,9 @@ class Command(BaseCommand):
             name="Burlesque",
             session_type=burlesque,
             venue=inverkeithing,
-            membership_level=membership2
+            membership_level=membership2,
+            cost=4.50,
+            alt_cost=3.50
         )
 
         # Sunday
@@ -608,7 +684,9 @@ class Command(BaseCommand):
             name="Pole Fitness",
             session_type=polefit,
             venue=inverkeithing,
-            membership_level=membership1
+            membership_level=membership1,
+            cost=7,
+            alt_cost=5
         )
         TimetableSession.objects.get_or_create(
             session_day=TimetableSession.SUN,
@@ -617,7 +695,9 @@ class Command(BaseCommand):
             name="Conditioning Pole Fitness",
             session_type=polefit,
             venue=inverkeithing,
-            membership_level=membership1
+            membership_level=membership1,
+            cost=7,
+            alt_cost=5
         )
         TimetableSession.objects.get_or_create(
             session_day=TimetableSession.SUN,
@@ -627,7 +707,9 @@ class Command(BaseCommand):
             session_type=polefit,
             venue=inverkeithing,
             level="Advanced",
-            membership_level=membership1
+            membership_level=membership1,
+            cost=7,
+            alt_cost=5
         )
         TimetableSession.objects.get_or_create(
             session_day=TimetableSession.SUN,
@@ -637,5 +719,7 @@ class Command(BaseCommand):
             session_type=polefit,
             venue=inverkeithing,
             level="Beginner",
-            membership_level=membership1
+            membership_level=membership1,
+            cost=7,
+            alt_cost=5
         )
