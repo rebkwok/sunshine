@@ -503,6 +503,17 @@ td.timetable-row {
     font-weight: 300;
 }
 
+.label-rounded.label-member {
+    width: 160px;
+    line-height: 1.1;
+    margin-bottom: 2px;
+}
+
+.label-rounded.label-member-title {
+    font-size: 100%;
+    font-weight: 400;
+}
+
 .venue-edinburgh {
     background-color: rgba(220,0,0,0.15);
 }
@@ -593,3 +604,7 @@ label {
     line-height: 1.5;
     border-radius: 3px;
     }
+
+.member-data {
+    background-color: rgba(122,62,126,0.4);
+}

@@ -2,29 +2,127 @@
 
 {% block content %}
 
-<div class="container-fluid">
-	<div class="row">
-		<div class="col-sm-4 col-sm-offset-1">
-			<h1>Membership & Prices</h1>
-		</div>
-	</div>
-	<!-- row1 -->
-	<div class="row">
-		<div class="col-sm-8 col-sm-offset-1">
+<div class="container-fluid row">
+
+    <div class="col-sm-10 col-sm-offset-1">
+        <h2>
+            Membership & Prices
+        </h2>
+    </div>
+
+	<div class="col-sm-10 col-sm-offset-1">
 			<p>
-				For more information or to book a class please use the "Booking request" buttons on the
-				<a href="{% url 'website:timetable' %}">Timetable</a> page or
-				<a href="mailto:carouselfitness@gmail.com?Subject=Booking%20enquiry" target="_blank">
-				email us</a>.
+				We have a range of membership options available
 			</p>
+	</div>
+
+	<div class="col-sm-10 col-sm-offset-1">
+
+		<div class="panel" style="background-color: rgba(240,240,240,0.8);">
+			<div class="table-responsive">
+				<table class="table member-table">
+					<thead>
+						<tr>
+							<th></th>
+							<th></th>
+							<th class="table-center" colspan="3">Classes included per week</th>
+							<th></th>
+						</tr>
+						<tr>
+							<th>Option</th>
+							<th>Monthly cost</th>
+							<th><span class="label label-warning label-rounded label-member-title">Yellow classes</span></th>
+							<th><span class="label label-success label-rounded label-member-title">Green classes</span></th>
+							<th><span class="label label-primary label-rounded label-member-title">Open training</span></th>
+							<th>Additional drop-in</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr class="timetable-row">
+							<td class="timetable-row">Non-member</td>
+							<td class="timetable-row">£0</td>
+							<td class="timetable-row">--</td>
+							<td class="timetable-row">--</td>
+							<td class="timetable-row">--</td>
+							<td class="timetable-row">
+								<span class="label label-warning label-rounded label-member">Yellow classes: £7</span>
+								<span class="label label-success label-rounded label-member">Green classes: £4.50</span>
+								<span class="label label-primary label-rounded label-member">Open training day pass: £10</span>
+							</td>
+						</tr>
+						<tr>
+							<td class="timetable-row">A</td>
+							<td class="timetable-row">£15</td>
+							<td class="timetable-row">--</td>
+							<td class="timetable-row member-data">1</td>
+							<td class="timetable-row">--</td>
+							<td class="timetable-row">No discount (see non-member costs above)</td>
+						</tr>
+						<tr>
+							<td class="timetable-row">B</td>
+							<td class="timetable-row">£25</td>
+							<td class="timetable-row member-data">1</td>
+							<td class="timetable-row">--</td>
+							<td class="timetable-row">--</td>
+							<td class="timetable-row">No discount (see non-member costs above)</td>
+						</tr>
+						<tr>
+							<td class="timetable-row">C</td>
+							<td class="timetable-row">£30</td>
+							<td class="timetable-row">--</td>
+							<td class="timetable-row member-data">Unlimited</td>
+							<td class="timetable-row">--</td>
+							<td class="timetable-row">
+								<span class="label label-warning label-rounded label-member">Yellow classes: £5</span>
+								<span class="label label-primary label-rounded label-member">Open training day pass: £10</span>
+							</td>
+						</tr>
+						<tr>
+							<td class="timetable-row">D</td>
+							<td class="timetable-row">£40</td>
+							<td class="timetable-row member-data">2</td>
+							<td class="timetable-row">--</td>
+							<td class="timetable-row">--</td>
+							<td class="timetable-row">
+								<span class="label label-success label-rounded label-member">Green classes: £3.50</span>
+								<span class="label label-primary label-rounded label-member">Open training day pass: £10</span>
+							</td>
+						</tr>
+						<tr>
+							<td class="timetable-row">E</td>
+							<td class="timetable-row">£55</td>
+							<td class="timetable-row member-data">2</td>
+							<td class="timetable-row member-data">Unlimited</td>
+							<td class="timetable-row member-data">Unlimited</td>
+							<td class="timetable-row">
+								<span class="label label-warning label-rounded label-member">Yellow classes: £5</span>
+							</td>
+						</tr>
+						<tr>
+							<td class="timetable-row">F</td>
+							<td class="timetable-row">£75</td>
+							<td class="timetable-row member-data">4</td>
+							<td class="timetable-row member-data">Unlimited</td>
+							<td class="timetable-row member-data">Unlimited</td>
+							<td class="timetable-row">
+								<span class="label label-warning label-rounded label-member">Yellow classes: £5</span>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+
+
+
+
+
 		</div>
 	</div>
-	<!-- row2 -->
-	<div class="row">
-		<div class="col-sm-6 col-sm-offset-1">
-			<h3></h3>
-		</div>
-	</div>
+
 </div>
 
 {% endblock %}
+For more information or to book a class please use the "Booking request" buttons on the
+				<a href="{% url 'website:timetable' %}">Timetable</a> page or
+				<a href="mailto:carouselfitness@gmail.com?Subject=Booking%20enquiry" target="_blank">
+				email us</a>.
