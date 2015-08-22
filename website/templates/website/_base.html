@@ -53,11 +53,11 @@
                         <li class="visible-sm visible-md dropdown">
                           <a href="#" class="dropdown-toggle" data-toggle="dropdown">More<b class="caret"></b></a>
                           <ul class="dropdown-menu">
-                                <li class="hidden-md" {% if section == 'classes' %}class="active"{% endif %}><a href="{% url 'website:classes' %}">Classes</a></li>
-                                <li {% if section == 'instructors' %} class="active"{% endif %}><a href="{% url 'website:instructors' %}">Instructors</a></li
-                                <li {% if section == 'venues' %} class="active"{% endif %}><a href="{% url 'website:venues' %}">Venues</a></li>
-                                <li class="hidden-md"{% if section == 'parties' %}class="active"{% endif %}><a href="{% url 'website:parties' %}">Parties</a></li>
-                                <li class="hidden-md"{% if section == 'gallery' %}class="active"{% endif %}><a href="{% url 'website:gallery' %}">Gallery</a></li>
+                                <li class="hidden-md"><a href="{% url 'website:classes' %}">Classes</a></li>
+                                <li><a href="{% url 'website:instructors' %}">Instructors</a></li>
+                                <li><a href="{% url 'website:venues' %}">Venues</a></li>
+                                <li class="hidden-md"><a href="{% url 'website:parties' %}">Parties</a></li>
+                                <li class="hidden-md"><a href="{% url 'website:gallery' %}">Gallery</a></li>
                           </ul>
                         </li>
                     </ul>
