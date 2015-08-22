@@ -49,6 +49,7 @@
                         <li class = "hidden-sm" {% if section == 'membership' %}class="active"{% endif %}><a href="{% url 'website:membership' %}">Membership & Prices</a></li>
                         <li class = "hidden-sm" {% if section == 'parties' %}class="active"{% endif %}><a href="{% url 'website:parties' %}">Parties</a></li>
                         <li class = "hidden-sm" {% if section == 'gallery' %}class="active"{% endif %}><a href="{% url 'website:gallery' %}">Gallery</a></li>
+                        <li class = "hidden-sm" {% if section == 'contact' %}class="active"{% endif %}><a href="{% url 'website:contact' %}">Contact us</a></li>
                         <li class="visible-sm dropdown">
                           <a href="#" class="dropdown-toggle" data-toggle="dropdown">More<b class="caret"></b></a>
                           <ul class="dropdown-menu">
@@ -56,6 +57,7 @@
                                 <li {% if section == 'membership' %}class="active"{% endif %}><a href="{% url 'website:membership' %}">Membership & Prices</a></li>
                                 <li {% if section == 'parties' %}class="active"{% endif %}><a href="{% url 'website:parties' %}">Parties</a></li>
                                 <li {% if section == 'gallery' %}class="active"{% endif %}><a href="{% url 'website:gallery' %}">Gallery</a></li>
+                                <li {% if section == 'contact' %}class="active"{% endif %}><a href="{% url 'website:contact' %}">Contact us</a></li>
                           </ul>
                         </li>
                     </ul>
@@ -90,14 +92,27 @@
 
         <div class="container-fluid">
             <div class="row footer_box">
-                <div class="col-sm-6 footer-fb pull-left">
+                <div class="col-sm-5 footer-fb pull-left">
                     <div class="fb-like"
+                         data-layout="button_count"
+                         data-action="like"
+                         data-show-faces="true"
+                         data-share="false">
+                    </div>
+                    <div class="fb-follow"
+                         data-href="https://www.facebook.com/polefitstarlet.dunfermline"
                          data-layout="standard"
-                         data-action="like" data-show-faces="true" data-share="true">
+                         data-show-faces="false">
                     </div>
                     <div class="footer-credit">Site developed by <a href="https://twitter.com/rebkwok" target="_blank" style="color: #0B0B61">Becky Smith</a></div>
                 </div>
-                <div class="col-sm-6 footer-logo pull-right">
+                <div class="col-sm-4">
+                    <div class="footer-link-box"><a class="footer-link" href="{% url 'website:timetable' %}">Find a class</a></div>
+		            <div class="footer-link-box"><a class="footer-link" href="{% url 'website:contact' %}">Contact us</a></div>
+                </div>
+
+
+                <div class="hidden-xs col-sm-3 footer-logo pull-right">
                     <img class="pull-right img-responsive" style="max-height:50px; margin-bottom:5px"; src="{% static "website/images/logo_text_only.png" %}">
                 </div>
             </div>

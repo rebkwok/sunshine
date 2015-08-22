@@ -79,13 +79,6 @@ class BookingRequestForm(forms.Form):
         self.session = kwargs.pop('session')
         super(BookingRequestForm, self).__init__(*args, **kwargs)
 
-        self.fields['subject'] = forms.CharField(
-            max_length=255, required=True,
-            initial='Booking request for {}'.format(self.session),
-            widget=forms.TextInput(
-                attrs={'class': 'form-control'})
-        )
-
         self.fields['first_name'] = forms.CharField(
             max_length=255, required=True,
             initial='',
@@ -128,3 +121,53 @@ class BookingRequestForm(forms.Form):
             label='Additional comments',
             required=False)
 
+class ContactForm(forms.Form):
+
+        first_name = forms.CharField(
+            max_length=255, required=True,
+            initial='',
+            widget=forms.TextInput(
+                attrs={'class': 'form-control'})
+        )
+
+        last_name = forms.CharField(
+            max_length=255, required=True,
+            initial='',
+            widget=forms.TextInput(
+                attrs={'class': 'form-control'})
+        )
+
+        email_address = forms.EmailField(
+            max_length=255,
+            required=True,
+            widget=forms.TextInput(
+                attrs={'class': 'form-control'})
+        )
+
+        subject = forms.ChoiceField(
+            required=True,
+            label="What can we help you with?",
+            choices=(
+                ('Membership Enquiry', 'Membership Enquiry'),
+                ('Class Booking Enquiry', 'Class Booking Enquiry'),
+                ('Party Booking', 'Party Booking'),
+                ('General Enquiry', 'General Enquiry')
+            ),
+            widget=forms.Select(attrs={'class': 'form-control input-xs disabled'})
+        )
+
+        cc = forms.BooleanField(
+            widget=forms.CheckboxInput(attrs={
+                    'class': "regular-checkbox",
+                    'id': 'cc_id'
+                }),
+            label="Send me a copy of my email request",
+            initial=True,
+            required=False
+        )
+
+        message = forms.CharField(
+            widget=forms.Textarea(attrs={'class': 'form-control email-message',
+                                         'rows': 10}),
+            label='Message',
+            required=True)

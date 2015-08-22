@@ -35,13 +35,13 @@ body {
 	height: auto !important;
 	height: 100%;
 	/* Negative indent footer by it's height */
-	margin: 0 auto -70px;
+	margin: 0 auto -85px;
 }
 
 /* Set the fixed height of the footer here */
 .push,
 .footer {
-	height: 60px;
+	height: 80px;
 }
 
 .footer {
@@ -169,7 +169,13 @@ border-bottom: 1px solid black;
     padding-top:20px;
 }
 
+a {
+    font-weight: bold;
+}
 
+.navbar-nav > li > a {
+    font-weight: normal;
+}
 
 /* unvisited link */
 a:link {
@@ -183,12 +189,21 @@ color: #99739a;
 
 /* mouse over link */
 a:hover {
-color: #99739a;
+color: #f2bd49;
 }
 
 /* selected link */
 a:active {
 color: #99739a;
+}
+
+a.footer-link {
+    font-weight: 500;
+    font-size: small;
+}
+
+.fb-follow {
+    margin-top: 5px;
 }
 
 
@@ -606,5 +621,5 @@ label {
     }
 
 .member-data {
-    background-color: rgba(122,62,126,0.4);
+    background-color: rgba(242,189,73,0.4);
 }

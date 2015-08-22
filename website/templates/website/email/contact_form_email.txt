@@ -1,0 +1,17 @@
+{% extends 'website/email/email_base.html' %}
+
+{% block messagecontent %}
+
+Message received from {{ first_name }} {{ last_name }} ({{ email_address }}) via web contact form:
+
+
+-------------------
+
+{{ message }}
+
+-------------------
+
+
+Replying to this email will reply directly to {{ first_name }}.
+
+{% endblock messagecontent %}

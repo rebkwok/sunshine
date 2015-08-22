@@ -8,11 +8,33 @@
         <h2>
             Membership & Prices
         </h2>
+		<p>To book for specific classes, please see the <a href="{% url 'website:timetable' %}">timetable</a>.</p>
+		<p>For membership queries, private lessons/one-to-one tuition, or any other enquiries, please <a href="{% url 'website:contact_form' %}">contact us</a>.</p>
     </div>
+	<div class="col-sm-10 col-sm-offset-1">
+		<h3>Non-member prices</h3>
+		<p>Please see the <a href="{% url 'website:timetable' %}">timetable</a> for classes in each category.</p>
+		<span class="label label-warning label-rounded label-member-title">Yellow classes</span>
+			<ul>
+				<li>Specialised classes, mainly Pole Fitness and Aerial Hoop</li>
+				<li>£ 7 per class</li>
+			</ul>
+		<span class="label label-success label-rounded label-member-title">Green classes</span>
+			<ul>
+				<li>General fitnees, condiitioning and stretching classes</li>
+				<li>£ 4.50 per class</li>
+			</ul>
+		<span class="label label-primary label-rounded label-member-title">Open training</span>
+			<ul>
+				<li>Free use of our facilities and equipment</li>
+				<li>£ 10 per day pass</li>
+			</ul>
+	</div>
 
 	<div class="col-sm-10 col-sm-offset-1">
+		<h3>Membership Options</h3>
 			<p>
-				We have a range of membership options available
+				We have a range of membership options available.
 			</p>
 	</div>
 
@@ -38,18 +60,6 @@
 						</tr>
 					</thead>
 					<tbody>
-						<tr class="timetable-row">
-							<td class="timetable-row">Non-member</td>
-							<td class="timetable-row">£0</td>
-							<td class="timetable-row">--</td>
-							<td class="timetable-row">--</td>
-							<td class="timetable-row">--</td>
-							<td class="timetable-row">
-								<span class="label label-warning label-rounded label-member">Yellow classes: £7</span>
-								<span class="label label-success label-rounded label-member">Green classes: £4.50</span>
-								<span class="label label-primary label-rounded label-member">Open training day pass: £10</span>
-							</td>
-						</tr>
 						<tr>
 							<td class="timetable-row">A</td>
 							<td class="timetable-row">£15</td>
@@ -111,12 +121,21 @@
 					</tbody>
 				</table>
 			</div>
-
-
-
-
-
 		</div>
+	</div>
+
+	<div class="col-sm-10 col-sm-offset-1">
+		<h3>Terms & Conditions</h3>
+		<ul>
+			<li>Membership options exclude Thursday Cowdenbeath classes</li>
+			<li>Memberships are <strong>non-refundable</strong></li>
+			<li>24 hours notice is required in order to make up a class at a later date</li>
+			<li>We have a 24hrs cancellation policy on drop in classes and private
+				lessons or payment is still required
+			</li>
+			<li>Payment must be made before the 5th of each month</li>
+			<li>Memberships are on a <strong>calendar month</strong> basis (i.e. 1st to the end of each month)</li>
+		</ul>
 	</div>
 
 </div>

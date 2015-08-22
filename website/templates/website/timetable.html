@@ -34,12 +34,14 @@
                             <th></th>
                             <th>Day</th>
                             <th>Time</th>
-                            <th>Class</th>
+                            <th>Class <span class="help-text" style="white-space: nowrap;"></br>
+                                <a href="{% url 'website:classes' %}">Class information</a></th>
                             <th>Cost <span class="help-text" style="white-space: nowrap;"></br>
                                 <a href="{% url 'website:membership' %}">Membership options</a></span>
                             </th>
                             <th>Level</th>
-                            <th>Location</th>
+                            <th>Venue <span class="help-text" style="white-space: nowrap;"></br>
+                                <a href="{% url 'website:venues' %}">Venue locations</a></th>
                         </tr>
                         </thead>
                         <tbody>

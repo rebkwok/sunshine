@@ -15,7 +15,7 @@ from django.utils.safestring import mark_safe
 from timetable.models import Instructor, TimetableSession, SessionType, Venue
 from gallery.models import Category, Image
 from website.models import AboutInfo, PastEvent, Achievement
-from website.forms import TimetableFilter, BookingRequestForm
+from website.forms import TimetableFilter, BookingRequestForm, ContactForm
 
 
 def about(request):
@@ -182,10 +182,14 @@ def booking_request(request, session_pk, template_name='website/booking_request.
             return HttpResponseRedirect(reverse('website:timetable'))
 
         else:
-            messages.error(request, mark_safe("There were errors in the following fields: {}".format(form.errors)))
-            # for error in form.errors:
-            #     messages.error(request, "<p>{}:</p>{}".format(error, form.errors[error]),
-            #                    extra_tags='safe')
+            messages.error(
+                request,
+                mark_safe(
+                    "There were errors in the following "
+                    "fields: {}".format(form.errors)
+                )
+            )
+
 
     first_name = request.session.get('first_name', '')
     last_name = request.session.get('last_name', '')
@@ -198,8 +202,161 @@ def booking_request(request, session_pk, template_name='website/booking_request.
 
     return render(
         request, template_name,
-        {'section': 'none', 'form': form, 'session': session},
+        {'section': 'contact', 'form': form, 'session': session},
     )
+
+def contact(request, template_name='website/contact_us.html'):
+
+    if request.method == 'POST':
+        form = ContactForm(request.POST)
+
+        if form.is_valid():
+            subject = form.cleaned_data['subject']
+            email_address = form.cleaned_data['email_address']
+            first_name = form.cleaned_data['first_name']
+            last_name = form.cleaned_data['last_name']
+            cc = form.cleaned_data['cc']
+
+            ctx = Context(
+                {
+                    'host': 'http://{}'.format(request.META.get('HTTP_HOST')),
+                    'first_name': first_name,
+                    'last_name': last_name,
+                    'email_address': email_address,
+                    'message': form.cleaned_data['message'],
+                }
+            )
+            msg = EmailMultiAlternatives(
+                '{} {}'.format(settings.ACCOUNT_EMAIL_SUBJECT_PREFIX, subject),
+                get_template(
+                    'website/email/contact_form_email.txt'
+                ).render(ctx),
+                settings.DEFAULT_FROM_EMAIL,
+                to=[settings.DEFAULT_STUDIO_EMAIL],
+                cc=[email_address] if cc else [],
+                reply_to=[email_address]
+            )
+            msg.attach_alternative(
+                get_template(
+                    'website/email/contact_form_email.html'
+                ).render(ctx),
+                "text/html"
+            )
+            msg.send(fail_silently=False)
+
+            messages.info(
+                request,
+                "Thank you for your enquiry! Your email has been sent and "
+                "we'll get back to you as soon as possible."
+            )
+            request.session['first_name'] = first_name
+            request.session['last_name'] = last_name
+            request.session['email_address'] = email_address
+
+            return_url = request.session.get(
+                'return_url', reverse('website:contact')
+            )
+            return HttpResponseRedirect(return_url)
+
+        else:
+            messages.error(
+                request,
+                mark_safe("There were errors in the following "
+                          "fields: {}".format(form.errors)
+                          )
+            )
+
+    first_name = request.session.get('first_name', '')
+    last_name = request.session.get('last_name', '')
+    email_address = request.session.get('email_address', '')
+
+    request.session['return_url'] = request.META['HTTP_REFERER']
+
+    form = ContactForm(initial={
+        'first_name': first_name, 'last_name': last_name,
+        'email_address': email_address
+    })
+
+    return render(
+        request, template_name, {'section': 'contact', 'form': form}
+    )
+
+def contact_form(request, template_name='website/contact_form.html'):
+    if request.method == 'POST':
+        form = ContactForm(request.POST)
+
+        if form.is_valid():
+            subject = form.cleaned_data['subject']
+            email_address = form.cleaned_data['email_address']
+            first_name = form.cleaned_data['first_name']
+            last_name = form.cleaned_data['last_name']
+            cc = form.cleaned_data['cc']
+
+            ctx = Context(
+                {
+                    'host': 'http://{}'.format(request.META.get('HTTP_HOST')),
+                    'first_name': first_name,
+                    'last_name': last_name,
+                    'email_address': email_address,
+                    'message': form.cleaned_data['message'],
+                }
+            )
+            msg = EmailMultiAlternatives(
+                '{} {}'.format(settings.ACCOUNT_EMAIL_SUBJECT_PREFIX, subject),
+                get_template(
+                    'website/email/contact_form_email.txt'
+                ).render(ctx),
+                settings.DEFAULT_FROM_EMAIL,
+                to=[settings.DEFAULT_STUDIO_EMAIL],
+                cc=[email_address] if cc else [],
+                reply_to=[email_address]
+            )
+            msg.attach_alternative(
+                get_template(
+                    'website/email/contact_form_email.html'
+                ).render(ctx),
+                "text/html"
+            )
+            msg.send(fail_silently=False)
+
+            messages.info(
+                request,
+                "Thank you for your enquiry! Your email has been sent and "
+                "we'll get back to you as soon as possible."
+            )
+            request.session['first_name'] = first_name
+            request.session['last_name'] = last_name
+            request.session['email_address'] = email_address
+
+            return_url = request.session.get(
+                'return_url', reverse('website:contact')
+            )
+            return HttpResponseRedirect(return_url)
+
+        else:
+            messages.error(
+                request,
+                mark_safe("There were errors in the following "
+                          "fields: {}".format(form.errors)
+                          )
+            )
+
+    first_name = request.session.get('first_name', '')
+    last_name = request.session.get('last_name', '')
+    email_address = request.session.get('email_address', '')
+
+    request.session['return_url'] = request.META['HTTP_REFERER']
+
+    form = ContactForm(initial={
+        'first_name': first_name, 'last_name': last_name,
+        'email_address': email_address
+    })
+
+
+    return render(
+        request, template_name, {'section': 'contact', 'form': form}
+    )
+
 
 def admin_help_login(request):
     return render(
