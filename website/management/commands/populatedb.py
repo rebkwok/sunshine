@@ -25,6 +25,7 @@ class Command(BaseCommand):
                          "to go on and compete in more events in the " \
                          "following years."
              kira.regular_instructor = True
+             kira.index = 2
              kira.save()
 
         emma, new = Instructor.objects.get_or_create(name='Emma Junor')
@@ -44,6 +45,7 @@ class Command(BaseCommand):
                         "moves, Emma has created her own unique style in " \
                         "pole fitness."
             emma.regular_instructor = True
+            emma.index = 1
             emma.save()
 
         laura, new = Instructor.objects.get_or_create(name='Laura Gill')
@@ -56,6 +58,7 @@ class Command(BaseCommand):
                          "She is very passionate about developing classes " \
                          "and is an asset to the team!"
             laura.regular_instructor = True
+            laura.index = 3
             laura.save()
 
         siobhan, new = Instructor.objects.get_or_create(name='Siobhan')
@@ -67,17 +70,13 @@ class Command(BaseCommand):
                          "She is very passionate about developing classes " \
                          "and is an asset to the team!"
             siobhan.regular_instructor = True
+            siobhan.index = 4
             siobhan.save()
 
         sara, new = Instructor.objects.get_or_create(name="Sara")
-
-        sarah, _ = Instructor.objects.get_or_create(
-            name='Sarah Ford', regular_instructor=False
-        )
-
-        nicole, _ = Instructor.objects.get_or_create(
-            name='Nicole Savage', regular_instructor=False
-        )
+        if new:
+            sara.index = 5
+            sara.save()
 
         inverkeithing, _ = Venue.objects.get_or_create(
             venue='Carousel Fitness Studio',
@@ -154,7 +153,7 @@ class Command(BaseCommand):
             hoop.save()
 
         burlesque, new = SessionType.objects.get_or_create(
-            name='Burlesque', regular_session=True, index=4
+            name='Burlesque', regular_session=True, index=6
         )
         if new:
             burlesque.info = "Burlesque dancing is a form of theatrical " \
@@ -165,7 +164,7 @@ class Command(BaseCommand):
             burlesque.save()
 
         stretch, new = SessionType.objects.get_or_create(
-            name='Stretching',  regular_session=True, index=3
+            name='Stretching',  regular_session=True, index=5
         )
         if new:
             stretch.info = "Stretching will help improve flexibilty and " \
@@ -180,7 +179,7 @@ class Command(BaseCommand):
             stretch.save()
 
         general_fitness, new = SessionType.objects.get_or_create(
-            name='General Fitness Classes', regular_session=True, index=5
+            name='General Fitness Classes', regular_session=True, index=3
         )
         if new:
             general_fitness.info = "We offer a variety of more traditional " \
@@ -206,7 +205,7 @@ class Command(BaseCommand):
             open.save()
 
         bouncefit, new = SessionType.objects.get_or_create(
-            name='BounceFit', regular_session=True, index=8
+            name='BounceFit', regular_session=True, index=4
         )
         if new:
             bouncefit.info="BounceFit is the newest and most fun way to " \

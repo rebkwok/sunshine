@@ -29,8 +29,7 @@ class CustomIndexDashboard(Dashboard):
             pre_content=('<h4>Enter scheduled classes to appear on the timetable page.</h4>'),
             css_classes=('collapse closed',),
             models=(
-                #'timetable.models.Session',
-                'timetable.models.FixedSession',),
+                'timetable.models.TimetableSession',),
             exclude=('django.contrib.*',),
         ))
 

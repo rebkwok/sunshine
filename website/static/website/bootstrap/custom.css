@@ -489,9 +489,10 @@ animation-duration: 8s;
 .navbar .navbar-nav .open .dropdown-menu>li>a, .navbar .navbar-nav .open .dropdown-menu {
     color:#664067;
   }
-.dropdown-menu > .active > a {
+.dropdown-menu > li>.active > a {
 	 background-color: #f2bd49;
 	 background-image: none;
+     font-weight: normal;
  }
 
 .venue-address {

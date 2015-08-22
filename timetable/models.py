@@ -5,6 +5,7 @@ from django_extensions.db.fields import AutoSlugField
 
 
 class Instructor(models.Model):
+    index = models.PositiveIntegerField(null=True, blank=True)
     name = models.CharField(max_length=255)
     info = models.TextField('instructor description', blank=True, null=True)
     regular_instructor = models.BooleanField(default=True,
