@@ -28,15 +28,6 @@ def about(request):
                                                   'achievements': achievements})
 
 
-def events(request):
-    recent = timezone.now() - datetime.timedelta(days=7)
-    event_list = Event.objects.filter(event_date__gte=recent).order_by('event_date')
-    return render(
-        request, 'website/events.html',
-        {'section': 'events', 'events': event_list}
-    )
-
-
 def classes(request):
     session_types = SessionType.objects.filter(regular_session=True).order_by('index')
     return render(
@@ -69,21 +60,22 @@ def venues(request):
 
 def gallery(request):
     categories = Category.objects.all().order_by('name')
-    images = Image.objects.all()
+
+    # import ipdb; ipdb.set_trace()
+    category_choice = request.GET.getlist('category', ['All'])[0]
+    if category_choice == 'All':
+        images = Image.objects.all()
+        cat_selection = 'All'
+    else:
+        images = Image.objects.filter(category__id=int(category_choice))
+        cat_selection = int(category_choice)
+
     return render(request, 'website/gallery.html', {'section': 'gallery',
-                                                    'cat_selection': 'all',
+                                                    'cat_selection': cat_selection,
                                                     'categories': categories,
-                                                    'images': images})
-
-
-def gallery_category(request, category_id):
-    cat = get_object_or_404(Category, pk=category_id)
-    categories = Category.objects.all().order_by('name')
-    images = Image.objects.filter(category_id=cat.id)
-    return render(request, 'website/gallery.html', {'images': images,
-                                                    'categories': categories,
-                                                    'section': 'gallery',
-                                                    'cat': cat.id})
+                                                    'images': images,
+                                                    'total_image_count': Image.objects.all().count()
+                                                    })
 
 
 class TimetableListView(ListView):

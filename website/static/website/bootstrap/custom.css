@@ -12,12 +12,12 @@
 
 body {
 	background-color: transparent;
-	padding-top: 50px;
+	padding-top: 20px;
 }
 
 @media (max-width: 979px) {
 	body {
-		padding-top: 50px;
+		padding-top: 20px;
 	}
 
 }
@@ -26,6 +26,10 @@ html,
 body {
 	height: 100%;
 	/* The html and body elements cannot have any padding or margin. */
+}
+
+.logo-header {
+    padding-top: 40px;
 }
 
 /* Wrapper for page content to push down footer */
@@ -620,4 +624,34 @@ label {
 
 .member-data {
     background-color: rgba(242,189,73,0.4);
+}
+
+.btn-group-vertical > .btn-gallery {
+    max-width: 200px;
+    white-space: normal;
+    font-size: 85%;
+    padding: 4px;
+    text-align: left;
+}
+
+.btn-group-vertical > .btn-gallery > .badge {
+    font-weight: 200;
+    font-size: 85%;
+    padding-top: 1px;
+    background-color: rgba(100,100,100, 1);
+}
+
+.btn-group-vertical > .btn-gallery.btn-gallery-active {
+    background-color: rgba(122,62,126, 1);
+    color: white;
+}
+
+.btn-group-vertical > .btn-gallery.btn-gallery-active > .badge {
+    background-color: rgba(242,189,73, 1);
+    color: rgba(122,62,126, 1);
+}
+
+.btn-gallery.btn-modal {
+    background-color: rgba(122,62,126, 1);
+    color: white;
 }
