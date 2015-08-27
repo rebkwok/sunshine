@@ -1,7 +1,4 @@
 from django.db import models
-import datetime
-from django.utils import timezone
-from django_extensions.db.fields import AutoSlugField
 
 
 class Instructor(models.Model):
