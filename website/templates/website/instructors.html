@@ -14,17 +14,22 @@
                 {% if instructor.regular_instructor %}
                     <div class="row">
                         {% if instructor.photo %}
-                            <div class="col-xs-2 col-sm-2 instr-img">
-                                <img src="{{ MEDIA_URL }}{{ instructor.photo.name }}" width="200px" alt="{{ instructor.name }} photo" class="img-responsive img-circle"
+                            <div class="col-xs-11 col-sm-3 col-md-2 col-md-offset-1">
+                                <div class="instr-img-container">
+                                <img class="img-responsive instr-img" src="{{ MEDIA_URL }}{{ instructor.photo.name }}" alt="{{ instructor.name }} photo"
                                         alt="instructor photo">
-                        {% else %}
-                            <div class="col-xs-1 col-sm-1">
-                        {% endif %}
+                                </div>
                             </div>
-                        <div class="col-sm-8">
-                            <h3>{{ instructor.name }}</h3>
-                            <p>{% if instructor.info %}{{ instructor.info|linebreaks }}{% endif %}</p>
-                        </div>
+                            <div class="col-xs-11 col-sm-7 col-md-7">
+                                <h3>{{ instructor.name }}</h3>
+                                <p>{% if instructor.info %}{{ instructor.info|linebreaks }}{% endif %}</p>
+                            </div>
+                        {% else %}
+                            <div class="col-sm-10 col-sm-offset-1">
+                                <h3>{{ instructor.name }}</h3>
+                                <p>{% if instructor.info %}{{ instructor.info|linebreaks }}{% endif %}</p>
+                            </div>
+                        {% endif %}
                     </div>
                 {% endif %}
             {% endfor %}

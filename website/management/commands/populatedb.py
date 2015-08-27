@@ -80,8 +80,8 @@ class Command(BaseCommand):
 
         inverkeithing, _ = Venue.objects.get_or_create(
             venue='Carousel Fitness Studio',
-            address='Preston House, Inverkeithing',
-            postcode='KY11',
+            address='7 Preston Crescent, Inverkeithing',
+            postcode='KY11 1DR',
             abbreviation="Inverkeithing"
         )
         cowdenbeath, _ = Venue.objects.get_or_create(
