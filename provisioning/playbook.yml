@@ -14,7 +14,7 @@
   - {
       role: djangoapp,
       site: polefit,
-      server_name: ".polefitstarlet.co.uk",
+      server_name: ".polefitstarlet.co.uk .carouselfitness.co.uk",
       app_root: "/opt/sites/{{site}}",
       dbpassword: "{{ polefit_db_password }}",
       secret_key: "{{ polefit_secret_key }}",
