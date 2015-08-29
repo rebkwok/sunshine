@@ -116,7 +116,9 @@ if EMAIL_HOST_PASSWORD is None:
     print("No email host password provided!")
 EMAIL_PORT = 587
 DEFAULT_FROM_EMAIL = 'carouselfitnessweb@gmail.com'
-DEFAULT_STUDIO_EMAIL = 'rebkwok@gmail.com'
+DEFAULT_STUDIO_EMAIL = 'carouselfitness@gmail.com'
+if DEBUG:
+    DEFAULT_STUDIO_EMAIL = 'rebkwok@gmail.com'
 SUPPORT_EMAIL = 'rebkwok@gmail.com'
 ACCOUNT_EMAIL_SUBJECT_PREFIX = "[carousel fitness website]"
 
