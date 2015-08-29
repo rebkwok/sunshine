@@ -19,6 +19,8 @@
       dbpassword: "{{ polefit_db_password }}",
       secret_key: "{{ polefit_secret_key }}",
       repo: 'git@bitbucket.org:markandbecky/polefit.git',
+      uwsgi_plugin: "python3",
+      python: "/usr/bin/python3",
   }
   - {
       role: djangoapp,
