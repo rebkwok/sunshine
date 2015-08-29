@@ -1,0 +1,95 @@
+{% extends "website/_base.html" %}
+{% load customtags %}
+
+{% block content %}
+<div class="col-sm-10 col-sm-offset-1">
+
+    <div class="page-header container-fluid row fixed-table" >
+        <h2>
+            Timetable
+        </h2>
+    </div>
+
+    {% if timetable_sessions %}
+
+
+        <form class="filter-row" action="" method="get">
+            <div class="row">
+                <div class="col-sm-2">
+                    <strong>Show classes by: </strong>
+                </div>
+                <div class="col-sm-2 filter">{{ form.filtered_session_type }}</div>
+                <div class="col-sm-2 filter">{{ form.filtered_venue }}</div>
+                <div class="col-sm-1"><input class="btn btn-info table-btn" type="submit" value="Go" /></div>
+            </div>
+        </form>
+        </br>
+
+        <div class="row">
+            <div class="panel" style="background-color: rgba(230,230,230,0.6);">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th></th>
+                            <th>Day</th>
+                            <th>Time</th>
+                            <th>Class <span class="help-text" style="white-space: nowrap;"></br>
+                                <a href="{% url 'website:classes' %}">Class information</a></th>
+                            <th>Cost <span class="help-text" style="white-space: nowrap;"></br>
+                                <a href="{% url 'website:membership' %}">Membership options</a></span>
+                            </th>
+                            <th>Level</th>
+                            <th>Venue <span class="help-text" style="white-space: nowrap;"></br>
+                                <a href="{% url 'website:venues' %}">Venue locations</a></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for session in timetable_sessions %}
+                        <tr
+                            {% if session.venue.venue == "The Watermelon Studio" %}
+                                class="venue-edinburgh"
+                            {% elif session.venue.venue == "Carousel Fitness Studio" %}
+                                class="venue-inverkeithing"
+                            {% elif session.venue.venue == "Cowdenbeath Studio" %}
+                                class="venue-cowdenbeath"
+                            {% elif session.venue.venue == "Energy Zone" %}
+                                class="venue-energyzone"
+                            {% endif %}>
+                            <td class="table-center timetable-row">
+                                <a href="{% url 'website:booking_request' session.pk %}">
+                                <div class="btn btn-info table-btn booking-btn">Book</div></a>
+                            </td>
+                            <td class="timetable-row">{{ session.session_day|format_day }}</td>
+                            <td class="timetable-row">{{ session.start_time|time:"H:i" }} - {{ session.end_time|time:"H:i" }}</td>
+                            <td class="table-center timetable-row">
+                                {% if session.membership_level.membership_level == 1 %}
+                                    <span class="label label-warning label-rounded">
+                                {% elif session.membership_level.membership_level == 2 %}
+                                    <span class="label label-success label-rounded">
+                                {% elif session.membership_level.membership_level == 3 %}
+                                    <span class="label label-primary label-rounded">
+                                {% else %}
+                                    <span>
+                                {% endif %}
+                                    {{ session.name }}
+                                </span></td>
+                            <td class="table-center timetable-row">£ {{ session.cost | format_cost }}{% if session.alt_cost != None %} / £ {{ session.alt_cost | format_cost }}{% endif %}</td>
+                            <td class="timetable-row">{{ session.level }}</td>
+                            <td class="timetable-row">{{ session.venue.abbreviation }}</td>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    {% else %}
+        <h4>Timetable not currently available</h4>
+    {% endif %}
+
+</div>
+
+
+{% endblock %}

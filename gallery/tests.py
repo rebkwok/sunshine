@@ -31,7 +31,7 @@ class GalleryTests(TestCase):
         test that image is created with correct str output
         '''
         testimg = create_image('hoop.jpg', 'category1')
-        self.assertEqual(str(testimg), 'Photo id: 1')
+        self.assertEqual(str(testimg), 'Photo id: {}'.format(testimg.id))
 
     def test_gallery_page(self):
         '''
@@ -56,8 +56,7 @@ class GalleryTests(TestCase):
         """
         If image exists, it should be displayed.
         """
-        create_image('hoop.jpg', 'category1')
+        testimg = create_image('hoop.jpg', 'category1')
         response = self.client.get(reverse('website:gallery'))
         self.assertEqual(response.status_code, 200)
-        self.assertQuerysetEqual(response.context['images'], ['<Image: Photo id: 1>'])
-
+        self.assertQuerysetEqual(response.context['images'], ['<Image: Photo id: {}>'.format(testimg.id)])

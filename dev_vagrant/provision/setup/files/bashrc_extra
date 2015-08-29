@@ -1,0 +1,20 @@
+# export SRV_IP="$(ip -o -f inet addr show eth1 | awk -F ' +|/' '{print $4}')"
+cd /src/polefit
+. /src/polefit/venv/bin/activate
+
+echo "Application is running at 127.0.0.1:5555"
+
+alias go="cd /src/polefit"
+alias venv=". /src/polefit/venv/bin/activate"
+alias runserver="cd /src/polefit
+venv
+echo 'Application is running at 127.0.0.1:5555'
+./manage.py runserver 0.0.0.0:17000"
+
+alias set_envs="
+export SECRET_KEY=sdfjhasleiwoefnd
+export DATABASE_URL=postgres://starlet:sdjgh34iutwefhfgbqkj3@localhost/polefit
+export DEBUG=True
+export EMAIL_HOST_PASSWORD=qznyykjfppbtajij
+export USE_MAILCATCHER=False
+"
