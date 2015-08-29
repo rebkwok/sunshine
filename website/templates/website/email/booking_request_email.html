@@ -9,7 +9,7 @@
         {% if additional_msg %}<li>Additional message from {{ first_name }}:</li>{% endif %}
     </ul>
 
-    <p>{{ additional_msg }}</p>
+    <p>{{ additional_msg|linebreaks }}</p>
 
     <p>To confirm {{ first_name }}'s booking, please reply to this email.</p>
 

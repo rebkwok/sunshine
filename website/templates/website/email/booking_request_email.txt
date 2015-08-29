@@ -7,7 +7,7 @@
     - Date: {{ date_booked }}
     {% if additional_msg %}- Additional message from {{ first_name }}:{% endif %}
 
-    {{ additional_msg }}
+    {{ additional_msg|linebreaks }}
 
 To confirm {{ first_name }}'s booking, please reply to this email.
 
