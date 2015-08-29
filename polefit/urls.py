@@ -4,8 +4,6 @@ from django.contrib import admin
 from django.conf import settings
 from django.conf.urls.static import static
 
-admin.autodiscover()
-
 
 urlpatterns = patterns('',
     url(r'',            include('website.urls', namespace='website')),
