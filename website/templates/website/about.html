@@ -14,7 +14,7 @@
 					<img class="hidden-xs hidden-sm" style="max-height: 100px; margin:auto;" src="{% static 'website/images/logo_text_only.png' %}" alt="Carousel Fitness" />
                 	<img class="visible-xs" style="max-width: 380px; margin: auto;" src="{% static 'website/images/logo_text_only.png' %}" alt="Carousel Fitness" />
                     <img class="visible-sm" style="max-width: 680px; margin: auto;" src="{% static 'website/images/logo_text_only.png' %}" alt="Carousel Fitness" />
-            </div>
+                </div>
             </div>
 
             <div class="container col-sm-10 col-sm-offset-1">
@@ -29,7 +29,8 @@
             </div>
             </div>
 
-			<div class="col-sm-10 col-sm-offset-1">
+        <div class="row">
+			<div class="col-sm-10 col-xs-12 col-sm-offset-1">
 	            {% for entry in about_text %}
                 {% if entry.heading %}
                 <h1>{{ entry.heading }}</h1>
@@ -40,7 +41,7 @@
                 <p>{{ entry.content|linebreaks }}</p>
             {% endfor %}
 		</div>
-
+    </div>
 	</div>
 
 
