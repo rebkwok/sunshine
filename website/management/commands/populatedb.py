@@ -337,7 +337,7 @@ class Command(BaseCommand):
             alt_cost=5
         )
         TimetableSession.objects.get_or_create(
-            session_day=TimetableSession.MON,
+            session_day=TimetableSession.TUE,
             start_time=datetime.time(hour=11, minute=0),
             end_time=datetime.time(hour=17, minute=0),
             name="Open Training",
@@ -417,7 +417,7 @@ class Command(BaseCommand):
         )
         # Wednesday
         TimetableSession.objects.get_or_create(
-            session_day=TimetableSession.MON,
+            session_day=TimetableSession.WED,
             start_time=datetime.time(hour=11, minute=0),
             end_time=datetime.time(hour=18, minute=0),
             name="Open Training",
@@ -596,7 +596,7 @@ class Command(BaseCommand):
 
         # Friday
         TimetableSession.objects.get_or_create(
-            session_day=TimetableSession.MON,
+            session_day=TimetableSession.FRI,
             start_time=datetime.time(hour=10, minute=0),
             end_time=datetime.time(hour=17, minute=0),
             name="Open Training",
@@ -629,7 +629,7 @@ class Command(BaseCommand):
             alt_cost=5
         )
         TimetableSession.objects.get_or_create(
-            session_day=TimetableSession.MON,
+            session_day=TimetableSession.FRI,
             start_time=datetime.time(hour=19, minute=0),
             end_time=datetime.time(hour=20, minute=0),
             name="Open Training",
@@ -653,7 +653,7 @@ class Command(BaseCommand):
             alt_cost=3.50
         )
         TimetableSession.objects.get_or_create(
-            session_day=TimetableSession.MON,
+            session_day=TimetableSession.SAT,
             start_time=datetime.time(hour=13, minute=0),
             end_time=datetime.time(hour=16, minute=0),
             name="Open Training",
