@@ -20,6 +20,7 @@
         <!-- Custom styles  -->
         <link href="{% static "website/bootstrap/custom.css" %}" rel="stylesheet">
 
+        {% block extrahead %}{% endblock %}
 
     </head>
 <body>
@@ -151,6 +152,7 @@
     <script src="{% static "website/bootstrap/custom.js" %}"></script>
 
 
+        {% block extrascripts %}{% endblock %}
 
 
 </body>
