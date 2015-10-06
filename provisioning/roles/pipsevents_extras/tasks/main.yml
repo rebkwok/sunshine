@@ -10,4 +10,3 @@
         special_time=hourly
         job='/opt/sites/pipsevents/venv/bin/envdir /opt/sites/pipsevents/envdir /opt/sites/pipsevents/venv/bin/python /opt/sites/pipsevents/manage.py cancel_unpaid_bookings'
         user='www-data'
-        state='absent'
