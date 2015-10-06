@@ -10,3 +10,4 @@ envdir
 id_rsa*
 inventory.ini
 venv
+media/

@@ -117,8 +117,8 @@ class TimetableSession(models.Model):
 
     def __str__(self):
 
-        return "{}, {} {}".format(
-            self.name,
+        return "{} ({}), {}, {} {}".format(
+            self.name, self.level, self.venue.abbreviation,
             (dict(self.WEEKDAY_CHOICES))[self.session_day],
             self.start_time.strftime('%H:%M')
         )

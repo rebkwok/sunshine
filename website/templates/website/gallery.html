@@ -12,6 +12,7 @@
                 </h1>
             </div>
 
+    {% if categories %}
             <div class="row">
                 <div class="col-sm-4 col-md-3">
                     <form method="get">
@@ -75,9 +76,11 @@
                             </div>
                         </div>
                     </div>
-
-
                 </div>
+
+    {% else %}
+        <div class="col-sm-12">Coming soon</div>
+    {% endif %}
 
     </div>
 

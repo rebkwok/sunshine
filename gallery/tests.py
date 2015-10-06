@@ -49,7 +49,7 @@ class GalleryTests(TestCase):
         """
         response = self.client.get(reverse('website:gallery'))
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "No gallery images currently available.")
+        self.assertContains(response, "Coming soon")
         self.assertQuerysetEqual(response.context['images'], [])
 
     def test_gallery_view_with_image(self):
