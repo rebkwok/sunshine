@@ -58,10 +58,9 @@ DAYS = {
 
 
 def get_dates(session):
-    # import ipdb; ipdb.set_trace()
     day = DAYS[session.session_day]
     days_ahead = day - timezone.now().weekday()
-    if days_ahead <=0: # Target day already happened this week
+    if days_ahead < 0:  # Target day already happened this week
         days_ahead += 7
     next_date = timezone.now() + datetime.timedelta(days_ahead)
 
