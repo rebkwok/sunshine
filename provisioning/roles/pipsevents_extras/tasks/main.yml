@@ -10,3 +10,22 @@
         special_time=hourly
         job='/opt/sites/pipsevents/venv/bin/envdir /opt/sites/pipsevents/envdir /opt/sites/pipsevents/venv/bin/python /opt/sites/pipsevents/manage.py cancel_unpaid_bookings'
         user='www-data'
+
+- name: pipsevents cronjob to email warnings for ticket bookings
+  cron: name='pipsevents email warnings for ticket bookings'
+        special_time=hourly
+        job='/opt/sites/pipsevents/venv/bin/envdir /opt/sites/pipsevents/envdir /opt/sites/pipsevents/venv/bin/python /opt/sites/pipsevents/manage.py email_ticket_booking_warnings'
+        user='www-data'
+
+- name: pipsevents cronjob to cancel unpaid ticket bookings
+  cron: name='pipsevents cancel unpaid ticket bookings'
+        special_time=hourly
+        job='/opt/sites/pipsevents/venv/bin/envdir /opt/sites/pipsevents/envdir /opt/sites/pipsevents/venv/bin/python /opt/sites/pipsevents/manage.py cancel_unpaid_ticket_bookings'
+        user='www-data'
+
+- name: pipsevents cronjob to delete unconfirmed ticket bookings
+  cron: name='pipsevents delete unconfirmed ticket bookings'
+        minute=30
+        job='/opt/sites/pipsevents/venv/bin/envdir /opt/sites/pipsevents/envdir /opt/sites/pipsevents/venv/bin/python /opt/sites/pipsevents/manage.py delete_unconfirmed_ticket_bookings'
+        user='www-data'
+
