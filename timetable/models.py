@@ -69,6 +69,12 @@ class Venue(models.Model):
         return self.venue
 
 
+LEVEL_DESCRIPTIONS = {
+        1: "Pole and hoop classes",
+        2: "General fitness and conditioning classes",
+        3: "Open training"
+    }
+
 class MembershipClassLevel(models.Model):
     """
     Model to categorize a type of class for membership purposes
@@ -77,7 +83,14 @@ class MembershipClassLevel(models.Model):
     2 - general fitness and conditioning classes
     3 - open training
     """
-    membership_level = models.PositiveIntegerField()
+    membership_level = models.PositiveIntegerField(
+        help_text="Index of class type for membership; "
+                  "1=pole/hoop, 2=general fitness, "
+                  "3=open training"
+    )
+
+    def __str__(self):
+        return LEVEL_DESCRIPTIONS[self.membership_level]
 
 
 class TimetableSession(models.Model):
@@ -108,10 +121,11 @@ class TimetableSession(models.Model):
     session_type = models.ForeignKey(SessionType)
     venue = models.ForeignKey(Venue)
     membership_level = models.ForeignKey(
-        MembershipClassLevel, null=True,
-        help_text="Categorise for membership; 1=pole/hoop classes, 2=general " \
-                  "fitness/conditioning classes"
-        )
+        MembershipClassLevel,
+        verbose_name="Membership category",
+        help_text="Specify type of class for membership purposes",
+        null=True
+    )
     cost = models.DecimalField(
         max_digits=8, decimal_places=2, default=7,
         help_text="Cost for non-members"
