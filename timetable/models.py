@@ -124,7 +124,7 @@ class TimetableSession(models.Model):
         MembershipClassLevel,
         verbose_name="Membership category",
         help_text="Specify type of class for membership purposes",
-        null=True
+        null=True, blank=True
     )
     cost = models.DecimalField(
         max_digits=8, decimal_places=2, default=7,
