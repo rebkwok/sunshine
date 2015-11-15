@@ -112,8 +112,15 @@ class TimetableSession(models.Model):
         help_text="Categorise for membership; 1=pole/hoop classes, 2=general " \
                   "fitness/conditioning classes"
         )
-    cost = models.DecimalField(max_digits=8, decimal_places=2, null=True)
-    alt_cost = models.DecimalField(max_digits=8, decimal_places=2, null=True)
+    cost = models.DecimalField(
+        max_digits=8, decimal_places=2, default=7,
+        help_text="Cost for non-members"
+    )
+    alt_cost = models.DecimalField(
+        max_digits=8, decimal_places=2, null=True, blank=True,
+        verbose_name="Member cost",
+        help_text="Cost for additional session for members"
+    )
 
     def __str__(self):
 

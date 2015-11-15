@@ -22,11 +22,12 @@ class SessionTypeAdmin(admin.ModelAdmin):
 
 
 class TimetableSessionAdmin(admin.ModelAdmin):
-    list_display = ('name', 'session_type', 'level', 'instructor', 'session_day',
+    list_display = ('name', 'session_type', 'level', 'session_day',
                     'start_time', 'end_time', 'venue',)
     fieldsets = [
         ('Session information', {
-            'fields': ['name', 'session_type', 'level', 'instructor', 'venue']
+            'fields': ['name', 'session_type', 'level', 'membership_level',
+                       'instructor', 'venue', 'cost', 'alt_cost']
         }),
         ('Date and time', {
             'fields': ['session_day', 'start_time', 'end_time']
