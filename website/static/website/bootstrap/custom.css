@@ -666,3 +666,8 @@ label {
   50% { opacity: 1;}
   100% { opacity: 0; z-index: 1;}
 }
+
+td.timetable-row.session-level-td {
+    white-space: normal;
+    max-width: 200px;
+}

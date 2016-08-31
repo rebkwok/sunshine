@@ -35,13 +35,15 @@
                             <th>Day</th>
                             <th>Time</th>
                             <th>Class <span class="help-text" style="white-space: nowrap;"></br>
-                                <a href="{% url 'website:classes' %}">Class information</a></th>
+                                <a href="{% url 'website:classes' %}">Class information</a></span>
+                            </th>
                             <th>Cost <span class="help-text" style="white-space: nowrap;"></br>
                                 <a href="{% url 'website:membership' %}">Membership options</a></span>
                             </th>
                             <th>Level</th>
                             <th>Venue <span class="help-text" style="white-space: nowrap;"></br>
-                                <a href="{% url 'website:venues' %}">Venue locations</a></th>
+                                <a href="{% url 'website:venues' %}">Venue locations</a></span>
+                            </th>
                         </tr>
                         </thead>
                         <tbody>
@@ -75,7 +77,7 @@
                                     {{ session.name }}
                                 </span></td>
                             <td class="table-center timetable-row">£ {{ session.cost | format_cost }}{% if session.alt_cost != None %} / £ {{ session.alt_cost | format_cost }}{% endif %}</td>
-                            <td class="timetable-row">{{ session.level }}</td>
+                            <td class="timetable-row session-level-td">{{ session.level }}</td>
                             <td class="timetable-row">{{ session.venue.abbreviation }}</td>
                         </tr>
                         {% endfor %}
