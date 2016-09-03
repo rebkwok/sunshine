@@ -9,21 +9,39 @@ https://docs.djangoproject.com/en/1.6/ref/settings/
 """
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+import environ
 import os
-BASE_DIR = os.path.dirname(os.path.dirname(__file__))
+import sys
+
+root = environ.Path(__file__) - 2  # two folders back (/a/b/ - 3 = /)
+
+env = environ.Env(DEBUG=(bool, False),
+                  PAYPAL_TEST=(bool, False),
+                  USE_MAILCATCHER=(bool, False),
+                  TRAVIS=(bool, False),
+                  HEROKU=(bool, False),
+                  SEND_ALL_STUDIO_EMAILS=(bool, False)
+                  )
+
+environ.Env.read_env(root('polefit/.env'))  # reading .env file
+BASE_DIR = root()
+
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.6/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
 try:
-    SECRET_KEY = os.environ['SECRET_KEY']
+    SECRET_KEY = env('SECRET_KEY')
 except KeyError:
     raise KeyError("You must provide the environment variable SECRET_KEY")
 
-DEBUG = os.environ.get('DEBUG', '').lower() in ['true', 'on', '1', 'yes']
-
-TEMPLATE_DEBUG = True
+DEBUG = env('DEBUG')
+# when env variable is changed it will be a string, not bool
+if str(DEBUG).lower() in ['true', 'on']:  # pragma: no cover
+    DEBUG = True
+else:
+    DEBUG = False
 
 ALLOWED_HOSTS = []
 
@@ -40,21 +58,27 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.sites',
+    'allauth',
+    'allauth.account',
     'django_extensions',
     'bootstrap3',
+    'accounts',
     'timetable',
     'website',
     'gallery',
 )
 
-MIDDLEWARE_CLASSES = (
+
+MIDDLEWARE_CLASSES = [
+    'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-)
+]
 
 SITE_ID = 1
 ROOT_URLCONF = 'polefit.urls'
@@ -62,6 +86,7 @@ ROOT_URLCONF = 'polefit.urls'
 WSGI_APPLICATION = 'polefit.wsgi.application'
 
 DATABASES = {}
+DATABASES['default'] = env.db()
 
 LANGUAGE_CODE = 'en-GB'
 TIME_ZONE = 'Europe/London'
@@ -70,8 +95,39 @@ USE_L10N = True
 USE_TZ = True
 
 
-import dj_database_url
-DATABASES['default'] = dj_database_url.config()
+AUTHENTICATION_BACKENDS = (
+    # Needed to login by username in Django admin, regardless of `allauth`
+    "django.contrib.auth.backends.ModelBackend",
+
+    # `allauth` specific authentication methods, such as login by e-mail
+    "allauth.account.auth_backends.AuthenticationBackend",
+)
+
+
+ACCOUNT_AUTHENTICATION_METHOD = "username"
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_EMAIL_VERIFICATION = "mandatory"
+ACCOUNT_EMAIL_SUBJECT_PREFIX = "[carousel fitness website]"
+ACCOUNT_SIGNUP_FORM_CLASS = 'accounts.forms.SignupForm'
+ACCOUNT_LOGOUT_REDIRECT_URL ="/about"
+
+# Password validation
+# https://docs.djangoproject.com/en/1.9/ref/settings/#auth-password-validators
+
+AUTH_PASSWORD_VALIDATORS = [
+    {
+        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+    },
+]
 
 # Honor the 'X-Forwarded-Proto' header for request.is_secure()
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
@@ -91,17 +147,23 @@ STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
 )
 
-import django.conf.global_settings as DEFAULT_SETTINGS
-
-TEMPLATE_CONTEXT_PROCESSORS = DEFAULT_SETTINGS.TEMPLATE_CONTEXT_PROCESSORS + (
-    'django.core.context_processors.request',
-    'django.contrib.messages.context_processors.messages',
-)
-
-TEMPLATE_LOADERS = (
-    'django.template.loaders.filesystem.Loader',
-    'django.template.loaders.app_directories.Loader',
-)
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [root('templates')],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': (
+                'django.contrib.auth.context_processors.auth',
+                # Required by allauth template tags
+                "django.template.context_processors.request",
+                "django.contrib.messages.context_processors.messages",
+                'responsive.context_processors.device_info',
+            ),
+            'debug': DEBUG,
+        },
+    },
+]
 
 
 GRAPPELLI_ADMIN_TITLE = "PoleFit Starlet Administration Page"
@@ -111,7 +173,7 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_USE_TLS = True
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_HOST_USER = 'carouselfitnessweb@gmail.com'
-EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', None)
+EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD', None)
 if EMAIL_HOST_PASSWORD is None:
     print("No email host password provided!")
 EMAIL_PORT = 587
@@ -120,11 +182,10 @@ DEFAULT_STUDIO_EMAIL = 'carouselfitness@gmail.com'
 if DEBUG:
     DEFAULT_STUDIO_EMAIL = 'rebkwok@gmail.com'
 SUPPORT_EMAIL = 'rebkwok@gmail.com'
-ACCOUNT_EMAIL_SUBJECT_PREFIX = "[carousel fitness website]"
 
 
 # MAILCATCHER
-if os.environ.get('USE_MAILCATCHER', "False").lower() == "true":
+if env('USE_MAILCATCHER'):
     EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
     EMAIL_HOST = '127.0.0.1'
     EMAIL_HOST_USER = ''
@@ -139,3 +200,12 @@ MESSAGE_TAGS = {
 }
 
 APPEND_SLASH = True
+
+
+if 'test' in sys.argv:  # use local cache for tests
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+            'LOCATION': 'test-cache',
+        }
+    }

@@ -1,0 +1,40 @@
+{% extends 'website/_base.html' %}
+
+{% block content %}
+
+<div class="extra-top-margin container-fluid row">
+       <div class="panel-group">
+        <div class="panel panel-default">
+           <div class="panel-heading">
+                <h1 class="panel-title">Your Profile</h1>
+            </div>
+           <div class="panel-body">
+                   <div class="row">
+                       <label class="control-label col-xs-4">Username:</label>
+                       <div class="col-xs-8">{{ user.username }}</div>
+                   </div>
+                   <div class="row">
+                       <label class="control-label col-xs-4">Name:</label>
+                       <div class="col-xs-8">{{ user.first_name }} {{ user.last_name }}</div>
+                   </div>
+                   <div class="row">
+                       <div class="col-xs-12"><a href="#">Change</a></div>
+                   </div>
+               </div>
+           </div>
+            <div class="panel panel-default">
+               <div class="panel-heading">
+                    <h1 class="panel-title">Email Addresses</h1>
+                </div>
+               <div class="panel-body">
+                   <div class="row">
+                       <label class="control-label col-xs-4">Primary email address:</label>
+                       <div class="col-xs-8">{{ user.email }} </div>
+                   <div class="col-xs-12"><a href="#">Change</a></div>
+                   </div>
+               </div>
+            </div>
+           </div>
+</div>
+{% endblock content %}
+

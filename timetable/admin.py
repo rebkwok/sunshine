@@ -1,14 +1,5 @@
-import datetime
-from django import forms
-from django.http import HttpResponse
-from django.template import RequestContext, loader
-from django.shortcuts import render_to_response
 from django.contrib import admin
-from django.contrib.admin import DateFieldListFilter
 from timetable.models import Instructor, TimetableSession, SessionType, Venue
-from django.utils import timezone
-from django.utils.translation import ugettext_lazy as _
-from django.core.context_processors import csrf
 
 
 class InstructorAdmin(admin.ModelAdmin):
@@ -36,8 +27,6 @@ class TimetableSessionAdmin(admin.ModelAdmin):
     ordering = ['session_day', 'start_time']
 
     list_filter = ['session_type', 'instructor', 'venue']
-    #change_list_template = "admin/change_list_filter_sidebar.html"
-    #change_list_filter_template = "admin/filter_listing.html"
 
 
 admin.site.register(Instructor, InstructorAdmin)

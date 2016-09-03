@@ -25,7 +25,7 @@ def about(request):
     achievements = Achievement.objects.filter(display=True)
     return render(request, 'website/about.html', {'section': 'about',
                                                   'about_text': about_text,
-                                                  'events' : events,
+                                                  'events': events,
                                                   'achievements': achievements})
 
 
@@ -188,8 +188,10 @@ def booking_request(request, session_pk, template_name='website/booking_request.
                         settings.DEFAULT_FROM_EMAIL,
                         [settings.SUPPORT_EMAIL],
                         fail_silently=True)
-                    messages.error(request, "A problem occurred while submitting "
-                                        "your request.  Tech support has been notified.")
+                    messages.error(
+                        request, "A problem occurred while submitting your"
+                                 " request.  Tech support has been notified."
+                    )
                 except Exception:
                     messages.error(
                         request, mark_safe(
@@ -302,6 +304,7 @@ def process_contact_form(request):
                 messages.error(request, "A problem occurred while submitting "
                                         "the form.  Tech support has been notified.")
             except Exception as e:
+                import ipdb; ipdb.set_trace()
                 messages.error(
                     request, mark_safe(
                         "A problem occurred while submitting the form, "
@@ -356,6 +359,7 @@ def get_initial_contact_form(request):
         'email_address': email_address, 'subject': subject
     })
 
+
 def contact_form(request, template_name='website/contact_form.html'):
     if request.method == 'POST':
         return process_contact_form(request)
@@ -378,60 +382,3 @@ def contact(request, template_name='website/contact_us.html'):
         request, template_name, {'section': 'contact', 'form': form}
     )
 
-
-def admin_help_login(request):
-    return render(
-        request, 'website/admin_help/admin_help.html',
-        {'section': 'none'}
-    )
-
-
-def admin_help_sessions(request):
-    return render(
-        request, 'website/admin_help/admin_help_sessions.html',
-        {'section': 'none'}
-    )
-
-
-def admin_help_sessiontypes(request):
-    return render(
-        request, 'website/admin_help/admin_help_sessiontypes.html',
-        {'section': 'none'}
-    )
-
-
-def admin_help_instructors(request):
-    return render(
-        request, 'website/admin_help/admin_help_instructors.html',
-        {'section': 'none'}
-    )
-
-
-def admin_help_venues(request):
-    return render(
-        request, 'website/admin_help/admin_help_venues.html',
-        {'section': 'none'}
-    )
-
-
-def admin_help_gallery(request):
-    return render(
-        request, 'website/admin_help/admin_help_gallery.html',
-        {'section': 'none'}
-    )
-
-
-def admin_help_about(request):
-    return render(
-        request,
-        'website/admin_help/admin_help_about.html',
-        {'section': 'none'}
-    )
-
-
-def admin_help_events(request):
-    return render(
-        request,
-        'website/admin_help/admin_help_events.html',
-        {'section': 'none',}
-    )
