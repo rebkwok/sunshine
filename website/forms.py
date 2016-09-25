@@ -9,25 +9,27 @@ from timetable.models import SessionType, TimetableSession, Venue
 def get_session_types():
 
     def callable():
-
-        SESSION_TYPE_CHOICES = list(set([
-            (session.session_type.index, session.session_type.name) for session \
-            in TimetableSession.objects.all()
-            ]))
-
+        SESSION_TYPE_CHOICES = list(
+            TimetableSession.objects.select_related(
+                'venue', 'session_type', 'membership_level'
+            ).distinct()
+                .values_list('session_type__index', 'session_type__name')
+        )
         SESSION_TYPE_CHOICES.insert(0, (0, 'All class types'))
         return tuple(sorted(SESSION_TYPE_CHOICES))
 
     return callable
 
+
 def get_venues():
 
     def callable():
-        venues = set(
-            [session.venue.abbreviation for session \
-             in TimetableSession.objects.all()]
+        VENUE_CHOICES = list(
+            TimetableSession.objects.select_related(
+                'venue', 'session_type', 'membership_level'
+            ).distinct()
+                .values_list('venue__abbreviation', 'venue__abbreviation')
         )
-        VENUE_CHOICES = [(venue, venue) for i, venue in enumerate(venues)]
         VENUE_CHOICES.insert(0, ('', 'All locations'))
         return tuple(VENUE_CHOICES)
 

@@ -1,4 +1,4 @@
-Django==1.10
+Django==1.10.1
 dj-database-url==0.3.0
 dj-static==0.0.6
 django-bootstrap3
@@ -14,3 +14,8 @@ django-environ==0.4.0
 django-responsive==0.3.0
 django-allauth==0.27.0
 django-braces==1.9.0
+django-suit==0.2.21
+django-paypal==0.3.1
+shortuuid==0.4.3
+django-debug-toolbar==1.5
+python-memcached==1.58

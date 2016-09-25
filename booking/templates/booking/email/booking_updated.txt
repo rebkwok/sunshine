@@ -1,0 +1,3 @@
+Thank you for your payment for {{ event }}.
+
+{% include 'account/email/footer.txt' %}

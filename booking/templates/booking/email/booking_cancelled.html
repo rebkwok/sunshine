@@ -1,0 +1,25 @@
+{% extends 'website/email/email_base.html' %}
+
+{% block messagecontent %}
+<div style="font-family: sans-serif;">
+
+<p>Your booking for {{ event }} has been cancelled.</p>
+
+<p>
+{% if not event.allow_booking_cancellation %}
+    Please note that this booking is not eligible for any refunds cancellation.
+{% elif not event.can_cancel %}
+    Please note that you have cancelled after the allowed cancellation period and therefore you are not eligible for any refund.
+{% else %}
+    {% if booking.paid %}
+        Please note that payments are not automatically refunded. The organiser has been informed of your cancellation and will be in contact soon.
+    {% endif %}
+{% endif %}
+</p>
+
+<p>
+    For further information please contact
+    <a href="mailto:{{ booking.event.contact_email }}">{{ booking.event.contact_email }}</a>
+</p>
+</div>
+{% endblock %}

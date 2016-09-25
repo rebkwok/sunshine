@@ -51,6 +51,7 @@ ALLOWED_HOSTS = []
 INSTALLED_APPS = (
     'grappelli.dashboard',
     'grappelli',
+    'suit',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -58,14 +59,20 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.sites',
+    'django.contrib.humanize',
     'allauth',
     'allauth.account',
     'django_extensions',
     'bootstrap3',
+    'paypal.standard.ipn',
+    'debug_toolbar',
+    'payments',
     'accounts',
     'timetable',
     'website',
     'gallery',
+    'activitylog',
+    'booking'
 )
 
 
@@ -76,9 +83,19 @@ MIDDLEWARE_CLASSES = [
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+        'LOCATION': '127.0.0.1:11211',
+    }
+}
+
 
 SITE_ID = 1
 ROOT_URLCONF = 'polefit.urls'
@@ -110,6 +127,10 @@ ACCOUNT_EMAIL_VERIFICATION = "mandatory"
 ACCOUNT_EMAIL_SUBJECT_PREFIX = "[carousel fitness website]"
 ACCOUNT_SIGNUP_FORM_CLASS = 'accounts.forms.SignupForm'
 ACCOUNT_LOGOUT_REDIRECT_URL ="/about"
+
+ABSOLUTE_URL_OVERRIDES = {
+    'auth.user': lambda o: "/users/%s/" % o.username,
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/1.9/ref/settings/#auth-password-validators
@@ -202,6 +223,15 @@ MESSAGE_TAGS = {
 APPEND_SLASH = True
 
 
+# DJANGO-PAYPAL
+DEFAULT_PAYPAL_EMAIL = env('DEFAULT_PAYPAL_EMAIL')
+PAYPAL_TEST = env('PAYPAL_TEST')
+
+
+def show_toolbar(request):  # pragma: no cover
+    return True
+
+
 if 'test' in sys.argv:  # use local cache for tests
     CACHES = {
         'default': {
@@ -209,3 +239,10 @@ if 'test' in sys.argv:  # use local cache for tests
             'LOCATION': 'test-cache',
         }
     }
+
+if DEBUG and 'test' not in sys.argv:  # pragma: no cover
+    ENABLE_DEBUG_TOOLBAR = True
+    DEBUG_TOOLBAR_CONFIG = {
+        "SHOW_TOOLBAR_CALLBACK": show_toolbar,
+    }
+

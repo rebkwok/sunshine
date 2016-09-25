@@ -1,0 +1,5 @@
+Your payment has not been received for {{ event }} and your booking has now been cancelled.
+
+For further information please contact {{ booking.event.contact_email }}.
+
+{% include 'account/email/footer.txt' %}

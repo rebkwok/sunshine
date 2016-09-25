@@ -86,7 +86,9 @@ class TimetableListView(ListView):
 
     def get_queryset(self):
 
-        queryset = TimetableSession.objects.all().order_by(
+        queryset = TimetableSession.objects.select_related(
+            'venue', 'session_type', 'membership_level'
+        ).order_by(
                 'session_day', 'start_time', 'venue'
         )
         session_type = self.request.GET.get('filtered_session_type', 0)

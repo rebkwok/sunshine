@@ -1,0 +1,85 @@
+{% extends "website/_base.html" %}
+{% load static %}
+{% load bookingtags %}
+
+{% block content %}
+
+<div class="container-fluid row">
+    <div class="col-sm-12">
+        <div class="panel panel-transparent">
+            <div class="panel-heading">
+                <h3 class="panel-title">
+                        {{ event.name }}
+                </h3>
+            </div>
+            <div class="panel-body">
+                {% if past %}
+                    <h3>This {{ event_type }} is now past.</h3>
+                {% endif %}
+
+                <ul class="list-group">
+                    {% if event.description %}
+                        <li class="list-group-item"><p><strong>Description</strong></p>
+                        <p>{{ event.description | safe }}</p>
+                        </li>
+                    {% endif %}
+                    <li class="list-group-item"><strong>Location:</strong>  {{ event.location }}</li>
+                    <li class="list-group-item"><strong>Date and time:</strong> {{ event.date |  date:"D d F, g:i a" }}</li>
+                    {% if not past %}
+                             <li class="list-group-item"><strong>Contact:</strong> <a href="mailto:{{ event.contact_email }}?Subject=Enquiry regarding booking for {{ event.name }}" target="_blank">{{ event.contact_email }}</a></li>
+                            <li class="list-group-item"><p><strong>Payment information</strong></p>
+
+                                <p>Cost: £ {{ event.cost }}</p>
+                                <p>Payment is required on booking in order to secure your space. If payment has not been received within approximately
+                                4 hours, your booking will be automatically cancelled.</p>
+
+                            </li>
+                            {% if not event.allow_booking_cancellation %}
+                                <li class="list-group-item"><strong>Cancellation information</strong>
+                                    <p>Bookings are final and non-refundable; if you cancel your booking you will not be eligible for any refund or credit.</p>
+                                </li>
+                            {% elif event.cancellation_period %}
+                                <li class="list-group-item"><strong>Cancellation information</strong>
+                                    <p>Cancellation is allowed up to {{ event.cancellation_period | format_cancellation }} prior to the {{ event_type }}
+                                        If you cancel your booking after this time, you will not be eligible for any refunds.
+                                    </p>
+                                </li>
+
+                            {% endif %}
+                    {% endif %}  <!--- past --->
+                </ul>
+
+                {% if not past %}
+                        <h5>There are a maximum {{ event.max_participants }} spaces for this
+                            {{ event_type }}.</h5>
+                        <h5>Spaces left: {{ event.spaces_left }}</h5>
+                        {% if booked %}
+                            <h5>{{ booking_info_text }}</h5>
+                            <h5>See <a href="{% url 'booking:bookings' %}">your bookings</a> for details
+                                and to check if your place has been confirmed.</h5>
+                        {% else %}
+                            <h5>{{ booking_info_text_cancelled }}{{ booking_info_text   }}</h5>
+                            {% if bookable %}
+                                <a href="{% url 'booking:book_event' event.slug %}">
+                                    <div id='book_button' class="btn btn-success table-btn">
+                                    {% if cancelled %}Rebook{% else %}Book{% endif %}</div></a>
+                            {% else %}
+                                    {% if not waiting_list %}
+                                        <form action="{% url 'booking:book_event' event.slug %}" method="get">
+                                            <input id='join_waiting_list_button' class="btn btn-success table-btn" type="submit" value="Join waiting list" name="join waiting list"/>
+                                        </form>
+                                    {% else %}
+                                        <form action="{% url 'booking:book_event' event.slug %}" method="get">
+                                            <input id='leave_waiting_list_button' class="btn btn-warning table-btn" type="submit" value="Leave waiting list" name="leave waiting list"/>
+                                        </form>
+                                    {% endif %}
+                            {% endif %}
+                        {% endif %}
+                    {% endif %}  <!--- past --->
+            </div>
+        </div>
+    </div>
+
+</div>
+
+{% endblock content %}

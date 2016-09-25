@@ -15,9 +15,10 @@
         <!-- Bootstrap core CSS -->
         {% bootstrap_css %}
         <!-- Bootstrap theme -->
-        <link href="{% static "website/bootstrap/bootstrap-theme.css" %}" rel="stylesheet">
+        <link href="{% static 'website/bootstrap/bootstrap-theme.css' %}" rel="stylesheet">
         <!-- Custom styles  -->
-        <link href="{% static "website/bootstrap/custom.css" %}" rel="stylesheet">
+        <link href="{% static 'website/bootstrap/custom.css' %}" rel="stylesheet">
+         <link rel="stylesheet" href="{% static 'website/bootstrap/font-awesome.min.css' %}">
 
         {% block extrahead %}{% endblock %}
 
@@ -66,7 +67,7 @@
         </div>
 
         {% if messages %}
-            <div class="extra-top-margin col-sm-10 col-sm-offset-1">
+            <div class="extra-top-margin col-xs-12">
                 {% for message in messages %}
                 <div {% if message.tags and message.tags == 'error' %}
                             class="message alert alert-danger"
@@ -123,8 +124,7 @@
         </div>
     </div>
 
-
-
+</body>
 
 
     <!-- Google analytics
@@ -151,10 +151,7 @@
     <script src="{% static "website/bootstrap/custom.js" %}"></script>
 
 
-        {% block extrascripts %}{% endblock %}
-
-
-</body>
+    {% block extrascripts %}{% endblock %}
 
 
 

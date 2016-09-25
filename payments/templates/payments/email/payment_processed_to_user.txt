@@ -1,0 +1,10 @@
+Dear {{ user }},
+
+Your payment to has now been processed.
+
+Booking reference: {{ obj.booking_reference }}
+Payment for: {{ obj.event.name }}
+Fee paid: £ {{ fee }}
+Invoice number: {{ invoice_id }}
+
+{% include "account/email/footer.txt" %}

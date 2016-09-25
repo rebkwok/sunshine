@@ -1,0 +1,10 @@
+Payment has been refunded from paypal and payment status set to unpaid.
+
+User: {{ user }}
+Booking reference: {{ obj.booking_reference }} (id {{ obj.id }})
+Payment for: {{ obj.event.name }}
+Invoice number: {{ invoice_id }}
+Paypal Transaction id: {{ paypal_transaction_id }}
+Paypal Email: {{ paypal_email }}
+
+{% include "account/email/footer.txt" %}

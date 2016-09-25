@@ -1,0 +1,27 @@
+{% extends "website/_base.html" %}
+{% load static %}
+{% load humanize %}
+
+{% block content %}
+<div class="container-fluid row">
+    <div class="col-xs-12">
+
+       <div class="panel panel-transparent">
+            <div class="panel-heading">
+                <h1 class="panel-title">Your booking for {{ booking.event }}</h1>
+            </div>
+
+            <div class="panel-body">
+                <h4>Cost: £ {{ paypal_cost|floatformat:2 }}</h4>
+            </div>
+            <div class="panel-body">
+                <p>Click below to be transferred to PayPal to make your payment.</p>
+                {% include 'payments/payment.html' %}
+            </div>
+
+
+           </div>
+
+   </div>
+</div>
+{% endblock content %}

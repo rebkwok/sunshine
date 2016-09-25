@@ -1,0 +1,45 @@
+{% extends "website/_base.html" %}
+{% load static %}
+{% load bookingtags %}
+
+{% block content %}
+
+<div class="container-fluid row">
+    <div class="col-sm-12">
+       <div class="panel panel-transparent">
+            <div class="panel-heading">
+                <h2 class="panel-title">You are now booking for
+                    <a href="{% url 'booking:event_detail' event.slug %}">{{ event.name }}</a>
+                    on {{ event.date | date:"D d F, g:i a" }}</h2>
+            </div>
+            <div class="panel-body">
+                <form action="" method="post">{% csrf_token %}
+                    <div class="form-group">
+
+                        {% if not event.allow_booking_cancellation %}
+                            <p>Bookings are final and non-refundable.  If you cancel, you will not be eligible for any refunds or transfer credit.</p>
+                        {% elif not event.can_cancel %}
+                            <p class="cancel-warning">Please note that the allowed cancellation period for this {{ ev_type }} has passed.
+                            If you cancel, you will not be eligible for any refunds.
+                            </p>
+                        {% elif event.cancellation_period > 0 %}
+                            <p>Cancellation is only allowed up to {{ event.cancellation_period | format_cancellation }}
+                            before the {{ ev_type }} date.</p>
+                        {% endif %}
+
+                        <span class="hide">{{ form.event }}</span>
+                        <span class="hide">{{ form.user }}</span>
+                        <input class="btn btn-success update-btn" type="submit" name="book_one_off" value="Book" />
+
+                        <p class="cancel-warning">If payment has not been received within approximately
+                                    4 hours of booking, your booking will be automatically cancelled.</p>
+
+                    </div>
+                </form>
+            </div>
+       </div>
+
+</div>
+</div>
+
+{% endblock content %}

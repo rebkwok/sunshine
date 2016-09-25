@@ -12,20 +12,15 @@
 
 body {
 	background-color: transparent;
-	padding-top: 20px;
+	padding-top: 40px;
+    padding-left: 20px;
+    padding-right: 20px;
 }
 
-@media (max-width: 979px) {
-	body {
-		padding-top: 20px;
-	}
-
-}
 
 html,
 body {
 	height: 100%;
-	/* The html and body elements cannot have any padding or margin. */
 }
 
 .logo-header {
@@ -34,7 +29,7 @@ body {
 
 /* Wrapper for page content to push down footer */
 .wrap {
-	padding-top: 50px;
+	padding-top: 70px;
 	min-height: 100%;
 	height: auto !important;
 	height: 100%;
@@ -324,7 +319,6 @@ color: #088A08;
 
 .fixed-table {
 padding-left: 30px;
-padding-right: 30px;
 }
 
 td, th{
@@ -343,6 +337,10 @@ border-left: 1px solid white;
 
 .extra-top-margin {
     padding-top: 30px;
+}
+
+.reduce-top-margin {
+    margin-top: -30px;
 }
 
 .extend-content-area {
@@ -442,9 +440,26 @@ td.timetable-row {
 	padding-right: 0;
     font-size: 85%;
     line-height: 1.5;
-    width: 80px;
+    width: 100px;
 }
 
+.paypal-table-btn {
+    padding-top: 0;
+    padding-bottom: -10px;
+    margin-top: 0;
+    margin-bottom: 0;
+    height: 1.8em;
+	width: 120px;
+    }
+
+.paypal-btn-form {
+    padding-bottom: 0;
+    margin-bottom: 0
+}
+
+.booking-btn {
+    width: 120px;
+    }
 .table-center {
     text-align: center !important;
 }
@@ -499,6 +514,16 @@ label {
 .panel-booking {
     background-color: rgba(220,220,220, 0.3);
     border: solid 1px #4B088A;
+}
+
+.panel-heading {
+    background-color: rgba(100,100,100,0.3);
+}
+.panel-transparent  {
+    background-color: rgba(230,230,230,0.7);
+}
+tr.table-row-transparent {
+    background-color: rgba(230,230,230,0.15);
 }
 
 .filter {
@@ -670,4 +695,18 @@ label {
 td.timetable-row.session-level-td {
     white-space: normal;
     max-width: 200px;
+}
+
+.wl-table-form {
+	margin: 0;
+}
+
+.message {
+    margin-top: 2px;
+    margin-bottom: 2px;
+    margin-left: 1px;
+    margin-right: 1px;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    opacity: 0.7;
 }
