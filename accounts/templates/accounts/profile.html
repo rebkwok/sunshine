@@ -1,0 +1,43 @@
+{% extends 'account/base.html' %}
+{% load bookingtags %}
+
+{% block content %}
+
+<div class="container-fluid row">
+    <div class="col-xs-12">
+       <div class="panel panel-transparent">
+            <div class="panel-heading">
+                <h1 class="panel-title">Your Profile</h1>
+            </div>
+           <div class="panel-body">
+               <div class="col-xs-12">
+                   <div class="col-xs-3"><p><strong>Username:</strong></p></div>
+                   <div class="col-xs-9"><p>{{ user.username }}</p></div>
+               </div>
+
+               <div class="col-xs-12">
+                   <div class="col-xs-3"><p><strong>First name:</strong></p></div>
+                   <div class="col-xs-9"><p>{{ user.first_name }}</p></div>
+               </div>
+
+               <div class="col-xs-12">
+                   <div class="col-xs-3"><p><strong>Last name:</strong></p></div>
+                   <div class="col-xs-6 col-sm-4 col-md-4 col-lg-3"><p>{{ user.last_name }}</p></div>
+                  <div class="col-xs-3 col-sm-5 col-md-5 col-lg-6"><p><a href="{% url 'accounts:update_profile' %}">Change</a></p></div>
+               </div>
+
+
+               <div class="col-xs-12">
+                   <div class="col-xs-3"><p><strong>Primary email address:</strong></p></div>
+                   <div class="col-xs-6 col-sm-4 col-md-4 col-lg-3"><p>{{ user.email }}</p></div>
+                    <div class="col-xs-3 col-sm-5 col-md-5 col-lg-6"><p><a href="{% url 'account_email' %}">Change</a></p></div>
+               </div>
+
+               </div>
+
+        </div>
+       </div>
+    </div>
+</div>
+{% endblock content %}
+

@@ -24,7 +24,7 @@ class UserFilter(admin.SimpleListFilter):
 
     def queryset(self, request, queryset):
         if self.value():
-            return queryset.filter(entry__user__id=self.value())
+            return queryset.filter(booking__user__id=self.value())
         return queryset
 
 
@@ -43,7 +43,7 @@ class PaypalBookingTransactionAdmin(admin.ModelAdmin):
 
     def get_user(self, obj):
         return "{} {}".format(
-            obj.entry.user.first_name, obj.entry.user.last_name
+            obj.booking.user.first_name, obj.booking.user.last_name
         )
     get_user.short_description = "User"
 

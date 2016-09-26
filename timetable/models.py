@@ -59,6 +59,11 @@ class SessionType(models.Model):
         super(SessionType, self).save(*args, **kwargs)
 
 
+    class Meta:
+        verbose_name = "class"
+        verbose_name_plural = "classes"
+
+
 class Venue(models.Model):
     venue = models.CharField(max_length=255, default="Venue TBC")
     address = models.CharField(max_length=255, null=True, blank=True)

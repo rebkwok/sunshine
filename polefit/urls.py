@@ -10,7 +10,7 @@ urlpatterns = [
     url(r'', include('website.urls', namespace='website')),
     url(r'^accounts/', include('accounts.urls', namespace='accounts')),
     url(r'^accounts/', include('allauth.urls')),
-    url(r'^grappelli/', include('grappelli.urls')), # grappelli URLS
+    # url(r'^grappelli/', include('grappelli.urls')), # grappelli URLS
     url(r'^pf_admin/',     include(admin.site.urls)),
     url(r'^booking/', include('booking.urls', namespace='booking')),
     url(r'^payments/ipn-paypal-notify/', include('paypal.standard.ipn.urls')),

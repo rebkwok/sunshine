@@ -1,0 +1,51 @@
+{% extends "admin/index.html" %}
+
+{% block breadcrumbs %}
+<ul class="breadcrumb">
+    <li><a href="{% url 'admin:index' %}">Dashboard</a></li>
+</ul>
+{% endblock %}
+
+{% block content %}
+    {% if request.path == "/pf_admin/" %}
+        <div id="content-main">
+            <h1>Carousel Fitness Admin</h1>
+
+            <h2>Website</h2>
+            <p>Add text and photos to populate website About section on main
+                page, class and instructor descriptions.</p>
+
+            <h2>Timetable</h2>
+            <p>Enter scheduled classes to appear on the timetable page.</p>
+
+            <h2>Gallery</h2>
+            <p>Add images for the gallery pages.</p>
+            <p>Use "Categories" for easier uploading, use "Images" if you
+                need to change the category of an already uploaded image.</p>
+
+            <h2>Workshops</h2>
+            <p>For online workshop booking.</p>
+            <p>Workshops are only displayed on the site if the "show on site" checkbox has been ticked.</p>
+            <p>Payments are via paypal; you can enter any paypal email address here, but make sure you've
+            checked it carefully.  Use the "Test paypal email" link to confirm that the site can
+            process payments to the email address you've chosen.</p>
+
+            <h2>Bookings</h2>
+            <p>Review online bookings and waiting lists for workshops.</p>
+
+            <h2>Accounts</h2>
+            <p>List of registered users.</p>
+
+            <h2>Payments</h2>
+            <p>Paypal transaction information.</p>
+
+            <h2>Activity Log</h2>
+            <p>Tracks activity on the site, particularly in relation to bookings.</p>
+        </div>
+    {% else %}
+        {{ block.super }}
+    {% endif %}
+{% endblock %}
+
+{% block sidebar %}{% endblock %}
+

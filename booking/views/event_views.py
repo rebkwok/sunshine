@@ -26,6 +26,7 @@ class EventListView(ListView):
     def get_context_data(self, **kwargs):
         # Call the base implementation first to get a context
         context = super(EventListView, self).get_context_data(**kwargs)
+        context['section'] = 'events'
         if not self.request.user.is_anonymous():
             # Add in the booked_events
             user_booked_events = Booking.objects.select_related()\

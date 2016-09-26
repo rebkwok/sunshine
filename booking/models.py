@@ -114,7 +114,6 @@ class Booking(models.Model):
     date_booked = models.DateTimeField(default=timezone.now)
     date_rebooked = models.DateTimeField(null=True, blank=True)
 
-    date_payment_confirmed = models.DateTimeField(null=True, blank=True)
     status = models.CharField(
         max_length=255, choices=STATUS_CHOICES, default='OPEN'
     )
@@ -188,3 +187,6 @@ class WaitingListUser(models.Model):
     # date user joined the waiting list
     date_joined = models.DateTimeField(default=timezone.now)
 
+    class Meta:
+        verbose_name = 'waiting list'
+        verbose_name_plural = 'waiting list'

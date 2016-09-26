@@ -49,8 +49,6 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = (
-    'grappelli.dashboard',
-    'grappelli',
     'suit',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -187,8 +185,71 @@ TEMPLATES = [
 ]
 
 
-GRAPPELLI_ADMIN_TITLE = "PoleFit Starlet Administration Page"
-GRAPPELLI_INDEX_DASHBOARD = 'polefit.dashboard.CustomIndexDashboard'
+LOG_FOLDER = env('LOG_FOLDER')
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '[%(levelname)s] - %(asctime)s - %(name)s - '
+                      '%(message)s',
+            'datefmt': '%Y-%m-%d %H:%M:%S',
+        }
+    },
+    'handlers': {
+        'file_app': {
+            'level': 'INFO',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': os.path.join(LOG_FOLDER, 'polefit.log'),
+            'maxBytes': 1024*1024*5,  # 5 MB
+            'backupCount': 5,
+            'formatter': 'verbose'
+        },
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose'
+        }
+    },
+    'loggers': {
+        '': {
+            'handlers': ['console', 'file_app'],
+            'level': 'WARNING',
+            'propagate': True,
+        },
+        'accounts': {
+            'handlers': ['console', 'file_app'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'booking': {
+            'handlers': ['console', 'file_app'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'payments': {
+            'handlers': ['console', 'file_app'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'website': {
+            'handlers': ['console', 'file_app'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'timetable': {
+            'handlers': ['console', 'file_app'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'gallery': {
+            'handlers': ['console', 'file_app'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+    },
+}
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_USE_TLS = True
@@ -221,6 +282,73 @@ MESSAGE_TAGS = {
 }
 
 APPEND_SLASH = True
+
+
+# DJANGO-SUIT
+SUIT_CONFIG = {
+    'ADMIN_NAME': "Carousel Fitness",
+    'MENU': (
+        {
+            'label': 'Website',
+            'icon': 'icon-globe',
+            'models': (
+                'website.aboutinfo', 'timetable.sessiontype',
+                'timetable.instructor'
+            )
+        },
+        {
+            'label': 'Workshops',
+            'icon': 'icon-star',
+            'models': ('booking.event',)
+        },
+        {
+            'label': 'Bookings',
+            'icon': 'icon-heart',
+            'models': ('booking.booking', 'booking.waitinglistuser')
+        },
+        {
+            'label': 'Timetable',
+            'models': ('timetable.timetablesession',),
+            'icon': 'icon-calendar',
+        },
+        {
+            'label': 'Gallery',
+            'app': 'gallery',
+            'icon': 'icon-asterisk',
+        },
+        {
+            'label': 'Accounts',
+            'models': (
+                'auth.user',
+                {'model': 'account.emailaddress'},
+                {'model': 'account.emailconfirmation'},
+            ),
+            'icon': 'icon-user',
+        },
+
+        {
+            'label': 'Payments',
+            'models': ('payments.paypalbookingtransaction',
+                       'ipn.paypalipn'),
+            'icon': 'icon-asterisk',
+        },
+        {
+            'label': 'Test paypal email',
+            'url': '/payments/test-paypal-email',
+            'icon': 'icon-envelope',
+        },
+        {
+            'label': 'Activity Log',
+            'app': 'activitylog',
+            'icon': 'icon-asterisk',
+        },
+        {
+            'label': 'Go to main site',
+            'url': '/',
+            'icon': 'icon-map-marker',
+        },
+    )
+}
 
 
 # DJANGO-PAYPAL

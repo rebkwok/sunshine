@@ -5,8 +5,8 @@
 {% block head_title %}{% trans "Signup" %}{% endblock %}
 
 {% block content %}
-<div class="extra-top-margin container-fluid row">
-<div class="col-sm-10 col-sm-offset-1">
+<div class="container-fluid row">
+<div class="col-sm-12">
 
 <h1>{% trans "Sign Up" %}</h1>
 
@@ -23,11 +23,11 @@
             <span class="hide">{{ field }}</span>
         {% else %}
             <div class="form-group">
-               <label class="control-label col-xs-3" for="name_id">{{ field.label }}{% if field.field.required %}*{% endif %}</label>
-               <div class="col-xs-9 {% if form.field.errors %}error-info{% endif %}">{{ field }}</div>
-               <div class="helptext col-xs-9 col-xs-offset-3">{{ field.help_text }}</div>
+               <label class="control-label col-sm-2 col-xs-3" for="name_id">{{ field.label }}{% if field.field.required %}*{% endif %}</label>
+               <div class="col-sm-10 col-xs-9 {% if form.field.errors %}error-info{% endif %}">{{ field }}</div>
+               <div class="helptext col-sm-10 col-sm-offset-2 col-xs-9 col-xs-offset-3">{{ field.help_text }}</div>
                 {% if field.errors %}
-                    <div class="col-xs-9 col-xs-offset-3">
+                    <div class="col-sm-10 col-sm-offset-2 col-xs-9 col-xs-offset-3">
                         {{ field.errors }}
                     </div>
                 {% endif %}

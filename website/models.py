@@ -1,9 +1,13 @@
 from django.db import models
 
+
 class AboutInfo(models.Model):
     heading = models.CharField(max_length=255, null=True, blank=True)
     subheading = models.CharField(max_length=255, null=True, blank=True)
-    content= models.TextField('Content (note line breaks do not display on the summary page)')
+    content = models.TextField(
+        help_text='Note: single line breaks will be ignored when content is'
+                  'rendered on the site. Leave blank lines between paragraphs.'
+    )
 
     class Meta:
         verbose_name_plural = 'About page information'

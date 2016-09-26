@@ -9,7 +9,7 @@ from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django import forms
 from django.core.urlresolvers import reverse
-from suit.widgets import EnclosedInput
+from suit.widgets import EnclosedInput, SuitSplitDateTimeWidget
 
 from booking.models import Event, Booking, WaitingListUser
 from booking.widgets import DurationSelectorWidget
@@ -43,7 +43,7 @@ class BookingDateListFilter(admin.SimpleListFilter):
     title = 'date'
 
     # Parameter for the filter that will be used in the URL query.
-    parameter_name = 'date'
+    parameter_name = 'event__date'
 
     def lookups(self, request, model_admin):
         """
@@ -116,12 +116,13 @@ class EventForm(forms.ModelForm):
             # You can also use prepended and appended together
             'cost': EnclosedInput(prepend=u'\u00A3'),
             'cancellation_period': DurationSelectorWidget(),
+            'date': SuitSplitDateTimeWidget()
+
             }
 
 
 class BookingInline(admin.TabularInline):
     fields = ('event', 'user', 'paid', 'status')
-    readonly_fields = ('user', 'paid')
     model = Booking
     extra = 0
 
@@ -167,6 +168,8 @@ class EventAdmin(admin.ModelAdmin):
 
 class BookingAdmin(admin.ModelAdmin):
 
+    exclude = ('booking_reference',)
+
     list_display = (
         'event_name', 'get_date', 'get_user', 'get_cost', 'paid', 'status'
     )
@@ -176,6 +179,8 @@ class BookingAdmin(admin.ModelAdmin):
     search_fields = (
         'user__first_name', 'user__last_name', 'user__username', 'event__name'
     )
+
+    readonly_fields = ('booking_reference', 'date_booked', 'date_rebooked')
 
     actions_on_top = True
     actions_on_bottom = False

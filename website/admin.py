@@ -7,10 +7,12 @@ class AchievementInline(admin.TabularInline):
     model = Achievement
     extra = 5 #number of default empty fields to show
 
+
 class PastEventAdmin(admin.ModelAdmin):
     list_display = ['name']
     inlines = [AchievementInline]
     ordering = ['-id']
+
 
 class AboutInfoAdmin(admin.ModelAdmin):
     list_display = ['get_id', 'heading', 'subheading', 'content']

@@ -43,13 +43,14 @@
                 <div class="navbar-collapse collapse">
                     <ul class="nav navbar-nav pull-left">
                         <li><a {% if section == 'about' %}class="active"{% endif %} href="{% url 'website:about' %}">About us</a></li>
-                        <li class = "hidden-sm"><a {% if section == 'classes' %}class="active"{% endif %} href="{% url 'website:classes' %}">Classes</a></li>
                         <li><a {% if section == 'timetable' %}class="active"{% endif %} href="{% url 'website:timetable' %}">Timetable</a></li>
+                        <li class = "hidden-sm"><a {% if section == 'classes' %}class="active"{% endif %} href="{% url 'website:classes' %}">Classes</a></li>
+                        <li><a {% if section == 'events' %}class="active"{% endif %} href="{% url 'booking:events' %}">Workshops</a></li>
+                        <li class="hidden-sm hidden-md"><a {% if section == 'membership' %}class="active"{% endif %} href="{% url 'website:membership' %}">Membership & Prices</a></li>
                         <li class = "hidden-sm hidden-md"><a {% if section == 'instructors' %}class="active"{% endif %} href="{% url 'website:instructors' %}">Instructors</a></li>
                         <li class = "hidden-sm hidden-md"><a {% if section == 'venues' %}class="active"{% endif %} href="{% url 'website:venues' %}">Venues</a></li>
-                        <li><a {% if section == 'membership' %}class="active"{% endif %} href="{% url 'website:membership' %}">Membership & Prices</a></li>
-                        <li class = "hidden-sm" ><a {% if section == 'parties' %}class="active"{% endif %} href="{% url 'website:parties' %}">Parties</a></li>
-                        <li class = "hidden-sm" ><a {% if section == 'gallery' %}class="active"{% endif %} href="{% url 'website:gallery' %}">Gallery</a></li>
+                        <li class = "hidden-sm hidden-md" ><a {% if section == 'parties' %}class="active"{% endif %} href="{% url 'website:parties' %}">Parties</a></li>
+                        <li class = "hidden-sm hidden-md" ><a {% if section == 'gallery' %}class="active"{% endif %} href="{% url 'website:gallery' %}">Gallery</a></li>
                         <li ><a {% if section == 'contact' %}class="active"{% endif %} href="{% url 'website:contact' %}">Contact us</a></li>
                         <li class="visible-sm visible-md dropdown">
                           <a href="#" class="dropdown-toggle" data-toggle="dropdown">More<b class="caret"></b></a>
@@ -57,11 +58,30 @@
                                 <li class="hidden-md"><a href="{% url 'website:classes' %}">Classes</a></li>
                                 <li><a href="{% url 'website:instructors' %}">Instructors</a></li>
                                 <li><a href="{% url 'website:venues' %}">Venues</a></li>
-                                <li class="hidden-md"><a href="{% url 'website:parties' %}">Parties</a></li>
-                                <li class="hidden-md"><a href="{% url 'website:gallery' %}">Gallery</a></li>
+                                <li><a href="{% url 'website:parties' %}">Parties</a></li>
+                                <li><a href="{% url 'website:gallery' %}">Gallery</a></li>
+                              <li><a href="{% url 'website:membership' %}">Membership & Prices</a></li>
                           </ul>
                         </li>
                     </ul>
+                    <ul class="nav navbar-nav pull-right">
+                        {% if user.is_authenticated %}
+                        <li class="dropdown pull-right">
+                          <a href="#" class="dropdown-toggle" data-toggle="dropdown">My account<b class="caret"></b></a>
+                          <ul class="dropdown-menu pull-right">
+                                <li><a href="{% url 'accounts:profile' %}">Profile</a></li>
+                                <li><a href="{% url 'account_change_password' %}">Change password</a></li>
+                                <li><a href="{% url 'booking:bookings' %}">Bookings</a></li>
+                                <li><a href="{% url 'booking:booking_history' %}">Past bookings</a></li>
+                                <li><a href="{% url 'account_logout' %}">Log out</a></li>
+
+                          </ul>
+                        </li>
+                      {% else %}
+                        <li class="pull-right"><a href="{% url 'account_login' %}">Log in</a></li>
+                      {% endif %}
+
+                   </ul>
                 </div><!--/.nav-collapse -->
             </div>
         </div>

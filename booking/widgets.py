@@ -40,9 +40,7 @@ class DurationSelectorWidget(widgets.MultiWidget):
     def format_output(self, rendered_widgets):
         return (
             "<div>Weeks:</div> {}"
-            "</br>"
             "<div>Days:</div>{}"
-            "</br>"
             "<div>Hours:</div>{}"
             .format(
                 rendered_widgets[0], rendered_widgets[1], rendered_widgets[2]
