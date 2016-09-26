@@ -1,14 +1,8 @@
 # -*- coding: utf-8 -*-
-from django.conf import settings
 from django.contrib import admin, messages
 from django.contrib.auth.models import User
-from django.core.exceptions import ValidationError
-from django.core.mail import send_mail
-from django.template.loader import get_template
 from django.utils import timezone
-from django.utils.safestring import mark_safe
 from django import forms
-from django.core.urlresolvers import reverse
 from suit.widgets import EnclosedInput, SuitSplitDateTimeWidget
 
 from booking.models import Event, Booking, WaitingListUser
@@ -171,7 +165,8 @@ class BookingAdmin(admin.ModelAdmin):
     exclude = ('booking_reference',)
 
     list_display = (
-        'event_name', 'get_date', 'get_user', 'get_cost', 'paid', 'status'
+        'event_name', 'get_date', 'get_user', 'get_cost', 'paid', 'status',
+        'no_show'
     )
 
     list_filter = (BookingDateListFilter, UserFilter, 'event')

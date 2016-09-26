@@ -506,7 +506,6 @@ class BookingDeleteView(LoginRequiredMixin, DeleteView):
         # If not, we let people cancel but leave the booking status OPEN and
         # set to no-show
         can_cancel_and_refund = booking.event.can_cancel()
-
         event_was_full = booking.event.spaces_left == 0
 
         # send email to user
@@ -545,8 +544,7 @@ class BookingDeleteView(LoginRequiredMixin, DeleteView):
                     '{}'.format(booking.user.username, booking.event.name),
                     ctx,
                     'booking/email/to_studio_booking_cancelled.txt',
-                    'booking/email/booking_cancelled.html',
-                    to_list=[booking.user.email]
+                    to_list=[settings.DEFAULT_STUDIO_EMAIL]
                 )
 
             booking.status = 'CANCELLED'

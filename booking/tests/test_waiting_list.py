@@ -1,35 +1,34 @@
+# -*- coding: utf-8 -*-
+
 from model_mommy import mommy
 from django.core import mail
 from django.core.urlresolvers import reverse
 from django.test import TestCase, RequestFactory
 from django.contrib.messages.storage.fallback import FallbackStorage
 
-from accounts.models import PrintDisclaimer
 
 from booking.models import Booking, WaitingListUser
 from booking.views import BookingListView, BookingCreateView, \
     BookingDeleteView, BookingUpdateView, update_booking_cancelled, \
     EventListView, EventDetailView
 from booking.tests.helpers import _create_session, TestSetupMixin
-from studioadmin.tests.test_views import TestPermissionMixin
-from studioadmin.views import user_bookings_view
 
 
 class WaitingListTests(TestSetupMixin, TestCase):
 
-    def _get_event_list(self, user, ev_type):
+    def _get_event_list(self, user):
         url = reverse('booking:events')
         request = self.factory.get(url)
         request.user = user
         view = EventListView.as_view()
-        return view(request, ev_type=ev_type)
+        return view(request)
 
-    def _get_event_detail(self, user, event, ev_type):
+    def _get_event_detail(self, user, event):
         url = reverse('booking:event_detail', args=[event.slug])
         request = self.factory.get(url)
         request.user = user
         view = EventDetailView.as_view()
-        return view(request, slug=event.slug, ev_type=ev_type)
+        return view(request, slug=event.slug)
 
     def _get_booking_list(self, user):
         url = reverse('booking:bookings')
@@ -102,15 +101,15 @@ class WaitingListTests(TestSetupMixin, TestCase):
         Test that a full event displays the 'Join Waiting List' button on the
         events list page
         """
-        event = mommy.make_recipe('booking.future_PC', max_participants=3)
+        event = mommy.make_recipe('booking.future_EV', max_participants=3)
         mommy.make_recipe('booking.booking', event=event, _quantity=2)
-        resp = self._get_event_list(self.user, "lessons")
+        resp = self._get_event_list(self.user)
         resp.render()
         self.assertIn('book_button', str(resp.content))
         self.assertNotIn('join_waiting_list_button', str(resp.content))
 
         mommy.make_recipe('booking.booking', event=event)
-        resp = self._get_event_list(self.user, "lessons")
+        resp = self._get_event_list(self.user)
         resp.render()
         self.assertIn('join_waiting_list_button', str(resp.content))
         self.assertNotIn('book_button', str(resp.content))
@@ -120,10 +119,10 @@ class WaitingListTests(TestSetupMixin, TestCase):
         Test that a full event that the user is already booked for does not
         display 'Join waiting list'
         """
-        event = mommy.make_recipe('booking.future_PC', max_participants=3)
+        event = mommy.make_recipe('booking.future_EV', max_participants=3)
         mommy.make_recipe('booking.booking', event=event, _quantity=2)
         mommy.make_recipe('booking.booking', event=event, user=self.user)
-        resp = self._get_event_list(self.user, "lessons")
+        resp = self._get_event_list(self.user,)
         self.assertEquals(list(resp.context_data['booked_events']), [event.id])
         resp.render()
         self.assertNotIn('book_button', str(resp.content))
@@ -134,12 +133,12 @@ class WaitingListTests(TestSetupMixin, TestCase):
         Test that a full event that the user is already on the waiting list for
         displays 'On waiting list'
         """
-        event = mommy.make_recipe('booking.future_PC', max_participants=3)
+        event = mommy.make_recipe('booking.future_EV', max_participants=3)
         mommy.make_recipe('booking.booking', event=event, _quantity=3)
         mommy.make_recipe(
             'booking.waiting_list_user', event=event, user=self.user
         )
-        resp = self._get_event_list(self.user, "lessons")
+        resp = self._get_event_list(self.user)
         self.assertEquals(
             list(resp.context_data['waiting_list_events']), [event.id]
         )
@@ -150,8 +149,8 @@ class WaitingListTests(TestSetupMixin, TestCase):
         self.assertIn('leave_waiting_list_button', str(resp.content))
 
     def test_waiting_list_events_context(self):
-        wlevent = mommy.make_recipe('booking.future_PC', max_participants=2)
-        events = mommy.make_recipe('booking.future_PC', _quantity=5)
+        wlevent = mommy.make_recipe('booking.future_EV', max_participants=2)
+        events = mommy.make_recipe('booking.future_EV', _quantity=5)
         event = events[0]
         mommy.make_recipe('booking.booking', event=wlevent, _quantity=2)
         mommy.make_recipe(
@@ -159,7 +158,7 @@ class WaitingListTests(TestSetupMixin, TestCase):
         )
         mommy.make_recipe('booking.booking', event=event, user=self.user)
 
-        resp = self._get_event_list(self.user, "lessons")
+        resp = self._get_event_list(self.user)
         self.assertEquals(
             list(resp.context_data['waiting_list_events']), [wlevent.id]
         )
@@ -172,12 +171,12 @@ class WaitingListTests(TestSetupMixin, TestCase):
         Test that a not full event that the user is already on the waiting list
         for displays 'Book' button
         """
-        event = mommy.make_recipe('booking.future_PC', max_participants=3)
+        event = mommy.make_recipe('booking.future_EV', max_participants=3)
         mommy.make_recipe('booking.booking', event=event, _quantity=2)
         mommy.make_recipe(
             'booking.waiting_list_user', event=event, user=self.user
         )
-        resp = self._get_event_list(self.user, "lessons")
+        resp = self._get_event_list(self.user)
         self.assertEquals(
             list(resp.context_data['waiting_list_events']), [event.id]
         )
@@ -192,15 +191,15 @@ class WaitingListTests(TestSetupMixin, TestCase):
         Test that a full event displays the 'Join Waiting List' button on the
         event detail page
         """
-        event = mommy.make_recipe('booking.future_PC', max_participants=3)
+        event = mommy.make_recipe('booking.future_EV', max_participants=3)
         mommy.make_recipe('booking.booking', event=event, _quantity=2)
-        resp = self._get_event_detail(self.user, event, "lesson")
+        resp = self._get_event_detail(self.user, event)
         resp.render()
         self.assertIn('book_button', str(resp.content))
         self.assertNotIn('join_waiting_list_button', str(resp.content))
 
         mommy.make_recipe('booking.booking', event=event)
-        resp = self._get_event_detail(self.user, event, "lesson")
+        resp = self._get_event_detail(self.user, event)
         resp.render()
         self.assertIn('join_waiting_list_button', str(resp.content))
         self.assertNotIn('book_button', str(resp.content))
@@ -210,10 +209,10 @@ class WaitingListTests(TestSetupMixin, TestCase):
         Test that a full event that the user is already booked for does not
         display 'Join waiting list'
         """
-        event = mommy.make_recipe('booking.future_PC', max_participants=3)
+        event = mommy.make_recipe('booking.future_EV', max_participants=3)
         mommy.make_recipe('booking.booking', event=event, _quantity=2)
         mommy.make_recipe('booking.booking', event=event, user=self.user)
-        resp = self._get_event_detail(self.user, event, "lesson")
+        resp = self._get_event_detail(self.user, event)
         self.assertTrue(resp.context_data['booked'])
         self.assertNotIn('waiting_list', resp.context_data)
         resp.render()
@@ -225,12 +224,12 @@ class WaitingListTests(TestSetupMixin, TestCase):
         Test that a full event that the user is already on the waiting list for
         displays 'On waiting list'
         """
-        event = mommy.make_recipe('booking.future_PC', max_participants=3)
+        event = mommy.make_recipe('booking.future_EV', max_participants=3)
         mommy.make_recipe('booking.booking', event=event, _quantity=3)
         mommy.make_recipe(
             'booking.waiting_list_user', event=event, user=self.user
         )
-        resp = self._get_event_detail(self.user, event,  "lesson")
+        resp = self._get_event_detail(self.user, event)
         self.assertTrue(resp.context_data['waiting_list'])
         resp.render()
         self.assertNotIn('book_button', str(resp.content))
@@ -242,12 +241,12 @@ class WaitingListTests(TestSetupMixin, TestCase):
         Test that a not full event that the user is already on the waiting list
         for displays 'book_button' button
         """
-        event = mommy.make_recipe('booking.future_PC', max_participants=3)
+        event = mommy.make_recipe('booking.future_EV', max_participants=3)
         mommy.make_recipe('booking.booking', event=event, _quantity=2)
         mommy.make_recipe(
             'booking.waiting_list_user', event=event, user=self.user
         )
-        resp = self._get_event_detail(self.user, event, "lesson")
+        resp = self._get_event_detail(self.user, event)
         self.assertTrue(resp.context_data['waiting_list'])
         resp.render()
         self.assertIn('book_button', str(resp.content))
@@ -259,7 +258,7 @@ class WaitingListTests(TestSetupMixin, TestCase):
         Test that a cancelled booking shows 'join waiting list' button if
         event is full
         """
-        event = mommy.make_recipe('booking.future_PC', max_participants=3)
+        event = mommy.make_recipe('booking.future_EV', max_participants=3)
         mommy.make_recipe('booking.booking', event=event, _quantity=2)
         mommy.make_recipe(
             'booking.booking', event=event, user=self.user, status='CANCELLED'
@@ -281,7 +280,7 @@ class WaitingListTests(TestSetupMixin, TestCase):
         event is full and user already on the waiting list
         """
         event = mommy.make_recipe(
-            'booking.future_PC', max_participants=3)
+            'booking.future_EV', max_participants=3)
         mommy.make_recipe('booking.booking', event=event, _quantity=2)
         mommy.make_recipe(
             'booking.booking', event=event, user=self.user, status='CANCELLED'
@@ -302,30 +301,12 @@ class WaitingListTests(TestSetupMixin, TestCase):
         self.assertNotIn('rebook_button', str(resp.content))
         self.assertNotIn('join_waiting_list_button', str(resp.content))
 
-    def test_cancelled_booking_for_non_bookable_not_full_event(self):
-        """
-        Regression test: if an event is cancelled, bookings on it are
-        cancelled.  If it's reopened, booking_open and payment_open are set to
-        False.  Cancelled bookings are still listed on booking page but can't
-        be rebooked.  Previously this was incorrectly showing 'join waiting
-        list' button.  Should show disabled 'rebook' buttong
-        """
-        # event is not full but booking_open is False, so it's not bookable
-        event = mommy.make_recipe(
-            'booking.future_PC', max_participants=3, booking_open=False
-        )
-        mommy.make_recipe(
-            'booking.booking', event=event, user=self.user, status='CANCELLED'
-        )
-        resp = self._get_booking_list(self.user)
-        self.assertIn('rebook_button_disabled', resp.rendered_content)
-
     def test_join_waiting_list(self):
         """
         Test that joining waiting list add WaitingListUser to event and
         redirects to bookings list
         """
-        event = mommy.make_recipe('booking.future_PC', max_participants=3)
+        event = mommy.make_recipe('booking.future_EV', max_participants=3)
         mommy.make_recipe('booking.booking', event=event, _quantity=3)
 
         self.assertEqual(WaitingListUser.objects.count(), 0)
@@ -348,7 +329,7 @@ class WaitingListTests(TestSetupMixin, TestCase):
         Test that joining waiting list from event view ('bookings' not in GET)
         adds WaitingListUser to event and redirects to events list
         """
-        event = mommy.make_recipe('booking.future_PC', max_participants=3)
+        event = mommy.make_recipe('booking.future_EV', max_participants=3)
         mommy.make_recipe('booking.booking', event=event, _quantity=3)
 
         self.assertEqual(WaitingListUser.objects.count(), 0)
@@ -359,7 +340,7 @@ class WaitingListTests(TestSetupMixin, TestCase):
             }
         )
         self.assertEqual(resp.status_code, 302)
-        self.assertEqual(resp.url, reverse('booking:lessons'))
+        self.assertEqual(resp.url, reverse('booking:events'))
 
         waiting_list = WaitingListUser.objects.filter(event=event)
         self.assertEqual(len(waiting_list), 1)
@@ -370,7 +351,7 @@ class WaitingListTests(TestSetupMixin, TestCase):
         Test that leaving waiting list removes WaitingListUser to event and
         redirects to bookings list
         """
-        event = mommy.make_recipe('booking.future_PC', max_participants=3)
+        event = mommy.make_recipe('booking.future_EV', max_participants=3)
         mommy.make_recipe('booking.booking', event=event, _quantity=3)
         mommy.make_recipe(
             'booking.waiting_list_user', user=self.user, event=event
@@ -394,7 +375,7 @@ class WaitingListTests(TestSetupMixin, TestCase):
         removes WaitingListUser from event and
         redirects to events list
         """
-        event = mommy.make_recipe('booking.future_PC', max_participants=3)
+        event = mommy.make_recipe('booking.future_EV', max_participants=3)
         mommy.make_recipe('booking.booking', event=event, _quantity=3)
         mommy.make_recipe(
             'booking.waiting_list_user', user=self.user, event=event
@@ -407,7 +388,7 @@ class WaitingListTests(TestSetupMixin, TestCase):
             }
         )
         self.assertEqual(resp.status_code, 302)
-        self.assertEqual(resp.url, reverse('booking:lessons'))
+        self.assertEqual(resp.url, reverse('booking:events'))
 
         self.assertEqual(WaitingListUser.objects.count(), 0)
 
@@ -416,7 +397,7 @@ class WaitingListTests(TestSetupMixin, TestCase):
         Test that leaving waiting list when not on it just redirects to
         bookings page
         """
-        event = mommy.make_recipe('booking.future_PC', max_participants=3)
+        event = mommy.make_recipe('booking.future_EV', max_participants=3)
         mommy.make_recipe('booking.booking', event=event, _quantity=3)
         self.assertEqual(WaitingListUser.objects.count(), 0)
         resp = self._get_booking_create(
@@ -436,7 +417,7 @@ class WaitingListTests(TestSetupMixin, TestCase):
         Test that trying to join waiting list when already on it does add
         another WaitingListUser and redirects to events list
         """
-        event = mommy.make_recipe('booking.future_PC', max_participants=3)
+        event = mommy.make_recipe('booking.future_EV', max_participants=3)
         mommy.make_recipe('booking.booking', event=event, _quantity=3)
         # create waiting list user for this user and event
         mommy.make_recipe(
@@ -459,7 +440,7 @@ class WaitingListTests(TestSetupMixin, TestCase):
         """
         Test that when booking, a user is removed from the waiting list
         """
-        event = mommy.make_recipe('booking.future_PC', max_participants=3)
+        event = mommy.make_recipe('booking.future_EV', max_participants=3)
         mommy.make_recipe('booking.booking', event=event, _quantity=2)
         # create waiting list user for this user and event
         mommy.make_recipe(
@@ -467,7 +448,7 @@ class WaitingListTests(TestSetupMixin, TestCase):
         )
         self.assertEqual(WaitingListUser.objects.count(), 1)
         self.assertEqual(Booking.objects.filter(event=event).count(), 2)
-        resp = self._post_booking_create(self.user, event)
+        self._post_booking_create(self.user, event)
         waiting_list = WaitingListUser.objects.filter(event=event)
         # user now removed from waiting list
         self.assertEqual(len(waiting_list), 0)
@@ -480,7 +461,7 @@ class WaitingListTests(TestSetupMixin, TestCase):
         Test that when booking, a user is removed from the waiting list but
         other users remain on the waiting list
         """
-        event = mommy.make_recipe('booking.future_PC', max_participants=3)
+        event = mommy.make_recipe('booking.future_EV', max_participants=3)
         mommy.make_recipe('booking.booking', event=event, _quantity=2)
         # create waiting list user for this user and event
         mommy.make_recipe(
@@ -510,7 +491,7 @@ class WaitingListTests(TestSetupMixin, TestCase):
         redirect to update_booking_cancelled, which shows rebook
         button
         """
-        event = mommy.make_recipe('booking.future_PC')
+        event = mommy.make_recipe('booking.future_EV')
         booking = mommy.make_recipe(
             'booking.booking',
             user=self.user, event=event, status='CANCELLED'
@@ -534,13 +515,8 @@ class WaitingListTests(TestSetupMixin, TestCase):
         redirect to update_booking_cancelled, which shows join waiting
         list button if the event is full
         """
-        event = mommy.make_recipe(
-            'booking.future_PC',
-            max_participants=3
-        )
-        mommy.make_recipe(
-            'booking.booking', event=event, _quantity=3
-        )
+        event = mommy.make_recipe('booking.future_EV', max_participants=3)
+        mommy.make_recipe('booking.booking', event=event, _quantity=3)
         booking = mommy.make_recipe(
             'booking.booking',
             user=self.user, event=event, status='CANCELLED'
@@ -563,16 +539,10 @@ class WaitingListTests(TestSetupMixin, TestCase):
         Test that when a user cancels from a full booking, any
         users on the waiting list are emailed by bcc
         """
-        event = mommy.make_recipe(
-            'booking.future_PC',
-            max_participants=3
-        )
-        mommy.make_recipe(
-            'booking.booking', event=event, _quantity=2
-        )
+        event = mommy.make_recipe('booking.future_EV', max_participants=3)
+        mommy.make_recipe('booking.booking', event=event, _quantity=2)
         booking = mommy.make_recipe(
-            'booking.booking',
-            user=self.user, event=event
+            'booking.booking', user=self.user, event=event
         )
         for i in range(3):
             mommy.make_recipe(
@@ -584,7 +554,7 @@ class WaitingListTests(TestSetupMixin, TestCase):
             Booking.objects.filter(event=event, status='OPEN').count(),
             3
         )
-        resp = self._booking_delete(self.user, booking)
+        self._booking_delete(self.user, booking)
         self.assertEqual(
             Booking.objects.filter(event=event, status='OPEN').count(),
             2
@@ -597,138 +567,3 @@ class WaitingListTests(TestSetupMixin, TestCase):
             sorted(wl_email.bcc),
             ['test0@test.com', 'test1@test.com', 'test2@test.com']
         )
-
-
-class WaitingListStudioadminUserBookingListTests(TestPermissionMixin, TestCase):
-
-    def _post_response(self, user, user_id, form_data, booking_status='future'):
-        url = reverse(
-            'studioadmin:user_bookings_list',
-            kwargs={'user_id': user_id, 'booking_status': booking_status}
-        )
-        form_data['booking_status'] = [booking_status]
-        session = _create_session()
-        request = self.factory.post(url, form_data)
-        request.session = session
-        request.user = user
-        messages = FallbackStorage(request)
-        request._messages = messages
-        return user_bookings_view(
-            request, user_id, booking_status=booking_status
-        )
-
-    def test_cancel_booking_for_full_event(self):
-        """
-        Cancelling a booking for a full event emails users on the
-        waiting list
-        """
-
-        # make full event
-        event = mommy.make_recipe(
-            'booking.future_PC', max_participants=3)
-        bookings = mommy.make_recipe(
-            'booking.booking', event=event, _quantity=3
-        )
-        booking_to_cancel = bookings[0]
-
-        # make some waiting list users
-        for i in range(3):
-            mommy.make_recipe(
-                'booking.waiting_list_user', event=event,
-                user__email='test{}@test.com'.format(i)
-            )
-
-        data = {
-            'bookings-TOTAL_FORMS': 1,
-            'bookings-INITIAL_FORMS': 1,
-            'bookings-0-id': booking_to_cancel.id,
-            'bookings-0-event': booking_to_cancel.event.id,
-            'bookings-0-status': 'CANCELLED',
-            'bookings-0-paid': booking_to_cancel.paid,
-            }
-
-        self.assertEqual(booking_to_cancel.status, 'OPEN')
-
-        self._post_response(
-            self.staff_user, booking_to_cancel.user.id,
-            form_data=data
-        )
-        self.assertEqual(len(mail.outbox), 1)
-        self.assertEqual(
-            sorted(mail.outbox[0].bcc),
-            ['test0@test.com', 'test1@test.com', 'test2@test.com']
-        )
-
-        booking_to_cancel.refresh_from_db()
-        self.assertEqual(booking_to_cancel.status, 'CANCELLED')
-
-    def test_cancel_booking_for_non_full_event(self):
-        """
-        Cancelling a booking for a not full event does not email
-        users on the waiting list
-        """
-
-        # make not full event
-        event = mommy.make_recipe(
-            'booking.future_PC', max_participants=3)
-        bookings = mommy.make_recipe(
-            'booking.booking', event=event, _quantity=2
-        )
-        booking_to_cancel = bookings[0]
-
-        # make some waiting list users
-        mommy.make_recipe(
-            'booking.waiting_list_user', event=event, _quantity=3
-        )
-
-        data = {
-            'bookings-TOTAL_FORMS': 1,
-            'bookings-INITIAL_FORMS': 1,
-            'bookings-0-id': booking_to_cancel.id,
-            'bookings-0-event': booking_to_cancel.event.id,
-            'bookings-0-status': 'CANCELLED',
-            'bookings-0-paid': booking_to_cancel.paid,
-            }
-
-        self.assertEqual(booking_to_cancel.status, 'OPEN')
-
-        self._post_response(
-            self.staff_user, booking_to_cancel.user.id,
-            form_data=data
-        )
-        self.assertEqual(len(mail.outbox), 0)
-
-        booking_to_cancel.refresh_from_db()
-        self.assertEqual(booking_to_cancel.status, 'CANCELLED')
-
-    def test_create_booking_for_user_on_waiting_list(self):
-        """
-        Creating a booking for a user on the waiting list for an
-        event removes the user from the waiting list
-        """
-
-        # make full event
-        event = mommy.make_recipe(
-            'booking.future_PC', max_participants=3)
-
-        # add self.user to waiting list users
-        mommy.make_recipe(
-            'booking.waiting_list_user', event=event,
-            user=self.user
-        )
-
-        data = {
-            'bookings-TOTAL_FORMS': 1,
-            'bookings-INITIAL_FORMS': 0,
-            'bookings-0-event': event.id,
-            'bookings-0-status': 'OPEN',
-            'bookings-0-paid': 'on',
-            }
-
-        self.assertEqual(Booking.objects.count(), 0)
-        self.assertEqual(WaitingListUser.objects.count(), 1)
-        self._post_response(
-            self.staff_user, self.user.id, form_data=data
-        )
-        self.assertEqual(Booking.objects.count(), 1)
-        self.assertEqual(WaitingListUser.objects.count(), 0)

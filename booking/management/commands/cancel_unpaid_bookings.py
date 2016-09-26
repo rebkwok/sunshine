@@ -1,10 +1,13 @@
-'''
+# -*- coding: utf-8 -*-
+
+"""
 Check for unpaid bookings and cancel where:
 booking.status = OPEN
 paid = False
 Booking date booked OR booking date rebooked > 6 hrs ago)
 Email user that their booking has been cancelled
-'''
+"""
+
 import logging
 from datetime import timedelta
 
@@ -31,7 +34,6 @@ class Command(BaseCommand):
             paid=False,
             date_booked__lte=timezone.now() - timedelta(hours=6)
         ):
-
             # ignore any which have been rebooked in the past 6 hrs
             if not (
                         booking.date_rebooked and
@@ -56,7 +58,8 @@ class Command(BaseCommand):
             send_email(
                 None, 'Booking cancelled: {}'.format(booking.event.name), ctx,
                 'booking/email/booking_auto_cancelled.txt',
-                'booking/email/booking_auto_cancelled.html'
+                'booking/email/booking_auto_cancelled.html',
+                to_list=[booking.user.email]
             )
 
             booking.status = 'CANCELLED'

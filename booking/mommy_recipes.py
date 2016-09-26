@@ -20,10 +20,14 @@ user = Recipe(User,
 # events; use defaults apart from dates
 # override when using recipes, eg. mommy.make_recipe('future_event', cost=10)
 
-future_EV = Recipe(Event, date=future, event_type='workshop', cost=10)
+future_EV = Recipe(
+    Event, date=future, event_type='workshop', show_on_site=True, cost=10
+)
 
 # past event
-past_event = Recipe(Event, date=past, event_type='workshop', cost=10)
+past_event = Recipe(
+    Event, date=past, event_type='workshop', show_on_site=True, cost=10
+)
 
 booking = Recipe(Booking)
 

@@ -45,11 +45,11 @@ def send_email(
 
     except Exception as e:
         # send mail to tech support with Exception
-        send_support_email(e, __name__)
+        send_support_email(e, __name__ + '.send_email')
 
 
 def send_waiting_list_email(event, users, host="http://carouselfitness.co.uk"):
-    ev_type = 'wprkshops'
+    ev_type = 'workshops'
     try:
         msg = EmailMultiAlternatives(
             '{} {}'.format(settings.ACCOUNT_EMAIL_SUBJECT_PREFIX, event),
@@ -71,29 +71,29 @@ def send_waiting_list_email(event, users, host="http://carouselfitness.co.uk"):
         ActivityLog.objects.create(
             log='Waiting list email sent to user(s) {} for '
             'event {}'.format(
-                ', '.join([wluser.user.username for wluser in users]),
+                ', '.join([user.username for user in users]),
                 event
             )
         )
     except Exception as e:
         # send mail to tech support with Exception
-        send_support_email(e, __name__)
+        send_support_email(e, __name__ + '.send_waiting_list_email')
 
 
-def send_support_email(e, module_name=""):
+def send_support_email(e, source=""):
     try:
         send_mail('{} An error occurred!'.format(
                 settings.ACCOUNT_EMAIL_SUBJECT_PREFIX
             ),
             'An error occurred in {}\n\nThe exception '
-            'raised was "{}"'.format(module_name, e),
+            'raised was "{}"'.format(source, e),
             settings.DEFAULT_FROM_EMAIL,
             [settings.SUPPORT_EMAIL],
             fail_silently=True)
     except Exception as ex:
         ActivityLog.objects.create(
             log="Problem sending an email ({}: {})".format(
-                module_name, ex
+                source, ex
             )
         )
 

@@ -19,6 +19,8 @@ from booking.views import BookingListView, BookingHistoryListView, \
     update_booking_cancelled
 from booking.tests.helpers import _create_session, TestSetupMixin
 
+from payments.models import create_paypal_transaction
+
 
 class BookingListViewTests(TestSetupMixin, TestCase):
 
@@ -227,26 +229,7 @@ class BookingCreateViewTests(TestSetupMixin, TestCase):
         # email to student and studio
         self.assertEqual(len(mail.outbox), 2)
 
-    @patch('booking.views.booking_views.send_mail')
-    def test_create_booking_with_email_error(self, mock_send_emails):
-        """
-        Test creating a booking sends email to support if there is an email
-        error but still creates booking
-        """
-        mock_send_emails.side_effect = Exception('Error sending mail')
-
-        event = mommy.make_recipe(
-            'booking.future_EV', email_studio_when_booked=True,
-            max_participants=3
-        )
-        self.assertEqual(Booking.objects.all().count(), 0)
-        self._post_response(self.user, event)
-        self.assertEqual(Booking.objects.all().count(), 1)
-        # email to support only
-        self.assertEqual(len(mail.outbox), 2)
-        self.assertEqual(mail.outbox[0].to, [settings.SUPPORT_EMAIL])
-
-    @patch('booking.email_helpers.send_email')
+    @patch('booking.email_helpers.EmailMultiAlternatives.send')
     def test_create_booking_with_all_email_error(self, mock_send_emails):
         """
         Test if all emails fail when creating a booking
@@ -268,7 +251,7 @@ class BookingCreateViewTests(TestSetupMixin, TestCase):
         self.assertEqual(
             log.log,
             'Problem sending an email '
-            '(booking.views.booking_views: Error sending mail)'
+            '(booking.email_helpers.send_email: Error sending mail)'
         )
 
     def test_cannot_get_create_page_for_duplicate_booking(self):
@@ -278,7 +261,8 @@ class BookingCreateViewTests(TestSetupMixin, TestCase):
         event = mommy.make_recipe('booking.future_EV', max_participants=3)
 
         resp = self._post_response(self.user, event)
-        booking_url = reverse('booking:bookings')
+        booking = Booking.objects.latest('id')
+        booking_url = reverse('booking:update_booking', args=[booking.id])
         self.assertEqual(resp.url, booking_url)
 
         resp1 = self._get_response(self.user, event)
@@ -295,7 +279,8 @@ class BookingCreateViewTests(TestSetupMixin, TestCase):
         event = mommy.make_recipe('booking.future_EV', max_participants=3)
 
         resp = self._post_response(self.user, event)
-        booking_url = reverse('booking:bookings')
+        booking = Booking.objects.latest('id')
+        booking_url = reverse('booking:update_booking', args=[booking.id])
         self.assertEqual(resp.url, booking_url)
 
         resp1 = self._post_response(self.user, event)
@@ -375,7 +360,6 @@ class BookingCreateViewTests(TestSetupMixin, TestCase):
     def test_no_show_booking_can_be_rebooked(self):
         """
         Test can load create booking page with a no_show open booking
-        No option to book with block
         """
         event = mommy.make_recipe(
             'booking.future_EV', allow_booking_cancellation=False, cost=10
@@ -393,7 +377,6 @@ class BookingCreateViewTests(TestSetupMixin, TestCase):
             reverse('booking:book_event', kwargs={'event_slug': event.slug}),
         )
         self.assertEqual(resp.status_code, 200)
-        self.assertTrue(resp.context_data['reopening_paid_booking'])
 
     def test_rebook_cancelled_booking(self):
         """
@@ -448,10 +431,12 @@ class BookingCreateViewTests(TestSetupMixin, TestCase):
             resp.rendered_content
         )
 
-        # emails sent to student
-        self.assertEqual(len(mail.outbox), 1)
+        # emails sent to student and studio by default
+        self.assertEqual(len(mail.outbox), 2)
         email = mail.outbox[0]
         self.assertEqual(email.to, ['test@test.com'])
+        studio_email = mail.outbox[1]
+        self.assertEqual(studio_email.to, [settings.DEFAULT_STUDIO_EMAIL])
 
     def test_rebook_cancelled_paid_booking(self):
 
@@ -491,9 +476,7 @@ class BookingCreateViewTests(TestSetupMixin, TestCase):
             'booking.booking', event=event, user=self.user, paid=True,
             status='CANCELLED'
         )
-        pptrans = create_booking_paypal_transaction(
-            booking=booking, user=self.user
-        )
+        pptrans = create_paypal_transaction(booking=booking, user=self.user)
         pptrans.transaction_id = "txn"
         pptrans.save()
 
@@ -896,9 +879,9 @@ class BookingDeleteViewTests(TestSetupMixin, TestCase):
         booking.save()
         self._delete_response(self.user, booking)
         # 2 emails sent this time for direct paid booking
-        self.assertEqual(len(mail.outbox), 4)
-        user_mail = mail.outbox[2]
-        studio_mail = mail.outbox[3]
+        self.assertEqual(len(mail.outbox), 3)
+        user_mail = mail.outbox[1]
+        studio_mail = mail.outbox[2]
         self.assertEqual(user_mail.to, [self.user.email])
         self.assertEqual(studio_mail.to, [settings.DEFAULT_STUDIO_EMAIL])
 
@@ -921,7 +904,7 @@ class BookingDeleteViewTests(TestSetupMixin, TestCase):
         self.assertEqual(user_mail.to, [self.user.email])
         self.assertEqual(waiting_list_mail.bcc, [wluser.user.email])
 
-    @patch('booking.views.booking_views.send_waiting_list_email')
+    @patch('booking.email_helpers.EmailMultiAlternatives.send')
     def test_errors_sending_waiting_list_emails(
             self, mock_send_wl_emails):
         mock_send_wl_emails.side_effect = Exception('Error sending mail')
@@ -937,23 +920,15 @@ class BookingDeleteViewTests(TestSetupMixin, TestCase):
         )
 
         self._delete_response(self.user, booking)
-        self.assertEqual(len(mail.outbox), 2)
-        self.assertEqual(mail.outbox[0].to, [settings.SUPPORT_EMAIL])
+
+        self.assertEqual(len(mail.outbox), 0)
+        log = ActivityLog.objects.latest('id')
         self.assertEqual(
-            mail.outbox[0].subject,
-            '{} An error occurred! '
-            '(DeleteBookingView - cancelled email)'.format(
-                settings.ACCOUNT_EMAIL_SUBJECT_PREFIX
-            )
+            log.log,
+            'Problem sending an email (booking.email_helpers.'
+            'send_waiting_list_email: Error sending mail)'
         )
-        self.assertEqual(mail.outbox[1].to, [settings.SUPPORT_EMAIL])
-        self.assertEqual(
-            mail.outbox[1].subject,
-            '{} An error occurred! '
-            '(DeleteBookingView - waiting list email)'.format(
-                settings.ACCOUNT_EMAIL_SUBJECT_PREFIX
-            )
-        )
+
         booking.refresh_from_db()
         self.assertEqual(booking.status, 'CANCELLED')
 

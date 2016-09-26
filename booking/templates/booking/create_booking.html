@@ -17,7 +17,7 @@
                     <div class="form-group">
 
                         {% if not event.allow_booking_cancellation %}
-                            <p>Bookings are final and non-refundable.  If you cancel, you will not be eligible for any refunds or transfer credit.</p>
+                            <p>Bookings are final and non-refundable.  If you cancel, you will not be eligible for any refunds.</p>
                         {% elif not event.can_cancel %}
                             <p class="cancel-warning">Please note that the allowed cancellation period for this {{ ev_type }} has passed.
                             If you cancel, you will not be eligible for any refunds.
