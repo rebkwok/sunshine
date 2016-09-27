@@ -53,8 +53,3 @@ def format_paid_status(booking):
         return mark_safe('<span class="confirmed fa fa-check"></span>')
     else:
         return mark_safe('<span class="not-confirmed fa fa-close"></span>')
-
-
-@register.assignment_tag
-def check_debug():
-    return settings.DEBUG

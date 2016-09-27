@@ -470,9 +470,6 @@ class BookingUpdateView(LoginRequiredMixin, UpdateView):
         context['ev_type'] = 'workshop'
         return context
 
-    def get_success_url(self):
-        return reverse('booking:bookings')
-
 
 class BookingDeleteView(LoginRequiredMixin, DeleteView):
     model = Booking
@@ -651,10 +648,6 @@ def fully_booked(request, event_slug):
 
     context = {'event': event, 'ev_type': 'workshop'}
     return render(request, 'booking/fully_booked.html', context)
-
-
-def has_active_block(request):
-    return render(request, 'booking/has_active_block.html')
 
 
 def cancellation_period_past(request, event_slug):

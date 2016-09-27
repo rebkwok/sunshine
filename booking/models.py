@@ -133,7 +133,6 @@ class Booking(models.Model):
     def _old_booking(self):
         if self.pk:
             return Booking.objects.get(pk=self.pk)
-        return None
 
     def _is_new_booking(self):
         if not self.pk:
