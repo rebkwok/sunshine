@@ -1,27 +1,29 @@
 {% extends "admin/index.html" %}
+{% load static %}
 
-{% block breadcrumbs %}
-<ul class="breadcrumb">
-    <li><a href="{% url 'admin:index' %}">Dashboard</a></li>
-</ul>
+{% block extrastyle %}
+<link href="{% static 'website/css/admin-extra.css' %}" rel="stylesheet">
 {% endblock %}
 
 {% block content %}
     {% if request.path == "/pf_admin/" %}
-        <div id="content-main">
+        <div id="content-main" class="admin-center">
             <h1>Carousel Fitness Admin</h1>
-
+            <hr>
             <h2>Website</h2>
-            <p>Add text and photos to populate website About section on main
+            <p>Add text and photos to populate website main
                 page, class and instructor descriptions.</p>
 
             <h2>Timetable</h2>
-            <p>Enter scheduled classes to appear on the timetable page.</p>
+            <p>Enter scheduled weekly classes to appear on the timetable page.</p>
 
             <h2>Gallery</h2>
             <p>Add images for the gallery pages.</p>
             <p>Use "Categories" for easier uploading, use "Images" if you
                 need to change the category of an already uploaded image.</p>
+
+            <h2>Accounts</h2>
+            <p>List of registered users.</p>
 
             <h2>Workshops</h2>
             <p>For online workshop booking.</p>
@@ -33,11 +35,13 @@
             <h2>Bookings</h2>
             <p>Review online bookings and waiting lists for workshops.</p>
 
-            <h2>Accounts</h2>
-            <p>List of registered users.</p>
-
             <h2>Payments</h2>
             <p>Paypal transaction information.</p>
+            <p><strong>Test Paypal Email:</strong> Use this to check a new paypal email before making a
+            workshop available for booking.  This sends a payment of £0.01 to the paypal account
+            associated with the email you are testing.  You must use a different account to the one being
+            tested to to send the payment.  Paypal accounts do not need to be business accounts, but they
+            must be verified.</p>
 
             <h2>Activity Log</h2>
             <p>Tracks activity on the site, particularly in relation to bookings.</p>

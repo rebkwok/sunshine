@@ -286,8 +286,10 @@ APPEND_SLASH = True
 
 # DJANGO-SUIT
 SUIT_CONFIG = {
+    'SEARCH_URL': '',
     'ADMIN_NAME': "Carousel Fitness",
     'MENU': (
+        '-',
         {
             'label': 'Website',
             'icon': 'icon-globe',
@@ -295,16 +297,6 @@ SUIT_CONFIG = {
                 'website.aboutinfo', 'timetable.sessiontype',
                 'timetable.instructor'
             )
-        },
-        {
-            'label': 'Workshops',
-            'icon': 'icon-star',
-            'models': ('booking.event',)
-        },
-        {
-            'label': 'Bookings',
-            'icon': 'icon-heart',
-            'models': ('booking.booking', 'booking.waitinglistuser')
         },
         {
             'label': 'Timetable',
@@ -316,6 +308,7 @@ SUIT_CONFIG = {
             'app': 'gallery',
             'icon': 'icon-asterisk',
         },
+        '-',
         {
             'label': 'Accounts',
             'models': (
@@ -325,7 +318,17 @@ SUIT_CONFIG = {
             ),
             'icon': 'icon-user',
         },
-
+        '-',
+        {
+            'label': 'Workshops',
+            'icon': 'icon-star',
+            'models': ('booking.event',)
+        },
+        {
+            'label': 'Bookings',
+            'icon': 'icon-heart',
+            'models': ('booking.booking', 'booking.waitinglistuser')
+        },
         {
             'label': 'Payments',
             'models': ('payments.paypalbookingtransaction',
@@ -337,11 +340,13 @@ SUIT_CONFIG = {
             'url': '/payments/test-paypal-email',
             'icon': 'icon-envelope',
         },
+        '-',
         {
             'label': 'Activity Log',
             'app': 'activitylog',
             'icon': 'icon-asterisk',
         },
+        '-',
         {
             'label': 'Go to main site',
             'url': '/',

@@ -40,7 +40,7 @@ class Event(models.Model):
     )
     max_participants = models.PositiveIntegerField(default=12)
 
-    contact_email = models.EmailField(default="carouselfitness@hotmail.com")
+    contact_email = models.EmailField(default="carouselfitness@gmail.com")
     cost = models.DecimalField(max_digits=8, decimal_places=2)
 
     show_on_site = models.BooleanField(

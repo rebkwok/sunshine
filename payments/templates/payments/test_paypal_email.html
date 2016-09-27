@@ -1,11 +1,17 @@
 {% extends "admin/base.html" %}
 {% load static %}
 
+{% block extrastyle %}
+<link href="{% static 'website/css/admin-extra.css' %}" rel="stylesheet">
+{% endblock %}
+
 {% block content %}
 
-<div class="container-fluid row">
+<div class="container-fluid row admin-center">
 
-    <h2>PayPal Email Check</h2>
+    <h1>PayPal Email Check</h1>
+    <hr>
+
     <p>Use this to check payments to an alternative paypal email.  Enter the email address
     you want to check below and click 'Submit'.</p>
 

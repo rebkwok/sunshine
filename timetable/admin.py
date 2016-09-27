@@ -5,11 +5,14 @@ from timetable.models import Instructor, TimetableSession, SessionType, Venue
 class InstructorAdmin(admin.ModelAdmin):
     list_display = ('name', 'regular_instructor', 'has_photo')
 
+
 class VenueAdmin(admin.ModelAdmin):
     list_display = ('venue', 'address', 'postcode')
 
+
 class SessionTypeAdmin(admin.ModelAdmin):
     list_display = ('index', 'name', 'regular_session', 'has_photo')
+    ordering = ['index',]
 
 
 class TimetableSessionAdmin(admin.ModelAdmin):

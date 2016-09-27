@@ -1,7 +1,0 @@
-The following unpaid bookings have been automatically cancelled.
-{% for booking in bookings %}
- - Workshop: {{ booking.event }}, Student: {{ booking.user.first_name }} {{ booking.user.last_name }} ({{ booking.user.username }})</li>
-{% endfor %}
-Students have been sent an email notifying them that their booking has been cancelled.
-
-{% include 'account/email/footer.txt' %}

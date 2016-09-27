@@ -1,0 +1,14 @@
+.admin-center > h1, .admin-center > h2, .admin-center > p, .admin-center > form {
+    padding-left: 20px;
+    margin-left: 0;
+}
+
+.admin-center > p {
+    font-size: small;
+    line-height: 1.5;
+}
+
+.admin-center > form > div > label {
+    font-weight: bold;
+}
+

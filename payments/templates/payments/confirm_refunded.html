@@ -1,15 +1,21 @@
 {% extends "admin/base.html" %}
 {% load static %}
 
+{% block extrastyle %}
+<link href="{% static 'website/css/admin-extra.css' %}" rel="stylesheet">
+{% endblock %}
+
+
 {% block content %}
 
 <div class="row">
-    <div class="col-sm-11">
+    <div class="admin-center">
 
-    <h2>Confirm payment has been refunded</h2>
+    <h1>Confirm payment has been refunded</h1>
+    <hr>
     <p>{{ booking.user.first_name }} {{ booking.user.last_name }}
     ({{ booking.user.username }})'s booking for
-        {{ booking.event }} has been cancelled or a refund has been requested.</p>
+        <strong>{{ booking.event }}</strong> has been cancelled or a refund has been requested.</p>
 
     {% if booking.paid %}
         <p>Click the button below to confirm that the payment has been refunded.
@@ -22,7 +28,7 @@
             <input class="btn btn-danger" type="submit" name='cancelled' value="Cancel" />
         </form>
     {% else %}
-        This booking is unpaid or payment has already been refunded.
+        <p>This booking is unpaid or payment has already been refunded.</p>
     {% endif %}
     </div>
 </div>

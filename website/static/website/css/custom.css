@@ -185,18 +185,14 @@ border-bottom: 1px solid black;
     padding-top:20px;
 }
 
-a {
-    font-weight: bold;
-}
-
 /* unvisited link */
 a:link {
-color: #99739a;
+color: #8c668d;
 }
 
 /* visited link */
 a:visited {
-color: #99739a;
+color: #8c668d;
 }
 
 /* mouse over link */
@@ -206,7 +202,7 @@ color: #f2bd49;
 
 /* selected link */
 a:active {
-color: #99739a;
+color: #8c668d;
 }
 
 a.footer-link {
@@ -517,13 +513,10 @@ label {
 }
 
 .panel-heading {
-    background-color: rgba(100,100,100,0.3);
+    background-color: rgba(242,189,73,0.3);
 }
 .panel-transparent  {
     background-color: rgba(230,230,230,0.7);
-}
-tr.table-row-transparent {
-    background-color: rgba(230,230,230,0.15);
 }
 
 .filter {

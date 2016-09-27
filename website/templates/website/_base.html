@@ -17,7 +17,7 @@
         <!-- Bootstrap theme -->
         <link href="{% static 'website/bootstrap/bootstrap-theme.css' %}" rel="stylesheet">
         <!-- Custom styles  -->
-        <link href="{% static 'website/bootstrap/custom.css' %}" rel="stylesheet">
+        <link href="{% static 'website/css/custom.css' %}" rel="stylesheet">
          <link rel="stylesheet" href="{% static 'website/bootstrap/font-awesome.min.css' %}">
 
         {% block extrahead %}{% endblock %}
@@ -74,7 +74,9 @@
                                 <li><a href="{% url 'booking:bookings' %}">Bookings</a></li>
                                 <li><a href="{% url 'booking:booking_history' %}">Past bookings</a></li>
                                 <li><a href="{% url 'account_logout' %}">Log out</a></li>
-
+                                {% if user.is_staff %}
+                                    <li><a href="{% url 'admin:index' %}">Admin</a></li>
+                                {% endif %}
                           </ul>
                         </li>
                       {% else %}

@@ -58,7 +58,6 @@ class SessionType(models.Model):
         except: pass # when new photo then we do nothing, normal case
         super(SessionType, self).save(*args, **kwargs)
 
-
     class Meta:
         verbose_name = "class"
         verbose_name_plural = "classes"

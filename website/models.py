@@ -15,10 +15,6 @@ class AboutInfo(models.Model):
     def __str__(self):
         return "About page section " + str(self.id)
 
-    def get_id(self):
-        return self.id
-    get_id.short_description = 'Section number'
-
 
 class PastEvent(models.Model):
     name = models.CharField('Past Competition/Show/Event', max_length=255)
