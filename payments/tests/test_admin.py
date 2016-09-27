@@ -8,10 +8,10 @@ from django.test import TestCase
 
 from paypal.standard.ipn.models import PayPalIPN
 
-from entries.models import Entry
+from booking.models import Booking
 
 from .. import admin
-from ..models import PaypalEntryTransaction, create_entry_paypal_transaction
+from ..models import PaypalBookingTransaction, create_paypal_transaction
 
 
 class PaymentsAdminTests(TestCase):
@@ -19,19 +19,19 @@ class PaymentsAdminTests(TestCase):
     def test_paypal_admin_display(self):
         user = mommy.make(
             User, first_name='Test', last_name='User')
-        entry = mommy.make(Entry, user=user)
-        pptrans = create_entry_paypal_transaction(user, entry, 'video')
+        booking = mommy.make(Booking, user=user)
+        pptrans = create_paypal_transaction(user, booking)
 
-        ppentry_admin = admin.PaypalEntryTransactionAdmin(
-            PaypalEntryTransaction, AdminSite()
+        ppbooking_admin = admin.PaypalBookingTransactionAdmin(
+            PaypalBookingTransaction, AdminSite()
         )
-        ppentry_query = ppentry_admin.get_queryset(None)[0]
+        ppbooking_query = ppbooking_admin.get_queryset(None)[0]
 
         self.assertEqual(
-            ppentry_admin.get_entry_id(ppentry_query), entry.id
+            ppbooking_admin.get_booking_id(ppbooking_query), booking.id
         )
         self.assertEqual(
-            ppentry_admin.get_user(ppentry_query), 'Test User')
+            ppbooking_admin.get_user(ppbooking_query), 'Test User')
 
     def test_paypaladmin_display(self):
         mommy.make(PayPalIPN, first_name='Mickey', last_name='Mouse')
@@ -51,14 +51,14 @@ class PaymentsAdminFiltersTests(TestCase):
             User, first_name="Donald", last_name="Duck", username="dd"
         )
         for user in User.objects.all():
-            mommy.make(PaypalEntryTransaction, entry__user=user)
+            mommy.make(PaypalBookingTransaction, booking__user=user)
 
     def test_payments_user_filter_choices(self):
         # test that user filter shows formatted choices ordered by first name
 
         userfilter = admin.UserFilter(
-            None, {}, PaypalEntryTransaction,
-            admin.PaypalEntryTransactionAdmin
+            None, {}, PaypalBookingTransaction,
+            admin.PaypalBookingTransactionAdmin
         )
 
         self.assertEqual(
@@ -72,28 +72,30 @@ class PaymentsAdminFiltersTests(TestCase):
     def test_paypal_booking_user_filter(self):
 
         userfilter = admin.UserFilter(
-            None, {}, PaypalEntryTransaction, admin.PaypalEntryTransactionAdmin
+            None, {}, PaypalBookingTransaction,
+            admin.PaypalBookingTransactionAdmin
         )
         result = userfilter.queryset(
-            None, PaypalEntryTransaction.objects.all()
+            None, PaypalBookingTransaction.objects.all()
         )
         # with no filter parameters, return all
-        self.assertEqual(PaypalEntryTransaction.objects.count(), 2)
+        self.assertEqual(PaypalBookingTransaction.objects.count(), 2)
         self.assertEqual(result.count(), 2)
         self.assertEqual(
             [ppbt.id for ppbt in result],
-            [ppbt.id for ppbt in PaypalEntryTransaction.objects.all()]
+            [ppbt.id for ppbt in PaypalBookingTransaction.objects.all()]
         )
 
         userfilter = admin.UserFilter(
-            None, {'user': self.user.id}, PaypalEntryTransaction,
-            admin.PaypalEntryTransactionAdmin
+            None, {'user': self.user.id}, PaypalBookingTransaction,
+            admin.PaypalBookingTransactionAdmin
         )
         result = userfilter.queryset(
-            None, PaypalEntryTransaction.objects.all()
+            None, PaypalBookingTransaction.objects.all()
         )
-        self.assertEqual(PaypalEntryTransaction.objects.count(), 2)
+        self.assertEqual(PaypalBookingTransaction.objects.count(), 2)
         self.assertEqual(result.count(), 1)
         self.assertEqual(
-            result[0], PaypalEntryTransaction.objects.get(entry__user=self.user)
+            result[0],
+            PaypalBookingTransaction.objects.get(booking__user=self.user)
         )

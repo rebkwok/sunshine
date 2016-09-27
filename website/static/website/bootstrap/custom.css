@@ -573,7 +573,7 @@ tr.table-row-transparent {
     color: white;
 }
 
-a>.btn, a.btn {
+a>.btn, a.btn, a.btn.btn-success {
     color: #fff !important;
     text-decoration: none;
 }

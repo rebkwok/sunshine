@@ -14,7 +14,7 @@ django-responsive==0.3.0
 django-allauth==0.27.0
 django-braces==1.9.0
 django-suit==0.2.21
-django-paypal==0.3.1
+git+git://github.com/spookylukey/django-paypal.git@4421ff04484fb3cd97927997de355ff888606d89
 shortuuid==0.4.3
 django-debug-toolbar==1.5
 python-memcached==1.58

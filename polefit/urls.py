@@ -15,8 +15,7 @@ urlpatterns = [
     url(r'^booking/', include('booking.urls', namespace='booking')),
     url(r'^payments/ipn-paypal-notify/', include('paypal.standard.ipn.urls')),
     url(r'payments/', include('payments.urls', namespace='payments')),
-    url(r'^not-available/$', permission_denied,
-        name='permission_denied'),
+    url(r'^not-available/$', permission_denied, name='permission_denied'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 

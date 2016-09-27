@@ -19,7 +19,7 @@ class PayPalPaymentsListForm(PayPalPaymentsForm):
         super(PayPalPaymentsListForm, self).render()
         return mark_safe(u"""<form class="paypal-btn-form" action="%s" method="post">
             %s
-        <input class="paypal-table-btn" type="image" src="%s" border="0" name="submit" alt="Buy it Now" />
+        <input class="paypal-table-btn" type="image" src="%s" border="0" name="submit" alt="Pay Now" />
         </form>""" % (self.get_endpoint(), self.as_p(), self.get_image()))
 
 

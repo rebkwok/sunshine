@@ -204,6 +204,7 @@ def get_obj(ipn_obj):
         # in case custom not included in paypal response or incorrect format
         raise PayPalTransactionError('Unknown object for payment')
 
+    additional_data = {}
     if obj_type == 'paypal_test':
         # a test payment for paypal email
         # custom in a test payment is in form
@@ -233,12 +234,15 @@ def get_obj(ipn_obj):
             if ipn_obj.invoice:
                 paypal_trans = PaypalBookingTransaction\
                     .objects.select_related('booking').get(
-                    Booking=obj, invoice_id=ipn_obj.invoice
+                    booking=obj, invoice_id=ipn_obj.invoice
                 )
             else:
                 paypal_trans = paypal_trans.latest('id')
         else:  # we got one paypaltrans, as we should have
             paypal_trans = paypal_trans[0]
+
+    else:
+        raise PayPalTransactionError('Unknown object type {}'.format(obj_type))
 
     return {
         'obj_type': obj_type,
@@ -395,35 +399,64 @@ def payment_received(sender, **kwargs):
                     )
 
         else:  # any other status
-            ActivityLog.objects.create(
-                log='Unexpected payment status for booking {}; '
-                    'ipn obj id {} (txn id {})'.format(
-                    ipn_obj.payment_status.upper(),
-                    obj.id, ipn_obj.id, ipn_obj.txn_id
-                    )
-            )
-            raise PayPalTransactionError(
-                'Unexpected payment status {} for booking {}; '
-                'ipn obj id {} (txn id {})'.format(
-                    ipn_obj.payment_status.upper(),
-                    obj.id, ipn_obj.id, ipn_obj.txn_id
+            if obj_type == 'paypal_test':
+                ActivityLog.objects.create(
+                    log='Test payment (invoice {} for paypal email {} '
+                        'processed with unexpected payment status {}; PayPal '
+                        'transaction id {}'.format(
+                            additional_data['test_invoice'],
+                            additional_data['test_paypal_email'],
+                            ipn_obj.payment_status,
+                            ipn_obj.txn_id
+                        )
                 )
-            )
+                send_processed_test_unexpected_status_emails(
+                    additional_data, ipn_obj.payment_status
+                )
+
+            else:
+                ActivityLog.objects.create(
+                    log='Unexpected payment status {} for {} {}; '
+                        'ipn obj id {} (txn id {})'.format(
+                         obj_type, obj.id,
+                         ipn_obj.payment_status.upper(), ipn_obj.id, ipn_obj.txn_id
+                        )
+                )
+                raise PayPalTransactionError(
+                    'Unexpected payment status {} for {} {}; ipn obj id {} '
+                    '(txn id {})'.format(
+                        ipn_obj.payment_status.upper(), obj_type, obj.id,
+                        ipn_obj.id, ipn_obj.txn_id
+                    )
+                )
 
     except Exception as e:
         # if anything else goes wrong, send a warning email
-        logger.warning(
-            'Problem processing payment for {} {}; '
-            'invoice_id {}, transaction id: {}.  Exception: {}'.format(
-                obj_type, obj.id, ipn_obj.invoice,
-                ipn_obj.txn_id, e
+        if obj_type == 'paypal_test':
+            logger.warning(
+                'Problem processing payment for paypal email test to {}; '
+                'invoice_id {}, transaction  id: {}.  Exception: {}'.format(
+                    additional_data['test_paypal_email'],
+                    additional_data['test_invoice'],
+                    ipn_obj.txn_id, e
                 )
-        )
+            )
+        else:
+            logger.warning(
+                'Problem processing payment for booking {}; invoice_id {},'
+                ' transaction id: {}.  Exception: {}'.format(
+                    obj.id, ipn_obj.invoice, ipn_obj.txn_id, e
+                )
+            )
 
         send_mail(
-            '{} There was some problem processing {} for '
-            'booking id {}'.format(
-                settings.ACCOUNT_EMAIL_SUBJECT_PREFIX, obj.id
+            '{} There was some problem processing payment for '
+            '{} {}'.format(
+                settings.ACCOUNT_EMAIL_SUBJECT_PREFIX, obj_type,
+                'payment to paypal email {}'.format(
+                    additional_data['test_paypal_email']
+                ) if obj_type == 'paypal_test' else
+                'id {}'.format(obj.id)
             ),
             'Please check your booking and paypal records for '
             'invoice # {}, paypal transaction id {}.\n\nThe exception '

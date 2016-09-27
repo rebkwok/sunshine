@@ -40,7 +40,7 @@ class StaffUserMixin(object):
                 'user_%s_is_staff' % str(request.user.id), user_is_staff, 1800
             )
         if not user_is_staff:
-            return HttpResponseRedirect(reverse('booking:permission_denied'))
+            return HttpResponseRedirect(reverse('permission_denied'))
         return super(StaffUserMixin, self).dispatch(request, *args, **kwargs)
 
 
@@ -59,7 +59,7 @@ def staff_required(func):
         if user_is_staff:
             return func(request, *args, **kwargs)
         else:
-            return HttpResponseRedirect(reverse('booking:permission_denied'))
+            return HttpResponseRedirect(reverse('permission_denied'))
     return wraps(func)(decorator)
 
 
@@ -91,7 +91,7 @@ def paypal_confirm_return(request):
     test_ipn_complete = False
     custom = request.POST.get('custom', '').split()
 
-    if custom:
+    if custom and len(custom) >= 2:
         obj_type = custom[0]
         obj_id = int(custom[1])
 
@@ -106,8 +106,6 @@ def paypal_confirm_return(request):
                     invoice=custom[2], payment_status='Completed'
                 )
             )
-        else:
-            obj = 'unknown'
 
         # Possible payment statuses:
         # Canceled_, Reversal, Completed, Denied, Expired, Failed, Pending,
@@ -195,7 +193,7 @@ class ConfirmRefundView(LoginRequiredMixin, StaffUserMixin, UpdateView):
         return HttpResponseRedirect(self.get_success_url())
 
     def get_success_url(self):
-        return reverse('booking:events')
+        return reverse('admin:index')
 
 
 @login_required
