@@ -18,9 +18,6 @@ root = environ.Path(__file__) - 2  # two folders back (/a/b/ - 3 = /)
 env = environ.Env(DEBUG=(bool, False),
                   PAYPAL_TEST=(bool, False),
                   USE_MAILCATCHER=(bool, False),
-                  TRAVIS=(bool, False),
-                  HEROKU=(bool, False),
-                  SEND_ALL_STUDIO_EMAILS=(bool, False)
                   )
 
 environ.Env.read_env(root('polefit/.env'))  # reading .env file
@@ -31,10 +28,9 @@ BASE_DIR = root()
 # See https://docs.djangoproject.com/en/1.6/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-try:
-    SECRET_KEY = env('SECRET_KEY')
-except KeyError:
-    raise KeyError("You must provide the environment variable SECRET_KEY")
+SECRET_KEY = env('SECRET_KEY')
+if SECRET_KEY is None:  # pragma: no cover
+    print("No secret key!")
 
 DEBUG = env('DEBUG')
 # when env variable is changed it will be a string, not bool
@@ -256,18 +252,18 @@ EMAIL_USE_TLS = True
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_HOST_USER = 'carouselfitnessweb@gmail.com'
 EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD', None)
-if EMAIL_HOST_PASSWORD is None:
+if EMAIL_HOST_PASSWORD is None:  # pragma: no cover
     print("No email host password provided!")
 EMAIL_PORT = 587
 DEFAULT_FROM_EMAIL = 'carouselfitnessweb@gmail.com'
 DEFAULT_STUDIO_EMAIL = 'carouselfitness@gmail.com'
-if DEBUG:
+if DEBUG:  # pragma: no cover
     DEFAULT_STUDIO_EMAIL = 'rebkwok@gmail.com'
 SUPPORT_EMAIL = 'rebkwok@gmail.com'
 
 
 # MAILCATCHER
-if env('USE_MAILCATCHER'):
+if env('USE_MAILCATCHER'):  # pragma: no cover
     EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
     EMAIL_HOST = '127.0.0.1'
     EMAIL_HOST_USER = ''

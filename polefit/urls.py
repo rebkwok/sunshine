@@ -4,10 +4,17 @@ from django.contrib import admin
 from django.conf import settings
 from django.conf.urls.static import static
 
+from accounts.views import CustomLoginView, CustomSignUpView
 from booking.views import permission_denied
 
 urlpatterns = [
     url(r'', include('website.urls', namespace='website')),
+    url(
+        r'^accounts/signup/$', CustomSignUpView.as_view(), name='account_signup'
+    ),
+    url(
+        r'^accounts/login/$', CustomLoginView.as_view(), name='account_login'
+    ),
     url(r'^accounts/', include('accounts.urls', namespace='accounts')),
     url(r'^accounts/', include('allauth.urls')),
     # url(r'^grappelli/', include('grappelli.urls')), # grappelli URLS

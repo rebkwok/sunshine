@@ -96,7 +96,7 @@ def send_processed_refund_emails(paypal_trans, user, obj):
         'paypal_transaction_id': paypal_trans.transaction_id,
         'paypal_email': obj.event.paypal_email
     }
-    # send email to studio only and to support for checking;
+    # send email to support only for checking;
     # user will have received automated paypal payment
     send_mail(
         '{} Payment refund processed; booking id {}, ref {}'.format(

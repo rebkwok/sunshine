@@ -7,6 +7,8 @@ from allauth.account.views import LoginView, SignupView
 
 from braces.views import LoginRequiredMixin
 
+from accounts.forms import ProfileForm
+
 
 def profile(request):
     return render(request, 'accounts/profile.html')
@@ -43,7 +45,7 @@ class ProfileUpdateView(LoginRequiredMixin, UpdateView):
 
     model = User
     template_name = 'accounts/update_profile.html'
-    fields = ('username', 'first_name', 'last_name',)
+    form_class = ProfileForm
 
     def get_object(self):
         return get_object_or_404(

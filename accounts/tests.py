@@ -34,6 +34,12 @@ class SignUpFormTests(TestSetupMixin, TestCase):
         resp = self.client.get(self.url)
         self.assertEqual(resp.status_code, 200)
 
+    def test_get_signup_view_with_username(self):
+        resp = self.client.get(self.url + "?username=test")
+        self.assertEqual(
+            resp.context_data['form'].fields['username'].initial, 'test'
+        )
+
     def test_signup_form_with_invalid_data(self):
         # first_name must have 30 characters or fewer
         self.form_data.update(
@@ -102,12 +108,12 @@ class CustomLoginViewTests(TestSetupMixin, TestCase):
                                     verified=True)
 
     def test_get_login_view(self):
-        resp = self.client.get(reverse('accounts:login'))
+        resp = self.client.get(reverse('account_login'))
         self.assertEqual(resp.status_code, 200)
 
     def test_post_login(self):
         resp = self.client.post(
-            reverse('accounts:login'),
+            reverse('account_login'),
             {'login': self.user.username, 'password': 'password'}
         )
         self.assertEqual(resp.status_code, 302)
@@ -117,7 +123,7 @@ class CustomLoginViewTests(TestSetupMixin, TestCase):
         # post with login username and password overrides next in request
         # params to return to profile
         resp = self.client.post(
-            reverse('accounts:login') + '?next=/accounts/password/change/',
+            reverse('account_login') + '?next=/accounts/password/change/',
             {'login': self.user.username, 'password': 'password'}
         )
 
@@ -125,7 +131,7 @@ class CustomLoginViewTests(TestSetupMixin, TestCase):
         self.assertIn(reverse('accounts:profile'), resp.url)
 
         resp = self.client.post(
-            reverse('accounts:login') + '?next=/accounts/password/set/',
+            reverse('account_login') + '?next=/accounts/password/set/',
             {'login': self.user.username, 'password': 'password'}
         )
 

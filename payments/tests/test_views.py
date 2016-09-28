@@ -1,5 +1,6 @@
 from model_mommy import mommy
 
+from django.core.cache import cache
 from django.core import mail
 from django.core.urlresolvers import reverse
 from django.test import TestCase
@@ -135,16 +136,31 @@ class ConfirmRefundViewTests(TestPermissionMixin, TestCase):
         """
         test that the page redirects if user is not a staff user
         """
+        self.assertIsNone(
+            cache.get('user_%s_is_staff' % str(self.user.id))
+        )
         self.client.login(username=self.user.username, password='test')
         resp = self.client.get(self.url)
         self.assertEquals(resp.status_code, 302)
         self.assertEquals(resp.url, reverse('permission_denied'))
+        self.assertFalse(
+            cache.get('user_%s_is_staff' % str(self.staff_user.id))
+        )
 
-    def test_can_access_as_staff_user(self):
+    def test_can_access_as_staff_user_and_cache_set(self):
         """
         test that the page can be accessed by a staff user
         """
+        self.assertIsNone(
+            cache.get('user_%s_is_staff' % str(self.staff_user.id))
+        )
         self.client.login(username=self.staff_user.username, password='test')
+        resp = self.client.get(self.url)
+        self.assertEquals(resp.status_code, 200)
+        self.assertTrue(
+            cache.get('user_%s_is_staff' % str(self.staff_user.id))
+        )
+        # get again to hit cache
         resp = self.client.get(self.url)
         self.assertEquals(resp.status_code, 200)
 
@@ -178,16 +194,31 @@ class ConfirmRefundViewTests(TestPermissionMixin, TestCase):
 
 class TestPaypalViewTests(TestPermissionMixin, TestCase):
 
-    def test_staff_login_required(self):
+    def test_staff_login_required_and_cache_set(self):
         url = reverse('payments:test_paypal_email')
         resp = self.client.get(url)
         self.assertEqual(resp.status_code, 302)
 
+        self.assertIsNone(
+            cache.get('user_%s_is_staff' % str(self.user.id))
+        )
         self.client.login(username=self.user.username, password='test')
         resp = self.client.get(url)
         self.assertEqual(resp.status_code, 302)
+        self.assertFalse(
+            cache.get('user_%s_is_staff' % str(self.user.id))
+        )
 
+        self.assertIsNone(
+            cache.get('user_%s_is_staff' % str(self.staff_user.id))
+        )
         self.client.login(username=self.staff_user.username, password='test')
+        resp = self.client.get(url)
+        self.assertEqual(resp.status_code, 200)
+        self.assertTrue(
+            cache.get('user_%s_is_staff' % str(self.staff_user.id))
+        )
+        # get again to hit cache
         resp = self.client.get(url)
         self.assertEqual(resp.status_code, 200)
 

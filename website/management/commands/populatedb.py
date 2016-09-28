@@ -1,7 +1,6 @@
 import datetime
 
-from django.core import management
-from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import BaseCommand
 
 from timetable.models import Instructor, Venue, SessionType, \
     TimetableSession, MembershipClassLevel

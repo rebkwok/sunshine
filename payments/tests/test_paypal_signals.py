@@ -462,7 +462,10 @@ class PaypalSignalsTests(TestCase):
         identify and process refunded payments.
         """
         mock_postback.return_value = b"VERIFIED"
-        booking = mommy.make(Booking, event__name='Workshop')
+        booking = mommy.make(
+            Booking, event__name='Workshop',
+            event__paypal_email=TEST_RECEIVER_EMAIL
+        )
         pptrans = create_paypal_transaction(booking.user, booking)
         pptrans.transaction_id = "test_trans_id"
         pptrans.save()
@@ -484,6 +487,12 @@ class PaypalSignalsTests(TestCase):
 
         # emails sent to support
         self.assertEqual(mail.outbox[0].to, [settings.SUPPORT_EMAIL])
+        self.assertEqual(
+            mail.outbox[0].subject,
+            '{} Payment refund processed; booking id {}, ref {}'.format(
+            settings.ACCOUNT_EMAIL_SUBJECT_PREFIX, booking.id,
+            booking.booking_reference)
+        )
 
     @patch('paypal.standard.ipn.models.PayPalIPN._postback')
     def test_paypal_date_format_with_extra_spaces(self, mock_postback):
