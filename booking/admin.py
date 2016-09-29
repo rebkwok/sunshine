@@ -1,13 +1,11 @@
 # -*- coding: utf-8 -*-
-from django.contrib import admin, messages
+from django import forms
+from django.contrib import admin
 from django.contrib.auth.models import User
 from django.utils import timezone
-from django import forms
-from suit.widgets import EnclosedInput, SuitSplitDateTimeWidget
 
 from booking.models import Event, Booking, WaitingListUser
-from booking.widgets import DurationSelectorWidget
-
+from booking.forms import EventForm
 
 class UserFilter(admin.SimpleListFilter):
 
@@ -103,22 +101,36 @@ class EventDateListFilter(admin.SimpleListFilter):
         return queryset
 
 
-class EventForm(forms.ModelForm):
+class BookingInlineFormset(forms.BaseInlineFormSet):
+    def __init__(self, *args, **kwargs):
+        super(BookingInlineFormset, self).__init__(*args, **kwargs)
+        booked_user_ids = [bk.user.id for bk in self.instance.bookings.all()]
+        for form in self.forms:
+            if form.instance.id:
+                form.fields['user'].queryset = User.objects.filter(
+                    id=form.instance.user.id
+                )
 
-    class Meta:
-        widgets = {
-            # You can also use prepended and appended together
-            'cost': EnclosedInput(prepend=u'\u00A3'),
-            'cancellation_period': DurationSelectorWidget(),
-            'date': SuitSplitDateTimeWidget()
-
-            }
 
 
 class BookingInline(admin.TabularInline):
     fields = ('event', 'user', 'paid', 'status')
     model = Booking
     extra = 0
+
+    formset = BookingInlineFormset
+
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == "user":
+            parent_obj_id = request.resolver_match.args[0]
+            event = Event.objects.get(id=parent_obj_id)
+            booked_user_ids = [bk.user.id for bk in event.bookings.all()]
+            kwargs["queryset"] = User.objects.exclude(
+                id__in=booked_user_ids
+            )
+        return super(
+            BookingInline, self
+        ).formfield_for_foreignkey(db_field, request, **kwargs)
 
 
 class EventAdmin(admin.ModelAdmin):
@@ -127,12 +139,6 @@ class EventAdmin(admin.ModelAdmin):
     inlines = (BookingInline,)
     actions_on_top = True
     form = EventForm
-
-    CANCELLATION_TEXT = ' '.join(['<p>Enter cancellation period in',
-                                  'weeks, days and/or hours.</br>',
-                                  'Note that 1 day will be displayed to users ',
-                                  'as "24 hours" for clarity.</p>',
-                                  ])
 
     fieldsets = [
         ('Event/Workshop details', {
@@ -146,9 +152,8 @@ class EventAdmin(admin.ModelAdmin):
         ('Payment Information', {
             'fields': ('cost', 'paypal_email')
         }),
-        ('Cancellation Period', {
+        ('Cancellation (refundable)', {
             'fields': ('allow_booking_cancellation', 'cancellation_period',),
-            'description': '<div class="help">%s</div>' % CANCELLATION_TEXT,
         }),
         ('Display options', {
             'fields': ('show_on_site',)

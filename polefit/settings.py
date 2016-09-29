@@ -36,7 +36,7 @@ DEBUG = env('DEBUG')
 # when env variable is changed it will be a string, not bool
 if str(DEBUG).lower() in ['true', 'on']:  # pragma: no cover
     DEBUG = True
-else:
+else:  # pragma: no cover
     DEBUG = False
 
 ALLOWED_HOSTS = []
