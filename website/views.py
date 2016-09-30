@@ -13,6 +13,7 @@ from django.contrib import messages
 from django.utils.safestring import mark_safe
 from django.core.mail import send_mail
 
+from booking.email_helpers import send_email
 from timetable.models import Instructor, TimetableSession, SessionType, Venue
 from gallery.models import Category, Image
 from website.models import AboutInfo, PastEvent, Achievement
@@ -134,36 +135,24 @@ def booking_request(request, session_pk, template_name='website/booking_request.
             last_name = form.cleaned_data['last_name']
             cc = form.cleaned_data['cc']
             date_booked = form.cleaned_data['date']
-            ctx = Context(
-                {
+            ctx = {
                     'session': session,
-                    'host': 'http://{}'.format(request.META.get('HTTP_HOST')),
                     'first_name': first_name,
                     'last_name': last_name,
                     'email_address': email_address,
                     'date_booked': date_booked,
                     'additional_msg': form.cleaned_data['additional_message'],
                 }
-            )
-            try:
-                msg = EmailMultiAlternatives(
-                    '{} Booking request for {}'.format(settings.ACCOUNT_EMAIL_SUBJECT_PREFIX, session),
-                    get_template(
-                        'website/email/booking_request_email.txt'
-                    ).render(ctx),
-                    settings.DEFAULT_FROM_EMAIL,
-                    to=[settings.DEFAULT_STUDIO_EMAIL],
-                    cc=[email_address] if cc else [],
-                    reply_to=[email_address]
-                )
-                msg.attach_alternative(
-                    get_template(
-                        'website/email/booking_request_email.html'
-                    ).render(ctx),
-                    "text/html"
-                )
-                msg.send(fail_silently=False)
 
+            emailed = send_email(
+                request, 'Booking request for {}'.format(session), ctx,
+                'website/email/booking_request_email.txt',
+                template_html='website/email/booking_request_email.html',
+                to_list=[settings.DEFAULT_STUDIO_EMAIL],
+                cc_list=[email_address] if cc else [],
+                reply_to_list=[email_address]
+            )
+            if emailed == 'OK':
                 messages.info(
                     request,
                     "Your booking request for {} ({}) has been sent and we will "
@@ -171,42 +160,11 @@ def booking_request(request, session_pk, template_name='website/booking_request.
                         session, date_booked
                     )
                 )
-            except Exception as e:
-                # send mail to tech support with Exception
-                try:
-                    send_mail('{} An error occurred! ({})'.format(
-                            settings.ACCOUNT_EMAIL_SUBJECT_PREFIX,
-                            'booking request'
-                            ),
-                        'An error occurred in {}\n\nThe exception '
-                        'raised was "{}"\n\n'
-                        'first_name: {}\n'
-                        'last_name: {}\n'
-                        'email: {}\n'
-                        'booking: {} {}'.format(
-                            __name__, repr(e), first_name, last_name,
-                            email_address, session, date_booked
-                        ),
-                        settings.DEFAULT_FROM_EMAIL,
-                        [settings.SUPPORT_EMAIL],
-                        fail_silently=True)
-                    messages.error(
-                        request, "A problem occurred while submitting your"
-                                 " request.  Tech support has been notified."
-                    )
-                except Exception:
-                    messages.error(
-                        request, mark_safe(
-                            "A problem occurred while sending your request, "
-                             "please contact the studio on "
-                             "<a href='mailto:{}' target=_blank>{}</a> for "
-                            "information".format(
-                                settings.DEFAULT_STUDIO_EMAIL,
-                                settings.DEFAULT_STUDIO_EMAIL
-                            )
-                        )
-                    )
-                    pass
+            else:
+                messages.error(
+                    request, "A problem occurred while submitting your"
+                             " request.  Tech support has been notified."
+                )
 
             request.session['first_name'] = first_name
             request.session['last_name'] = last_name
@@ -250,75 +208,32 @@ def process_contact_form(request):
         cc = form.cleaned_data['cc']
         message = form.cleaned_data['message']
 
-        ctx = Context(
-            {
-                'host': 'http://{}'.format(request.META.get('HTTP_HOST')),
+        ctx = {
                 'first_name': first_name,
                 'last_name': last_name,
                 'email_address': email_address,
                 'message': message,
             }
+
+        emailed = send_email(
+            request, subject, ctx,
+            'website/email/contact_form_email.txt',
+            template_html='website/email/contact_form_email.html',
+            to_list=[settings.DEFAULT_STUDIO_EMAIL],
+            cc_list=[email_address] if cc else [],
+            reply_to_list=[email_address]
         )
-
-        try:
-            msg = EmailMultiAlternatives(
-                '{} {}'.format(settings.ACCOUNT_EMAIL_SUBJECT_PREFIX, subject),
-                get_template(
-                    'website/email/contact_form_email.txt'
-                ).render(ctx),
-                settings.DEFAULT_FROM_EMAIL,
-                to=[settings.DEFAULT_STUDIO_EMAIL],
-                cc=[email_address] if cc else [],
-                reply_to=[email_address]
-            )
-            msg.attach_alternative(
-                get_template(
-                    'website/email/contact_form_email.html'
-                ).render(ctx),
-                "text/html"
-            )
-            msg.send(fail_silently=False)
-
+        if emailed == 'OK':
             messages.info(
                 request,
                 "Thank you for your enquiry! Your email has been sent and "
                 "we'll get back to you as soon as possible."
             )
-        except Exception as e:
-            # send mail to tech support with Exception
-            try:
-                send_mail('{} An error occurred! ({})'.format(
-                        settings.ACCOUNT_EMAIL_SUBJECT_PREFIX,
-                        'contact form'
-                        ),
-                    'An error occurred in {}\n\nThe exception '
-                    'raised was "{}"\n\n'
-                    'first_name: {}\n'
-                    'last_name: {}\n'
-                    'email: {}\n'
-                    'message: {}'.format(
-                        __name__, repr(e), first_name, last_name,
-                        email_address, message
-                    ),
-                    settings.DEFAULT_FROM_EMAIL,
-                    [settings.SUPPORT_EMAIL],
-                    fail_silently=True)
-                messages.error(request, "A problem occurred while submitting "
-                                        "the form.  Tech support has been notified.")
-            except Exception as e:
-                import ipdb; ipdb.set_trace()
-                messages.error(
-                    request, mark_safe(
-                        "A problem occurred while submitting the form, "
-                         "please contact the studio on "
-                         "<a href='mailto:{}' target=_blank>{}</a> for "
-                        "information".format(
-                            settings.DEFAULT_STUDIO_EMAIL,
-                            settings.DEFAULT_STUDIO_EMAIL
-                        )
-                    )
-                )
-                pass
+        else:
+            messages.error(
+                request, "A problem occurred while submitting your"
+                         " request.  Tech support has been notified."
+            )
 
         request.session['first_name'] = first_name
         request.session['last_name'] = last_name

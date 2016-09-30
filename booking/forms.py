@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from django import forms
+from django.contrib.auth.models import User
 from django.utils.safestring import mark_safe
 
 from suit.widgets import EnclosedInput, SuitSplitDateTimeWidget
@@ -60,3 +61,30 @@ class EventForm(forms.ModelForm):
                                           'cancel at any time after '
                                           'booking.'
         }
+
+
+class UserModelChoiceField(forms.ModelChoiceField):
+
+    def label_from_instance(self, obj):
+        return "{} {} ({})".format(obj.first_name, obj.last_name, obj.username)
+
+    def to_python(self, value):
+        if value:
+            return User.objects.get(id=value)
+
+
+class BookingInlineFormset(forms.BaseInlineFormSet):
+    def __init__(self, *args, **kwargs):
+        super(BookingInlineFormset, self).__init__(*args, **kwargs)
+
+        for form in self.forms:
+            booked_ids = [bk.user.id for bk in self.instance.bookings.all()]
+            form.fields['user'] = UserModelChoiceField(
+                queryset=User.objects.exclude(id__in=booked_ids)
+            )
+            if form.instance.id:
+                form.fields['user'].queryset = User.objects.filter(
+                    id=form.instance.user.id
+                )
+                if form.instance.paid:
+                    form.fields['DELETE'].widget = forms.HiddenInput()

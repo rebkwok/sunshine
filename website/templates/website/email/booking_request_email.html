@@ -2,12 +2,9 @@
 
 {% block messagecontent %}
 
-    <p>{{ first_name }} {{ last_name }} ({{ email_address }}) has requested to book for {{ session }}</p>
+    <p>{{ first_name }} {{ last_name }} ({{ email_address }}) has requested to book for {{ session }} ({{ date_booked }})</p>
 
-    <ul>
-        <li>Date: {{ date_booked }}</li>
-        {% if additional_msg %}<li>Additional message from {{ first_name }}:</li>{% endif %}
-    </ul>
+    {% if additional_msg %}Additional message from {{ first_name }}:{% endif %}
 
     <p>{{ additional_msg|linebreaks }}</p>
 

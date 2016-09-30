@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
-from django import forms
 from django.contrib import admin
 from django.contrib.auth.models import User
 from django.utils import timezone
 
 from booking.models import Event, Booking, WaitingListUser
-from booking.forms import EventForm
+from booking.forms import BookingInlineFormset, EventForm, UserModelChoiceField
+
 
 class UserFilter(admin.SimpleListFilter):
 
@@ -101,22 +101,10 @@ class EventDateListFilter(admin.SimpleListFilter):
         return queryset
 
 
-class BookingInlineFormset(forms.BaseInlineFormSet):
-    def __init__(self, *args, **kwargs):
-        super(BookingInlineFormset, self).__init__(*args, **kwargs)
-        booked_user_ids = [bk.user.id for bk in self.instance.bookings.all()]
-        for form in self.forms:
-            if form.instance.id:
-                form.fields['user'].queryset = User.objects.filter(
-                    id=form.instance.user.id
-                )
-
-
-
 class BookingInline(admin.TabularInline):
     fields = ('event', 'user', 'paid', 'status')
     model = Booking
-    extra = 0
+    extra = 1
 
     formset = BookingInlineFormset
 
@@ -125,8 +113,8 @@ class BookingInline(admin.TabularInline):
             parent_obj_id = request.resolver_match.args[0]
             event = Event.objects.get(id=parent_obj_id)
             booked_user_ids = [bk.user.id for bk in event.bookings.all()]
-            kwargs["queryset"] = User.objects.exclude(
-                id__in=booked_user_ids
+            return UserModelChoiceField(
+                queryset=User.objects.exclude(id__in=booked_user_ids)
             )
         return super(
             BookingInline, self

@@ -211,3 +211,44 @@ class EventDetailViewTests(TestSetupMixin, TestCase):
             'booking you will not be eligible for any refund or credit.',
             format_content(resp.rendered_content)
         )
+
+    def test_past_event(self):
+        past_event = mommy.make_recipe('booking.past_event')
+        resp = self._get_response(self.user, past_event)
+        self.assertTrue(resp.context_data['past'])
+        self.assertNotIn(resp.rendered_content, 'book_button')
+        self.assertNotIn(resp.rendered_content, 'join_waiting_list_button')
+        self.assertNotIn(resp.rendered_content, 'leave_waiting_list_button')
+
+    def test_cancelled_booking(self):
+        # create a cancelled booking for this event and user
+        mommy.make_recipe(
+            'booking.booking', user=self.user, event=self.event,
+            status='CANCELLED'
+        )
+        resp = self._get_response(self.user, self.event)
+        self.assertTrue(resp.context_data['cancelled'])
+        self.assertEquals(resp.context_data['booking_info_text'], '')
+        self.assertEquals(
+            resp.context_data['booking_info_text_cancelled'],
+            'You have previously booked for this workshop and your booking '
+            'has been cancelled.'
+        )
+
+    def test_no_show_booking(self):
+        """
+        No show booking displays as cancelled to user
+        """
+        # create a no_show booking for this event and user
+        mommy.make_recipe(
+            'booking.booking', user=self.user, event=self.event,
+            status='OPEN', no_show=True
+        )
+        resp = self._get_response(self.user, self.event)
+        self.assertTrue(resp.context_data['cancelled'])
+        self.assertEquals(resp.context_data['booking_info_text'], '')
+        self.assertEquals(
+            resp.context_data['booking_info_text_cancelled'],
+            'You have previously booked for this workshop and your booking '
+            'has been cancelled.'
+        )
