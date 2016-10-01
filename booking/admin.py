@@ -110,9 +110,11 @@ class BookingInline(admin.TabularInline):
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == "user":
-            parent_obj_id = request.resolver_match.args[0]
-            event = Event.objects.get(id=parent_obj_id)
-            booked_user_ids = [bk.user.id for bk in event.bookings.all()]
+            booked_user_ids = []
+            parent_obj_id = request.resolver_match.args
+            if parent_obj_id:
+                event = Event.objects.get(id=parent_obj_id[0])
+                booked_user_ids = [bk.user.id for bk in event.bookings.all()]
             return UserModelChoiceField(
                 queryset=User.objects.exclude(id__in=booked_user_ids)
             )

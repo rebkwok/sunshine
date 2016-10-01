@@ -18,7 +18,9 @@ TEMP_MEDIA_ROOT = os.path.join(
 
 def create_image(photo, category):
     category = Category.objects.create(name=category)
-    return Image.objects.create(category=category, photo=photo, caption='This is an image')
+    return Image.objects.create(
+        category=category, photo=photo, caption='This is an image'
+    )
 
 
 @override_settings(MEDIA_ROOT=TEMP_MEDIA_ROOT)
