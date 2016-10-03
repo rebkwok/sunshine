@@ -2,14 +2,13 @@ from django.core.urlresolvers import reverse
 from django.conf import settings
 from django.shortcuts import render, get_object_or_404, \
     HttpResponseRedirect
-from django.views.generic import ListView
 from django.contrib import messages
 from django.utils.safestring import mark_safe
 
 from booking.email_helpers import send_email
-from timetable.models import Instructor, TimetableSession, SessionType, Venue
+from timetable.models import Instructor, TimetableSession, SessionType
 from website.models import AboutInfo, PastEvent, Achievement
-from website.forms import TimetableFilter, BookingRequestForm, ContactForm
+from website.forms import BookingRequestForm, ContactForm
 
 
 def about(request):
@@ -50,47 +49,6 @@ def instructors(request):
 
 def venues(request):
     return render(request, 'website/venues.html', {'section': 'venues'})
-
-
-class TimetableListView(ListView):
-    model = TimetableSession
-    context_object_name = 'timetable_sessions'
-    template_name = 'website/timetable.html'
-
-    def get_queryset(self):
-
-        queryset = TimetableSession.objects.select_related(
-            'venue', 'session_type', 'membership_level'
-        ).order_by(
-                'session_day', 'start_time', 'venue'
-        )
-        session_type = self.request.GET.get('filtered_session_type', 0)
-        session_type = int(session_type)
-        venue = self.request.GET.get('filtered_venue', '')
-
-        if session_type != 0:
-            queryset = queryset.filter(session_type__index=session_type)
-        if venue != '':
-            queryset = queryset.filter(venue__abbreviation=venue)
-
-        return queryset
-
-    def get_context_data(self, *args, **kwargs):
-        # Call the base implementation first to get a context
-        context = super(TimetableListView, self).get_context_data(**kwargs)
-        context['section'] = 'timetable'
-        context['venues'] = Venue.objects.all()
-
-        session_type = self.request.GET.get('filtered_session_type', 0)
-        session_type = int(session_type)
-        venue = self.request.GET.get('filtered_venue', '')
-
-        form = TimetableFilter(
-            initial={'filtered_session_type': session_type, 'filtered_venue': venue}
-        )
-
-        context['form'] = form
-        return context
 
 
 def booking_request(
@@ -144,7 +102,7 @@ def booking_request(
             request.session['last_name'] = last_name
             request.session['email_address'] = email_address
 
-            return HttpResponseRedirect(reverse('website:timetable'))
+            return HttpResponseRedirect(reverse('timetable:timetable'))
 
         else:
             messages.error(
@@ -155,15 +113,15 @@ def booking_request(
                 )
             )
 
+    else:
+        first_name = request.session.get('first_name', '')
+        last_name = request.session.get('last_name', '')
+        email_address = request.session.get('email_address', '')
 
-    first_name = request.session.get('first_name', '')
-    last_name = request.session.get('last_name', '')
-    email_address = request.session.get('email_address', '')
-
-    form = BookingRequestForm(initial={
-        'first_name': first_name, 'last_name': last_name,
-        'email_address': email_address
-    }, session=tt_session)
+        form = BookingRequestForm(initial={
+            'first_name': first_name, 'last_name': last_name,
+            'email_address': email_address
+        }, session=tt_session)
 
     return render(
         request, template_name,
@@ -171,7 +129,7 @@ def booking_request(
     )
 
 
-def process_contact_form(request):
+def process_contact_form(request, template_name):
     form = ContactForm(request.POST)
 
     if form.is_valid():
@@ -225,6 +183,9 @@ def process_contact_form(request):
                       "fields: {}".format(form.errors)
                       )
         )
+        return render(
+            request, template_name, {'section': 'contact', 'form': form}
+        )
 
 
 def get_initial_contact_form(request):
@@ -252,7 +213,7 @@ def get_initial_contact_form(request):
 
 def contact_form(request, template_name='website/contact_form.html'):
     if request.method == 'POST':
-        return process_contact_form(request)
+        return process_contact_form(request, template_name)
 
     form = get_initial_contact_form(request)
 

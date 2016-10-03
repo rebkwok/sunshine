@@ -9,17 +9,11 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
-from django.db.models.signals import pre_save, post_save
-from django.dispatch import receiver
 from django.utils import timezone
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 
 from django_extensions.db.fields import AutoSlugField
-
-from datetime import timedelta
-
-from activitylog.models import ActivityLog
 
 
 logger = logging.getLogger(__name__)
@@ -68,7 +62,7 @@ class Event(models.Model):
 
     @cached_property
     def spaces_left(self):
-        booked_number = Booking.objects.filter(
+        booked_number = Booking.objects.select_related('event', 'user').filter(
             event__id=self.id, status='OPEN', no_show=False
         ).count()
         return self.max_participants - booked_number

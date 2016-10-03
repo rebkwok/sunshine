@@ -16,7 +16,7 @@ def gallery(request):
         cat_selection = int(category_choice)
 
     return render(
-        request, 'website/gallery.html',
+        request, 'gallery/gallery.html',
         {
             'section': 'gallery',
             'cat_selection': cat_selection,

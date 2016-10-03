@@ -5,6 +5,14 @@ from timetable.models import Instructor, TimetableSession, SessionType, Venue
 class InstructorAdmin(admin.ModelAdmin):
     list_display = ('name', 'regular_instructor', 'has_photo')
 
+    def has_photo(self):
+        if self.photo:
+            return True
+        else:
+            return False
+    has_photo.short_description = 'Photo uploaded'
+    has_photo.boolean = True
+
 
 class VenueAdmin(admin.ModelAdmin):
     list_display = ('venue', 'address', 'postcode')
@@ -13,6 +21,14 @@ class VenueAdmin(admin.ModelAdmin):
 class SessionTypeAdmin(admin.ModelAdmin):
     list_display = ('index', 'name', 'regular_session', 'has_photo')
     ordering = ['index',]
+
+    def has_photo(self):
+        if self.photo:
+            return True
+        else:
+            return False
+    has_photo.short_description = 'Photo uploaded'
+    has_photo.boolean = True
 
 
 class TimetableSessionAdmin(admin.ModelAdmin):

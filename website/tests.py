@@ -253,6 +253,45 @@ class ContactFormTests(TestCase):
         self.assertEqual(mail.outbox[0].to, [settings.DEFAULT_STUDIO_EMAIL])
         self.assertEqual(mail.outbox[0].cc, ['dd@test.com'])
 
+    def test_send_contact_form_with_errors(self):
+        data = {
+            'subject': 'General Enquiry',
+            'first_name': 'Donald',
+            'last_name': 'Duck',
+            'email_address': 'dd@test.com',
+            'message': '',
+            'cc': True
+        }
+
+        resp = self.client.post(self.url, data)
+        self.assertFalse(resp.context['form'].is_valid())
+        self.assertEqual(
+            resp.context['form'].errors,
+            {'message': ['This field is required.']}
+        )
+        self.assertEqual(len(mail.outbox), 0)
+
+    @patch('booking.email_helpers.EmailMultiAlternatives.send')
+    def test_send_contact_form_with_email_errors(self, mock_send_emails):
+        mock_send_emails.side_effect = Exception('Error sending mail')
+        data = {
+            'subject': 'General Enquiry',
+            'first_name': 'Donald',
+            'last_name': 'Duck',
+            'email_address': 'dd@test.com',
+            'message': 'Msg',
+            'cc': True
+        }
+
+        resp = self.client.post(self.url, data, follow=True)
+
+        self.assertEqual(len(mail.outbox), 0)
+        self.assertIn(
+            "A problem occurred while submitting your request.  Tech support "
+            "has been notified.",
+            str(resp.content)
+        )
+
 
 class BookingRequestTests(TestCase):
 
@@ -301,7 +340,12 @@ class BookingRequestTests(TestCase):
             resp.context['form'].initial['email_address'], 'dd@test.com'
         )
 
-    def test_send_booking_request(self):
+    @patch('website.forms.timezone')
+    def test_send_booking_request(self, mock_tz):
+        mock_tz.now.return_value = datetime(
+            2016, 10, 3, 15, 0, tzinfo=timezone.utc
+        )
+
         # Monday = 0
         days_ahead = 0 - timezone.now().weekday()
         if days_ahead < 0:  # Target day already happened this week
@@ -312,7 +356,7 @@ class BookingRequestTests(TestCase):
             'first_name': 'Donald',
             'last_name': 'Duck',
             'email_address': 'dd@test.com',
-            'message': 'Test message',
+            'additional_msg': 'Test message',
             'cc': True,
             'date': next_date.strftime('%a %d %b %y')
         }
@@ -329,6 +373,69 @@ class BookingRequestTests(TestCase):
             mail.outbox[0].subject,
             '{} Booking request for Polefit (All levels), Inverkeithing, '
             'Monday 18:00'.format(settings.ACCOUNT_EMAIL_SUBJECT_PREFIX)
+        )
+
+    @patch('website.forms.timezone')
+    def test_post_booking_request_with_errors(self, mock_tz):
+        mock_tz.now.return_value = datetime(
+            2016, 10, 3, 15, 0, tzinfo=timezone.utc
+        )
+
+        # Monday = 0
+        days_ahead = 0 - timezone.now().weekday()
+        if days_ahead < 0:  # Target day already happened this week
+            days_ahead += 7
+        next_date = timezone.now() + timedelta(days_ahead)
+
+        data = {
+            'first_name': 'Donald',
+            'last_name': '',
+            'email_address': 'dd@test.com',
+            'additional_msg': '',
+            'cc': True,
+            'date': next_date.strftime('%a %d %b %y')
+        }
+
+        resp = self.client.post(self.url, data)
+
+        self.assertFalse(resp.context['form'].is_valid())
+        self.assertEqual(
+            resp.context['form'].errors,
+            {'last_name': ['This field is required.']}
+        )
+
+        self.assertEqual(len(mail.outbox), 0)
+
+    @patch('booking.email_helpers.EmailMultiAlternatives.send')
+    @patch('website.forms.timezone')
+    def test_send_booking_request_with_email_errors(self, mock_tz, mock_send):
+        mock_tz.now.return_value = datetime(
+            2016, 10, 3, 15, 0, tzinfo=timezone.utc
+        )
+        mock_send.side_effect = Exception('Error sending mail')
+
+        # Monday = 0
+        days_ahead = 0 - timezone.now().weekday()
+        if days_ahead < 0:  # Target day already happened this week
+            days_ahead += 7
+        next_date = timezone.now() + timedelta(days_ahead)
+
+        data = {
+            'first_name': 'Donald',
+            'last_name': 'Duck',
+            'email_address': 'dd@test.com',
+            'additional_msg': 'Test message',
+            'cc': True,
+            'date': next_date.strftime('%a %d %b %y')
+        }
+
+        resp = self.client.post(self.url, data, follow=True)
+
+        self.assertEqual(len(mail.outbox), 0)
+        self.assertIn(
+            "A problem occurred while submitting your request.  Tech support "
+            "has been notified.",
+            str(resp.content)
         )
 
     @patch('website.forms.timezone')

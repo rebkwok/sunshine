@@ -10,7 +10,7 @@
 
     <div class="col-xs-12">
 
-        <p>For details of specific classes and to book, please see the <a href="{% url 'website:timetable' %}">timetable</a>.</p>
+        <p>For details of specific classes and to book, please see the <a href="{% url 'timetable:timetable' %}">timetable</a>.</p>
 		<p>For membership queries, private lessons/one-to-one tuition, or any other enquiries, please <a href="{% url 'website:contact_form' %}">contact us</a>.</p>
         </p>
     </div>
@@ -28,13 +28,11 @@
         <div class="row">
             <div class="col-sm-6">
                 <p>{{ selected_session.info|linebreaks}}</p>
-                <p>Click <a href="{% url 'website:timetable' %}">here</a> to view class timetable and book.</p>
+                <p>Click <a href="{% url 'timetable:timetable' %}">here</a> to view class timetable and book.</p>
             </div>
-            <div class="col-sm-6">
-
+            <div class="col-sm-6 img-container">
                 <img src="{{ MEDIA_URL }}{{ selected_session.photo.name }}" title="{{ selected_session.name }} class"
                      alt="{{ selected_session.name }} image" class="img-responsive"><br/>
-
             </div>
         </div>
     {% else %}

@@ -12,14 +12,6 @@ class Instructor(models.Model):
     def __str__(self):
         return self.name
 
-    def has_photo(self):
-        if self.photo:
-            return True
-        else:
-            return False
-    has_photo.short_description = 'Photo uploaded'
-    has_photo.boolean = True
-
     def save(self, *args, **kwargs):
         # delete old image file when replacing by updating the file
         try:
@@ -40,14 +32,6 @@ class SessionType(models.Model):
 
     def __str__(self):
         return self.name
-
-    def has_photo(self):
-        if self.photo:
-            return True
-        else:
-            return False
-    has_photo.short_description = 'Photo uploaded'
-    has_photo.boolean = True
 
     def save(self, *args, **kwargs):
         # delete old image file when replacing by updating the file

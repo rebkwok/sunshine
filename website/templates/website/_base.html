@@ -43,7 +43,7 @@
                 <div class="navbar-collapse collapse">
                     <ul class="nav navbar-nav pull-left">
                         <li><a {% if section == 'about' %}class="active"{% endif %} href="{% url 'website:about' %}">About us</a></li>
-                        <li><a {% if section == 'timetable' %}class="active"{% endif %} href="{% url 'website:timetable' %}">Timetable</a></li>
+                        <li><a {% if section == 'timetable' %}class="active"{% endif %} href="{% url 'timetable:timetable' %}">Timetable</a></li>
                         <li class = "hidden-sm"><a {% if section == 'classes' %}class="active"{% endif %} href="{% url 'website:classes' %}">Classes</a></li>
                         <li><a {% if section == 'events' %}class="active"{% endif %} href="{% url 'booking:events' %}">Workshops</a></li>
                         <li class="hidden-sm hidden-md"><a {% if section == 'membership' %}class="active"{% endif %} href="{% url 'website:membership' %}">Membership & Prices</a></li>
@@ -134,7 +134,7 @@
                     <div class="footer-credit">Site developed by <a href="https://twitter.com/rebkwok" target="_blank" style="color: #0B0B61">Becky Smith</a></div>
                 </div>
                 <div class="col-sm-4">
-                    <div class="footer-link-box"><a class="footer-link" href="{% url 'website:timetable' %}">Find a class</a></div>
+                    <div class="footer-link-box"><a class="footer-link" href="{% url 'timetable:timetable' %}">Find a class</a></div>
 		            <div class="footer-link-box"><a class="footer-link" href="{% url 'website:contact' %}">Contact us</a></div>
                 </div>
 

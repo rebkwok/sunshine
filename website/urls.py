@@ -4,7 +4,7 @@ from django.views.generic import RedirectView
 from website.views import about, \
     booking_request, classes, contact, \
     contact_form, instructors, \
-    membership, parties, TimetableListView, venues
+    membership, parties, venues
 
 urlpatterns = [
     url(r'^about/$', about, name='about'),
@@ -17,6 +17,5 @@ urlpatterns = [
     url(r'^parties/$', parties, name='parties'),
     url(r'^contact-form/$', contact_form, name='contact_form'),
     url(r'^contact/$', contact, name='contact'),
-    url(r'^timetable/$', TimetableListView.as_view(), name='timetable'),
     url(r'^$', RedirectView.as_view(url='/about/', permanent=True)),
 ]

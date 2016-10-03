@@ -1,51 +1,7 @@
 import datetime
+import pytz
 from django import forms
-from django.conf import settings
 from django.utils import timezone
-
-from timetable.models import SessionType, TimetableSession, Venue
-
-
-def get_session_types():
-
-    def callable():
-        SESSION_TYPE_CHOICES = list(
-            TimetableSession.objects.select_related(
-                'venue', 'session_type', 'membership_level'
-            ).distinct()
-                .values_list('session_type__index', 'session_type__name')
-        )
-        SESSION_TYPE_CHOICES.insert(0, (0, 'All class types'))
-        return tuple(sorted(SESSION_TYPE_CHOICES))
-
-    return callable
-
-
-def get_venues():
-
-    def callable():
-        VENUE_CHOICES = list(
-            TimetableSession.objects.select_related(
-                'venue', 'session_type', 'membership_level'
-            ).distinct()
-                .values_list('venue__abbreviation', 'venue__abbreviation')
-        )
-        VENUE_CHOICES.insert(0, ('', 'All locations'))
-        return tuple(VENUE_CHOICES)
-
-    return callable
-
-
-class TimetableFilter(forms.Form):
-    filtered_session_type = forms.ChoiceField(
-        choices=get_session_types(),
-        widget=forms.Select(attrs={'class': 'form-control input-xs'})
-    )
-
-    filtered_venue = forms.ChoiceField(
-        choices=get_venues(),
-        widget=forms.Select(attrs={'class': 'form-control input-xs'})
-    )
 
 
 DAYS = {
@@ -61,10 +17,13 @@ DAYS = {
 
 def get_dates(session):
     day = DAYS[session.session_day]
-    days_ahead = day - timezone.now().weekday()
+    local_now = timezone.now().astimezone(pytz.timezone('Europe/London'))
+
+    days_ahead = day - local_now.weekday()
+
     # already happened this week (either previous day or earlier today)
     if days_ahead < 0 or \
-            (days_ahead == 0 and timezone.now().time() > session.start_time):
+            (days_ahead == 0 and local_now.time() > session.start_time):
         days_ahead += 7
     next_date = timezone.now() + datetime.timedelta(days_ahead)
 

@@ -10,12 +10,12 @@
         </h1>
 	</div>
 	<div class="col-xs-12">
-		<p>To book for specific classes, please see the <a href="{% url 'website:timetable' %}">timetable</a>.</p>
+		<p>To book for specific classes, please see the <a href="{% url 'timetable:timetable' %}">timetable</a>.</p>
 		<p>For membership queries, private lessons/one-to-one tuition, or any other enquiries, please <a href="{% url 'website:contact_form' %}">contact us</a>.</p>
     </div>
 	<div class="col-xs-12">
 		<h3>Non-member prices</h3>
-		<p>Please see the <a href="{% url 'website:timetable' %}">timetable</a> for classes in each category.</p>
+		<p>Please see the <a href="{% url 'timetable:timetable' %}">timetable</a> for classes in each category.</p>
 		<span class="label label-warning label-rounded label-member-title">Yellow classes</span>
 			<ul>
 				<li>Specialised classes, mainly Pole Fitness and Aerial Hoop</li>
@@ -151,6 +151,6 @@
 
 {% endblock %}
 For more information or to book a class please use the "Booking request" buttons on the
-				<a href="{% url 'website:timetable' %}">Timetable</a> page or
+				<a href="{% url 'timetable:timetable' %}">Timetable</a> page or
 				<a href="mailto:carouselfitness@gmail.com?Subject=Booking%20enquiry" target="_blank">
 				email us</a>.
