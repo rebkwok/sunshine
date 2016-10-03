@@ -7,9 +7,11 @@ class ImageInline(admin.TabularInline):
     model = Image
     extra = 5 #number of default empty fields to show
 
+
 class CategoryAdmin(admin.ModelAdmin):
     list_display = ['name']
     inlines = [ImageInline]
+
 
 class ImageAdmin(admin.ModelAdmin):
     list_display = ['photo', 'category', 'caption']

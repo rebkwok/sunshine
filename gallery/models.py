@@ -13,10 +13,9 @@ class Category(models.Model):
         verbose_name_plural = 'categories'
 
 
-
 class Image(models.Model):
     photo = models.ImageField(upload_to='gallery')
-    category = models.ForeignKey(Category)
+    category = models.ForeignKey(Category, related_name='images')
     caption = models.CharField(max_length=255, null=True, blank=True)
 
     def __str__(self):
