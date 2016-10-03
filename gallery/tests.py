@@ -38,7 +38,7 @@ class GalleryTests(TestCase):
         test that context is being generated correctly
         '''
         create_image('hoop.jpg', 'category1')
-        response = self.client.get(reverse('website:gallery'))
+        response = self.client.get(reverse('gallery:gallery'))
         self.assertEqual(response.status_code, 200)
         self.assertTrue('images' in response.context)
         self.assertTrue('categories' in response.context)
@@ -47,7 +47,7 @@ class GalleryTests(TestCase):
         """
         If no images exist, an appropriate message should be displayed.
         """
-        response = self.client.get(reverse('website:gallery'))
+        response = self.client.get(reverse('gallery:gallery'))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Coming soon")
         self.assertQuerysetEqual(response.context['images'], [])
@@ -57,9 +57,29 @@ class GalleryTests(TestCase):
         If image exists, it should be displayed.
         """
         testimg = create_image('hoop.jpg', 'category1')
-        response = self.client.get(reverse('website:gallery'))
+        response = self.client.get(reverse('gallery:gallery'))
         self.assertEqual(response.status_code, 200)
-        self.assertQuerysetEqual(response.context['images'], ['<Image: Photo id: {}>'.format(testimg.id)])
+        self.assertQuerysetEqual(
+            response.context['images'],
+            ['<Image: Photo id: {}>'.format(testimg.id)]
+        )
+
+    def test_gallery_view_for_category(self):
+        """
+        Filter by category if given
+        """
+        testimg = create_image('hoop.jpg', 'category1')
+        create_image('pole.jpg', 'category2')
+        cat = Category.objects.get(name='category1')
+        response = self.client.get(
+            reverse('gallery:gallery'), {'category': cat.id}
+        )
+        # only shows category1
+        self.assertEqual(response.status_code, 200)
+        self.assertQuerysetEqual(
+            response.context['images'],
+            ['<Image: Photo id: {}>'.format(testimg.id)]
+        )
 
     def test_admin_upload(self):
         self.assertFalse(Image.objects.exists())

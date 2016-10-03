@@ -62,7 +62,9 @@ DAYS = {
 def get_dates(session):
     day = DAYS[session.session_day]
     days_ahead = day - timezone.now().weekday()
-    if days_ahead < 0:  # Target day already happened this week
+    # already happened this week (either previous day or earlier today)
+    if days_ahead < 0 or \
+            (days_ahead == 0 and timezone.now().time() > session.start_time):
         days_ahead += 7
     next_date = timezone.now() + datetime.timedelta(days_ahead)
 

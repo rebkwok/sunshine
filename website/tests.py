@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import os
-from datetime import time, timedelta
+from datetime import datetime, time, timedelta
+from mock import patch
 from model_mommy import mommy
 
 from django.conf import settings
@@ -13,8 +14,8 @@ from django.utils import timezone
 
 from timetable.models import SessionType, TimetableSession, Instructor, \
     MembershipClassLevel, Venue
-from website.forms import DAYS
-from website.models import AboutInfo
+from website.forms import BookingRequestForm
+from website.models import AboutInfo, Achievement, PastEvent
 
 import website.admin as admin
 
@@ -67,6 +68,27 @@ class AdminTests(TestCase):
         self.assertEqual(
             info_admin.get_id.short_description, 'Section number'
         )
+
+
+class ModelTests(TestCase):
+
+    def test_about_info_str(self):
+        about = mommy.make(
+            AboutInfo, heading='Foo', content='Foo'
+        )
+        self.assertEqual(
+            str(about), 'About page section {}'.format(about.id)
+        )
+
+    def test_past_event_str(self):
+        past = mommy.make(PastEvent, name="past event")
+        self.assertEqual(str(past), 'past event')
+
+    def test_achievement_str(self):
+        past = mommy.make(PastEvent, name="past event")
+        achievement = mommy.make(
+            Achievement, event=past, category='Pro')
+        self.assertEqual(str(achievement), 'past event, Pro')
 
 
 @override_settings(MEDIA_ROOT=TEMP_MEDIA_FOLDER)
@@ -236,11 +258,11 @@ class BookingRequestTests(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        ttsession = mommy.make(
+        cls.ttsession = mommy.make(
             TimetableSession, name='Polefit', session_day='01MO',
             start_time=time(18, 0), venue__abbreviation='Inverkeithing'
         )
-        cls.url = reverse('website:booking_request', args=[ttsession.id])
+        cls.url = reverse('website:booking_request', args=[cls.ttsession.id])
         cls.user = User.objects.create(
             username='test', email='test@test.com', password='test'
         )
@@ -307,4 +329,61 @@ class BookingRequestTests(TestCase):
             mail.outbox[0].subject,
             '{} Booking request for Polefit (All levels), Inverkeithing, '
             'Monday 18:00'.format(settings.ACCOUNT_EMAIL_SUBJECT_PREFIX)
+        )
+
+    @patch('website.forms.timezone')
+    def test_date_options(self, mock_tz):
+        """
+        Date options in request form show the next 4 weeks plus regular
+        booking option"""
+        # set now to be same weekday as self.ttsession
+        mock_tz.now.return_value = datetime(
+            2016, 10, 3, 15, 0, tzinfo=timezone.utc
+        )
+
+        # date choices include today
+        form = BookingRequestForm(session=self.ttsession)
+        self.assertEqual(
+            form.fields['date'].choices,
+            [
+                ('Mon 03 Oct 16', 'Mon 03 Oct 16'),
+                ('Mon 10 Oct 16', 'Mon 10 Oct 16'),
+                ('Mon 17 Oct 16', 'Mon 17 Oct 16'),
+                ('Mon 24 Oct 16', 'Mon 24 Oct 16'),
+                ('Regular weekly booking', 'Regular weekly booking')
+            ]
+        )
+
+        # set now to be later than self.ttsession
+        mock_tz.now.return_value = datetime(
+            2016, 10, 5, 15, 0, tzinfo=timezone.utc
+        )
+        # date choices for next 4 weeks
+        form = BookingRequestForm(session=self.ttsession)
+        self.assertEqual(
+            form.fields['date'].choices,
+            [
+                ('Mon 10 Oct 16', 'Mon 10 Oct 16'),
+                ('Mon 17 Oct 16', 'Mon 17 Oct 16'),
+                ('Mon 24 Oct 16', 'Mon 24 Oct 16'),
+                ('Mon 31 Oct 16', 'Mon 31 Oct 16'),
+                ('Regular weekly booking', 'Regular weekly booking')
+            ]
+        )
+
+        # set now to be same day but after class started
+        mock_tz.now.return_value = datetime(
+            2016, 10, 3, 18, 10, tzinfo=timezone.utc
+        )
+        # date choices for next 4 weeks
+        form = BookingRequestForm(session=self.ttsession)
+        self.assertEqual(
+            form.fields['date'].choices,
+            [
+                ('Mon 10 Oct 16', 'Mon 10 Oct 16'),
+                ('Mon 17 Oct 16', 'Mon 17 Oct 16'),
+                ('Mon 24 Oct 16', 'Mon 24 Oct 16'),
+                ('Mon 31 Oct 16', 'Mon 31 Oct 16'),
+                ('Regular weekly booking', 'Regular weekly booking')
+            ]
         )

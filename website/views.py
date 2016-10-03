@@ -8,7 +8,6 @@ from django.utils.safestring import mark_safe
 
 from booking.email_helpers import send_email
 from timetable.models import Instructor, TimetableSession, SessionType, Venue
-from gallery.models import Category, Image
 from website.models import AboutInfo, PastEvent, Achievement
 from website.forms import TimetableFilter, BookingRequestForm, ContactForm
 
@@ -51,26 +50,6 @@ def instructors(request):
 
 def venues(request):
     return render(request, 'website/venues.html', {'section': 'venues'})
-
-
-def gallery(request):
-    categories = Category.objects.all().order_by('name')
-
-    # import ipdb; ipdb.set_trace()
-    category_choice = request.GET.getlist('category', ['All'])[0]
-    if category_choice == 'All':
-        images = Image.objects.all()
-        cat_selection = 'All'
-    else:
-        images = Image.objects.filter(category__id=int(category_choice))
-        cat_selection = int(category_choice)
-
-    return render(request, 'website/gallery.html', {'section': 'gallery',
-                                                    'cat_selection': cat_selection,
-                                                    'categories': categories,
-                                                    'images': images,
-                                                    'total_image_count': Image.objects.all().count()
-                                                    })
 
 
 class TimetableListView(ListView):
