@@ -114,13 +114,15 @@ class TimetableListView(ListView):
         return context
 
 
-def booking_request(request, session_pk, template_name='website/booking_request.html'):
+def booking_request(
+        request, session_pk, template_name='website/booking_request.html'
+):
 
-    session = get_object_or_404(TimetableSession, id=session_pk)
+    tt_session = get_object_or_404(TimetableSession, id=session_pk)
 
     if request.method == 'POST':
 
-        form = BookingRequestForm(request.POST, session=session)
+        form = BookingRequestForm(request.POST, session=tt_session)
 
         if form.is_valid():
             email_address = form.cleaned_data['email_address']
@@ -129,7 +131,7 @@ def booking_request(request, session_pk, template_name='website/booking_request.
             cc = form.cleaned_data['cc']
             date_booked = form.cleaned_data['date']
             ctx = {
-                    'session': session,
+                    'session': tt_session,
                     'first_name': first_name,
                     'last_name': last_name,
                     'email_address': email_address,
@@ -138,7 +140,7 @@ def booking_request(request, session_pk, template_name='website/booking_request.
                 }
 
             emailed = send_email(
-                request, 'Booking request for {}'.format(session), ctx,
+                request, 'Booking request for {}'.format(tt_session), ctx,
                 'website/email/booking_request_email.txt',
                 template_html='website/email/booking_request_email.html',
                 to_list=[settings.DEFAULT_STUDIO_EMAIL],
@@ -150,7 +152,7 @@ def booking_request(request, session_pk, template_name='website/booking_request.
                     request,
                     "Your booking request for {} ({}) has been sent and we will "
                     "confirm your booking by email as soon as possible!".format(
-                        session, date_booked
+                        tt_session, date_booked
                     )
                 )
             else:
@@ -179,14 +181,14 @@ def booking_request(request, session_pk, template_name='website/booking_request.
     last_name = request.session.get('last_name', '')
     email_address = request.session.get('email_address', '')
 
-    form = BookingRequestForm(session=session, initial={
+    form = BookingRequestForm(initial={
         'first_name': first_name, 'last_name': last_name,
         'email_address': email_address
-    })
+    }, session=tt_session)
 
     return render(
         request, template_name,
-        {'section': 'contact', 'form': form, 'session': session},
+        {'section': 'contact', 'form': form, 'session': tt_session},
     )
 
 
@@ -255,18 +257,17 @@ def get_initial_contact_form(request):
     email_address = request.session.get('email_address', '')
 
     page = request.session['return_url'].split('/')[-2]
-    if page == 'membership':
-        subject = 'Membership Enquiry'
-    elif page == 'classes':
-        subject = 'Class Booking Enquiry'
-    elif page == 'parties':
-        subject = 'Party Booking'
-    else:
-        subject = 'General Enquiry'
+
+    subjects = {
+        'membership': 'Membership Enquiry',
+        'classes': 'Class Booking Enquiry',
+        'parties': 'Party Booking'
+    }
 
     return ContactForm(initial={
         'first_name': first_name, 'last_name': last_name,
-        'email_address': email_address, 'subject': subject
+        'email_address': email_address,
+        'subject': subjects.get(page, 'General Enquiry')
     })
 
 
@@ -281,14 +282,6 @@ def contact_form(request, template_name='website/contact_form.html'):
     )
 
 
-def contact(request, template_name='website/contact_us.html'):
-
-    if request.method == 'POST':
-        return process_contact_form(request)
-
-    form = get_initial_contact_form(request)
-
-    return render(
-        request, template_name, {'section': 'contact', 'form': form}
-    )
+def contact(request):
+    return contact_form(request, template_name='website/contact_us.html')
 

@@ -1,14 +1,19 @@
 # -*- coding: utf-8 -*-
 import os
+from datetime import time, timedelta
 from model_mommy import mommy
 
-from django.test import TestCase, override_settings
+from django.conf import settings
 from django.contrib.admin.sites import AdminSite
-from django.core import management
+from django.contrib.auth.models import User
+from django.core import mail, management
 from django.core.urlresolvers import reverse
+from django.test import override_settings, TestCase
+from django.utils import timezone
 
 from timetable.models import SessionType, TimetableSession, Instructor, \
     MembershipClassLevel, Venue
+from website.forms import DAYS
 from website.models import AboutInfo
 
 import website.admin as admin
@@ -138,3 +143,168 @@ class WebsitePagesTests(TestCase):
         self.assertIn('<h3>Kira</h3>', str(resp.content))
         self.assertIn('<p>About Kira.</p>', str(resp.content))
         self.assertIn('photo.jpg', str(resp.content))
+
+
+class ContactFormTests(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.url = reverse('website:contact_form')
+        cls.user = User.objects.create(
+            username='test', email='test@test.com', password='test'
+        )
+
+    def test_get_contact_form(self):
+        resp = self.client.get(self.url)
+        self.assertEqual(resp.status_code, 200)
+
+        # no data on session
+        self.assertEqual(
+            resp.context['form'].initial['subject'], 'General Enquiry'
+        )
+        self.assertEqual(
+            resp.context['form'].initial['first_name'], ''
+        )
+        self.assertEqual(
+            resp.context['form'].initial['last_name'], ''
+        )
+        self.assertEqual(
+            resp.context['form'].initial['email_address'], ''
+        )
+
+        sess = self.client.session
+        sess['first_name'] = 'Donald'
+        sess['last_name'] = "Duck"
+        sess['email_address'] = 'dd@test.com'
+        sess.save()
+
+        resp = self.client.get(
+            self.url, HTTP_REFERER='http://test.com/membership/'
+        )
+
+        # data on session
+        self.assertEqual(
+            resp.context['form'].initial['subject'], 'Membership Enquiry'
+        )
+        self.assertEqual(
+            resp.context['form'].initial['first_name'], 'Donald'
+        )
+        self.assertEqual(
+            resp.context['form'].initial['last_name'], 'Duck'
+        )
+        self.assertEqual(
+            resp.context['form'].initial['email_address'], 'dd@test.com'
+        )
+
+    def test_get_contact_page(self):
+        resp = self.client.get(reverse('website:contact'))
+        self.assertEqual(resp.status_code, 200)
+
+        # no data on session
+        self.assertEqual(
+            resp.context['form'].initial['subject'], 'General Enquiry'
+        )
+        self.assertEqual(
+            resp.context['form'].initial['first_name'], ''
+        )
+        self.assertEqual(
+            resp.context['form'].initial['last_name'], ''
+        )
+        self.assertEqual(
+            resp.context['form'].initial['email_address'], ''
+        )
+
+    def test_send_contact_form(self):
+        data = {
+            'subject': 'General Enquiry',
+            'first_name': 'Donald',
+            'last_name': 'Duck',
+            'email_address': 'dd@test.com',
+            'message': 'Test message',
+            'cc': True
+        }
+
+        resp = self.client.post(self.url, data)
+        self.assertEqual(resp.status_code, 302)
+
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(mail.outbox[0].to, [settings.DEFAULT_STUDIO_EMAIL])
+        self.assertEqual(mail.outbox[0].cc, ['dd@test.com'])
+
+
+class BookingRequestTests(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        ttsession = mommy.make(
+            TimetableSession, name='Polefit', session_day='01MO',
+            start_time=time(18, 0), venue__abbreviation='Inverkeithing'
+        )
+        cls.url = reverse('website:booking_request', args=[ttsession.id])
+        cls.user = User.objects.create(
+            username='test', email='test@test.com', password='test'
+        )
+
+    def test_get_booking_request_form(self):
+        resp = self.client.get(self.url)
+        self.assertEqual(resp.status_code, 200)
+
+        # no data on session
+        self.assertEqual(
+            resp.context['form'].initial['first_name'], ''
+        )
+        self.assertEqual(
+            resp.context['form'].initial['last_name'], ''
+        )
+        self.assertEqual(
+            resp.context['form'].initial['email_address'], ''
+        )
+
+        sess = self.client.session
+        sess['first_name'] = 'Donald'
+        sess['last_name'] = "Duck"
+        sess['email_address'] = 'dd@test.com'
+        sess.save()
+
+        resp = self.client.get(self.url)
+
+        # data on session
+        self.assertEqual(
+            resp.context['form'].initial['first_name'], 'Donald'
+        )
+        self.assertEqual(
+            resp.context['form'].initial['last_name'], 'Duck'
+        )
+        self.assertEqual(
+            resp.context['form'].initial['email_address'], 'dd@test.com'
+        )
+
+    def test_send_booking_request(self):
+        # Monday = 0
+        days_ahead = 0 - timezone.now().weekday()
+        if days_ahead < 0:  # Target day already happened this week
+            days_ahead += 7
+        next_date = timezone.now() + timedelta(days_ahead)
+
+        data = {
+            'first_name': 'Donald',
+            'last_name': 'Duck',
+            'email_address': 'dd@test.com',
+            'message': 'Test message',
+            'cc': True,
+            'date': next_date.strftime('%a %d %b %y')
+        }
+
+        resp = self.client.post(self.url, data)
+        self.assertEqual(resp.status_code, 302)
+
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(mail.outbox[0].to, [settings.DEFAULT_STUDIO_EMAIL])
+        self.assertEqual(mail.outbox[0].cc, ['dd@test.com'])
+
+        # subject comes from timetable session info
+        self.assertEqual(
+            mail.outbox[0].subject,
+            '{} Booking request for Polefit (All levels), Inverkeithing, '
+            'Monday 18:00'.format(settings.ACCOUNT_EMAIL_SUBJECT_PREFIX)
+        )

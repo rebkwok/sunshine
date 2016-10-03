@@ -66,33 +66,79 @@ def get_dates(session):
         days_ahead += 7
     next_date = timezone.now() + datetime.timedelta(days_ahead)
 
-    next_dates = [next_date] + [next_date + datetime.timedelta(i * 7) for i in range(1, 4)]
+    next_dates = [next_date] + \
+                 [next_date + datetime.timedelta(i * 7) for i in range(1, 4)]
 
-    date_choices = sorted([(i+1, date.strftime('%a %d %b %y')) for i, date in enumerate(next_dates)])
+    date_choices = sorted(
+        [
+            (i+1, date.strftime('%a %d %b %y'))
+            for i, date in enumerate(next_dates)
+            ]
+    )
     date_choices.insert(4, (4, 'Regular weekly booking'))
     date_choices = [(d[1], d[1]) for d in date_choices]
     return date_choices
 
 
-class BookingRequestForm(forms.Form):
+class ContactForm(forms.Form):
+    first_name = forms.CharField(
+        max_length=255, required=True,
+        initial='',
+        widget=forms.TextInput(
+            attrs={'class': 'form-control'})
+    )
+
+    last_name = forms.CharField(
+        max_length=255, required=True,
+        initial='',
+        widget=forms.TextInput(
+            attrs={'class': 'form-control'})
+    )
+
+    email_address = forms.EmailField(
+        max_length=255,
+        required=True,
+        widget=forms.TextInput(
+            attrs={'class': 'form-control'})
+    )
+
+    subject = forms.ChoiceField(
+        required=True,
+        label="What can we help you with?",
+        choices=(
+            ('Membership Enquiry', 'Membership Enquiry'),
+            ('Class Booking Enquiry', 'Class Booking Enquiry'),
+            ('Party Booking', 'Party Booking'),
+            ('General Enquiry', 'General Enquiry')
+        ),
+        widget=forms.Select(attrs={'class': 'form-control input-xs disabled'})
+    )
+
+    cc = forms.BooleanField(
+        widget=forms.CheckboxInput(attrs={
+            'class': "regular-checkbox",
+            'id': 'cc_id'
+        }),
+        label="Send me a copy of my email request",
+        initial=True,
+        required=False
+    )
+
+    message = forms.CharField(
+        widget=forms.Textarea(attrs={'class': 'form-control email-message',
+                                     'rows': 10}),
+        label='Message',
+        required=True)
+
+
+class BookingRequestForm(ContactForm):
 
     def __init__(self, *args, **kwargs):
         self.session = kwargs.pop('session')
         super(BookingRequestForm, self).__init__(*args, **kwargs)
 
-        self.fields['first_name'] = forms.CharField(
-            max_length=255, required=True,
-            initial='',
-            widget=forms.TextInput(
-                attrs={'class': 'form-control'})
-        )
-
-        self.fields['last_name'] = forms.CharField(
-            max_length=255, required=True,
-            initial='',
-            widget=forms.TextInput(
-                attrs={'class': 'form-control'})
-        )
+        del self.fields['subject']
+        del self.fields['message']
 
         self.fields['date'] = forms.ChoiceField(
             choices=get_dates(self.session),
@@ -101,74 +147,8 @@ class BookingRequestForm(forms.Form):
                       "available if you have a monthly membership"
         )
 
-        self.fields['email_address'] = forms.EmailField(
-            max_length=255,
-            required=True,
-            widget=forms.TextInput(
-                attrs={'class': 'form-control'})
-        )
-        self.fields['cc'] = forms.BooleanField(
-            widget=forms.CheckboxInput(attrs={
-                    'class': "regular-checkbox",
-                    'id': 'cc_id'
-                }),
-            label="Send me a copy of my email request",
-            initial=True,
-            required=False
-        )
         self.fields['additional_message'] = forms.CharField(
             widget=forms.Textarea(attrs={'class': 'form-control email-message',
                                          'rows': 10}),
             label='Additional comments',
             required=False)
-
-class ContactForm(forms.Form):
-
-        first_name = forms.CharField(
-            max_length=255, required=True,
-            initial='',
-            widget=forms.TextInput(
-                attrs={'class': 'form-control'})
-        )
-
-        last_name = forms.CharField(
-            max_length=255, required=True,
-            initial='',
-            widget=forms.TextInput(
-                attrs={'class': 'form-control'})
-        )
-
-        email_address = forms.EmailField(
-            max_length=255,
-            required=True,
-            widget=forms.TextInput(
-                attrs={'class': 'form-control'})
-        )
-
-        subject = forms.ChoiceField(
-            required=True,
-            label="What can we help you with?",
-            choices=(
-                ('Membership Enquiry', 'Membership Enquiry'),
-                ('Class Booking Enquiry', 'Class Booking Enquiry'),
-                ('Party Booking', 'Party Booking'),
-                ('General Enquiry', 'General Enquiry')
-            ),
-            widget=forms.Select(attrs={'class': 'form-control input-xs disabled'})
-        )
-
-        cc = forms.BooleanField(
-            widget=forms.CheckboxInput(attrs={
-                    'class': "regular-checkbox",
-                    'id': 'cc_id'
-                }),
-            label="Send me a copy of my email request",
-            initial=True,
-            required=False
-        )
-
-        message = forms.CharField(
-            widget=forms.Textarea(attrs={'class': 'form-control email-message',
-                                         'rows': 10}),
-            label='Message',
-            required=True)
