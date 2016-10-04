@@ -30,7 +30,7 @@ class Event(models.Model):
     date = models.DateTimeField()
     location = models.CharField(
         max_length=255,
-        default="Carousel Fitness, 7 Preston Crescent, Inverkeithing, KY11 1DR"
+        default="Carousel Fitness, 7 Preston Crescent, Inverkeithing"
     )
     max_participants = models.PositiveIntegerField(default=12)
 
@@ -39,7 +39,9 @@ class Event(models.Model):
 
     show_on_site = models.BooleanField(
         default=False,
-        help_text="Display this event/workshop on the website"
+        help_text="Display this event/workshop on the website "
+                  "(if unticked, it will still be displayed for staff users "
+                  "for preview)"
     )
 
     cancellation_period = models.PositiveIntegerField(

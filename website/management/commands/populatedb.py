@@ -2,8 +2,7 @@ import datetime
 
 from django.core.management.base import BaseCommand
 
-from timetable.models import Instructor, Venue, SessionType, \
-    TimetableSession, MembershipClassLevel
+from timetable.models import Instructor, Venue, SessionType, TimetableSession
 
 from website.models import AboutInfo
 
@@ -231,16 +230,6 @@ class Command(BaseCommand):
                     "ranges, there is something for anyone and everyone!"
         )
 
-        membership1, _ = MembershipClassLevel.objects.get_or_create(
-                membership_level=1
-        )
-        membership2, _ = MembershipClassLevel.objects.get_or_create(
-                membership_level=2
-        )
-        membership3, _ = MembershipClassLevel.objects.get_or_create(
-                membership_level=3
-        )
-
         # create timetable:
         # Monday
         TimetableSession.objects.get_or_create(
@@ -250,7 +239,7 @@ class Command(BaseCommand):
             name="Pole Fitness",
             session_type=polefit,
             venue=inverkeithing,
-            membership_level=membership1,
+            membership_category='1',
             cost=7,
             alt_cost=5
         )
@@ -261,7 +250,7 @@ class Command(BaseCommand):
             name="Legs, Bums and Tums",
             session_type=general_fitness,
             venue=inverkeithing,
-            membership_level=membership2,
+            membership_category='2',
             cost=4.50,
             alt_cost=3.50
         )
@@ -272,7 +261,7 @@ class Command(BaseCommand):
             name="Open Training",
             session_type=open,
             venue=inverkeithing,
-            membership_level=membership3,
+            membership_category='3',
             cost=10,
             alt_cost=0
         )
@@ -283,7 +272,7 @@ class Command(BaseCommand):
             name="Stretch and Conditioning",
             session_type=stretch,
             venue=inverkeithing,
-            membership_level=membership2,
+            membership_category='2',
             cost=4.50,
             alt_cost=3.50
         )
@@ -294,7 +283,7 @@ class Command(BaseCommand):
             name="Aerial Hoop",
             session_type=hoop,
             venue=inverkeithing,
-            membership_level=membership1,
+            membership_category='1',
             cost=7,
             alt_cost=5
         )
@@ -306,7 +295,7 @@ class Command(BaseCommand):
             session_type=polefit,
             venue=inverkeithing,
             level="Beginer/Intermediate",
-            membership_level=membership1,
+            membership_category='1',
             cost=7,
             alt_cost=5
         )
@@ -318,7 +307,7 @@ class Command(BaseCommand):
             session_type=polefit,
             venue=inverkeithing,
             level="Intermediate/Advanced",
-            membership_level=membership1,
+            membership_category='1',
             cost=7,
             alt_cost=5
         )
@@ -331,7 +320,7 @@ class Command(BaseCommand):
             name="Pole Fitness",
             session_type=polefit,
             venue=inverkeithing,
-            membership_level=membership1,
+            membership_category='1',
             cost=7,
             alt_cost=5
         )
@@ -342,7 +331,7 @@ class Command(BaseCommand):
             name="Open Training",
             session_type=open,
             venue=inverkeithing,
-            membership_level=membership3,
+            membership_category='3',
             cost=10,
             alt_cost=0
         )
@@ -353,7 +342,7 @@ class Command(BaseCommand):
             name="Kettle Bells",
             session_type=general_fitness,
             venue=inverkeithing,
-            membership_level=membership2,
+            membership_category='2',
             cost=4.50,
             alt_cost=3.50
         )
@@ -365,7 +354,7 @@ class Command(BaseCommand):
             session_type=polefit,
             venue=inverkeithing,
             level="Beginner/Intermediate",
-            membership_level=membership1,
+            membership_category='1',
             cost=7,
             alt_cost=5
         )
@@ -376,7 +365,7 @@ class Command(BaseCommand):
             name="Pole Fitness",
             session_type=polefit,
             venue=inverkeithing,
-            membership_level=membership1,
+            membership_category='1',
             cost=7,
             alt_cost=5
         )
@@ -388,7 +377,7 @@ class Command(BaseCommand):
             session_type=polefit,
             venue=inverkeithing,
             level="Intermediate/Advanced",
-            membership_level=membership1,
+            membership_category='1',
             cost=7,
             alt_cost=5
         )
@@ -399,7 +388,7 @@ class Command(BaseCommand):
             name="BounceFit",
             session_type=bouncefit,
             venue=energyzone,
-            membership_level=membership2,
+            membership_category='2',
             cost=4.50,
             alt_cost=3.50
         )
@@ -410,7 +399,7 @@ class Command(BaseCommand):
             name="BounceFit",
             session_type=bouncefit,
             venue=energyzone,
-            membership_level=membership2,
+            membership_category='2',
             cost=4.50,
             alt_cost=3.50
         )
@@ -422,7 +411,7 @@ class Command(BaseCommand):
             name="Open Training",
             session_type=open,
             venue=inverkeithing,
-            membership_level=membership3,
+            membership_category='3',
             cost=10,
             alt_cost=0
         )
@@ -433,7 +422,7 @@ class Command(BaseCommand):
             name="Pole Fitness",
             session_type=polefit,
             venue=inverkeithing,
-            membership_level=membership1,
+            membership_category='1',
             cost=7,
             alt_cost=5
         )
@@ -444,7 +433,7 @@ class Command(BaseCommand):
             name="Pole stretching",
             session_type=polefit,
             venue=inverkeithing,
-            membership_level=membership2,
+            membership_category='2',
             cost=4.50,
             alt_cost=3.50
         )
@@ -456,7 +445,7 @@ class Command(BaseCommand):
             session_type=polefit,
             venue=inverkeithing,
             level="Intermediate/Advanced",
-            membership_level=membership1,
+            membership_category='1',
             cost=7,
             alt_cost=5
         )
@@ -467,7 +456,7 @@ class Command(BaseCommand):
             name="Pole Fitness",
             session_type=polefit,
             venue=cowdenbeath,
-            membership_level=membership1,
+            membership_category='1',
             cost=7,
             alt_cost=5
         )
@@ -478,7 +467,7 @@ class Command(BaseCommand):
             name="Aerial Hoop",
             session_type=hoop,
             venue=cowdenbeath,
-            membership_level=membership1,
+            membership_category='1',
             cost=7,
             alt_cost=5
         )
@@ -489,7 +478,7 @@ class Command(BaseCommand):
             name="Pole Fitness",
             session_type=polefit,
             venue=cowdenbeath,
-            membership_level=membership1,
+            membership_category='1',
             cost=7,
             alt_cost=5
         )
@@ -500,7 +489,7 @@ class Command(BaseCommand):
             name="Aerial Hoop",
             session_type=hoop,
             venue=cowdenbeath,
-            membership_level=membership1,
+            membership_category='1',
             cost=7,
             alt_cost=5
         )
@@ -511,7 +500,7 @@ class Command(BaseCommand):
             name="Gym training",
             session_type=general_fitness,
             venue=cowdenbeath,
-            membership_level=membership2,
+            membership_category='2',
             cost=4.50,
             alt_cost=3.50
         )
@@ -524,7 +513,7 @@ class Command(BaseCommand):
             name="Pole Fitness",
             session_type=polefit,
             venue=inverkeithing,
-            membership_level=membership1,
+            membership_category='1',
             cost=7,
             alt_cost=5
         )
@@ -535,7 +524,7 @@ class Command(BaseCommand):
             name="Stretch and Flex",
             session_type=stretch,
             venue=inverkeithing,
-            membership_level=membership2,
+            membership_category='2',
             cost=4.50,
             alt_cost=3.50
         )
@@ -546,7 +535,7 @@ class Command(BaseCommand):
             name="Circuits",
             session_type=general_fitness,
             venue=inverkeithing,
-            membership_level=membership2,
+            membership_category='2',
             cost=4.50,
             alt_cost=3.50
         )
@@ -588,7 +577,7 @@ class Command(BaseCommand):
             session_type=polefit,
             venue=edinburgh,
             level="Advanced",
-            membership_level=membership1,
+            membership_category='1',
             cost=7,
             alt_cost=5
         )
@@ -601,7 +590,7 @@ class Command(BaseCommand):
             name="Open Training",
             session_type=open,
             venue=inverkeithing,
-            membership_level=membership3,
+            membership_category='3',
             cost=10,
             alt_cost=0
         )
@@ -612,7 +601,7 @@ class Command(BaseCommand):
             name="Aerial Hoop",
             session_type=hoop,
             venue=inverkeithing,
-            membership_level=membership1,
+            membership_category='1',
             cost=7,
             alt_cost=5
         )
@@ -623,7 +612,7 @@ class Command(BaseCommand):
             name="Lyrical Pole Fitness",
             session_type=polefit,
             venue=inverkeithing,
-            membership_level=membership1,
+            membership_category='1',
             cost=7,
             alt_cost=5
         )
@@ -634,7 +623,7 @@ class Command(BaseCommand):
             name="Open Training",
             session_type=open,
             venue=inverkeithing,
-            membership_level=membership3,
+            membership_category='3',
             cost=10,
             alt_cost=0
         )
@@ -647,7 +636,7 @@ class Command(BaseCommand):
             name="Kettle Bells",
             session_type=general_fitness,
             venue=inverkeithing,
-            membership_level=membership2,
+            membership_category='2',
             cost=4.50,
             alt_cost=3.50
         )
@@ -658,7 +647,7 @@ class Command(BaseCommand):
             name="Open Training",
             session_type=open,
             venue=inverkeithing,
-            membership_level=membership3,
+            membership_category='3',
             cost=10,
             alt_cost=0
         )
@@ -669,7 +658,7 @@ class Command(BaseCommand):
             name="Burlesque",
             session_type=burlesque,
             venue=inverkeithing,
-            membership_level=membership2,
+            membership_category='2',
             cost=4.50,
             alt_cost=3.50
         )
@@ -682,7 +671,7 @@ class Command(BaseCommand):
             name="Pole Fitness",
             session_type=polefit,
             venue=inverkeithing,
-            membership_level=membership1,
+            membership_category='1',
             cost=7,
             alt_cost=5
         )
@@ -693,7 +682,7 @@ class Command(BaseCommand):
             name="Conditioning Pole Fitness",
             session_type=polefit,
             venue=inverkeithing,
-            membership_level=membership1,
+            membership_category='1',
             cost=7,
             alt_cost=5
         )
@@ -705,7 +694,7 @@ class Command(BaseCommand):
             session_type=polefit,
             venue=inverkeithing,
             level="Advanced",
-            membership_level=membership1,
+            membership_category='1',
             cost=7,
             alt_cost=5
         )
@@ -717,7 +706,7 @@ class Command(BaseCommand):
             session_type=polefit,
             venue=inverkeithing,
             level="Beginner",
-            membership_level=membership1,
+            membership_category='1',
             cost=7,
             alt_cost=5
         )

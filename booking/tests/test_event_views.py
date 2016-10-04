@@ -2,6 +2,7 @@
 
 from model_mommy import mommy
 
+from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.test import TestCase, RequestFactory, override_settings
 
@@ -57,6 +58,20 @@ class EventListViewTests(TestSetupMixin, TestCase):
 
         # event listing should still only show future events
         self.assertFalse('booked_events' in resp.context)
+
+    def test_all_events_shown_for_staff_user(self):
+        hidden_event = Event.objects.all()[0]
+        hidden_event.show_on_site = False
+        hidden_event.save()
+
+        resp = self.client.get(reverse('booking:events'))
+        self.assertEqual(len(resp.context_data['events']), 2)
+
+        self.user.is_staff = True
+        self.user.save()
+        self.client.login(username=self.user.username, password='test')
+        resp = self.client.get(reverse('booking:events'))
+        self.assertEqual(len(resp.context_data['events']), 3)
 
     def test_event_list_with_logged_in_user(self):
         """
@@ -124,13 +139,43 @@ class EventDetailViewTests(TestSetupMixin, TestCase):
         view = EventDetailView.as_view()
         return view(request, slug=event.slug)
 
-    def test_login_required(self):
+    def test_not_logged_in(self):
         """
-        test that page redirects if there is no user logged in
+        test that page loads if not logged in.
+        No booking or waiting list buttons shown.
         """
-        url = reverse('booking:event_detail', kwargs={'slug': self.event.slug})
-        resp = self.client.get(url)
-        self.assertEqual(resp.status_code, 302)
+        resp = self.client.get(
+            reverse('booking:event_detail', args=[self.event.slug])
+        )
+        self.assertEqual(resp.status_code, 200)
+        self.assertEquals(resp.context_data['event_type'], 'workshop')
+        self.assertEquals(
+            resp.context_data['booking_info_text'], 'Please log in to book.'
+        )
+        self.assertNotIn('book_button', resp.rendered_content)
+        self.assertNotIn('join_waiting_list_button', resp.rendered_content)
+        self.assertNotIn('leave_waiting_list_button', resp.rendered_content)
+
+    def test_not_logged_in_full_event(self):
+        """
+        test that page loads if not logged in.
+        No booking or waiting list buttons shown.
+        """
+        self.event.max_participants = 3
+        self.event.save()
+        mommy.make(Booking, event=self.event, _quantity=3)
+        resp = self.client.get(
+            reverse('booking:event_detail', args=[self.event.slug])
+        )
+
+        self.assertEquals(
+            resp.context_data['booking_info_text'],
+            'This workshop is now full.  Please log in to join the '
+            'waiting list.'
+        )
+        self.assertNotIn('book_button', resp.rendered_content)
+        self.assertNotIn('join_waiting_list_button', resp.rendered_content)
+        self.assertNotIn('leave_waiting_list_button', resp.rendered_content)
 
     def test_with_logged_in_user(self):
         """
@@ -139,6 +184,35 @@ class EventDetailViewTests(TestSetupMixin, TestCase):
         resp = self._get_response(self.user, self.event)
         self.assertEqual(resp.status_code, 200)
         self.assertEquals(resp.context_data['event_type'], 'workshop')
+
+    def test_show_on_site(self):
+        # can get if show on site
+        url = reverse('booking:event_detail', args=[self.event.slug])
+        resp = self.client.get(url)
+        self.assertEqual(resp.status_code, 200)
+
+        # can't get if not show on site
+        self.event.show_on_site = False
+        self.event.save()
+        resp = self.client.get(url)
+        self.assertEqual(resp.status_code, 404)
+
+        # still can't get if not show on site and logged in as normal user
+        self.client.login(username=self.user.username, password='test')
+        resp = self.client.get(url)
+        self.assertEqual(resp.status_code, 404)
+
+        # can get if logged in as staff user
+        self.user.is_staff = True
+        self.user.save()
+        self.client.login(username=self.user.username, password='test')
+        resp = self.client.get(url)
+        self.assertEqual(resp.status_code, 200)
+        self.assertIn(
+            'PREVIEW ONLY: THIS PAGE IS NOT VISIBLE TO NON-STAFF USERS',
+            resp.rendered_content
+        )
+
 
     def test_with_booked_event(self):
         """
@@ -216,9 +290,9 @@ class EventDetailViewTests(TestSetupMixin, TestCase):
         past_event = mommy.make_recipe('booking.past_event')
         resp = self._get_response(self.user, past_event)
         self.assertTrue(resp.context_data['past'])
-        self.assertNotIn(resp.rendered_content, 'book_button')
-        self.assertNotIn(resp.rendered_content, 'join_waiting_list_button')
-        self.assertNotIn(resp.rendered_content, 'leave_waiting_list_button')
+        self.assertNotIn('book_button', resp.rendered_content)
+        self.assertNotIn('join_waiting_list_button', resp.rendered_content)
+        self.assertNotIn('leave_waiting_list_button', resp.rendered_content)
 
     def test_cancelled_booking(self):
         # create a cancelled booking for this event and user

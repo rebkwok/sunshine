@@ -12,7 +12,7 @@ class TimetableListView(ListView):
     def get_queryset(self):
 
         queryset = TimetableSession.objects.select_related(
-            'venue', 'session_type', 'membership_level'
+            'venue', 'session_type'
         ).order_by(
                 'session_day', 'start_time', 'venue'
         )
@@ -38,7 +38,9 @@ class TimetableListView(ListView):
         venue = self.request.GET.get('filtered_venue', '')
 
         form = TimetableFilter(
-            initial={'filtered_session_type': session_type, 'filtered_venue': venue}
+            initial={
+                'filtered_session_type': session_type, 'filtered_venue': venue
+            }
         )
 
         context['form'] = form

@@ -5,11 +5,8 @@ from timetable.models import Instructor, TimetableSession, SessionType, Venue
 class InstructorAdmin(admin.ModelAdmin):
     list_display = ('name', 'regular_instructor', 'has_photo')
 
-    def has_photo(self):
-        if self.photo:
-            return True
-        else:
-            return False
+    def has_photo(self, obj):
+        return bool(obj.photo)
     has_photo.short_description = 'Photo uploaded'
     has_photo.boolean = True
 
@@ -22,11 +19,8 @@ class SessionTypeAdmin(admin.ModelAdmin):
     list_display = ('index', 'name', 'regular_session', 'has_photo')
     ordering = ['index',]
 
-    def has_photo(self):
-        if self.photo:
-            return True
-        else:
-            return False
+    def has_photo(self, obj):
+        return bool(obj.photo)
     has_photo.short_description = 'Photo uploaded'
     has_photo.boolean = True
 
@@ -36,7 +30,7 @@ class TimetableSessionAdmin(admin.ModelAdmin):
                     'start_time', 'end_time', 'venue',)
     fieldsets = [
         ('Session information', {
-            'fields': ['name', 'session_type', 'level', 'membership_level',
+            'fields': ['name', 'session_type', 'level', 'membership_category',
                        'instructor', 'venue', 'cost', 'alt_cost']
         }),
         ('Date and time', {

@@ -12,8 +12,7 @@ from django.core.urlresolvers import reverse
 from django.test import override_settings, TestCase
 from django.utils import timezone
 
-from timetable.models import SessionType, TimetableSession, Instructor, \
-    MembershipClassLevel, Venue
+from timetable.models import SessionType, TimetableSession, Instructor, Venue
 from website.forms import BookingRequestForm
 from website.models import AboutInfo, Achievement, PastEvent
 
@@ -32,7 +31,6 @@ class ManagementCommands(TestCase):
         self.assertFalse(SessionType.objects.exists())
         self.assertFalse(TimetableSession.objects.exists())
         self.assertFalse(Instructor.objects.exists())
-        self.assertFalse(MembershipClassLevel.objects.exists())
         self.assertFalse(Venue.objects.exists())
         self.assertFalse(AboutInfo.objects.exists())
 
@@ -41,7 +39,6 @@ class ManagementCommands(TestCase):
         self.assertEqual(Instructor.objects.count(), 5)
         self.assertEqual(Venue.objects.count(), 5)
         self.assertEqual(SessionType.objects.count(), 7)
-        self.assertEqual(MembershipClassLevel.objects.count(), 3)
         self.assertEqual(TimetableSession.objects.count(), 42)
         self.assertEqual(AboutInfo.objects.count(), 1)
 
@@ -51,7 +48,6 @@ class ManagementCommands(TestCase):
         self.assertEqual(Instructor.objects.count(), 5)
         self.assertEqual(Venue.objects.count(), 5)
         self.assertEqual(SessionType.objects.count(), 7)
-        self.assertEqual(MembershipClassLevel.objects.count(), 3)
         self.assertEqual(TimetableSession.objects.count(), 42)
         self.assertEqual(AboutInfo.objects.count(), 1)
 
@@ -108,7 +104,6 @@ class WebsitePagesTests(TestCase):
         self.assertIn('<h1>About</h1>', str(resp.content))
         self.assertIn('<h3>Our subheading</h3>', str(resp.content))
         self.assertIn('<p>Foo</p>', str(resp.content))
-
 
     def test_get_classes_page(self):
         # with no info

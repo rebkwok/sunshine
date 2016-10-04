@@ -13,6 +13,12 @@
                 </h3>
             </div>
             <div class="panel-body">
+                {% if user.is_staff and not event.show_on_site %}
+                <span class="divider"></span>
+                <h3>PREVIEW ONLY: THIS PAGE IS NOT VISIBLE TO NON-STAFF USERS</h3>
+                <span class="divider"></span>
+                {% endif %}
+
                 {% if past %}
                     <h3>This {{ event_type }} is now past.</h3>
                 {% endif %}
@@ -58,21 +64,23 @@
                             <h5>See <a href="{% url 'booking:bookings' %}">your bookings</a> for details
                                 and to check if your place has been confirmed.</h5>
                         {% else %}
-                            <h5>{{ booking_info_text_cancelled }}{{ booking_info_text   }}</h5>
-                            {% if bookable %}
-                                <a href="{% url 'booking:book_event' event.slug %}">
-                                    <div id='book_button' class="btn btn-success table-btn">
-                                    {% if cancelled %}Rebook{% else %}Book{% endif %}</div></a>
-                            {% else %}
-                                    {% if not waiting_list %}
-                                        <form action="{% url 'booking:book_event' event.slug %}" method="get">
-                                            <input id='join_waiting_list_button' class="btn btn-success table-btn" type="submit" value="Join waiting list" name="join waiting list"/>
-                                        </form>
-                                    {% else %}
-                                        <form action="{% url 'booking:book_event' event.slug %}" method="get">
-                                            <input id='leave_waiting_list_button' class="btn btn-warning table-btn" type="submit" value="Leave waiting list" name="leave waiting list"/>
-                                        </form>
-                                    {% endif %}
+                            <h5>{{ booking_info_text_cancelled }}{{ booking_info_text }}</h5>
+                            {% if user.is_authenticated %}
+                                {% if bookable %}
+                                    <a href="{% url 'booking:book_event' event.slug %}">
+                                        <div id='book_button' class="btn btn-success table-btn">
+                                        {% if cancelled %}Rebook{% else %}Book{% endif %}</div></a>
+                                {% else %}
+                                        {% if not waiting_list %}
+                                            <form action="{% url 'booking:book_event' event.slug %}" method="get">
+                                                <input id='join_waiting_list_button' class="btn btn-success table-btn" type="submit" value="Join waiting list" name="join waiting list"/>
+                                            </form>
+                                        {% else %}
+                                            <form action="{% url 'booking:book_event' event.slug %}" method="get">
+                                                <input id='leave_waiting_list_button' class="btn btn-warning table-btn" type="submit" value="Leave waiting list" name="leave waiting list"/>
+                                            </form>
+                                        {% endif %}
+                                {% endif %}
                             {% endif %}
                         {% endif %}
                     {% endif %}  <!--- past --->

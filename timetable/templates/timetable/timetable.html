@@ -65,12 +65,12 @@
                             <td class="timetable-row">{{ session.session_day|format_day }}</td>
                             <td class="timetable-row">{{ session.start_time|time:"H:i" }} - {{ session.end_time|time:"H:i" }}</td>
                             <td class="table-center timetable-row">
-                                {% if session.membership_level.membership_level == 1 %}
-                                    <span class="label label-warning label-rounded">
-                                {% elif session.membership_level.membership_level == 2 %}
-                                    <span class="label label-success label-rounded">
-                                {% elif session.membership_level.membership_level == 3 %}
-                                    <span class="label label-primary label-rounded">
+                                {% if session.membership_category == "1" %}
+                                    <span class="membership-label label label-warning label-rounded">
+                                {% elif session.membership_category == "2" %}
+                                    <span class="membership-label label label-success label-rounded">
+                                {% elif session.membership_category == "3" %}
+                                    <span class="membership-label label label-primary label-rounded">
                                 {% else %}
                                     <span>
                                 {% endif %}

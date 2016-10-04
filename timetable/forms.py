@@ -8,7 +8,7 @@ def get_session_types():
     def callable():
         SESSION_TYPE_CHOICES = list(
             TimetableSession.objects.select_related(
-                'venue', 'session_type', 'membership_level'
+                'venue', 'session_type'
             ).distinct().order_by('session_type__index')
             .values_list('session_type__id', 'session_type__name')
         )
@@ -23,7 +23,7 @@ def get_venues():
     def callable():
         VENUE_CHOICES = list(
             TimetableSession.objects.select_related(
-                'venue', 'session_type', 'membership_level'
+                'venue', 'session_type'
             ).distinct()
             .values_list('venue__abbreviation', 'venue__abbreviation')
         )
