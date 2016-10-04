@@ -1,0 +1,81 @@
+{% extends "website/_base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid row">
+    <div class="col-xs-12">
+
+        <h1 class="page-header">Workshops</h1>
+        {% if events %}
+        <div class="row">
+            <div class="col-sm-12">
+                {% if not user.is_authenticated %}
+                    <p><a href="{% url 'account_login' %}?next={{request.get_full_path}}">Log in</a> to book</p>
+                {% endif %}
+
+                <div class="panel panel-transparent">
+
+                    <div class="table-responsive">
+                        <table class="table">
+                            <tr class="panel-heading">
+                                {% if user.is_authenticated %}
+                                    <th class="table-center"></th>
+                                {% endif %}
+                                <th>Date</th>
+                                <th>Workshop</th>
+                                <th class="hidden-sm hidden-xs">Location</th>
+                                <th class="hidden-sm hidden-xs table-center">Cost</th>
+                                <th class="hidden-xs table-center">Spaces</th>
+                                <th class="hidden-xs table-center">Spaces left</th>
+                            </tr>
+                            <tbody>
+                            {% for event in events %}
+                                <tr class="table-row-transparent">
+                                {% if user.is_authenticated %}
+                                    {% if event.id in staff_only_events %}
+                                        <td class="table-center">VISIBLE TO STAFF ONLY</td>
+                                    {% else %}
+                                        <td class="table-center">
+                                            {% if event.id in booked_events %}
+                                                <span class="fa fa-check"></span> <a href="{% url 'booking:bookings' %}">Booked</a>
+                                            {% elif event not in booked_events %}
+                                                {% if event.bookable %}
+                                                        <a href="{% url 'booking:book_event' event.slug %}"><div id="book_button" class="btn btn-success table-btn">Book</div></a>
+                                                {% else %}
+                                                    {% if event.id in waiting_list_events %}
+                                                        <form class="wl-table-form" action="{% url 'booking:book_event' event.slug %}" method="get">
+                                                            <input class="btn btn-warning table-btn" id="leave_waiting_list_button" type="submit" value="Leave waiting list" name="leave waiting list"/>
+                                                        </form>
+                                                    {% else %}
+                                                        <form class="wl-table-form" action="{% url 'booking:book_event' event.slug %}" method="get">
+                                                            <input class="btn btn-success table-btn" id="join_waiting_list_button" type="submit" value="Join waiting list" name="join waiting list"/>
+                                                        </form>
+                                                    {% endif %}
+                                                {% endif %}
+                                            {% endif %}</td>
+                                        {% endif %}
+                                    {% endif %}
+                                    <td>{{ event.date | date:"D d M H:i" }}</td>
+                                    <td><a href="{% url 'booking:event_detail' event.slug %}">{{ event.name }}</a></td>
+                                    <td class="hidden-sm hidden-xs">{{ event.location }}</td>
+                                    <td class="hidden-sm hidden-xs table-center">£{{ event.cost }}</td>
+                                    <td class="hidden-xs table-center">{% if event.max_participants %}{{ event.max_participants }}{% else %}N/A{% endif %}</td>
+                                    <td class="hidden-xs table-center">{{ event.spaces_left }}</td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+
+
+                </div>
+            </div>
+         </div>
+        {% else %}
+            <p>There are currently no workshops available to book.</p>
+        {% endif %}
+
+    </div>
+</div>
+{% endblock content %}

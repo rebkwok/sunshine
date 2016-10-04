@@ -1,0 +1,27 @@
+{% extends 'account/base.html' %}
+{% load static %}
+{% load bookingtags %}
+
+{% block content %}
+
+<div class="container-fluid row">
+    <div class="col-sm-12">
+       <div class="panel panel-transparent">
+            <div class="panel-heading">
+                <h1 class="panel-title">Edit Your Account Profile</h1>
+            </div>
+           <div class="panel-body">
+                <form action="" method="post">{% csrf_token %}
+                    {{ form.as_p}}
+                    <input class="btn btn-success" type="submit" value="Update" />
+                    <a href="{% url 'accounts:profile' %}"><div class="btn btn-warning">Cancel</div></a>
+                </form>
+                </br>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% endblock content %}

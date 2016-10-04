@@ -1,4 +1,4 @@
-Django==1.8
+Django==1.10.1
 dj-database-url==0.3.0
 dj-static==0.0.6
 django-bootstrap3
@@ -7,6 +7,17 @@ pystache==0.5.4
 static==1.0.2
 pytz==2014.4
 Pillow==2.4.0
-django-grappelli==2.7.1
 envdir==0.6.1
-django-extensions==1.5.5
+django-extensions==1.7.3
+django-environ==0.4.0
+django-responsive==0.3.0
+django-allauth==0.27.0
+django-braces==1.9.0
+django-suit==0.2.21
+git+git://github.com/spookylukey/django-paypal.git@4421ff04484fb3cd97927997de355ff888606d89
+shortuuid==0.4.3
+django-debug-toolbar==1.5
+python-memcached==1.58
+model-mommy==1.2.6
+mock==1.0.1
+coverage==4.2

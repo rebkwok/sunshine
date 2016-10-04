@@ -1,0 +1,3 @@
+Your booking for {{ event }} has been refunded/compensated.
+
+{% include "account/email/footer.txt" %}

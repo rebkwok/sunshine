@@ -11,3 +11,5 @@ id_rsa*
 inventory.ini
 venv
 media/
+.coverage
+htmlcov/

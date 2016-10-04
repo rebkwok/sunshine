@@ -1,32 +1,17 @@
 ---
 - name: Setup Virtualenv
-  pip: executable=pip3 virtualenv={{ virtualenv_path }} virtualenv_command=virtualenv-3.4 requirements={{ project_root_path }}/requirements.txt
+  pip: virtualenv={{ virtualenv_path }} requirements={{ project_root_path }}/requirements.txt virtualenv_python=python3.4
 
 - name: Install some dev tools
   sudo: yes
-  pip: name={{ item }} executable=pip3 virtualenv={{ virtualenv_path }}
+  pip: name={{ item }} virtualenv={{ virtualenv_path }}
   with_items:
     - ipdb
     - ipython
     - django-extensions
 
-- name: Set secret key
-  sudo: yes
-  shell: export SECRET_KEY={{ secret_key }} virtualenv={{ virtualenv_path }}
-
 - name: Django db
   django_manage: command={{ item }} app_path={{ project_root_path }} virtualenv={{ virtualenv_path }}
   with_items:
-    - syncdb
     - migrate
 
-# - name: Populate database
-#   django_manage: command={{ item }} app_path={{ project_root_path }} virtualenv={{ virtualenv_path }}
-#   with_items:
-#     - setup_fb
-#     - load_users
-#     - create_event_and_blocktypes
-#     - create_timetable
-#     - create_events
-#     - create_classes
-#     - create_bookings

@@ -1,0 +1,38 @@
+{% extends "website/_base.html" %}
+{% load static %}
+
+{% block content %}
+
+<div class="container-fluid row">
+    <div class="col-xs-12">
+       <div class="panel panel-transparent">
+            <div class="panel-heading">
+                <h2 class="panel-title">Cancel Booking</h2>
+            </div>
+       <div class="panel-body">
+                <h3>You are about to cancel your booking for <a href="{% url 'booking:event_detail' event.slug %}">{{ event.name }}</a> on {{ event.date | date:"D d F, g:i a" }}</h3>
+                <h4>Are you sure?</h4>
+                {% if event.can_cancel %}
+                    <p>Please note that any payments already made will not be automatically
+                    refunded.</p>
+                {% else %}
+                    {% if not event.allow_booking_cancellation %}
+                        <p>This event is not eligible for refunds on cancellation.</p>
+                    {% else %}
+                        <p>The allowed cancellation period for this booking has passed.  If you continue, you will not be eligible for any refunds.</p>
+                    {% endif %}
+                {% endif %}
+                <p>For further information on payments/refunds, please contact <a href="mailto:{{ event.contact_email }}?Subject=Enquiry regarding booking for {{ event.name }}" target="_blank">{{ event.contact_email }}</a></p>
+
+            <form action="" method="post">{% csrf_token %}
+                {{ form.as_p }}
+                <input class="btn btn-danger" type="submit" value="Confirm cancel" />
+                <a href="{% url 'booking:bookings' %}"><div class="btn btn-warning">Back</div></a>
+            </form>
+        </div>
+        </div>
+     </div>
+
+</div>
+
+{% endblock content %}

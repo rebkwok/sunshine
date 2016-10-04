@@ -15,9 +15,10 @@
         <!-- Bootstrap core CSS -->
         {% bootstrap_css %}
         <!-- Bootstrap theme -->
-        <link href="{% static "website/bootstrap/bootstrap-theme.css" %}" rel="stylesheet">
+        <link href="{% static 'website/bootstrap/bootstrap-theme.css' %}" rel="stylesheet">
         <!-- Custom styles  -->
-        <link href="{% static "website/bootstrap/custom.css" %}" rel="stylesheet">
+        <link href="{% static 'website/css/custom.css' %}" rel="stylesheet">
+         <link rel="stylesheet" href="{% static 'website/bootstrap/font-awesome.min.css' %}">
 
         {% block extrahead %}{% endblock %}
 
@@ -42,13 +43,14 @@
                 <div class="navbar-collapse collapse">
                     <ul class="nav navbar-nav pull-left">
                         <li><a {% if section == 'about' %}class="active"{% endif %} href="{% url 'website:about' %}">About us</a></li>
+                        <li><a {% if section == 'timetable' %}class="active"{% endif %} href="{% url 'timetable:timetable' %}">Timetable</a></li>
                         <li class = "hidden-sm"><a {% if section == 'classes' %}class="active"{% endif %} href="{% url 'website:classes' %}">Classes</a></li>
-                        <li><a {% if section == 'timetable' %}class="active"{% endif %} href="{% url 'website:timetable' %}">Timetable</a></li>
+                        <li><a {% if section == 'events' %}class="active"{% endif %} href="{% url 'booking:events' %}">Workshops</a></li>
+                        <li class="hidden-sm hidden-md"><a {% if section == 'membership' %}class="active"{% endif %} href="{% url 'website:membership' %}">Membership</a></li>
                         <li class = "hidden-sm hidden-md"><a {% if section == 'instructors' %}class="active"{% endif %} href="{% url 'website:instructors' %}">Instructors</a></li>
                         <li class = "hidden-sm hidden-md"><a {% if section == 'venues' %}class="active"{% endif %} href="{% url 'website:venues' %}">Venues</a></li>
-                        <li><a {% if section == 'membership' %}class="active"{% endif %} href="{% url 'website:membership' %}">Membership & Prices</a></li>
-                        <li class = "hidden-sm" ><a {% if section == 'parties' %}class="active"{% endif %} href="{% url 'website:parties' %}">Parties</a></li>
-                        <li class = "hidden-sm" ><a {% if section == 'gallery' %}class="active"{% endif %} href="{% url 'website:gallery' %}">Gallery</a></li>
+                        <li class = "hidden-sm hidden-md" ><a {% if section == 'parties' %}class="active"{% endif %} href="{% url 'website:parties' %}">Parties</a></li>
+                        <li class = "hidden-sm hidden-md " ><a {% if section == 'gallery' %}class="active"{% endif %} href="{% url 'gallery:gallery' %}">Gallery</a></li>
                         <li ><a {% if section == 'contact' %}class="active"{% endif %} href="{% url 'website:contact' %}">Contact us</a></li>
                         <li class="visible-sm visible-md dropdown">
                           <a href="#" class="dropdown-toggle" data-toggle="dropdown">More<b class="caret"></b></a>
@@ -56,17 +58,38 @@
                                 <li class="hidden-md"><a href="{% url 'website:classes' %}">Classes</a></li>
                                 <li><a href="{% url 'website:instructors' %}">Instructors</a></li>
                                 <li><a href="{% url 'website:venues' %}">Venues</a></li>
-                                <li class="hidden-md"><a href="{% url 'website:parties' %}">Parties</a></li>
-                                <li class="hidden-md"><a href="{% url 'website:gallery' %}">Gallery</a></li>
+                                <li><a href="{% url 'website:parties' %}">Parties</a></li>
+                                <li><a href="{% url 'gallery:gallery' %}">Gallery</a></li>
+                              <li><a href="{% url 'website:membership' %}">Membership</a></li>
                           </ul>
                         </li>
                     </ul>
+                    <ul class="nav navbar-nav pull-right">
+                        {% if user.is_authenticated %}
+                        <li class="dropdown pull-right">
+                          <a href="#" class="dropdown-toggle" data-toggle="dropdown">My account<b class="caret"></b></a>
+                          <ul class="dropdown-menu pull-right">
+                                <li><a href="{% url 'accounts:profile' %}">Profile</a></li>
+                                <li><a href="{% url 'account_change_password' %}">Change password</a></li>
+                                <li><a href="{% url 'booking:bookings' %}">Bookings</a></li>
+                                <li><a href="{% url 'booking:booking_history' %}">Past bookings</a></li>
+                                <li><a href="{% url 'account_logout' %}">Log out</a></li>
+                                {% if user.is_staff %}
+                                    <li><a href="{% url 'admin:index' %}">Admin</a></li>
+                                {% endif %}
+                          </ul>
+                        </li>
+                      {% else %}
+                        <li class="pull-right"><a href="{% url 'account_login' %}">Log in</a></li>
+                      {% endif %}
+
+                   </ul>
                 </div><!--/.nav-collapse -->
             </div>
         </div>
 
         {% if messages %}
-            <div class="extra-top-margin col-sm-10 col-sm-offset-1">
+            <div class="extra-top-margin col-xs-12">
                 {% for message in messages %}
                 <div {% if message.tags and message.tags == 'error' %}
                             class="message alert alert-danger"
@@ -111,7 +134,7 @@
                     <div class="footer-credit">Site developed by <a href="https://twitter.com/rebkwok" target="_blank" style="color: #0B0B61">Becky Smith</a></div>
                 </div>
                 <div class="col-sm-4">
-                    <div class="footer-link-box"><a class="footer-link" href="{% url 'website:timetable' %}">Find a class</a></div>
+                    <div class="footer-link-box"><a class="footer-link" href="{% url 'timetable:timetable' %}">Find a class</a></div>
 		            <div class="footer-link-box"><a class="footer-link" href="{% url 'website:contact' %}">Contact us</a></div>
                 </div>
 
@@ -123,8 +146,7 @@
         </div>
     </div>
 
-
-
+</body>
 
 
     <!-- Google analytics
@@ -151,10 +173,7 @@
     <script src="{% static "website/bootstrap/custom.js" %}"></script>
 
 
-        {% block extrascripts %}{% endblock %}
-
-
-</body>
+    {% block extrascripts %}{% endblock %}
 
 
 

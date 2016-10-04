@@ -5,20 +5,19 @@ class Instructor(models.Model):
     index = models.PositiveIntegerField(null=True, blank=True)
     name = models.CharField(max_length=255)
     info = models.TextField('instructor description', blank=True, null=True)
-    regular_instructor = models.BooleanField(default=True,
-                help_text="Tick this box to list this instructor on the Instructors webpage")
-    photo = models.ImageField(upload_to='instructors', null=True, blank=True, help_text="Please upload a .jpg image with equal height and width")
+    regular_instructor = models.BooleanField(
+        default=True,
+        help_text="Tick this box to list this instructor on the "
+                  "Instructors webpage"
+    )
+    photo = models.ImageField(
+        upload_to='instructors', null=True,
+        blank=True, help_text="Please upload a .jpg image with equal height "
+                              "and width. File size must be less than 2Mb."
+    )
 
     def __str__(self):
         return self.name
-
-    def has_photo(self):
-        if self.photo:
-            return True
-        else:
-            return False
-    has_photo.short_description = 'Photo uploaded'
-    has_photo.boolean = True
 
     def save(self, *args, **kwargs):
         # delete old image file when replacing by updating the file
@@ -34,20 +33,17 @@ class SessionType(models.Model):
     index = models.PositiveIntegerField(null=True, blank=True)
     name = models.CharField(max_length=255)
     info = models.TextField('session description',  null=True)
-    regular_session = models.BooleanField('display session', default=True,
-            help_text="Tick this box to list this class type on the homepage and class description pages")
-    photo = models.ImageField(upload_to='sessions', null=True, blank=True)
+    regular_session = models.BooleanField(
+        'display session', default=True,
+        help_text="Tick this box to list this class type on the homepage "
+                  "and class description pages")
+    photo = models.ImageField(
+        upload_to='sessions', null=True, blank=True,
+        help_text="File size must be less than 2Mb"
+    )
 
     def __str__(self):
         return self.name
-
-    def has_photo(self):
-        if self.photo:
-            return True
-        else:
-            return False
-    has_photo.short_description = 'Photo uploaded'
-    has_photo.boolean = True
 
     def save(self, *args, **kwargs):
         # delete old image file when replacing by updating the file
@@ -57,6 +53,10 @@ class SessionType(models.Model):
                 this.photo.delete(save=False)
         except: pass # when new photo then we do nothing, normal case
         super(SessionType, self).save(*args, **kwargs)
+
+    class Meta:
+        verbose_name = "class"
+        verbose_name_plural = "classes"
 
 
 class Venue(models.Model):
@@ -69,28 +69,11 @@ class Venue(models.Model):
         return self.venue
 
 
-LEVEL_DESCRIPTIONS = {
-        1: "Pole and hoop classes",
-        2: "General fitness and conditioning classes",
-        3: "Open training"
-    }
-
-class MembershipClassLevel(models.Model):
-    """
-    Model to categorize a type of class for membership purposes
-    Currently 2 levels:
-    1 - pole and hoop classes
-    2 - general fitness and conditioning classes
-    3 - open training
-    """
-    membership_level = models.PositiveIntegerField(
-        help_text="Index of class type for membership; "
-                  "1=pole/hoop, 2=general fitness, "
-                  "3=open training"
-    )
-
-    def __str__(self):
-        return LEVEL_DESCRIPTIONS[self.membership_level]
+MEMBERSHIP_CATEGORY_CHOICES = (
+    (1, "Pole and hoop classes"),
+    (2, "General fitness and conditioning classes"),
+    (3, "Open training")
+)
 
 
 class TimetableSession(models.Model):
@@ -120,12 +103,9 @@ class TimetableSession(models.Model):
     name = models.CharField(max_length=255, default="")
     session_type = models.ForeignKey(SessionType)
     venue = models.ForeignKey(Venue)
-    membership_level = models.ForeignKey(
-        MembershipClassLevel,
-        verbose_name="Membership category",
-        help_text="Specify type of class for membership purposes",
-        null=True, blank=True
-    )
+    membership_category = models.CharField(
+        max_length=1, help_text="Specify type of class for membership purposes",
+        null=True, blank=True, choices=MEMBERSHIP_CATEGORY_CHOICES)
     cost = models.DecimalField(
         max_digits=8, decimal_places=2, default=7,
         help_text="Cost for non-members"

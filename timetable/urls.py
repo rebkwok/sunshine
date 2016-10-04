@@ -1,5 +1,7 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 
-from timetable import views
+from timetable.views import TimetableListView
 
-
+urlpatterns = [
+    url(r'^$', TimetableListView.as_view(), name='timetable'),
+]

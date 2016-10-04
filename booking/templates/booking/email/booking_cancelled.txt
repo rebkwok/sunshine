@@ -1,0 +1,9 @@
+Your booking for {{ event }} has been cancelled.
+{% if not event.allow_booking_cancellation %}Please note that this booking is not eligible for any refund on cancellation.{% elif not event.can_cancel %}Please note that you have cancelled after the allowed cancellation period and therefore you are not eligible for any refund.
+{% else %}
+{% if booking.paid %}
+Please note that payments are not automatically refunded. The organiser has been informed of your cancellation and will be in contact soon.
+{% endif %}{% endif %}
+For further information please contact {{ booking.event.contact_email }}
+
+{% include 'account/email/footer.txt' %}

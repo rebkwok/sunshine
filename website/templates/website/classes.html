@@ -2,48 +2,49 @@
 
 {% block content %}
 
-<div class="container-fluid row">
-    <div class="page-header col-sm-10 col-xs-12 col-sm-offset-1">
+<div class="container-fluid reduce-top-margin">
+    <div class="page-header col-xs-12">
         <h1>Classes</h1>
     </div>
 
-    <div class="col-sm-11 col-xs-12 col-sm-offset-1">
 
-        <p>For details of specific classes and to book, please see the <a href="{% url 'website:timetable' %}">timetable</a>.</p>
+    <div class="col-xs-12">
+
+        <p>For details of specific classes and to book, please see the <a href="{% url 'timetable:timetable' %}">timetable</a>.</p>
 		<p>For membership queries, private lessons/one-to-one tuition, or any other enquiries, please <a href="{% url 'website:contact_form' %}">contact us</a>.</p>
         </p>
     </div>
 
+    <div class="container">
     {% for selected_session in session_types %}
 
     {% if selected_session.photo %}
         <div class="row">
 
-            <div class="col-sm-4 col-sm-offset-1">
+            <div class="col-sm-5">
                 <h3>{{ selected_session.name }}</h3>
             </div>
         </div>
         <div class="row">
-            <div class="col-sm-4 col-sm-offset-1">
-                <p>{{ selected_session.info|linebreaks}}</p>
-                <p>Click <a href="{% url 'website:timetable' %}">here</a> to view class timetable and book.</p>
-            </div>
             <div class="col-sm-6">
-
+                <p>{{ selected_session.info|linebreaks}}</p>
+                <p>Click <a href="{% url 'timetable:timetable' %}">here</a> to view class timetable and book.</p>
+            </div>
+            <div class="col-sm-6 img-container">
                 <img src="{{ MEDIA_URL }}{{ selected_session.photo.name }}" title="{{ selected_session.name }} class"
                      alt="{{ selected_session.name }} image" class="img-responsive"><br/>
-
             </div>
         </div>
     {% else %}
 
-        <div class="col-sm-10 col-xs-12 col-sm-offset-1">
+        <div class="col-sm-12">
                 <h3>{{ selected_session.name }}</h3>
                 <p>{{ selected_session.info|linebreaks }}</p>
 
         </div>
     {% endif %}
     {% endfor %}
+        </div>
 </div>
 
 {%  endblock %}
