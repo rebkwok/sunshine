@@ -157,24 +157,26 @@ ul li img {
 }
 
 div .instr-img-container {
-    width: 150px;
-    height: 150px;
-    overflow: hidden;
-    margin-top:25px;
-    margin-left: 10px;
-    margin-right: 10px;
-    position: relative;
+        width: 200px;
+        height: 200px;
+        overflow: hidden;
+        margin-top: 25px;
+        padding-bottom: 0;
+        position: relative;
+    }
+
+@media(max-width: 990px){
+    div .instr-img-container {
+        width: 175px;
+        height: 175px;
+        overflow: hidden;
+    }
 }
 
 .instr-img {
-    position: absolute;
-    left: -100%;
-    right: -100%;
-    top: -100%;
-    bottom: -100%;
-    margin: auto;
-    height: auto;
-    width: auto;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .event_line{
@@ -773,7 +775,6 @@ button:active {
 
 .img-container {
   height: 400px;
-  border: dashed blue 1px;
 }
 
 .img-container > img {

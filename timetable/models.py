@@ -5,9 +5,16 @@ class Instructor(models.Model):
     index = models.PositiveIntegerField(null=True, blank=True)
     name = models.CharField(max_length=255)
     info = models.TextField('instructor description', blank=True, null=True)
-    regular_instructor = models.BooleanField(default=True,
-                help_text="Tick this box to list this instructor on the Instructors webpage")
-    photo = models.ImageField(upload_to='instructors', null=True, blank=True, help_text="Please upload a .jpg image with equal height and width")
+    regular_instructor = models.BooleanField(
+        default=True,
+        help_text="Tick this box to list this instructor on the "
+                  "Instructors webpage"
+    )
+    photo = models.ImageField(
+        upload_to='instructors', null=True,
+        blank=True, help_text="Please upload a .jpg image with equal height "
+                              "and width. File size must be less than 2Mb."
+    )
 
     def __str__(self):
         return self.name
@@ -26,9 +33,14 @@ class SessionType(models.Model):
     index = models.PositiveIntegerField(null=True, blank=True)
     name = models.CharField(max_length=255)
     info = models.TextField('session description',  null=True)
-    regular_session = models.BooleanField('display session', default=True,
-            help_text="Tick this box to list this class type on the homepage and class description pages")
-    photo = models.ImageField(upload_to='sessions', null=True, blank=True)
+    regular_session = models.BooleanField(
+        'display session', default=True,
+        help_text="Tick this box to list this class type on the homepage "
+                  "and class description pages")
+    photo = models.ImageField(
+        upload_to='sessions', null=True, blank=True,
+        help_text="File size must be less than 2Mb"
+    )
 
     def __str__(self):
         return self.name

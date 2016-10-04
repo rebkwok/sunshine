@@ -46,11 +46,11 @@
                         <li><a {% if section == 'timetable' %}class="active"{% endif %} href="{% url 'timetable:timetable' %}">Timetable</a></li>
                         <li class = "hidden-sm"><a {% if section == 'classes' %}class="active"{% endif %} href="{% url 'website:classes' %}">Classes</a></li>
                         <li><a {% if section == 'events' %}class="active"{% endif %} href="{% url 'booking:events' %}">Workshops</a></li>
-                        <li class="hidden-sm hidden-md"><a {% if section == 'membership' %}class="active"{% endif %} href="{% url 'website:membership' %}">Membership & Prices</a></li>
+                        <li class="hidden-sm hidden-md"><a {% if section == 'membership' %}class="active"{% endif %} href="{% url 'website:membership' %}">Membership</a></li>
                         <li class = "hidden-sm hidden-md"><a {% if section == 'instructors' %}class="active"{% endif %} href="{% url 'website:instructors' %}">Instructors</a></li>
                         <li class = "hidden-sm hidden-md"><a {% if section == 'venues' %}class="active"{% endif %} href="{% url 'website:venues' %}">Venues</a></li>
                         <li class = "hidden-sm hidden-md" ><a {% if section == 'parties' %}class="active"{% endif %} href="{% url 'website:parties' %}">Parties</a></li>
-                        <li class = "hidden-sm hidden-md" ><a {% if section == 'gallery' %}class="active"{% endif %} href="{% url 'gallery:gallery' %}">Gallery</a></li>
+                        <li class = "hidden-sm hidden-md " ><a {% if section == 'gallery' %}class="active"{% endif %} href="{% url 'gallery:gallery' %}">Gallery</a></li>
                         <li ><a {% if section == 'contact' %}class="active"{% endif %} href="{% url 'website:contact' %}">Contact us</a></li>
                         <li class="visible-sm visible-md dropdown">
                           <a href="#" class="dropdown-toggle" data-toggle="dropdown">More<b class="caret"></b></a>
@@ -60,7 +60,7 @@
                                 <li><a href="{% url 'website:venues' %}">Venues</a></li>
                                 <li><a href="{% url 'website:parties' %}">Parties</a></li>
                                 <li><a href="{% url 'gallery:gallery' %}">Gallery</a></li>
-                              <li><a href="{% url 'website:membership' %}">Membership & Prices</a></li>
+                              <li><a href="{% url 'website:membership' %}">Membership</a></li>
                           </ul>
                         </li>
                     </ul>

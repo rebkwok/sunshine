@@ -33,7 +33,7 @@
                                 <tr class="table-row-transparent">
                                 {% if user.is_authenticated %}
                                     {% if event.id in staff_only_events %}
-                                        <td class="table-center">VISIBLE TO STAFF-ONLY</td>
+                                        <td class="table-center">VISIBLE TO STAFF ONLY</td>
                                     {% else %}
                                         <td class="table-center">
                                             {% if event.id in booked_events %}
