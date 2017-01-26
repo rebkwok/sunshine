@@ -32,14 +32,14 @@ class Command(BaseCommand):
             event__date__gte=timezone.now(),
             status='OPEN',
             paid=False,
-            date_booked__lte=timezone.now() - timedelta(hours=6)
+            date_booked__lte=timezone.now() - timedelta(hours=24)
         ):
-            # ignore any which have been rebooked in the past 6 hrs
+            # ignore any which have been rebooked in the past 24 hrs
             if not (
                         booking.date_rebooked and
                     (
                                 booking.date_rebooked >= timezone.now() -
-                                timedelta(hours=6)
+                                timedelta(hours=24)
                     )
             ):
                bookings.append(booking)
