@@ -150,7 +150,10 @@ class EventDetailViewTests(TestSetupMixin, TestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertEquals(resp.context_data['event_type'], 'workshop')
         self.assertEquals(
-            resp.context_data['booking_info_text'], 'Please log in to book.'
+            resp.context_data['booking_info_text'],
+            "Please "
+            "<a href='/accounts/login?next=/booking/workshops/{}'>log in</a> "
+            "to book.".format(self.event.slug)
         )
         self.assertNotIn('book_button', resp.rendered_content)
         self.assertNotIn('join_waiting_list_button', resp.rendered_content)
@@ -170,8 +173,9 @@ class EventDetailViewTests(TestSetupMixin, TestCase):
 
         self.assertEquals(
             resp.context_data['booking_info_text'],
-            'This workshop is now full.  Please log in to join the '
-            'waiting list.'
+            'This workshop is now full.  Please '
+            "<a href='/accounts/login?next=/booking/workshops/{}'>log in</a> "
+            'to join the waiting list.'.format(self.event.slug)
         )
         self.assertNotIn('book_button', resp.rendered_content)
         self.assertNotIn('join_waiting_list_button', resp.rendered_content)

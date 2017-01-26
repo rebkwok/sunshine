@@ -1,11 +1,9 @@
 import logging
 
-from django.db.models import Q
-from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import HttpResponseRedirect, render, get_object_or_404
 from django.views.generic import ListView, DetailView
 from django.utils import timezone
-from braces.views import LoginRequiredMixin
+from django.utils.safestring import mark_safe
 
 from booking.models import Booking, Event, WaitingListUser
 
@@ -125,10 +123,20 @@ class EventDetailView(DetailView):
                 if event.spaces_left <= 0:
                     booking_info_text = "This {} is now full.".format(event_type)
         else:
+            login_url_str = "/accounts/login?next=/booking/{}s/{}".format(
+                event_type, event.slug
+            )
             if event.spaces_left <= 0:
-                booking_info_text = "This {} is now full.  Please log in to " \
-                                    "join the waiting list.".format(event_type)
+                booking_info_text = mark_safe(
+                    "This {} is now full.  "
+                    "Please <a href='{}'>log in</a> to join the waiting "
+                    "list.".format(event_type, login_url_str)
+                )
             else:
-                booking_info_text = "Please log in to book."
+                booking_info_text = mark_safe(
+                    "Please <a href='{}'>log in</a> to book.".format(
+                        login_url_str
+                    )
+                )
         context['booking_info_text'] = booking_info_text
         return context
