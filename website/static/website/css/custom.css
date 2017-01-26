@@ -377,11 +377,24 @@ border-left: 1px solid white;
     color:#664067;
   }
 
+@media(max-width: 767px){
+    .navbar .navbar-nav .open .dropdown-menu>li>a.account-menu-option {
+        background-color: #664067;
+        color: #f2bd49;
+    }
+    .navbar .navbar-nav .open .dropdown-menu>li>a.account-menu-option:hover {
+        background-color: #f2bd49;
+        color: #664067;
+    }
+}
+
 .dropdown-menu > li>.active > a, .dropdown-menu > li .hidden-md >.active > a {
 	 background-color: #f2bd49;
 	 background-image: none;
      font-weight: normal;
  }
+
+body > div.wrap > div.navbar.navbar-fixed-top > div > div.navbar-collapse.collapse.in > ul.nav.navbar-nav.pull-right > li > ul > li:nth-child(1) > a
 
 .venue-address {
     height: 120px;

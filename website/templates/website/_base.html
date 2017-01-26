@@ -69,13 +69,13 @@
                         <li class="dropdown pull-right">
                           <a href="#" class="dropdown-toggle" data-toggle="dropdown">My account<b class="caret"></b></a>
                           <ul class="dropdown-menu pull-right">
-                                <li><a href="{% url 'accounts:profile' %}">Profile</a></li>
-                                <li><a href="{% url 'account_change_password' %}">Change password</a></li>
-                                <li><a href="{% url 'booking:bookings' %}">Bookings</a></li>
-                                <li><a href="{% url 'booking:booking_history' %}">Past bookings</a></li>
-                                <li><a href="{% url 'account_logout' %}">Log out</a></li>
+                                <li><a class="account-menu-option" href="{% url 'accounts:profile' %}">Profile</a></li>
+                                <li><a class="account-menu-option" href="{% url 'account_change_password' %}">Change password</a></li>
+                                <li><a class="account-menu-option" href="{% url 'booking:bookings' %}">Bookings</a></li>
+                                <li><a class="account-menu-option" href="{% url 'booking:booking_history' %}">Past bookings</a></li>
+                                <li><a class="account-menu-option" href="{% url 'account_logout' %}">Log out</a></li>
                                 {% if user.is_staff %}
-                                    <li><a href="{% url 'admin:index' %}">Admin</a></li>
+                                    <li><a class="account-menu-option" href="{% url 'admin:index' %}">Admin</a></li>
                                 {% endif %}
                           </ul>
                         </li>
