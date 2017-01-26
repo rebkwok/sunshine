@@ -89,3 +89,8 @@ class Command(BaseCommand):
                         booking.event
                     )
                 )
+
+        if not bookings:
+            ActivityLog.objects.create(
+                log='CRON: auto cancel bookings run; nothing to cancel'
+            )

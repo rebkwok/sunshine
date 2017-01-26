@@ -44,7 +44,7 @@ class CancelUnpaidBookingsTests(TestCase):
         test unpaid bookings are cancelled
         """
         mock_tz.now.return_value = datetime(
-            2015, 2, 10, tzinfo=timezone.utc
+            2015, 2, 10, 19, 0, tzinfo=timezone.utc
         )
         self.assertEquals(
             self.unpaid.status, 'OPEN', self.unpaid.status
@@ -116,7 +116,7 @@ class CancelUnpaidBookingsTests(TestCase):
         )
 
     @patch('booking.management.commands.cancel_unpaid_bookings.timezone')
-    def test_dont_cancel_bookings_created_within_past_6_hours(self, mock_tz):
+    def test_dont_cancel_bookings_created_within_past_24_hours(self, mock_tz):
         """
         Avoid immediately cancelling bookings made within the cancellation
         period to allow time for users to make payments
@@ -125,31 +125,31 @@ class CancelUnpaidBookingsTests(TestCase):
             2015, 2, 10, 18, 0, tzinfo=timezone.utc
         )
 
-        unpaid_within_6_hrs = mommy.make_recipe(
+        unpaid_within_24_hrs = mommy.make_recipe(
             'booking.booking', event=self.event, paid=False,
             status='OPEN',
             user__email="unpaid@test.com",
             date_booked=datetime(
-                2015, 2, 10, 12, 30, tzinfo=timezone.utc
+                2015, 2, 9, 18, 30, tzinfo=timezone.utc
             ),
         )
-        unpaid_more_than_6_hrs = mommy.make_recipe(
+        unpaid_more_than_24_hrs = mommy.make_recipe(
             'booking.booking', event=self.event, paid=False,
             status='OPEN',
             user__email="unpaid@test.com",
             date_booked=datetime(
-                2015, 2, 10, 11, 30, tzinfo=timezone.utc
+                2015, 2, 9, 17, 30, tzinfo=timezone.utc
             ),
         )
 
-        self.assertEquals(unpaid_within_6_hrs.status, 'OPEN')
-        self.assertEquals(unpaid_more_than_6_hrs.status, 'OPEN')
+        self.assertEquals(unpaid_within_24_hrs.status, 'OPEN')
+        self.assertEquals(unpaid_more_than_24_hrs.status, 'OPEN')
 
         management.call_command('cancel_unpaid_bookings')
-        unpaid_within_6_hrs.refresh_from_db()
-        unpaid_more_than_6_hrs.refresh_from_db()
-        self.assertEquals(unpaid_within_6_hrs.status, 'OPEN')
-        self.assertEquals(unpaid_more_than_6_hrs.status, 'CANCELLED')
+        unpaid_within_24_hrs.refresh_from_db()
+        unpaid_more_than_24_hrs.refresh_from_db()
+        self.assertEquals(unpaid_within_24_hrs.status, 'OPEN')
+        self.assertEquals(unpaid_more_than_24_hrs.status, 'CANCELLED')
 
     @patch('booking.management.commands.cancel_unpaid_bookings.timezone')
     def test_cancelling_for_full_event_emails_waiting_list(self, mock_tz):
@@ -254,16 +254,12 @@ class CancelUnpaidBookingsTests(TestCase):
         self.assertEqual(len(mail.outbox), 1)
 
     @patch('booking.management.commands.cancel_unpaid_bookings.timezone')
-    def test_dont_cancel_bookings_rebooked_within_past_6_hours(self, mock_tz):
-        """
-        Avoid immediately cancelling bookings made within the cancellation
-        period to allow time for users to make payments
-        """
+    def test_dont_cancel_bookings_rebooked_within_past_24_hours(self, mock_tz):
         mock_tz.now.return_value = datetime(
             2015, 2, 10, 18, 0, tzinfo=timezone.utc
         )
         self.unpaid.date_rebooked = datetime(
-            2015, 2, 10, 12, 30, tzinfo=timezone.utc
+            2015, 2, 9, 18, 30, tzinfo=timezone.utc
         )
         self.unpaid.save()
 
