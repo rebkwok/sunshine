@@ -26,7 +26,10 @@ class Command(BaseCommand):
     help = 'Cancel unpaid bookings 6 hrs after booked/rebooked'
 
     def handle(self, *args, **options):
-
+        # delete old nothing-to-cancel logs
+        ActivityLog.objects.filter(
+            log='CRON: auto cancel bookings run; nothing to cancel'
+        ).delete()
         bookings = []
         for booking in Booking.objects.filter(
             event__date__gte=timezone.now(),
