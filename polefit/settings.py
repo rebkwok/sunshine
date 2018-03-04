@@ -18,6 +18,7 @@ root = environ.Path(__file__) - 2  # two folders back (/a/b/ - 3 = /)
 env = environ.Env(DEBUG=(bool, False),
                   PAYPAL_TEST=(bool, False),
                   USE_MAILCATCHER=(bool, False),
+                  SHOW_DEBUG_TOOLBAR=(bool, False),
                   )
 
 environ.Env.read_env(root('polefit/.env'))  # reading .env file
@@ -370,7 +371,7 @@ if 'test' in sys.argv:  # use local cache for tests
         }
     }
 
-if DEBUG and 'test' not in sys.argv:  # pragma: no cover
+if env('SHOW_DEBUG_TOOLBAR') and 'test' not in sys.argv:  # pragma: no cover
     ENABLE_DEBUG_TOOLBAR = True
     DEBUG_TOOLBAR_CONFIG = {
         "SHOW_TOOLBAR_CALLBACK": show_toolbar,

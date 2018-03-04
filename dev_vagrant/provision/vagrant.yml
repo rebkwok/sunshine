@@ -1,9 +1,0 @@
----
-- hosts: all
-  roles:
-      - setup
-      - mailcatcher
-      - deploy
-  environment:
-      SECRET_KEY: "{{ secret_key }}"
-      DATABASE_URL: postgres://{{db_user}}:{{db_password}}@localhost/{{db_name}}

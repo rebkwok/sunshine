@@ -1,4 +1,0 @@
----
-uwsgi_plugin: python
-python: /usr/bin/python
-log_path: /var/log/webapp/

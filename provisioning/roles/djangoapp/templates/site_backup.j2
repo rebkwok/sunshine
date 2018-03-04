@@ -1,6 +1,0 @@
-#!/bin/bash
-
-sudo -u postgres bash -c '
-    pg_dump {{site}} | gzip > /tmp/{{site}}-bkup.gz \
-    && aws --region=us-west-1 s3 cp /tmp/{{site}}-bkup.gz s3://backups.polefitstarlet.co.uk/
-'

@@ -1,8 +1,0 @@
----
-- name: Install PostgreSQL
-  apt: name={{item}}
-  with_items:
-  - postgresql-9.3
-  - postgresql-contrib-9.3
-  - postgresql-server-dev-9.3
-  - python-psycopg2

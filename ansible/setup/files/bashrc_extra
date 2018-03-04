@@ -1,0 +1,13 @@
+export SRV_IP="$(ip -o -f inet addr show eth1 | awk -F ' +|/' '{print $4}')"
+cd /src/polefit
+. /src/polefit/venv/bin/activate
+
+echo "Application is running at 127.0.0.1:5555"
+
+alias go="cd /src/polefit"
+alias venv=". /src/polefit/venv/bin/activate"
+alias runserver="cd /src/polefit
+venv
+echo 'Application is running at 127.0.0.1:5555'
+./manage.py runserver 0.0.0.0:8000"
+

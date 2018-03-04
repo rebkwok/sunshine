@@ -1,0 +1,27 @@
+---
+- name: Install ruby requirements
+  become: true
+  become_user: root
+  apt: pkg={{ item }} state=installed
+  with_items:
+    - libsqlite3-dev
+    - ruby
+    - ruby-dev
+
+- name: Install Mailcatcher
+  become: true
+  become_user: root
+  gem: name=mailcatcher state=latest user_install=no build_flags=conservative
+
+- name: Add mailcatcher conf file
+  become: true
+  become_user: root
+  copy: src=mailcatcher.conf dest=/etc/init/mailcatcher.conf
+
+- name: Make sure Mailcatcher is not running
+  command: pkill mailcatcher
+  ignore_errors: yes
+
+- name: Start Mailcatcher
+  shell: mailcatcher --ip 0.0.0.0
+  ignore_errors: yes

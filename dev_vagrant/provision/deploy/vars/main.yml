@@ -1,5 +1,0 @@
----
-virtualenv_path: /src/polefit/venv
-project_root_path: /src/polefit
-python3_path: /usr/bin/python3
-secret_key: wwtlkjsfuwi47fln
