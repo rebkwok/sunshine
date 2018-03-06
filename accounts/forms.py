@@ -21,10 +21,6 @@ class SignupForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         super(SignupForm, self).__init__(*args, **kwargs)
-        self.fields['email'].widget.attrs.update({'class': "form-control"})
-        self.fields['username'].widget.attrs.update({'class': "form-control"})
-        self.fields['password1'].widget.attrs.update({'class': "form-control"})
-        self.fields['password2'].widget.attrs.update({'class': "form-control"})
 
     def signup(self, request, user):
         user.first_name = self.cleaned_data['first_name']

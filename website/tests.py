@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import os
 from datetime import datetime, time, timedelta
-from mock import patch
+from unittest.mock import patch
 from model_mommy import mommy
 
 from django.conf import settings
@@ -337,15 +337,16 @@ class BookingRequestTests(TestCase):
 
     @patch('website.forms.timezone')
     def test_send_booking_request(self, mock_tz):
-        mock_tz.now.return_value = datetime(
+        mock_now = datetime(
             2016, 10, 3, 15, 0, tzinfo=timezone.utc
         )
+        mock_tz.now.return_value = mock_now
 
         # Monday = 0
-        days_ahead = 0 - timezone.now().weekday()
+        days_ahead = 0 - mock_now.weekday()
         if days_ahead < 0:  # Target day already happened this week
             days_ahead += 7
-        next_date = timezone.now() + timedelta(days_ahead)
+        next_date = mock_now + timedelta(days_ahead)
 
         data = {
             'first_name': 'Donald',
@@ -372,15 +373,16 @@ class BookingRequestTests(TestCase):
 
     @patch('website.forms.timezone')
     def test_post_booking_request_with_errors(self, mock_tz):
-        mock_tz.now.return_value = datetime(
+        mock_now = datetime(
             2016, 10, 3, 15, 0, tzinfo=timezone.utc
         )
+        mock_tz.now.return_value = mock_now
 
         # Monday = 0
-        days_ahead = 0 - timezone.now().weekday()
+        days_ahead = 0 - mock_now.weekday()
         if days_ahead < 0:  # Target day already happened this week
             days_ahead += 7
-        next_date = timezone.now() + timedelta(days_ahead)
+        next_date = mock_now + timedelta(days_ahead)
 
         data = {
             'first_name': 'Donald',
@@ -404,16 +406,18 @@ class BookingRequestTests(TestCase):
     @patch('booking.email_helpers.EmailMultiAlternatives.send')
     @patch('website.forms.timezone')
     def test_send_booking_request_with_email_errors(self, mock_tz, mock_send):
-        mock_tz.now.return_value = datetime(
+        mock_now = datetime(
             2016, 10, 3, 15, 0, tzinfo=timezone.utc
         )
-        mock_send.side_effect = Exception('Error sending mail')
+        mock_tz.now.return_value = mock_now
 
         # Monday = 0
-        days_ahead = 0 - timezone.now().weekday()
+        days_ahead = 0 - mock_now.weekday()
         if days_ahead < 0:  # Target day already happened this week
             days_ahead += 7
-        next_date = timezone.now() + timedelta(days_ahead)
+        next_date = mock_now + timedelta(days_ahead)
+
+        mock_send.side_effect = Exception('Error sending mail')
 
         data = {
             'first_name': 'Donald',

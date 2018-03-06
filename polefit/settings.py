@@ -182,6 +182,31 @@ TEMPLATES = [
     },
 ]
 
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_USE_TLS = True
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER = 'carouselfitnessweb@gmail.com'
+EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD', None)
+if EMAIL_HOST_PASSWORD is None:  # pragma: no cover
+    print("No email host password provided!")
+EMAIL_PORT = 587
+DEFAULT_FROM_EMAIL = 'carouselfitnessweb@gmail.com'
+DEFAULT_STUDIO_EMAIL = 'carouselfitness@gmail.com'
+if DEBUG:  # pragma: no cover
+    DEFAULT_STUDIO_EMAIL = 'rebkwok@gmail.com'
+SUPPORT_EMAIL = 'rebkwok@gmail.com'
+
+
+# MAILCATCHER
+if env('USE_MAILCATCHER'):  # pragma: no cover
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+    EMAIL_HOST = '127.0.0.1'
+    EMAIL_HOST_USER = ''
+    EMAIL_HOST_PASSWORD = ''
+    EMAIL_PORT = 1025
+    EMAIL_USE_TLS = False
+
+
 
 LOG_FOLDER = env('LOG_FOLDER')
 
@@ -208,70 +233,56 @@ LOGGING = {
             'level': 'DEBUG',
             'class': 'logging.StreamHandler',
             'formatter': 'verbose'
-        }
+        },
+        'mail_admins': {
+                'level': 'ERROR',
+                'class': 'django.utils.log.AdminEmailHandler',
+                'include_html': True,
+        },
     },
     'loggers': {
         '': {
-            'handlers': ['console', 'file_app'],
+            'handlers': ['console', 'file_app', 'mail_admins'],
             'level': 'WARNING',
             'propagate': True,
         },
         'accounts': {
-            'handlers': ['console', 'file_app'],
+            'handlers': ['console', 'file_app', 'mail_admins'],
             'level': 'INFO',
             'propagate': False,
         },
         'booking': {
-            'handlers': ['console', 'file_app'],
+            'handlers': ['console', 'file_app', 'mail_admins'],
             'level': 'INFO',
             'propagate': False,
         },
         'payments': {
-            'handlers': ['console', 'file_app'],
+            'handlers': ['console', 'file_app', 'mail_admins'],
             'level': 'INFO',
             'propagate': False,
         },
         'website': {
-            'handlers': ['console', 'file_app'],
+            'handlers': ['console', 'file_app', 'mail_admins'],
             'level': 'INFO',
             'propagate': False,
         },
         'timetable': {
-            'handlers': ['console', 'file_app'],
+            'handlers': ['console', 'file_app', 'mail_admins'],
             'level': 'INFO',
             'propagate': False,
         },
         'gallery': {
-            'handlers': ['console', 'file_app'],
+            'handlers': ['console', 'file_app', 'mail_admins'],
             'level': 'INFO',
             'propagate': False,
         },
     },
 }
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_USE_TLS = True
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_HOST_USER = 'carouselfitnessweb@gmail.com'
-EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD', None)
-if EMAIL_HOST_PASSWORD is None:  # pragma: no cover
-    print("No email host password provided!")
-EMAIL_PORT = 587
-DEFAULT_FROM_EMAIL = 'carouselfitnessweb@gmail.com'
-DEFAULT_STUDIO_EMAIL = 'carouselfitness@gmail.com'
-if DEBUG:  # pragma: no cover
-    DEFAULT_STUDIO_EMAIL = 'rebkwok@gmail.com'
-SUPPORT_EMAIL = 'rebkwok@gmail.com'
-
-
-# MAILCATCHER
-if env('USE_MAILCATCHER'):  # pragma: no cover
-    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-    EMAIL_HOST = '127.0.0.1'
-    EMAIL_HOST_USER = ''
-    EMAIL_HOST_PASSWORD = ''
-    EMAIL_PORT = 1025
-    EMAIL_USE_TLS = False
+import sys
+TESTING = 'test' in sys.argv
+if not TESTING:
+    ADMINS = [SUPPORT_EMAIL]
 
 
 from django.contrib import messages
