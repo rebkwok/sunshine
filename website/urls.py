@@ -1,4 +1,4 @@
-from django.conf.urls import url
+from django.urls import path
 from django.views.generic import RedirectView
 
 from website.views import about, \
@@ -6,16 +6,18 @@ from website.views import about, \
     contact_form, instructors, \
     membership, parties, venues
 
+app_name = 'website'
+
 urlpatterns = [
-    url(r'^about/$', about, name='about'),
-    url(r'^classes/$', classes, name='classes'),
-    url(r'^(?P<session_pk>\d+)/book/$', booking_request,
+    path('about/', about, name='about'),
+    path('classes/', classes, name='classes'),
+    path('(<int:session_pk>/book/', booking_request,
         name='booking_request'),
-    url(r'^instructors/$', instructors, name='instructors'),
-    url(r'^venues/$', venues, name='venues'),
-    url(r'^membership/$', membership, name='membership'),
-    url(r'^parties/$', parties, name='parties'),
-    url(r'^contact-form/$', contact_form, name='contact_form'),
-    url(r'^contact/$', contact, name='contact'),
-    url(r'^$', RedirectView.as_view(url='/about/', permanent=True)),
+    path('instructors/', instructors, name='instructors'),
+    path('venues/', venues, name='venues'),
+    path('membership/', membership, name='membership'),
+    path('parties/', parties, name='parties'),
+    path('contact-form/', contact_form, name='contact_form'),
+    path('contact/', contact, name='contact'),
+    path('', RedirectView.as_view(url='/about/', permanent=True)),
 ]

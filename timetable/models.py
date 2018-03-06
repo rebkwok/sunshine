@@ -99,10 +99,12 @@ class TimetableSession(models.Model):
     session_day = models.CharField(max_length=4, choices=WEEKDAY_CHOICES)
     start_time = models.TimeField()
     end_time = models.TimeField()
-    instructor = models.ForeignKey(Instructor, null=True, blank=True)
+    instructor = models.ForeignKey(
+        Instructor, null=True, blank=True, on_delete=models.SET_NULL
+    )
     name = models.CharField(max_length=255, default="")
-    session_type = models.ForeignKey(SessionType)
-    venue = models.ForeignKey(Venue)
+    session_type = models.ForeignKey(SessionType, on_delete=models.CASCADE)
+    venue = models.ForeignKey(Venue, on_delete=models.CASCADE)
     membership_category = models.CharField(
         max_length=1, help_text="Specify type of class for membership purposes",
         null=True, blank=True, choices=MEMBERSHIP_CATEGORY_CHOICES)

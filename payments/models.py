@@ -55,7 +55,7 @@ class PaypalBookingTransaction(models.Model):
     invoice_id = models.CharField(
         max_length=255, null=True, blank=True, unique=True
     )
-    booking = models.ForeignKey(Booking, null=True)
+    booking = models.ForeignKey(Booking, null=True, on_delete=models.SET_NULL)
     transaction_id = models.CharField(
         max_length=255, null=True, blank=True, unique=True
     )

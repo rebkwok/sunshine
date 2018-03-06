@@ -41,6 +41,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='achievement',
             name='event',
-            field=models.ForeignKey(to='website.PastEvent'),
+            field=models.ForeignKey(to='website.PastEvent', on_delete=models.CASCADE),
         ),
     ]

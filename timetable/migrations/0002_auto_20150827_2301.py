@@ -121,21 +121,21 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='timetablesession',
             name='instructor',
-            field=models.ForeignKey(to='timetable.Instructor', null=True, blank=True),
+            field=models.ForeignKey(to='timetable.Instructor', null=True, blank=True, on_delete=models.SET_NULL),
         ),
         migrations.AddField(
             model_name='timetablesession',
             name='membership_level',
-            field=models.ForeignKey(to='timetable.MembershipClassLevel', null=True, help_text='Categorise for membership; 1=pole/hoop classes, 2=general fitness/conditioning classes'),
+            field=models.ForeignKey(to='timetable.MembershipClassLevel', null=True, help_text='Categorise for membership; 1=pole/hoop classes, 2=general fitness/conditioning classes', on_delete=models.SET_NULL),
         ),
         migrations.AddField(
             model_name='timetablesession',
             name='session_type',
-            field=models.ForeignKey(to='timetable.SessionType'),
+            field=models.ForeignKey(to='timetable.SessionType', on_delete=models.CASCADE),
         ),
         migrations.AddField(
             model_name='timetablesession',
             name='venue',
-            field=models.ForeignKey(to='timetable.Venue'),
+            field=models.ForeignKey(to='timetable.Venue', on_delete=models.CASCADE),
         ),
     ]

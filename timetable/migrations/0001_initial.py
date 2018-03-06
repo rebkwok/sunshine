@@ -51,7 +51,7 @@ class Migration(migrations.Migration):
                 ('duration', models.IntegerField(default=60, verbose_name=b'duration (mins)')),
                 ('spaces', models.BooleanField(default=True, verbose_name=b'spaces available')),
                 ('show_instructor', models.BooleanField(default=False, help_text=b'Tick this box to show a link to the instructor on the timetable pages (mostly for workshops and one-off classes where the instructor is not a regular instructor and will not appear on the instructor pages by default)', verbose_name=b'show instructor')),
-                ('instructor', models.ForeignKey(blank=True, to='timetable.Instructor', null=True)),
+                ('instructor', models.ForeignKey(blank=True, to='timetable.Instructor', null=True, on_delete=models.SET_NULL)),
             ],
         ),
         migrations.CreateModel(
@@ -76,31 +76,31 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='session',
             name='session_type',
-            field=models.ForeignKey(to='timetable.SessionType'),
+            field=models.ForeignKey(to='timetable.SessionType', on_delete=models.CASCADE),
         ),
         migrations.AddField(
             model_name='session',
             name='venue',
-            field=models.ForeignKey(to='timetable.Venue'),
+            field=models.ForeignKey(to='timetable.Venue', on_delete=models.CASCADE),
         ),
         migrations.AddField(
             model_name='fixedsession',
             name='instructor',
-            field=models.ForeignKey(blank=True, to='timetable.Instructor', null=True),
+            field=models.ForeignKey(blank=True, to='timetable.Instructor', null=True, on_delete=models.SET_NULL),
         ),
         migrations.AddField(
             model_name='fixedsession',
             name='session_type',
-            field=models.ForeignKey(to='timetable.SessionType'),
+            field=models.ForeignKey(to='timetable.SessionType', on_delete=models.CASCADE),
         ),
         migrations.AddField(
             model_name='fixedsession',
             name='venue',
-            field=models.ForeignKey(to='timetable.Venue'),
+            field=models.ForeignKey(to='timetable.Venue', on_delete=models.CASCADE),
         ),
         migrations.AddField(
             model_name='event',
             name='venue',
-            field=models.ForeignKey(blank=True, to='timetable.Venue', null=True),
+            field=models.ForeignKey(blank=True, to='timetable.Venue', null=True, on_delete=models.SET_NULL),
         ),
     ]

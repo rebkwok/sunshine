@@ -8,7 +8,7 @@ from django.conf import settings
 from django.contrib.admin.sites import AdminSite
 from django.contrib.auth.models import User
 from django.core import mail, management
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.test import override_settings, TestCase
 from django.utils import timezone
 

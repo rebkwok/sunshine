@@ -1,7 +1,11 @@
-from django.conf.urls import url
+from django.urls import path
 
 from timetable.views import TimetableListView
 
+
+app_name = 'timetable'
+
+
 urlpatterns = [
-    url(r'^$', TimetableListView.as_view(), name='timetable'),
+    path('', TimetableListView.as_view(), name='timetable'),
 ]

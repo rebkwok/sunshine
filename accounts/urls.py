@@ -1,8 +1,12 @@
-from django.conf.urls import url
+from django.urls import path
 from accounts.views import profile, ProfileUpdateView
 
+
+app_name = 'accounts'
+
+
 urlpatterns = [
-    url(r'^profile/$', profile, name='profile'),
-    url(r'^update/$', ProfileUpdateView.as_view(), name='update_profile'),
-    url(r'^$', profile)
+    path('profile/', profile, name='profile'),
+    path('update/', ProfileUpdateView.as_view(), name='update_profile'),
+    path('', profile)
     ]

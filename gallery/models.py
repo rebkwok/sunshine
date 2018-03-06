@@ -17,7 +17,9 @@ class Image(models.Model):
     photo = models.ImageField(
         upload_to='gallery', help_text="File size must be less than 2Mb"
     )
-    category = models.ForeignKey(Category, related_name='images')
+    category = models.ForeignKey(
+        Category, related_name='images', on_delete=models.CASCADE
+    )
     caption = models.CharField(max_length=255, null=True, blank=True)
 
     def __str__(self):

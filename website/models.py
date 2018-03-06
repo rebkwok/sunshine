@@ -26,7 +26,7 @@ class PastEvent(models.Model):
 
 
 class Achievement(models.Model):
-    event = models.ForeignKey(PastEvent)
+    event = models.ForeignKey(PastEvent, on_delete=models.CASCADE)
     category = models.CharField(
         verbose_name='Comp category/description', max_length=255, null=True,
         blank=True

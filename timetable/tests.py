@@ -2,7 +2,7 @@ import os
 from model_mommy import mommy
 
 from django.contrib.admin import AdminSite
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.test import override_settings, TestCase
 
 from timetable import admin

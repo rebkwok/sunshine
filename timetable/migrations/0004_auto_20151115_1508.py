@@ -19,6 +19,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='timetablesession',
             name='membership_level',
-            field=models.ForeignKey(null=True, verbose_name='Membership category', help_text='Specify type of class for membership purposes', to='timetable.MembershipClassLevel'),
+            field=models.ForeignKey(null=True, verbose_name='Membership category', help_text='Specify type of class for membership purposes', to='timetable.MembershipClassLevel', on_delete=models.SET_NULL),
         ),
     ]

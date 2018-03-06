@@ -8,7 +8,7 @@ from django.db import models
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
@@ -100,8 +100,12 @@ class Booking(models.Model):
     )
 
     booking_reference = models.CharField(max_length=22)
-    user = models.ForeignKey(User, related_name='bookings')
-    event = models.ForeignKey(Event, related_name='bookings')
+    user = models.ForeignKey(
+        User, related_name='bookings', on_delete=models.CASCADE
+    )
+    event = models.ForeignKey(
+        Event, related_name='bookings', on_delete=models.CASCADE
+    )
     paid = models.BooleanField(
         default=False,
         help_text='Payment has been made by user'
@@ -177,8 +181,12 @@ class WaitingListUser(models.Model):
     """
     A model to represent a single user on a waiting list for an event
     """
-    user = models.ForeignKey(User, related_name='waitinglists')
-    event = models.ForeignKey(Event, related_name='waitinglistusers')
+    user = models.ForeignKey(
+        User, related_name='waitinglists', on_delete=models.CASCADE
+    )
+    event = models.ForeignKey(
+        Event, related_name='waitinglistusers', on_delete=models.CASCADE
+    )
     # date user joined the waiting list
     date_joined = models.DateTimeField(default=timezone.now)
 

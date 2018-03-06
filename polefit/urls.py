@@ -1,4 +1,4 @@
-from django.conf.urls import include, url
+from django.urls import include, path
 
 from django.contrib import admin
 from django.conf import settings
@@ -8,28 +8,25 @@ from accounts.views import CustomLoginView, CustomSignUpView
 from booking.views import permission_denied
 
 urlpatterns = [
-    url(r'', include('website.urls', namespace='website')),
-    url(
-        r'^accounts/signup/$', CustomSignUpView.as_view(), name='account_signup'
+    path('', include('website.urls')),
+    path(
+        'accounts/signup/', CustomSignUpView.as_view(), name='account_signup'
     ),
-    url(
-        r'^accounts/login/$', CustomLoginView.as_view(), name='account_login'
+    path(
+        'accounts/login/', CustomLoginView.as_view(), name='account_login'
     ),
-    url(r'^accounts/', include('accounts.urls', namespace='accounts')),
-    url(r'^accounts/', include('allauth.urls')),
-    # url(r'^grappelli/', include('grappelli.urls')), # grappelli URLS
-    url(r'^pf_admin/',     include(admin.site.urls)),
-    url(r'^booking/', include('booking.urls', namespace='booking')),
-    url(r'^gallery/', include('gallery.urls', namespace='gallery')),
-    url(r'^timetable/', include('timetable.urls', namespace='timetable')),
-    url(r'^payments/ipn-paypal-notify/', include('paypal.standard.ipn.urls')),
-    url(r'payments/', include('payments.urls', namespace='payments')),
-    url(r'^not-available/$', permission_denied, name='permission_denied'),
+    path('accounts/', include('accounts.urls')),
+    path('accounts/', include('allauth.urls')),
+    path('pf_admin/', admin.site.urls),
+    path('booking/', include('booking.urls')),
+    path('gallery/', include('gallery.urls')),
+    path('timetable/', include('timetable.urls')),
+    path('payments/ipn-paypal-notify/', include('paypal.standard.ipn.urls')),
+    path('payments/', include('payments.urls')),
+    path('not-available/', permission_denied, name='permission_denied'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-
-
 
 
 if settings.DEBUG:  # pragma: no cover
     import debug_toolbar
-    urlpatterns.append(url(r'^__debug__/', include(debug_toolbar.urls)))
+    urlpatterns.append(path('__debug__/', include(debug_toolbar.urls)))

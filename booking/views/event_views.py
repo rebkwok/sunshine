@@ -31,7 +31,7 @@ class EventListView(ListView):
         # Call the base implementation first to get a context
         context = super(EventListView, self).get_context_data(**kwargs)
         context['section'] = 'events'
-        if not self.request.user.is_anonymous():
+        if not self.request.user.is_anonymous:
             # Add in the booked_events
             user_booked_events = Booking.objects.select_related()\
                 .filter(user=self.request.user, status='OPEN', no_show=False)\
@@ -79,7 +79,7 @@ class EventDetailView(DetailView):
             context['past'] = True
 
         # booked/cancelled flags
-        if not self.request.user.is_anonymous():
+        if not self.request.user.is_anonymous:
             booked = False
             cancelled = False
             try:
