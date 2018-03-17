@@ -11,7 +11,7 @@ app_name = 'website'
 urlpatterns = [
     path('about/', about, name='about'),
     path('classes/', classes, name='classes'),
-    path('(<int:session_pk>/book/', booking_request,
+    path('<int:session_pk>/book/', booking_request,
         name='booking_request'),
     path('instructors/', instructors, name='instructors'),
     path('venues/', venues, name='venues'),
