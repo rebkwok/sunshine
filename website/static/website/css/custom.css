@@ -63,10 +63,13 @@ body {
     position: relative;
 }
 
-.footer_fb {
-    position: absolute;
-    bottom:0;
-    left: 0;
+div.footer > div > div > div.col-sm-5.pull-left > div.footer-fb > a {
+    font-size: 10px;
+    color: black;
+}
+div.footer > div > div > div.col-sm-5.pull-left > div.footer-fb > a > span {
+    font-size: medium;
+    color: #3b5998;
 }
 
 .footer_logo {
