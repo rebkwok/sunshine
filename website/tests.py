@@ -238,7 +238,8 @@ class ContactFormTests(TestCase):
             'last_name': 'Duck',
             'email_address': 'dd@test.com',
             'message': 'Test message',
-            'cc': True
+            'cc': True,
+            'data_privacy_accepted': True,
         }
 
         resp = self.client.post(self.url, data)
@@ -255,7 +256,8 @@ class ContactFormTests(TestCase):
             'last_name': 'Duck',
             'email_address': 'dd@test.com',
             'message': '',
-            'cc': True
+            'cc': True,
+            'data_privacy_accepted': True,
         }
 
         resp = self.client.post(self.url, data)
@@ -275,7 +277,8 @@ class ContactFormTests(TestCase):
             'last_name': 'Duck',
             'email_address': 'dd@test.com',
             'message': 'Msg',
-            'cc': True
+            'cc': True,
+            'data_privacy_accepted': True,
         }
 
         resp = self.client.post(self.url, data, follow=True)
@@ -354,7 +357,8 @@ class BookingRequestTests(TestCase):
             'email_address': 'dd@test.com',
             'additional_msg': 'Test message',
             'cc': True,
-            'date': next_date.strftime('%a %d %b %y')
+            'date': next_date.strftime('%a %d %b %y'),
+            'data_privacy_accepted': True,
         }
 
         resp = self.client.post(self.url, data)
@@ -390,7 +394,8 @@ class BookingRequestTests(TestCase):
             'email_address': 'dd@test.com',
             'additional_msg': '',
             'cc': True,
-            'date': next_date.strftime('%a %d %b %y')
+            'date': next_date.strftime('%a %d %b %y'),
+            'data_privacy_accepted': True,
         }
 
         resp = self.client.post(self.url, data)
@@ -425,7 +430,8 @@ class BookingRequestTests(TestCase):
             'email_address': 'dd@test.com',
             'additional_msg': 'Test message',
             'cc': True,
-            'date': next_date.strftime('%a %d %b %y')
+            'date': next_date.strftime('%a %d %b %y'),
+            'data_privacy_accepted': True,
         }
 
         resp = self.client.post(self.url, data, follow=True)

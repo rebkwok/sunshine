@@ -1,17 +1,36 @@
 # -*- coding: utf-8 -*-
 
+from decimal import Decimal
 from model_mommy import mommy
 
+from django.core.cache import cache
+from django.core.exceptions import ValidationError
 from django.test import TestCase, override_settings
 from django.contrib.auth.models import User, Group
 from django.urls import reverse
 
 from allauth.account.models import EmailAddress
 
-from accounts.forms import SignupForm
-from accounts.views import ProfileUpdateView, profile
+from .forms import SignupForm
+from .models import DataPrivacyPolicy, SignedDataPrivacy
+from .utils import active_data_privacy_cache_key, \
+    has_active_data_privacy_agreement
+from .views import ProfileUpdateView, profile
 
 from booking.tests.helpers import TestSetupMixin
+
+
+def make_data_privacy_agreement(user):
+    if not has_active_data_privacy_agreement(user):
+        if DataPrivacyPolicy.current_version() == 0:
+            mommy.make(
+                DataPrivacyPolicy, data_privacy_content='Foo',
+                cookie_content='Bar'
+            )
+        mommy.make(
+            SignedDataPrivacy, user=user,
+            version=DataPrivacyPolicy.current_version()
+        )
 
 
 class SignUpFormTests(TestSetupMixin, TestCase):
@@ -57,6 +76,33 @@ class SignUpFormTests(TestSetupMixin, TestCase):
         user = User.objects.latest('id')
         self.assertEquals('New', user.first_name)
         self.assertEquals('Name', user.last_name)
+
+    def test_signup_dataprotection_confirmation_required(self):
+        mommy.make(DataPrivacyPolicy)
+        self.form_data.update({
+            'first_name': 'Test',
+            'last_name': 'User',
+            'data_privacy_confirmation': False
+        })
+        form = SignupForm(data=self.form_data)
+        self.assertFalse(form.is_valid())
+
+    def test_sign_up_with_data_protection(self):
+        dp = mommy.make(DataPrivacyPolicy)
+        self.assertFalse(SignedDataPrivacy.objects.exists())
+        self.form_data.update(
+            {
+                'first_name': 'New',
+                'last_name': 'Name',
+                'data_privacy_confirmation': True
+            }
+        )
+        self.client.post(self.url, self.form_data)
+        user = User.objects.latest('id')
+        self.assertEquals('New', user.first_name)
+        self.assertEquals('Name', user.last_name)
+        self.assertTrue(SignedDataPrivacy.objects.exists())
+        self.assertEqual(user.data_privacy_agreement.first().version, dp.version)
 
 
 class ProfileUpdateViewTests(TestSetupMixin, TestCase):
@@ -137,3 +183,87 @@ class CustomLoginViewTests(TestSetupMixin, TestCase):
 
         self.assertEqual(resp.status_code, 302)
         self.assertIn(reverse('accounts:profile'), resp.url)
+
+
+class DataPrivacyViewTests(TestSetupMixin, TestCase):
+
+    def test_get_data_privacy_view(self):
+        # no need to be a logged in user to access
+        resp = self.client.get(reverse('data_privacy_policy'))
+        self.assertEqual(resp.status_code, 200)
+
+
+class DataPrivacyPolicyModelTests(TestCase):
+
+    def test_no_policy_version(self):
+        self.assertEqual(DataPrivacyPolicy.current_version(), 0)
+
+    def test_policy_versioning(self):
+        self.assertEqual(DataPrivacyPolicy.current_version(), 0)
+        DataPrivacyPolicy.objects.create(
+            data_privacy_content='Foo', cookie_content='Bar'
+        )
+
+        self.assertEqual(DataPrivacyPolicy.current_version(), Decimal('1.0'))
+        DataPrivacyPolicy.objects.create(
+            data_privacy_content='Foo', cookie_content='Bar1'
+        )
+        self.assertEqual(DataPrivacyPolicy.current_version(), Decimal('2.0'))
+
+        DataPrivacyPolicy.objects.create(
+            data_privacy_content='Foo', cookie_content='Bar2', version=Decimal('2.6')
+        )
+        self.assertEqual(DataPrivacyPolicy.current_version(), Decimal('2.6'))
+
+        DataPrivacyPolicy.objects.create(
+            data_privacy_content='Foo', cookie_content='Bar3'
+        )
+        self.assertEqual(DataPrivacyPolicy.current_version(), Decimal('3.0'))
+
+    def test_cannot_make_new_version_with_same_content(self):
+        DataPrivacyPolicy.objects.create(
+            data_privacy_content='Foo', cookie_content='Bar'
+        )
+        self.assertEqual(DataPrivacyPolicy.current_version(), Decimal('1.0'))
+        with self.assertRaises(ValidationError):
+            DataPrivacyPolicy.objects.create(
+                data_privacy_content='Foo', cookie_content='Bar'
+            )
+
+    def test_policy_str(self):
+        dp = DataPrivacyPolicy.objects.create(
+            data_privacy_content='Foo', cookie_content='Bar'
+        )
+        self.assertEqual(
+            str(dp), 'Version {}'.format(dp.version)
+        )
+
+
+class SignedDataPrivacyModelTests(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        DataPrivacyPolicy.objects.create(
+            data_privacy_content='Foo', cookie_content='Bar'
+        )
+
+    def setUp(self):
+        self.user = mommy.make_recipe('booking.user')
+
+    def test_cached_on_save(self):
+        make_data_privacy_agreement(self.user)
+        self.assertTrue(cache.get(active_data_privacy_cache_key(self.user)))
+
+        cache.clear()
+        DataPrivacyPolicy.objects.create(
+            data_privacy_content='New Foo', cookie_content='Bar'
+        )
+        self.assertFalse(has_active_data_privacy_agreement(self.user))
+
+    def test_delete(self):
+        make_data_privacy_agreement(self.user)
+        self.assertTrue(cache.get(active_data_privacy_cache_key(self.user)))
+
+        SignedDataPrivacy.objects.get(user=self.user).delete()
+        self.assertIsNone(cache.get(active_data_privacy_cache_key(self.user)))
+
