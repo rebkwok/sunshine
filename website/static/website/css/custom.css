@@ -806,3 +806,48 @@ button:active {
     margin-left: auto;
     margin-right: auto;
 }
+
+/*Cookie law banner*/
+div#CookielawBanner {
+  background-color: rgba(255, 0, 0, 0.1);
+  padding: 5px;
+  font-size: smaller;
+  border: solid 1px rgba(255, 0, 0, 0.5);
+  margin: 5px;
+}
+
+
+.dp-box {
+    border: 1px solid black !important;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    padding-left: 10px;
+    padding-right: 10px;
+    background-color: rgba(255, 255, 255, 0.5);
+}
+
+form.mock-bs-form > div.form-actions > div > input,
+form.mock-bs-form > p > input[type='text'],
+  form.mock-bs-form > p > input[type='password'] {
+  display: block;
+  width: 75%;
+  border: 1px solid #ccc;
+  color: #555;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+  box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+  border-radius: 4px;
+  -webkit-transition: border-color ease-in-out .15s,-webkit-box-shadow ease-in-out .15s;
+  -o-transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
+  transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
+  height: 30px;
+  line-height: 30px;
+  padding: 5px 10px;
+}
+
+@media(max-width: 767px) {
+  form.mock-bs-form > div.form-actions > div > input,
+  form.mock-bs-form > p > input[type='text'],
+  form.mock-bs-form > p > input[type='password'] {
+     width: 100%;
+  }
+}

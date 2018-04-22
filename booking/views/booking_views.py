@@ -1,12 +1,5 @@
 # -*- coding: utf-8 -*-
 import logging
-import pytz
-
-from decimal import Decimal
-
-from datetime import timedelta
-
-from operator import itemgetter
 
 from django.conf import settings
 from django.contrib import messages
@@ -19,9 +12,6 @@ from django.views.generic import (
 )
 from django.utils import timezone
 from django.utils.safestring import mark_safe
-from django.core.mail import send_mail
-from django.template.loader import get_template
-from django.template.response import TemplateResponse
 from braces.views import LoginRequiredMixin
 
 from payments.forms import PayPalPaymentsListForm, PayPalPaymentsUpdateForm
@@ -29,8 +19,8 @@ from payments.models import PaypalBookingTransaction
 
 from booking.models import Booking, Event, WaitingListUser
 from booking.forms import BookingCreateForm
-from booking.email_helpers import send_email, send_support_email, \
-    send_waiting_list_email
+from booking.email_helpers import send_email, send_waiting_list_email
+from .views_utils import DataPolicyAgreementRequiredMixin
 
 from payments.models import create_paypal_transaction
 from activitylog.models import ActivityLog
@@ -58,7 +48,7 @@ def get_paypal_dict(
     return paypal_dict
 
 
-class BookingListView(LoginRequiredMixin, ListView):
+class BookingListView(DataPolicyAgreementRequiredMixin, LoginRequiredMixin, ListView):
 
     model = Booking
     context_object_name = 'bookings'
@@ -117,7 +107,7 @@ class BookingListView(LoginRequiredMixin, ListView):
         return context
 
 
-class BookingHistoryListView(LoginRequiredMixin, ListView):
+class BookingHistoryListView(DataPolicyAgreementRequiredMixin, LoginRequiredMixin, ListView):
 
     model = Booking
     context_object_name = 'bookings'
@@ -148,7 +138,7 @@ class BookingHistoryListView(LoginRequiredMixin, ListView):
         return context
 
 
-class BookingCreateView(LoginRequiredMixin, CreateView):
+class BookingCreateView(DataPolicyAgreementRequiredMixin, LoginRequiredMixin, CreateView):
 
     model = Booking
     template_name = 'booking/create_booking.html'
@@ -420,7 +410,7 @@ class BookingCreateView(LoginRequiredMixin, CreateView):
         return HttpResponseRedirect(reverse('booking:bookings'))
 
 
-class BookingUpdateView(LoginRequiredMixin, UpdateView):
+class BookingUpdateView(DataPolicyAgreementRequiredMixin, LoginRequiredMixin, UpdateView):
     model = Booking
     template_name = 'booking/update_booking.html'
     success_message = 'Booking updated for {}!'

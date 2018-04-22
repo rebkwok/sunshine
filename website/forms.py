@@ -2,6 +2,7 @@ import datetime
 import pytz
 from django import forms
 from django.utils import timezone
+from django.utils.html import mark_safe
 
 
 DAYS = {
@@ -90,6 +91,19 @@ class ContactForm(forms.Form):
                                      'rows': 10}),
         label='Message',
         required=True)
+
+    data_privacy_accepted = forms.BooleanField(
+        widget=forms.CheckboxInput(attrs={
+            'class': "regular-checkbox",
+            'id': 'data_privacy_accepted_id'
+        }),
+        label=mark_safe(
+            "I confirm I have reviewed and accept the terms of the "
+            "<a href='/data-privacy-policy'>data privacy policy</a>"
+        ),
+        initial=False,
+        required=True
+    )
 
 
 class BookingRequestForm(ContactForm):

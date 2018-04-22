@@ -1,0 +1,24 @@
+{% extends "website/_base.html" %}
+{% load static %}
+
+{% block content %}
+
+<div>
+
+    <h1>Cookie Policy</h1>
+    <h4>Version: {{ data_privacy_policy.version }}.  Issue date: {{ data_privacy_policy.issue_date | date:'d M Y' }}.</h4>
+
+    <p>
+        {{ data_privacy_policy.cookie_content | safe }}
+    </p>
+
+
+    <p>For further information, please contact
+        <a href="mailto:carouselfitness@gmail.com">carouselfitness@gmail.com</a>.</p>
+
+    <p>View our full data privacy policy <a href="{% url 'data_privacy_policy' %}">here.</a></p>
+
+
+</div>
+
+{% endblock content %}
