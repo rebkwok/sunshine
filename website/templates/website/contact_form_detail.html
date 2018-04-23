@@ -11,11 +11,15 @@
                 <div class="col-sm-9 cbox">
                         {{ field }}<label for='{{ field.name }}_id'></label><span class="help-text">  {{ field.help_text }}</span>
                 </div>
+                {% if field.errors %}<div class="col-sm-9 col-sm-offset-3 help-text" style="color: red;">{% for err in field.errors %}{{ err }}{% endfor %}</div>{% endif %}
+
             </div>
                 {% else %}
                 <div class="form-group">
                     <label class="control-label col-sm-3">{% if field.field.required %}<span class="required">*{{ field.label }}</span>{% else %}{{ field.label }}{% endif %}</label>
                     <div class="col-sm-9">{{ field }}<p class="help-text">{{ field.help_text }}</p></div>
+                    {% if field.errors %}<div class="col-sm-9 col-sm-offset-3 help-text" style="color: red;">{% for err in field.errors %}{{ err }}{% endfor %}</div>{% endif %}
+
                 </div>
                 {% endif %}
             {% endfor %}

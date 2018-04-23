@@ -188,11 +188,14 @@ class ContactFormTests(TestCase):
         self.assertEqual(
             resp.context['form'].initial['email_address'], ''
         )
-
+        self.assertFalse(
+            resp.context['form'].initial['data_privacy_accepted']
+        )
         sess = self.client.session
         sess['first_name'] = 'Donald'
         sess['last_name'] = "Duck"
         sess['email_address'] = 'dd@test.com'
+        sess['data_privacy_accepted'] = True
         sess.save()
 
         resp = self.client.get(
@@ -211,6 +214,9 @@ class ContactFormTests(TestCase):
         )
         self.assertEqual(
             resp.context['form'].initial['email_address'], 'dd@test.com'
+        )
+        self.assertTrue(
+            resp.context['form'].initial['data_privacy_accepted']
         )
 
     def test_get_contact_page(self):
@@ -318,11 +324,14 @@ class BookingRequestTests(TestCase):
         self.assertEqual(
             resp.context['form'].initial['email_address'], ''
         )
-
+        self.assertFalse(
+            resp.context['form'].initial['data_privacy_accepted']
+        )
         sess = self.client.session
         sess['first_name'] = 'Donald'
         sess['last_name'] = "Duck"
         sess['email_address'] = 'dd@test.com'
+        sess['data_privacy_accepted'] = True
         sess.save()
 
         resp = self.client.get(self.url)
@@ -336,6 +345,9 @@ class BookingRequestTests(TestCase):
         )
         self.assertEqual(
             resp.context['form'].initial['email_address'], 'dd@test.com'
+        )
+        self.assertTrue(
+            resp.context['form'].initial['data_privacy_accepted']
         )
 
     @patch('website.forms.timezone')

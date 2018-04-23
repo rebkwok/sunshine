@@ -101,9 +101,21 @@ class ContactForm(forms.Form):
             "I confirm I have reviewed and accept the terms of the "
             "<a href='/data-privacy-policy'>data privacy policy</a>"
         ),
-        initial=False,
-        required=True
+        required=False
     )
+
+    def clean_data_privacy_accepted(self):
+        # We hide the checkbox in order to style it, so we need to validate
+        # on the backend instead of relying on the browser to do it
+        accepted = self.cleaned_data.get('data_privacy_accepted', False)
+        if not accepted:
+            self.add_error(
+                'data_privacy_accepted',
+                'Please confirm you accept the terms of the data privacy '
+                'agreement before submitting your request'
+            )
+        else:
+            return accepted
 
 
 class BookingRequestForm(ContactForm):

@@ -101,26 +101,32 @@ def booking_request(
             request.session['first_name'] = first_name
             request.session['last_name'] = last_name
             request.session['email_address'] = email_address
+            # required field, so must be True if form valid
+            request.session['data_privacy_accepted'] = True
 
             return HttpResponseRedirect(reverse('timetable:timetable'))
 
         else:
-            messages.error(
-                request,
-                mark_safe(
-                    "There were errors in the following "
-                    "fields: {}".format(form.errors)
+            if form.non_field_errors():
+                messages.error(
+                    request,
+                    mark_safe("There were errors in the following "
+                              "fields: {}".format(form.non_field_errors())
+                              )
                 )
-            )
+            else:
+                messages.error(request, 'Please correct the errors below')
 
     else:
         first_name = request.session.get('first_name', '')
         last_name = request.session.get('last_name', '')
         email_address = request.session.get('email_address', '')
+        data_privacy_accepted = request.session.get('data_privacy_accepted', False)
 
         form = BookingRequestForm(initial={
             'first_name': first_name, 'last_name': last_name,
-            'email_address': email_address
+            'email_address': email_address,
+            'data_privacy_accepted': data_privacy_accepted
         }, session=tt_session)
 
     return render(
@@ -170,6 +176,8 @@ def process_contact_form(request, template_name):
         request.session['first_name'] = first_name
         request.session['last_name'] = last_name
         request.session['email_address'] = email_address
+        # required field, so must be True if form valid
+        request.session['data_privacy_accepted'] = True
 
         return_url = request.session.get(
             'return_url', reverse('website:contact')
@@ -177,12 +185,15 @@ def process_contact_form(request, template_name):
         return HttpResponseRedirect(return_url)
 
     else:
-        messages.error(
-            request,
-            mark_safe("There were errors in the following "
-                      "fields: {}".format(form.errors)
-                      )
-        )
+        if form.non_field_errors():
+            messages.error(
+                request,
+                mark_safe("There were errors in the following "
+                          "fields: {}".format(form.non_field_errors())
+                          )
+            )
+        else:
+            messages.error(request, 'Please correct the errors below')
         return render(
             request, template_name, {'section': 'contact', 'form': form}
         )
@@ -195,6 +206,7 @@ def get_initial_contact_form(request):
     first_name = request.session.get('first_name', '')
     last_name = request.session.get('last_name', '')
     email_address = request.session.get('email_address', '')
+    data_privacy_accepted = request.session.get('data_privacy_accepted', False)
 
     page = request.session['return_url'].split('/')[-2]
 
@@ -207,6 +219,7 @@ def get_initial_contact_form(request):
     return ContactForm(initial={
         'first_name': first_name, 'last_name': last_name,
         'email_address': email_address,
+        'data_privacy_accepted': data_privacy_accepted,
         'subject': subjects.get(page, 'General Enquiry')
     })
 
