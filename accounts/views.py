@@ -8,7 +8,7 @@ from allauth.account.views import LoginView, SignupView
 from braces.views import LoginRequiredMixin
 
 from .forms import DataPrivacyAgreementForm, ProfileForm
-from .models import DataPrivacyPolicy, SignedDataPrivacy
+from .models import CookiePolicy, DataPrivacyPolicy, SignedDataPrivacy
 from .utils import has_active_data_privacy_agreement
 
 
@@ -110,12 +110,13 @@ class SignedDataPrivacyCreateView(LoginRequiredMixin, FormView):
 def data_privacy_policy(request):
     return render(
         request, 'accounts/data_privacy_policy.html',
-        {'data_privacy_policy': DataPrivacyPolicy.current()}
+        {'data_privacy_policy': DataPrivacyPolicy.current(),
+         'cookie_policy': CookiePolicy.current()}
     )
 
 
 def cookie_policy(request):
     return render(
         request, 'accounts/cookie_policy.html',
-        {'data_privacy_policy': DataPrivacyPolicy.current()}
+        {'cookie_policy': CookiePolicy.current()}
     )
