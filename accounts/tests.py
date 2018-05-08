@@ -182,11 +182,19 @@ class CustomLoginViewTests(TestSetupMixin, TestCase):
         self.assertIn(reverse('accounts:profile'), resp.url)
 
 
-class DataPrivacyViewTests(TestSetupMixin, TestCase):
+class DataPrivacyViewTests(TestCase):
 
     def test_get_data_privacy_view(self):
         # no need to be a logged in user to access
         resp = self.client.get(reverse('data_privacy_policy'))
+        self.assertEqual(resp.status_code, 200)
+
+
+class CookiePolicyViewTests(TestCase):
+
+    def test_get_cookie_view(self):
+        # no need to be a logged in user to access
+        resp = self.client.get(reverse('cookie_policy'))
         self.assertEqual(resp.status_code, 200)
 
 
