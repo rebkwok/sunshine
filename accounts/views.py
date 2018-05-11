@@ -71,7 +71,7 @@ class SignedDataPrivacyCreateView(LoginRequiredMixin, FormView):
     def dispatch(self, *args, **kwargs):
         if has_active_data_privacy_agreement(self.request.user):
             return HttpResponseRedirect(
-                self.request.GET.get('next', reverse('booking:events'))
+                self.request.GET.get('next', reverse('accounts:profile'))
             )
         return super().dispatch(*args, **kwargs)
 

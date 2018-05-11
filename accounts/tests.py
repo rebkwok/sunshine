@@ -11,7 +11,7 @@ from django.urls import reverse
 
 from allauth.account.models import EmailAddress
 
-from .forms import SignupForm
+from .forms import DataPrivacyAgreementForm, SignupForm
 from .models import CookiePolicy, DataPrivacyPolicy, SignedDataPrivacy
 from .utils import active_data_privacy_cache_key, \
     has_active_data_privacy_agreement
@@ -283,3 +283,56 @@ class SignedDataPrivacyModelTests(TestCase):
         SignedDataPrivacy.objects.get(user=self.user).delete()
         self.assertIsNone(cache.get(active_data_privacy_cache_key(self.user)))
 
+
+class DataPrivacyAgreementFormTests(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = mommy.make(User)
+        mommy.make(DataPrivacyPolicy)
+
+    def test_confirm_required(self):
+        form = DataPrivacyAgreementForm(next_url='/')
+        self.assertFalse(form.is_valid())
+
+        form = DataPrivacyAgreementForm(next_url='/', data={'confirm': True})
+        self.assertTrue(form.is_valid())
+
+
+class SignedDataPrivacyCreateViewTests(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.url = reverse('accounts:data_privacy_review')
+        cls.data_privacy_policy = mommy.make(DataPrivacyPolicy, version=None)
+        cls.user = User.objects.create_user(
+            username='test', email='test@test.com', password='test'
+        )
+        make_data_privacy_agreement(cls.user)
+
+    def setUp(self):
+        super(SignedDataPrivacyCreateViewTests, self).setUp()
+        self.client.login(username=self.user.username, password='test')
+
+    def test_user_already_has_active_signed_agreement(self):
+        # dp agreement is created in setup
+        self.assertTrue(has_active_data_privacy_agreement(self.user))
+        resp = self.client.get(self.url)
+        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(resp.url, reverse('accounts:profile'))
+
+        # make new policy
+        cache.clear()
+        mommy.make(DataPrivacyPolicy, version=None)
+        self.assertFalse(has_active_data_privacy_agreement(self.user))
+        resp = self.client.get(self.url)
+        self.assertEqual(resp.status_code, 200)
+
+    def test_create_new_agreement(self):
+        # make new policy
+        cache.clear()
+        mommy.make(DataPrivacyPolicy, version=None)
+        self.assertFalse(has_active_data_privacy_agreement(self.user))
+
+        self.client.post(self.url, data={'confirm': True})
+        self.assertTrue(has_active_data_privacy_agreement(self.user))
