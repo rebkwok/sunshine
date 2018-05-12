@@ -137,6 +137,12 @@ class ProfileTests(TestSetupMixin, TestCase):
         resp = self._get_response(self.user)
         self.assertEquals(resp.status_code, 200)
 
+    def test_profile_requires_signed_data_privacy(self):
+        mommy.make(DataPrivacyPolicy)
+        resp = self._get_response(self.user)
+        self.assertEqual(resp.status_code, 302)
+        self.assertIn(reverse('accounts:data_privacy_review'), resp.url)
+
 
 class CustomLoginViewTests(TestSetupMixin, TestCase):
 
