@@ -324,6 +324,7 @@ SUIT_CONFIG = {
                 'auth.user',
                 {'model': 'account.emailaddress'},
                 {'model': 'account.emailconfirmation'},
+                {'model': 'accounts.cookiepolicy'},
                 {'model': 'accounts.dataprivacypolicy'},
                 {'model': 'accounts.signeddataprivacy'},
             ),
