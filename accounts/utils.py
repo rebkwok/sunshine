@@ -4,7 +4,11 @@ from django.core.cache import cache
 
 
 def active_data_privacy_cache_key(user):
-    return 'user_{}_active_data_privacy_agreement'.format(user.id)
+    from accounts.models import DataPrivacyPolicy
+    current_version = DataPrivacyPolicy.current_version()
+    return 'user_{}_active_data_privacy_agreement_version_{}'.format(
+        user.id, current_version
+    )
 
 
 def has_active_data_privacy_agreement(user):
