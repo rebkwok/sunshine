@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
-    help = 'Cancel unpaid bookings 6 hrs after booked/rebooked'
+    help = 'Cancel unpaid bookings (workshops only) 6 hrs after booked/rebooked'
 
     def handle(self, *args, **options):
         # delete old nothing-to-cancel logs
@@ -33,6 +33,7 @@ class Command(BaseCommand):
         bookings = []
         for booking in Booking.objects.filter(
             event__date__gte=timezone.now(),
+            event__event_type='workshop',
             status='OPEN',
             paid=False,
             date_booked__lte=timezone.now() - timedelta(hours=24)

@@ -17,6 +17,7 @@ class CancelUnpaidBookingsTests(TestCase):
     def setUp(self):
         self.event = mommy.make_recipe(
             'booking.future_EV',
+            event_type='workshop',
             date=datetime(2015, 2, 13, 18, 0, tzinfo=timezone.utc),
             cost=10,
             cancellation_period=1
@@ -114,6 +115,41 @@ class CancelUnpaidBookingsTests(TestCase):
         self.assertEquals(
             unpaid_booking.status, 'CANCELLED', unpaid_booking.status
         )
+
+
+    @patch('booking.management.commands.cancel_unpaid_bookings.timezone')
+    def test_dont_cancel_non_workshops(self, mock_tz):
+        """
+        ignore already cancelled bookings
+        """
+        mock_tz.now.return_value = datetime(
+            2015, 2, 10, 19, 0, tzinfo=timezone.utc
+        )
+
+        regular_session = mommy.make_recipe(
+            'booking.future_EV',
+            event_type='regular_session',
+            date=datetime(2015, 2, 13, 18, 0, tzinfo=timezone.utc),
+            cost=10,
+            cancellation_period=1
+        )
+        unpaid_class_booking = mommy.make_recipe(
+            'booking.booking', event=regular_session, paid=False,
+            status='OPEN',
+            user__email="unpaid@test.com",
+            date_booked=datetime(
+                2015, 2, 9, 1, 0, tzinfo=timezone.utc
+            ),
+        )
+
+        management.call_command('cancel_unpaid_bookings')
+        # emails are sent to user per cancelled booking - only self.unpaid
+        self.unpaid.refresh_from_db()
+        unpaid_class_booking.refresh_from_db()
+
+        self.assertEquals(len(mail.outbox), 1)
+        self.assertEquals(self.unpaid.status, 'CANCELLED')
+        self.assertEquals(unpaid_class_booking.status, 'OPEN')
 
     @patch('booking.management.commands.cancel_unpaid_bookings.timezone')
     def test_dont_cancel_bookings_created_within_past_24_hours(self, mock_tz):
