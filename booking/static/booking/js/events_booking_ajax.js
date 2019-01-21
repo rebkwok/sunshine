@@ -85,6 +85,7 @@ var toggleBooking = function()  {
       //console.log("sf result='" + result + "', status='" + status + "', jqXHR='" + jqXHR + "'");
       //  console.log(result);
         $jq('#booked-' + event_id + '-' + 'status').html(result.display_status);
+        $jq('#booked-' + event_id + '-' + 'paid').html(result.display_paid);
         if (result.status === 'OPEN' && result.no_show === false) {
             $jq('#booked-' + event_id + '-' + 'row').removeClass('expired');
         }

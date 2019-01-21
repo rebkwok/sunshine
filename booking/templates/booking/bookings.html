@@ -31,13 +31,14 @@
                             {% endif %}
                             <th>Date</th>
                             <th>Booking</th>
-                            <th>Status</th>
+                            <th class="table-center">Status</th>
+                            <th class="table-center">Paid</th>
                         </tr>
                         {% for bookingform in bookingformlist.regular_session %}
 
                             <tr id='booked-{{ bookingform.booking.event.id }}-row' {% if bookingform.booking_status == 'CANCELLED' %}class='expired'{% endif %}>
                                 {% if not history %}
-                                    <td>
+                                    <td class="table-center">
                                     {% if bookingform.booking.event.cancelled %}CLASS CANCELLED
                                     {% elif bookingform.booking.event.bookable %}
                                         <span
@@ -62,8 +63,10 @@
 
                                 <td>{{ bookingform.booking.event.date |  date:"D d M H:i" }}</td>
                                 <td>{{ bookingform.booking.event.name }}</td>
-                                <td><span id="booked-{{ bookingform.booking.event.id }}-status">{{ bookingform.booking_status }}</span></td>
-
+                                <td class="table-center"><span id="booked-{{ bookingform.booking.event.id }}-status">{{ bookingform.booking_status }}</span></td>
+                                <td class="table-center"><span id="booked-{{ bookingform.booking.event.id }}-paid">
+                                    {% if bookingform.booking.paid %}<span class="fas fa-check"></span>{% else %}<span class="fas fa-times"></span>{% endif %}
+                                </span></td>
                             </tr>
 
                         {% endfor %}

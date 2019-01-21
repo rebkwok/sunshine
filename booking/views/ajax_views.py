@@ -219,7 +219,9 @@ def booking_details(request, event_id):
         {
             'display_status': display_status,
             'status': booking.status,
-            'no_show': booking.no_show
+            'no_show': booking.no_show,
+            'display_paid': '<span class="fas fa-check"></span>' if booking.paid
+            else '<span class="fas fa-times"></span>'
         }
     )
 
