@@ -1,0 +1,125 @@
+{% extends "website/_base.html" %}
+{% load static %}
+{% load bookingtags %}
+
+{% block extrahead %}
+<link rel="stylesheet" href="{% static 'booking/vanilla-notify.css' %}">
+<script type='text/javascript' src="{% static 'booking/vanilla-notify.min.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid">
+
+        <h1 class="page-header">Book Classes</h1>
+        {% if day and time %}
+            <h3>
+                Showing classes for {{ name }} - {{ day }} {{ time }} at {{ venue }}<br/>
+            </h3>
+            <a class="btn btn-info table-btn" href="{% url 'booking:events' %}">Show all classes</a>
+            <br/><br/>
+        {% endif %}
+
+
+        {% if workshops_available_to_book %}
+        <p><a href="{% url 'booking:events' %}?type=workshop">Show Workshops</a></p>
+        {% endif %}
+        {% if events %}
+
+    {% if not day or not time %}
+        <form class="filter-row" action="" method="get">
+                <div class="row">
+                    <div class="col-sm-2">
+                        <strong>Show classes by: </strong>
+                    </div>
+                    <div class="col-sm-2 filter">{{ form.name }}</div>
+                    <div class="col-sm-2 filter">{{ form.venue }}</div>
+                    <div class="col-sm-1"><input class="btn btn-info table-btn" type="submit" value="Go" /></div>
+                </div>
+            </form>
+            </br>
+    {% endif %}
+
+        <div class="row">
+            <div class="col-sm-12">
+                {% if not user.is_authenticated %}
+                    <p><a href="{% url 'account_login' %}?next={{request.get_full_path}}">Log in</a> to book</p>
+                {% endif %}
+
+                <div class="panel panel-transparent">
+
+                    <div class="table-responsive">
+                        <table class="table table-book-classes">
+                            <tr class="panel-heading">
+                                {% if user.is_authenticated %}
+                                    <th class="table-center"></th>
+                                {% endif %}
+                                <th>Date</th>
+                                <th>Class</th>
+                                <th>Venue</th>
+                                <th class="table-center">Spaces</th>
+                            </tr>
+                            <tbody>
+                            {% for event in events %}
+                                {% get_booking event user as booking %}
+
+                                <tr id="table-row-event-{{ event.id }}" class="table-row-transparent {% if event.id in booked_events %}table-row-booked{% endif %}">
+                                    {% if user.is_authenticated %}
+                                        {% if event.id in staff_only_events %}
+                                            <td class="table-center">VISIBLE TO STAFF ONLY</td>
+                                        {% else %}
+                                            <td class="table-center">
+                                                {% if event.bookable or event.id in booked_events %}
+                                                    <span
+                                                        id="book_{{ event.id }}"
+                                                        data-event_id="{{ event.id }}"
+                                                        data-ref="events"
+                                                        class="td_ajax_book_btn">
+                                                    {% include "booking/includes/book_button_toggle.html" %}
+                                                    </span>
+                                                {% else %}
+                                                    <span
+                                                        id="waiting_list_button_{{ event.id }}"
+                                                        data-event_id="{{ event.id }}"
+                                                        class="td_ajax_waiting_list_btn">
+                                                    {% include "booking/includes/waiting_list_toggle.html" %}
+                                                    </span>
+
+                                                {% endif %}
+                                            </td>
+                                        {% endif %}
+                                    {% endif %}
+                                    <td>{{ event.date | date:"D d M H:i" }}</td>
+                                    <td>{{ event.name }}</td>
+                                    <td>{{ event.venue.abbreviation }}</td>
+                                    <td class="table-center">
+                                        {% if event.max_participants %}
+                                            <span id="booking_count_{{ event.id }}"
+                                                class="label label-spaces {% if event.spaces_left == 0 %}label-default{% else %}label-success{% endif%} label-rounded">
+                                                {{ event.spaces_left }}/{{ event.max_participants }}
+                                            </span>
+                                        {% else %}N/A{% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+         </div>
+        {% else %}
+            <p>There are currently no classes available to book.</p>
+        {% endif %}
+
+    </div>
+
+{% endblock content %}
+
+
+{% block extrascripts %}
+<script type='text/javascript' src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
+<script type='text/javascript' src="{% static 'booking/js/events_booking_ajax.js' %}"></script>
+<script type='text/javascript' src="{% static 'booking/js/toggle_waiting_list_ajax.js' %}"></script>
+
+{% endblock %}

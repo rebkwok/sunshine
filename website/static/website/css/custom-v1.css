@@ -412,6 +412,19 @@ td.timetable-row {
     white-space: nowrap;
 }
 
+.label.label-rounded.label-spaces {
+    display: block;
+    border-radius: 25px;
+    width: 58px;
+    padding-top: 4px;
+    padding-bottom: 4px;
+}
+
+td span.label.label-rounded.label-spaces{
+    display:inline-block;
+    text-align:center;
+}
+
 .label.label-rounded {
     display: block;
     border-radius: 25px;
@@ -717,6 +730,11 @@ td.timetable-row.session-level-td {
     max-width: 200px;
 }
 
+
+.table.table-book-classes >  tbody > tr > td {
+  padding: 2px;
+}
+
 .wl-table-form {
 	margin: 0;
 }
@@ -861,3 +879,12 @@ form.mock-bs-form > p > input[type='text'],
   }
 }
 
+.expired td, .expired td a, .expired td .confirmed, .expired td .not-confirmed ,
+.expired .input-sm {
+    color: #BDBDBD !important;
+}
+
+.table-row-booked {
+  background-color: rgba(242,189,73,0.3);
+  color: #4B088A;
+}

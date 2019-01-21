@@ -124,7 +124,7 @@ class BookingInline(admin.TabularInline):
 
 
 class EventAdmin(admin.ModelAdmin):
-    list_display = ('name', 'date', 'location', 'get_spaces_left')
+    list_display = ('name', 'date', 'venue', 'get_spaces_left')
     list_filter = (EventDateListFilter, 'name')
     inlines = (BookingInline,)
     actions_on_top = True
@@ -133,7 +133,7 @@ class EventAdmin(admin.ModelAdmin):
     fieldsets = [
         ('Event/Workshop details', {
             'fields': (
-                'name', 'date', 'location', 'event_type', 'max_participants',
+                'name', 'date', 'venue', 'event_type', 'max_participants',
                 'description')
         }),
         ('Contacts', {

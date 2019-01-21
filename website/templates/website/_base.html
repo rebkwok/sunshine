@@ -16,7 +16,7 @@
         <!-- Bootstrap core CSS -->
         {% bootstrap_css %}
 
-        <link href="{% static 'website/css/custom.css' %}" rel="stylesheet">
+        <link href="{% static 'website/css/custom-v1.css' %}" rel="stylesheet">
          <link rel="stylesheet" href="{% static 'website/bootstrap/font-awesome.min.css' %}">
 
         {% block extrahead %}{% endblock %}
@@ -44,7 +44,7 @@
                         <li><a {% if section == 'about' %}class="active"{% endif %} href="{% url 'website:about' %}">About us</a></li>
                         <li><a {% if section == 'timetable' %}class="active"{% endif %} href="{% url 'timetable:timetable' %}">Timetable</a></li>
                         <li class = "hidden-sm"><a {% if section == 'classes' %}class="active"{% endif %} href="{% url 'website:classes' %}">Classes</a></li>
-                        <li><a {% if section == 'events' %}class="active"{% endif %} href="{% url 'booking:events' %}">Workshops</a></li>
+                        <li><a {% if section == 'events' %}class="active"{% endif %} href="{% url 'booking:events' %}">Book</a></li>
                         <li class="hidden-sm hidden-md"><a {% if section == 'membership' %}class="active"{% endif %} href="{% url 'website:membership' %}">Membership</a></li>
                         <li class = "hidden-sm hidden-md"><a {% if section == 'instructors' %}class="active"{% endif %} href="{% url 'website:instructors' %}">Instructors</a></li>
                         <li class = "hidden-sm hidden-md"><a {% if section == 'venues' %}class="active"{% endif %} href="{% url 'website:venues' %}">Venues</a></li>
@@ -164,7 +164,8 @@
     {% bootstrap_javascript jquery=3 %}
 
     <div id="fb-root"></div>
-    <script src="{% static "website/bootstrap/custom.js" %}"></script>
+    <script src="{% static "website/js/custom.js" %}"></script>
+    <script src="{% static "website/js/ajax_csrf.js" %}"></script>
     <script src="{% static 'cookielaw/js/cookielaw.js' %}"></script>
 
 

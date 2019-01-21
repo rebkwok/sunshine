@@ -1,5 +1,4 @@
 from django.urls import path
-from django.views.generic import RedirectView
 
 
 from booking.views import EventListView, EventDetailView, BookingCreateView, \
@@ -7,7 +6,8 @@ from booking.views import EventListView, EventDetailView, BookingCreateView, \
     BookingListView, \
     BookingHistoryListView, BookingUpdateView, \
     BookingDeleteView, update_booking_cancelled, \
-    cancellation_period_past, duplicate_booking, fully_booked
+    cancellation_period_past, duplicate_booking, fully_booked, \
+    toggle_booking, toggle_waiting_list, booking_details, update_booking_count
 
 
 app_name = 'booking'
@@ -42,8 +42,20 @@ urlpatterns = [
         name='event_detail'
     ),
     path(
-        'workshops/', EventListView.as_view(),
-        name='events'
+        'toggle-booking/<int:event_id>/',
+        toggle_booking, name='toggle_booking'
     ),
-    path('', RedirectView.as_view(url='workshops/', permanent=True)),
+    path(
+        'ajax-toggle-waiting-list/<int:event_id>/',
+        toggle_waiting_list, name='toggle_waiting_list'
+    ),
+    path(
+        'update-booking-details/<int:event_id>/',
+        booking_details, name='booking_details'
+    ),
+    path(
+        'ajax-update-booking-count/<int:event_id>/',
+        update_booking_count, name='update_booking_count'
+    ),
+    path('', EventListView.as_view(), name='events'),
  ]

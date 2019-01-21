@@ -15,12 +15,13 @@ from django.utils.translation import ugettext_lazy as _
 
 from django_extensions.db.fields import AutoSlugField
 
+from timetable.models import Venue
 
 logger = logging.getLogger(__name__)
 
 
 class Event(models.Model):
-    EVENT_TYPES = (('workshop', 'Workshop'),)
+    EVENT_TYPES = (('workshop', 'Workshop'), ('regular_session', 'Regular Timetabled Session'))
 
     name = models.CharField(max_length=255)
     event_type = models.CharField(
@@ -28,10 +29,7 @@ class Event(models.Model):
     )
     description = models.TextField(blank=True, default="")
     date = models.DateTimeField()
-    location = models.CharField(
-        max_length=255,
-        default="Carousel Fitness, 7 Preston Crescent, Inverkeithing"
-    )
+    venue = models.ForeignKey(Venue, null=True, on_delete=models.SET_NULL)
     max_participants = models.PositiveIntegerField(default=12)
 
     contact_email = models.EmailField(default="carouselfitness@gmail.com")
@@ -57,10 +55,12 @@ class Event(models.Model):
         help_text='Email for the paypal account to be used for payment.  '
                   'Check this carefully!'
     )
+    cancelled = models.BooleanField(default=False)
 
     class Meta:
         ordering = ['-date']
-        verbose_name = 'Workshop'
+        verbose_name = 'Workshop/Class'
+        verbose_name_plural = 'Workshops/Classes'
 
     @cached_property
     def spaces_left(self):
@@ -120,7 +120,7 @@ class Booking(models.Model):
     attended = models.BooleanField(
         default=False, help_text='Attended this event')
     no_show = models.BooleanField(
-        default=False, help_text='Paid but did not attend OR cancelled '
+        default=False, help_text='Booked but did not attend OR cancelled '
                                  'after allowed cancellation period'
     )
 

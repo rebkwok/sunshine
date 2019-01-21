@@ -4,8 +4,23 @@
 {% block content %}
 <div class="container-fluid">
 
-        <h1 class="page-header">Workshops</h1>
+        <h1 class="page-header">Book Workshops</h1>
+        {% if classes_available_to_book %}
+        <p><a href="{% url 'booking:events' %}">Show Classes</a></p>
+        {% endif %}
         {% if events %}
+            <form class="filter-row" action="" method="get">
+                <div class="row">
+                    <div class="col-sm-2">
+                        <strong>Show workshops by: </strong>
+                    </div>
+                    <div class="col-sm-2 filter">{{ form.name }}</div>
+                    <div class="col-sm-2 filter">{{ form.venue }}</div>
+                    <div class="col-sm-1"><input class="btn btn-info table-btn" type="submit" value="Go" /></div>
+                </div>
+            </form>
+            </br>
+
         <div class="row">
             <div class="col-sm-12">
                 {% if not user.is_authenticated %}
@@ -22,7 +37,7 @@
                                 {% endif %}
                                 <th>Date</th>
                                 <th>Workshop</th>
-                                <th class="hidden-sm hidden-xs">Location</th>
+                                <th class="hidden-sm hidden-xs">Venue</th>
                                 <th class="hidden-sm hidden-xs table-center">Cost</th>
                                 <th class="hidden-xs table-center">Spaces</th>
                                 <th class="hidden-xs table-center">Spaces left</th>
@@ -56,7 +71,7 @@
                                     {% endif %}
                                     <td>{{ event.date | date:"D d M H:i" }}</td>
                                     <td><a href="{% url 'booking:event_detail' event.slug %}">{{ event.name }}</a></td>
-                                    <td class="hidden-sm hidden-xs">{{ event.location }}</td>
+                                    <td class="hidden-sm hidden-xs">{{ event.venue.abbreviation }}</td>
                                     <td class="hidden-sm hidden-xs table-center">£{{ event.cost }}</td>
                                     <td class="hidden-xs table-center">{% if event.max_participants %}{{ event.max_participants }}{% else %}N/A{% endif %}</td>
                                     <td class="hidden-xs table-center">{{ event.spaces_left }}</td>

@@ -4,6 +4,8 @@ from django.conf import settings
 from django import template
 from django.utils.safestring import mark_safe
 
+from booking.models import Booking
+
 
 register = template.Library()
 
@@ -53,3 +55,10 @@ def format_paid_status(booking):
         return mark_safe('<span class="confirmed fa fa-check"></span>')
     else:
         return mark_safe('<span class="not-confirmed fa fa-close"></span>')
+
+
+@register.simple_tag
+def get_booking(event, user):
+    if user.is_authenticated:
+        return Booking.objects.filter(event=event, user=user).first()
+    return None

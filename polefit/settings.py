@@ -313,6 +313,11 @@ SUIT_CONFIG = {
             'icon': 'icon-calendar',
         },
         {
+            'label': 'Upload timetable',
+            'url': '/timetable/upload',
+            'icon': 'icon-calendar',
+        },
+        {
             'label': 'Gallery',
             'app': 'gallery',
             'icon': 'icon-asterisk',

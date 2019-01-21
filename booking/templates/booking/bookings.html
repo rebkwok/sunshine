@@ -2,6 +2,11 @@
 {% load static %}
 {% load bookingtags %}
 
+{% block extrahead %}
+<link rel="stylesheet" href="{% static 'booking/vanilla-notify.css' %}">
+<script type='text/javascript' src="{% static 'booking/vanilla-notify.min.js' %}"></script>
+{% endblock %}
+
 {% block content %}
 
 <div class="col-xs-12">
@@ -17,6 +22,55 @@
     <div class="row">
         <div class="col-sm-12">
             <div class="panel panel-transparent">
+                {% if bookingformlist.regular_session %}
+                <div class="table-responsive">
+                    <table class="table table-book-classes">
+                        <tr class="panel-heading">
+                            {% if not history %}
+                            <th> </th>
+                            {% endif %}
+                            <th>Date</th>
+                            <th>Booking</th>
+                            <th>Status</th>
+                        </tr>
+                        {% for bookingform in bookingformlist.regular_session %}
+
+                            <tr id='booked-{{ bookingform.booking.event.id }}-row' {% if bookingform.booking_status == 'CANCELLED' %}class='expired'{% endif %}>
+                                {% if not history %}
+                                    <td>
+                                    {% if bookingform.booking.event.cancelled %}CLASS CANCELLED
+                                    {% elif bookingform.booking.event.bookable %}
+                                        <span
+                                            id="book_{{ bookingform.booking.event.id }}"
+                                            data-event_id="{{ bookingform.booking.event.id }}"
+                                            data-ref="bookings"
+                                            class="td_ajax_book_btn">
+                                        {% include "booking/includes/book_button_toggle.html" %}
+                                        </span>
+                                    {% else %}
+                                        <span
+                                            id="waiting_list_button_{{ bookingform.booking.event.id }}"
+                                            data-event_id="{{ bookingform.booking.event.id }}"
+                                            class="td_ajax_waiting_list_btn">
+                                        {% include "booking/includes/waiting_list_toggle.html" %}
+                                        </span>
+                                    {% endif %}
+                                    </td>
+
+
+                                {% endif %}
+
+                                <td>{{ bookingform.booking.event.date |  date:"D d M H:i" }}</td>
+                                <td>{{ bookingform.booking.event.name }}</td>
+                                <td><span id="booked-{{ bookingform.booking.event.id }}-status">{{ bookingform.booking_status }}</span></td>
+
+                            </tr>
+
+                        {% endfor %}
+                    </table>
+                </div>
+                {% endif %}
+                {% if bookingformlist.workshop %}
                 <div class="table-responsive">
                     <table class="table">
                         <tr class="panel-heading">
@@ -30,7 +84,8 @@
                             <th class="table-center">Paid</th>
                             <th class="hidden-sm hidden-xs table-center">Place confirmed</th>
                         </tr>
-                        {% for bookingform in bookingformlist %}
+                        {% for bookingform in bookingformlist.workshop %}
+
                             <tr {% if bookingform.booking_status == 'CANCELLED' %}class='expired'{% endif %}>
 
                                 {% if not history %}
@@ -50,7 +105,7 @@
                                             <div class="btn btn-danger table-btn booking-btn">Cancel booking</div>
                                         </a>
                                         {% elif bookingform.booking.event.cancelled %}
-                                            {% if bookingform.ev_type == 'EV' %}EVENT{% elif bookingform.ev_type == 'CL' %}CLASS{% else %}ROOM HIRE{% endif %} CANCELLED
+                                            WORKSHOP CANCELLED
                                         {% elif not bookingform.booking.event.bookable %}
                                             {% if not bookingform.booking.event.spaces_left %}
                                                 {% if bookingform.on_waiting_list %}
@@ -93,9 +148,11 @@
                                 </td>
 
                             </tr>
+
                         {% endfor %}
                     </table>
                 </div>
+                {% endif %}
 
 
         </div>
@@ -113,3 +170,11 @@
 
 </div>
 {% endblock content %}
+
+
+{% block extrascripts %}
+<script type='text/javascript' src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
+<script type='text/javascript' src="{% static 'booking/js/events_booking_ajax.js' %}"></script>
+<script type='text/javascript' src="{% static 'booking/js/toggle_waiting_list_ajax.js' %}"></script>
+
+{% endblock %}

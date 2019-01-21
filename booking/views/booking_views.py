@@ -63,9 +63,13 @@ class BookingListView(DataPolicyAgreementRequiredMixin, LoginRequiredMixin, List
         # Call the base implementation first to get a context
         context = super(BookingListView, self).get_context_data(**kwargs)
 
-        bookingformlist = []
+        bookingformlist = {
+            'workshop': [],
+            'regular_session': []
+        }
+
         for booking in self.object_list:
-            if booking.status == 'OPEN' and not booking.paid:
+            if booking.event.event_type == 'workshop' and booking.status == 'OPEN' and not booking.paid:
                 # ONLY DO THIS IF PAYPAL BUTTON NEEDED
                 invoice_id = create_paypal_transaction(
                     self.request.user, booking).invoice_id
@@ -102,8 +106,14 @@ class BookingListView(DataPolicyAgreementRequiredMixin, LoginRequiredMixin, List
                 'can_cancel': can_cancel,
                 'on_waiting_list': on_waiting_list,
                 }
-            bookingformlist.append(bookingform)
-        context['bookingformlist'] = bookingformlist
+            bookingformlist[booking.event.event_type].append(bookingform)
+
+        context['bookingformlist'] = {}
+        if bookingformlist['workshop']:
+            context['bookingformlist']['workshop'] = bookingformlist['workshop']
+        if bookingformlist['regular_session']:
+            context['bookingformlist']['regular_session'] = bookingformlist['regular_session']
+
         return context
 
 

@@ -117,6 +117,7 @@ class TimetableSession(models.Model):
         verbose_name="Member cost",
         help_text="Cost for additional session for members"
     )
+    max_participants = models.PositiveIntegerField(default=12)
 
     def __str__(self):
 
