@@ -337,9 +337,9 @@ SUIT_CONFIG = {
         },
         '-',
         {
-            'label': 'Workshops',
+            'label': 'Classes/Workshops',
             'icon': 'icon-star',
-            'models': ('booking.event',)
+            'models': ('booking.regularclass', 'booking.workshop')
         },
         {
             'label': 'Bookings',

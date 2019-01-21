@@ -193,3 +193,15 @@ class WaitingListUser(models.Model):
     class Meta:
         verbose_name = 'waiting list'
         verbose_name_plural = 'waiting list'
+
+
+class Workshop(Event):
+
+    class Meta:
+        proxy = True
+
+
+class RegularClass(Event):
+
+    class Meta:
+        proxy = True
