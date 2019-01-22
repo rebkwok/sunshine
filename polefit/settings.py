@@ -308,16 +308,6 @@ SUIT_CONFIG = {
             )
         },
         {
-            'label': 'Timetable',
-            'models': ('timetable.timetablesession',),
-            'icon': 'icon-calendar',
-        },
-        {
-            'label': 'Upload timetable',
-            'url': '/timetable/upload',
-            'icon': 'icon-calendar',
-        },
-        {
             'label': 'Gallery',
             'app': 'gallery',
             'icon': 'icon-asterisk',
@@ -337,15 +327,24 @@ SUIT_CONFIG = {
         },
         '-',
         {
+            'label': 'Timetable',
+            'models': (
+                'timetable.timetablesession',
+                {'label': 'Upload timetable', 'url': '/timetable/upload'}
+            ),
+            'icon': 'icon-calendar',
+        },
+        {
             'label': 'Classes/Workshops',
             'icon': 'icon-star',
-            'models': ('booking.regularclass', 'booking.workshop')
+            'models': ('booking.regularclass', 'booking.workshop', 'booking.register')
         },
         {
             'label': 'Bookings',
             'icon': 'icon-heart',
             'models': ('booking.booking', 'booking.waitinglistuser')
         },
+        '-',
         {
             'label': 'Payments',
             'models': ('payments.paypalbookingtransaction',

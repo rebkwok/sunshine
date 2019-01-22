@@ -3,7 +3,7 @@ from django.contrib import admin
 from django.contrib.auth.models import User
 from django.utils import timezone
 
-from booking.models import Event, Booking, WaitingListUser, Workshop, RegularClass
+from booking.models import Event, Booking, WaitingListUser, Workshop, RegularClass, Register
 from booking.forms import BookingInlineFormset, EventForm, UserModelChoiceField
 
 
@@ -108,22 +108,7 @@ class BookingInline(admin.TabularInline):
     model = Booking
     can_delete = False
     extra = 1
-
-    formset = BookingInlineFormset
-
-    def formfield_for_foreignkey(self, db_field, request, **kwargs):
-        if db_field.name == "user":
-            booked_user_ids = []
-            parent_obj_id = request.resolver_match.args
-            if parent_obj_id:
-                event = Event.objects.get(id=parent_obj_id[0])
-                booked_user_ids = [bk.user.id for bk in event.bookings.all()]
-            return UserModelChoiceField(
-                queryset=User.objects.exclude(id__in=booked_user_ids)
-            )
-        return super(
-            BookingInline, self
-        ).formfield_for_foreignkey(db_field, request, **kwargs)
+    autocomplete_fields = ('user',)
 
 
 class EventAdmin(admin.ModelAdmin):
@@ -132,6 +117,7 @@ class EventAdmin(admin.ModelAdmin):
     )
     list_filter = (EventDateListFilter, 'name')
     list_editable = ('show_on_site',)
+    readonly_fields = ('cancelled',)
     inlines = (BookingInline,)
     actions_on_top = True
     ordering = ('date',)
@@ -155,11 +141,14 @@ class EventAdmin(admin.ModelAdmin):
         ('Display options', {
             'fields': ('show_on_site',)
         }),
+        ('Status', {
+            'fields': ('cancelled',)
+        }),
     ]
 
     def get_spaces_left(self, obj):
         return obj.spaces_left
-    get_spaces_left.short_description = '# Spaces left'
+    get_spaces_left.short_description = 'Spaces left'
 
 
 class WorkshopAdmin(EventAdmin):
@@ -176,6 +165,21 @@ class RegularClassAdmin(EventAdmin):
         return super(
             RegularClassAdmin, self
         ).get_queryset(request).filter(event_type='regular_session')
+
+
+class RegisterAdmin(admin.ModelAdmin):
+
+    list_display = (
+        'name', 'date', 'venue', 'get_spaces_left'
+    )
+    fields = ('name', 'date', 'venue')
+    readonly_fields = ('name', 'date', 'venue')
+    inlines = (BookingInline,)
+    ordering = ('date',)
+
+    def get_spaces_left(self, obj):
+        return obj.spaces_left
+    get_spaces_left.short_description = 'Spaces left'
 
 
 class BookingAdmin(admin.ModelAdmin):
@@ -234,4 +238,5 @@ class WaitingListUserAdmin(admin.ModelAdmin):
 admin.site.register(RegularClass, RegularClassAdmin)
 admin.site.register(Workshop, WorkshopAdmin)
 admin.site.register(Booking, BookingAdmin)
+admin.site.register(Register, RegisterAdmin)
 admin.site.register(WaitingListUser, WaitingListUserAdmin)

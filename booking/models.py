@@ -205,3 +205,9 @@ class RegularClass(Event):
 
     class Meta:
         proxy = True
+
+
+class Register(Event):
+
+    class Meta:
+        proxy = True
