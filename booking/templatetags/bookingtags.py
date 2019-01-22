@@ -62,3 +62,9 @@ def get_booking(event, user):
     if user.is_authenticated:
         return Booking.objects.filter(event=event, user=user).first()
     return None
+
+
+@register.filter
+def get_range(value, start=0):
+    # start: 0 or 1
+    return range(start, value + start)

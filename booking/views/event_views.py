@@ -31,6 +31,7 @@ class EventListView(ListView):
     model = Event
     context_object_name = 'events'
     template_name = 'booking/regular_classes.html'
+    paginate_by = 20
 
     def get_queryset(self):
         self.event_type = self.request.GET.get('type', 'regular_session')
