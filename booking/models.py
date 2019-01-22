@@ -205,9 +205,17 @@ class RegularClass(Event):
 
     class Meta:
         proxy = True
+        verbose_name_plural = 'regular classes'
 
 
 class Register(Event):
 
     class Meta:
         proxy = True
+
+
+def user_str_patch(self):
+    return '%s %s (%s)' % (self.first_name, self.last_name, self.username)
+
+
+User.__str__ = user_str_patch

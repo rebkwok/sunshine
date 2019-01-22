@@ -1,0 +1,5 @@
+
+We regret to inform you that {{ event_type }} {{ event }} has been cancelled.
+
+
+{% include 'account/email/footer.txt' %}

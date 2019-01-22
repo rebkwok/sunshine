@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
+from django.conf import settings
 from django.contrib import admin
 from django.contrib.auth.models import User
 from django.utils import timezone
 
-from booking.models import Event, Booking, WaitingListUser, Workshop, RegularClass, Register
-from booking.forms import BookingInlineFormset, EventForm, UserModelChoiceField
+from booking.models import Booking, WaitingListUser, Workshop, RegularClass, Register
+from booking.forms import EventForm
+from booking.email_helpers import send_email
 
 
 class UserFilter(admin.SimpleListFilter):
@@ -107,26 +109,42 @@ class BookingInline(admin.TabularInline):
     fields = ('event', 'user', 'paid', 'status', 'no_show', 'attended')
     model = Booking
     can_delete = False
-    extra = 1
+    extra = 0
     autocomplete_fields = ('user',)
+
+    def get_queryset(self, request):
+        return super(BookingInline, self).get_queryset(request).filter(status='OPEN')
+
+    def get_formset(self, request, obj=None, **kwargs):
+        """
+        Override the formset function in order to remove the add and change buttons beside the foreign key pull-down
+        menus in the inline.
+        """
+        formset = super(BookingInline, self).get_formset(request, obj, **kwargs)
+        form = formset.form
+        widget = form.base_fields['user'].widget
+        widget.can_add_related = False
+        widget.can_change_related = False
+        return formset
 
 
 class EventAdmin(admin.ModelAdmin):
     list_display = (
-        'name', 'date', 'venue', 'show_on_site', 'max_participants', 'get_spaces_left'
+        'name', 'get_date', 'venue', 'show_on_site', 'max_participants', 'get_spaces_left',
+        'status'
     )
     list_filter = (EventDateListFilter, 'name')
     list_editable = ('show_on_site',)
     readonly_fields = ('cancelled',)
-    inlines = (BookingInline,)
     actions_on_top = True
     ordering = ('date',)
     form = EventForm
+    actions = ['cancel_event']
 
     fieldsets = [
         ('Event/Workshop details', {
             'fields': (
-                'name', 'date', 'venue', 'event_type', 'max_participants',
+                'name', 'get_date', 'venue', 'event_type', 'max_participants',
                 'description')
         }),
         ('Contacts', {
@@ -142,13 +160,61 @@ class EventAdmin(admin.ModelAdmin):
             'fields': ('show_on_site',)
         }),
         ('Status', {
-            'fields': ('cancelled',)
+            'fields': ('status',)
         }),
     ]
+
+    def get_actions(self, request):
+        actions = super().get_actions(request)
+        if 'delete_selected' in actions:
+            del actions['delete_selected']
+        return actions
 
     def get_spaces_left(self, obj):
         return obj.spaces_left
     get_spaces_left.short_description = 'Spaces left'
+
+    def get_date(self, obj):
+        return obj.date.strftime('%a %d %b %Y %H:%M')
+    get_date.short_description = 'Date'
+    get_date.admin_order_field = 'date'
+
+    def status(self, obj):
+        if obj.cancelled:
+            return 'CANCELLED'
+        return 'OPEN'
+
+    def cancel_event(self, request, queryset):
+        for obj in queryset:
+            obj.cancelled = True
+            obj.save()
+            if obj.date <= timezone.now():
+                self.message_user(request, "Can't cancel past event")
+            else:
+                open_bookings = obj.bookings.filter(status='OPEN', no_show=False)
+                open_bookings_count = open_bookings.count()
+                users_to_email = []
+                for booking in open_bookings:
+                    users_to_email.append(booking.user.email)
+                    if booking.status == 'OPEN' and not booking.no_show:
+                        booking.status = 'CANCELLED'
+                        booking.save()
+
+                if open_bookings:
+                    ev_type = 'class' if obj.event_type == 'regular_class' else 'workshop'
+                    send_email(
+                        request,
+                        subject='{} has been cancelled'.format(obj),
+                        ctx={'event_type': ev_type, 'event': obj},
+                        template_txt='booking/email/event_cancelled.txt',
+                        bcc_list=users_to_email
+                    )
+
+                if open_bookings_count == 0:
+                    msg = 'no open bookings'
+                else:
+                    msg = 'users for {} open booking(s) have been emailed notification'.format(open_bookings_count)
+                self.message_user(request, 'Event %s cancelled; %s' % (obj,  msg))
 
 
 class WorkshopAdmin(EventAdmin):
@@ -158,6 +224,13 @@ class WorkshopAdmin(EventAdmin):
             WorkshopAdmin, self
         ).get_queryset(request).filter(event_type='workshop')
 
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    def status(self, obj):
+        return super(WorkshopAdmin, self).status(obj)
+    status.short_description = 'Workshop Status'
+
 
 class RegularClassAdmin(EventAdmin):
 
@@ -166,20 +239,44 @@ class RegularClassAdmin(EventAdmin):
             RegularClassAdmin, self
         ).get_queryset(request).filter(event_type='regular_session')
 
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    def status(self, obj):
+        return super(RegularClassAdmin, self).status(obj)
+    status.short_description = 'Class Status'
+
 
 class RegisterAdmin(admin.ModelAdmin):
-
+    list_filter = ('name', 'venue')
     list_display = (
-        'name', 'date', 'venue', 'get_spaces_left'
+        'name', 'get_date', 'venue', 'get_spaces_left'
     )
-    fields = ('name', 'date', 'venue')
-    readonly_fields = ('name', 'date', 'venue')
+    fields = ('name', 'get_date', 'venue')
+    readonly_fields = ('name', 'get_date', 'venue')
     inlines = (BookingInline,)
     ordering = ('date',)
+
+    def get_actions(self, request):
+        actions = super().get_actions(request)
+        if 'delete_selected' in actions:
+            del actions['delete_selected']
+        return actions
+
+    def has_add_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
 
     def get_spaces_left(self, obj):
         return obj.spaces_left
     get_spaces_left.short_description = 'Spaces left'
+
+    def get_date(self, obj):
+        return obj.date.strftime('%a %d %b %Y %H:%M')
+    get_date.short_description = 'Date'
+    get_date.admin_order_field = 'date'
 
 
 class BookingAdmin(admin.ModelAdmin):

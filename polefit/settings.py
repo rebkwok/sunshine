@@ -337,7 +337,13 @@ SUIT_CONFIG = {
         {
             'label': 'Classes/Workshops',
             'icon': 'icon-star',
-            'models': ('booking.regularclass', 'booking.workshop', 'booking.register')
+            'models': ('booking.regularclass', 'booking.workshop'),
+        },
+        {
+            'label': 'Registers',
+            'icon': 'icon-star',
+            'models': ('booking.register',),
+            'staff_user_can_view': True
         },
         {
             'label': 'Bookings',
@@ -367,6 +373,7 @@ SUIT_CONFIG = {
             'label': 'Go to main site',
             'url': '/',
             'icon': 'icon-map-marker',
+            'staff_user_can_view': True
         },
     )
 }

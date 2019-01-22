@@ -9,6 +9,7 @@
     {% if request.path == "/pf_admin/" %}
         <div id="content-main" class="admin-center">
             <h1>Carousel Fitness Admin</h1>
+            {% if request.user.is_superuser %}
             <hr>
             <h2>Website</h2>
             <p>Add text and photos to populate website main
@@ -45,6 +46,7 @@
 
             <h2>Activity Log</h2>
             <p>Tracks activity on the site, particularly in relation to bookings.</p>
+            {% endif %}
         </div>
     {% else %}
         {{ block.super }}
