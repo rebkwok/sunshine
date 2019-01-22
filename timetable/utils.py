@@ -12,7 +12,7 @@ from activitylog.models import ActivityLog
 logger = logging.getLogger(__name__)
 
 
-def upload_timetable(start_date, end_date, session_ids, user=None):
+def upload_timetable(start_date, end_date, session_ids, show_on_site, user=None):
 
     daylist = [
         '01MO',
@@ -55,7 +55,7 @@ def upload_timetable(start_date, end_date, session_ids, user=None):
                     venue=session.venue,
                     max_participants=session.max_participants,
                     cost=session.cost,
-                    show_on_site=True,
+                    show_on_site=show_on_site,
                 )
                 created_classes.append(cl)
             else:

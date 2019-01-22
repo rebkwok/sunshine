@@ -888,3 +888,12 @@ form.mock-bs-form > p > input[type='text'],
   background-color: rgba(242,189,73,0.3);
   color: #4B088A;
 }
+
+.pagination > span > a.disabled {
+	color: rgba(242,189,73, 0.5);
+	pointer-events: none;
+}
+
+span.current-page {
+    font-weight: bold;
+}

@@ -60,7 +60,8 @@ class UploadTimetableForm(forms.Form):
             widget=forms.DateInput(
                 attrs={
                     'class': "form-control",
-                    'id': 'datepicker_startdate'
+                    'id': 'datepicker_startdate',
+                    'autocomplete': 'off'
                 },
                 format='%a %d %b %Y'
             ),
@@ -73,10 +74,17 @@ class UploadTimetableForm(forms.Form):
             widget=forms.DateInput(
                 attrs={
                     'class': "form-control",
-                    'id': 'datepicker_enddate'},
+                    'id': 'datepicker_enddate',
+                    'autocomplete': 'off'
+                },
                 format='%a %d %b %Y'
             ),
             required=True,
+        )
+
+        self.fields['show_on_site'] = forms.BooleanField(
+            initial=True, help_text='(Classes will be available immediately for booking)',
+            required=False
         )
 
         self.fields['sessions'] = forms.ModelMultipleChoiceField(

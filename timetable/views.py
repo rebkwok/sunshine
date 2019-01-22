@@ -61,9 +61,10 @@ def upload_timetable_view(request,
             start_date = form.cleaned_data['start_date']
             end_date = form.cleaned_data['end_date']
             session_ids = form.cleaned_data['sessions']
+            show_on_site = form.cleaned_data['show_on_site']
 
             created_classes, existing_classes, duplicate_classes = upload_timetable(
-                start_date, end_date, session_ids, request.user
+                start_date, end_date, session_ids, show_on_site, request.user
             )
             context = {'start_date': start_date,
                        'end_date': end_date,
@@ -77,6 +78,6 @@ def upload_timetable_view(request,
             )
 
     else:
-        form = UploadTimetableForm(),
+        form = UploadTimetableForm()
 
     return render(request, template_name, {'form': form})

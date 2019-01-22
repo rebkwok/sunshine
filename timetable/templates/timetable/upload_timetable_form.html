@@ -5,6 +5,7 @@
 
 {% block extrastyle %}
 <link href="{% static 'website/css/admin-extra.css' %}" rel="stylesheet">
+<!--<link href="{% static 'website/css/custom-v1.css' %}" rel="stylesheet">-->
   <link rel="stylesheet" type="text/css" href="{% static 'timetable/css/jquery.datetimepicker.css' %}"/ >
 
 <script src="{% static 'timetable/js/jquery.js' %}"></script>
@@ -17,69 +18,46 @@
 
 {% block content %}
 
-<div class="container-fluid row admin-center">
+<div class="container-fluid row">
 
 <h2>Upload timetable</h2>
 
     <div class="col-sm-12">
 
-        <div class="panel panel-success">
-                    {{ form.media }}
-                    {% if form.errors %}
-                        <div class="form-error">
-                            <p>The operation could not be performed because one or more error(s) occurred.<br />Please resubmit the form after making the following changes:</p>
-                            <ul>
-                            {% for field in form %}
-                            {% if field.errors %}<li>{{ field.name }}: {{ field.errors|striptags }}</li>{% endif %}
-                            {% endfor %}
-                            </ul>
-                        </div>
-                    {% endif %}
+        <div>
+        {{ form.media }}
+        {% if form.errors %}
+            <div class="form-error">
+                <p>The operation could not be performed because one or more error(s) occurred.<br />Please resubmit the form after making the following changes:</p>
+                <ul>
+                {% for field in form %}
+                {% if field.errors %}<li>{{ field.name }}: {{ field.errors|striptags }}</li>{% endif %}
+                {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
 
-                    <div>Upload classes from the current timetable for the following date range:</div>
+            <div><p>Upload classes from the current timetable for the following date range:</p></div>
+            <form method="post">
+            {% csrf_token %}
+            <div class="upload-timetable-form">
+                {{form}}
+            </div>
+
+            <div>
                 <div>
-                <form class="form-horizontal dirty-check" method="post" action="">
-                    {% csrf_token %}
-
-                    <div class="form-group-sm">
-
-                        {% for field in form %}
-                        <div class="form-group">
-                                <div class="col-sm-10">
-                                    {% if field.name == 'sessions' %}
-                                        {% for radio in field %}
-                                            {{ radio.tag }} <label class='header-not-bold' for="id_{{ field.name }}_{{ forloop.counter0 }}">{{ radio.choice_label }}</label></br>
-                                        {% endfor %}
-                                    {% else %}
-                                        <div class="col-sm-11">
-                                            <label>{{ field.label }}</label>
-                                            {{ field }}<p class="studioadmin-help">{{ field.help_text }}</p>
-                                        </div>
-                                    {% endif %}
-                                </div>
-                            </div>
-                        {% endfor %}
-                    </div>
-
-
-                    <div class="form-group">
-                        <div class="col-sm-offset-2 col-sm-10">
-                            <button type="submit" class="btn btn-success">Upload</button>
-                        </div>
-                    </div>
-                </form>
-                </div>
-
-            </div>
-
-            <div class="form-group">
-                <div class="col-sm-10">
                     <input checked="checked" id="select-all" type="checkbox">
-                    <label for="select-all"><span class="header-not-bold">Select/deselect all</span></label>
+                    <label class="select-all-label" for="select-all"><span class="header-not-bold">Select/deselect all</span></label>
                 </div>
+                <button type="submit" class="btn btn-success">Upload</button>
 
             </div>
-        </div>
-</div>
+
+            </form>
+            </div>
+
+            </div>
+
+    </div>
 
 {% endblock %}

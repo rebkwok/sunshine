@@ -12,3 +12,26 @@
     font-weight: bold;
 }
 
+span.helptext {
+    font-size: smaller;
+    font-style: italic;
+    font-weight: normal;
+}
+
+.form-error {
+    color: red;
+}
+
+.upload-timetable-form > label {
+    margin-bottom: 0px;
+    margin-top: 5px;
+    font-weight: bold;
+}
+
+.upload-timetable-form > ul.select-checkbox {
+    list-style: None;
+}
+
+label.select-all-label {
+    display: inline-block;
+}
