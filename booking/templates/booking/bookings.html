@@ -31,6 +31,7 @@
                             {% endif %}
                             <th>Date</th>
                             <th>Booking</th>
+                            <th>Location</th>
                             <th class="table-center">Status</th>
                             <th class="table-center">Paid</th>
                         </tr>
@@ -63,6 +64,7 @@
 
                                 <td>{{ bookingform.booking.event.date |  date:"D d M H:i" }}</td>
                                 <td>{{ bookingform.booking.event.name }}</td>
+                                <td>{{ bookingform.booking.event.venue.abbreviation }}</td>
                                 <td class="table-center"><span id="booked-{{ bookingform.booking.event.id }}-status">{{ bookingform.booking_status }}</span></td>
                                 <td class="table-center"><span id="booked-{{ bookingform.booking.event.id }}-paid">
                                     {% if bookingform.booking.paid %}<span class="fas fa-check"></span>{% else %}<span class="fas fa-times"></span>{% endif %}
@@ -82,10 +84,10 @@
                             {% endif %}
                             <th>Date</th>
                             <th>Booking</th>
+                            <th>Location</th>
                             <th>Status</th>
                             <th class="hidden-sm hidden-xs table-center">Cost</th>
                             <th class="table-center">Paid</th>
-                            <th class="hidden-sm hidden-xs table-center">Place confirmed</th>
                         </tr>
                         {% for bookingform in bookingformlist.workshop %}
 
@@ -137,18 +139,10 @@
                                     <a href="{% url 'booking:event_detail' bookingform.booking.event.slug %}">
                                         {{ bookingform.booking.event.name }}</a>
                                 </td>
+                                <td>{{ bookingform.booking.event.venue.abbreviation }}</td>
                                 <td>{{ bookingform.booking_status }}</td>
                                 <td class="hidden-sm hidden-xs table-center">£{{ bookingform.booking.event.cost }}</td>
                                 <td class="table-center">{{ bookingform.booking|format_paid_status }}</td>
-                                <td class="hidden-sm hidden-xs table-center {% if bookingform.booking.space_confirmed %}confirmed{% else %}not-confirmed{% endif %}">
-                                {% if bookingform.booking.space_confirmed %}
-                                    <span class="fa fa-check"></span>
-                                    {% elif bookingform.booking_status == 'CANCELLED' %}
-                                    <span class="fa fa-close"></span>
-                                    {% else %}
-                                    Pending
-                                {% endif %}
-                                </td>
 
                             </tr>
 
@@ -165,7 +159,7 @@
         {% if history %}
             <p>You do not have any past bookings.</p>
         {% else %}
-            <p>You are not booked into any upcoming workshops.</p>
+            <p>You are not booked into any upcoming workshops/classes.</p>
         {% endif %}
     {% endif %}
 

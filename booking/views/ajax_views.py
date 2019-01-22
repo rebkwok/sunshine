@@ -108,8 +108,7 @@ def toggle_booking(request, event_id):
         text_template, html_template = (
             'booking/email/booking_received.txt', 'booking/email/booking_received.html'
         )
-
-    emailed = send_email(
+    send_email(
         request,
         'Booking {} for {}'.format(action, event.name),
         ctx,
@@ -117,16 +116,12 @@ def toggle_booking(request, event_id):
         html_template,
         to_list=[booking.user.email],
     )
-    if emailed != 'OK':
-        pass
 
     # send email to studio if flagged for the event
     if booking.event.email_studio_when_booked:
-
-        emailed = send_email(
+        send_email(
             request,
-            '{} {} {} has just {} a booking for {}'.format(
-                settings.ACCOUNT_EMAIL_SUBJECT_PREFIX,
+            '{} {} has just {} a booking for {}'.format(
                 booking.user.first_name, booking.user.last_name, action,
                 booking.event
             ),
@@ -134,8 +129,6 @@ def toggle_booking(request, event_id):
             'booking/email/to_studio_booking.txt',
             to_list=[settings.DEFAULT_STUDIO_EMAIL]
         )
-        if emailed != 'OK':
-            pass
 
     alert_message = {}
 
