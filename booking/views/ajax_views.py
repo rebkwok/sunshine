@@ -34,9 +34,6 @@ def toggle_booking(request, event_id):
             existing_booking_status = "CANCELLED"
         else:
             existing_booking_status = "OPEN"
-    else:
-        booking, new = Booking.objects.get_or_create(user=request.user, event=event)
-    context['booking'] = booking
 
     # if making a new/reopening booking, make sure the event isn't full or cancelled
     if existing_booking_status != 'OPEN':  # i.e. None (new) or CANCELLED (reopening)
@@ -44,7 +41,14 @@ def toggle_booking(request, event_id):
             message = "Sorry, this event {}".format('is now full' if not event.spaces_left else "has been cancelled")
             return HttpResponseBadRequest(message)
 
+    if existing_booking_status is None:
+        booking = Booking.objects.create(user=request.user, event=event)
+    new = existing_booking_status is None
+
+    context['booking'] = booking
+
     # CANCELLING
+    event_was_full = False
     if existing_booking_status == "OPEN":
         event_was_full = event.spaces_left == 0
 
@@ -58,16 +62,6 @@ def toggle_booking(request, event_id):
         else:
             booking.no_show = True
         action = 'cancelled'
-
-        # send waiting list email if event was full before this cancellation
-        if event_was_full:
-            waiting_list_users = WaitingListUser.objects.filter(event=event)
-            if waiting_list_users:
-                send_waiting_list_email(
-                    event,
-                    [wluser.user for wluser in waiting_list_users],
-                    host='http://{}'.format(request.META.get('HTTP_HOST'))
-                )
 
     # REOPENING
     elif existing_booking_status == "CANCELLED":
@@ -131,6 +125,16 @@ def toggle_booking(request, event_id):
             else 'booking/email/to_studio_booking.txt',
             to_list=[settings.DEFAULT_STUDIO_EMAIL]
         )
+
+    # send waiting list email if event was full before this cancellation
+    if event_was_full:
+        waiting_list_users = WaitingListUser.objects.filter(event=event)
+        if waiting_list_users:
+            send_waiting_list_email(
+                event,
+                [wluser.user for wluser in waiting_list_users],
+                host='http://{}'.format(request.META.get('HTTP_HOST'))
+            )
 
     alert_message = {}
 
