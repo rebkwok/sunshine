@@ -230,7 +230,7 @@ class BookingCreateView(DataPolicyAgreementRequiredMixin, LoginRequiredMixin, Cr
 
             if 'bookings' in request.GET:
                 return HttpResponseRedirect(reverse('booking:bookings'))
-            return HttpResponseRedirect(reverse('booking:events'))
+            return HttpResponseRedirect(reverse('booking:events') + '?type=workshop')
 
         elif 'leave waiting list' in request.GET:
             try:
@@ -254,7 +254,7 @@ class BookingCreateView(DataPolicyAgreementRequiredMixin, LoginRequiredMixin, Cr
 
             if 'bookings' in request.GET:
                 return HttpResponseRedirect(reverse('booking:bookings'))
-            return HttpResponseRedirect(reverse('booking:events'))
+            return HttpResponseRedirect(reverse('booking:events') + '?type=workshop')
         return super(BookingCreateView, self).get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):

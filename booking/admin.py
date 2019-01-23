@@ -133,6 +133,7 @@ class EventAdmin(admin.ModelAdmin):
         'name', 'get_date', 'venue', 'show_on_site', 'max_participants', 'get_spaces_left',
         'status'
     )
+
     list_filter = (EventDateListFilter, 'name')
     list_editable = ('show_on_site',)
     readonly_fields = ('cancelled',)
@@ -144,7 +145,7 @@ class EventAdmin(admin.ModelAdmin):
     fieldsets = [
         ('Event/Workshop details', {
             'fields': (
-                'name', 'get_date', 'venue', 'event_type', 'max_participants',
+                'name', 'date', 'venue', 'event_type', 'max_participants',
                 'description')
         }),
         ('Contacts', {
@@ -160,7 +161,7 @@ class EventAdmin(admin.ModelAdmin):
             'fields': ('show_on_site',)
         }),
         ('Status', {
-            'fields': ('status',)
+            'fields': ('cancelled',)
         }),
     ]
 
@@ -334,6 +335,7 @@ class WaitingListUserAdmin(admin.ModelAdmin):
 
 admin.site.register(RegularClass, RegularClassAdmin)
 admin.site.register(Workshop, WorkshopAdmin)
+
 admin.site.register(Booking, BookingAdmin)
 admin.site.register(Register, RegisterAdmin)
 admin.site.register(WaitingListUser, WaitingListUserAdmin)

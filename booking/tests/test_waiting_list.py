@@ -17,7 +17,7 @@ from booking.tests.helpers import _create_session, TestSetupMixin
 class WaitingListTests(TestSetupMixin, TestCase):
 
     def _get_event_list(self, user):
-        url = reverse('booking:events')
+        url = reverse('booking:events') + '?type=workshop'
         request = self.factory.get(url)
         request.user = user
         view = EventListView.as_view()
@@ -340,7 +340,7 @@ class WaitingListTests(TestSetupMixin, TestCase):
             }
         )
         self.assertEqual(resp.status_code, 302)
-        self.assertEqual(resp.url, reverse('booking:events'))
+        self.assertEqual(resp.url, reverse('booking:events') + '?type=workshop')
 
         waiting_list = WaitingListUser.objects.filter(event=event)
         self.assertEqual(len(waiting_list), 1)
@@ -388,7 +388,7 @@ class WaitingListTests(TestSetupMixin, TestCase):
             }
         )
         self.assertEqual(resp.status_code, 302)
-        self.assertEqual(resp.url, reverse('booking:events'))
+        self.assertEqual(resp.url, reverse('booking:events') + '?type=workshop')
 
         self.assertEqual(WaitingListUser.objects.count(), 0)
 

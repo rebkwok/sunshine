@@ -19,7 +19,7 @@ class EventListViewTests(TestSetupMixin, TestCase):
         mommy.make_recipe('booking.future_EV', _quantity=3)
 
     def _get_response(self, user):
-        url = reverse('booking:events')
+        url = reverse('booking:events') + '?type=workshop'
         request = self.factory.get(url)
         request.user = user
         view = EventListView.as_view()
@@ -29,7 +29,7 @@ class EventListViewTests(TestSetupMixin, TestCase):
         """
         Test that all events are listed (workshops and other events)
         """
-        url = reverse('booking:events')
+        url = reverse('booking:events') + '?type=workshop'
         resp = self.client.get(url)
 
         self.assertEquals(Event.objects.all().count(), 3)
@@ -43,7 +43,7 @@ class EventListViewTests(TestSetupMixin, TestCase):
         mommy.make_recipe('booking.past_event')
         # check there are now 4 events
         self.assertEquals(Event.objects.all().count(), 4)
-        url = reverse('booking:events')
+        url = reverse('booking:events') + '?type=workshop'
         resp = self.client.get(url)
 
         # event listing should still only show future events
@@ -53,7 +53,7 @@ class EventListViewTests(TestSetupMixin, TestCase):
         """
         Test that no booked_events in context
         """
-        url = reverse('booking:events')
+        url = reverse('booking:events') + '?type=workshop'
         resp = self.client.get(url)
 
         # event listing should still only show future events
@@ -64,13 +64,13 @@ class EventListViewTests(TestSetupMixin, TestCase):
         hidden_event.show_on_site = False
         hidden_event.save()
 
-        resp = self.client.get(reverse('booking:events'))
+        resp = self.client.get(reverse('booking:events') + '?type=workshop')
         self.assertEqual(len(resp.context_data['events']), 2)
 
         self.user.is_staff = True
         self.user.save()
         self.client.login(username=self.user.username, password='test')
-        resp = self.client.get(reverse('booking:events'))
+        resp = self.client.get(reverse('booking:events') + '?type=workshop')
         self.assertEqual(len(resp.context_data['events']), 3)
 
     def test_event_list_with_logged_in_user(self):

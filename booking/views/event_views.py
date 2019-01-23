@@ -117,7 +117,6 @@ class EventListView(ListView):
         return context
 
     def get_template_names(self):
-        # event_type = self.request.GET.get('type', 'regular_session')
         if self.event_type == 'workshop':
             return 'booking/events.html'
         else:
