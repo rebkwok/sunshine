@@ -298,7 +298,7 @@ class DataPrivacyAgreementFormTests(TestCase):
         mommy.make(DataPrivacyPolicy)
 
     def test_confirm_required(self):
-        form = DataPrivacyAgreementForm(next_url='/')
+        form = DataPrivacyAgreementForm(next_url='/', data={'confirm': False})
         self.assertFalse(form.is_valid())
 
         form = DataPrivacyAgreementForm(next_url='/', data={'confirm': True})
