@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from django.conf import settings
 from django.contrib import admin
 from django.contrib.auth.models import User
 from django.utils import timezone
@@ -189,33 +188,38 @@ class EventAdmin(admin.ModelAdmin):
         for obj in queryset:
             obj.cancelled = True
             obj.save()
-            if obj.date <= timezone.now():
-                self.message_user(request, "Can't cancel past event")
+
+            if not obj.bookings.exists():
+                obj.delete()
+                self.message_user(request, 'Event %s deleted (no open/cancelled bookings)' % obj)
             else:
-                open_bookings = obj.bookings.filter(status='OPEN', no_show=False)
-                open_bookings_count = open_bookings.count()
-                users_to_email = []
-                for booking in open_bookings:
-                    users_to_email.append(booking.user.email)
-                    if booking.status == 'OPEN' and not booking.no_show:
-                        booking.status = 'CANCELLED'
-                        booking.save()
-
-                if open_bookings:
-                    ev_type = 'class' if obj.event_type == 'regular_class' else 'workshop'
-                    send_email(
-                        request,
-                        subject='{} has been cancelled'.format(obj),
-                        ctx={'event_type': ev_type, 'event': obj},
-                        template_txt='booking/email/event_cancelled.txt',
-                        bcc_list=users_to_email
-                    )
-
-                if open_bookings_count == 0:
-                    msg = 'no open bookings'
+                if obj.date <= timezone.now():
+                    self.message_user(request, "Can't cancel past event")
                 else:
-                    msg = 'users for {} open booking(s) have been emailed notification'.format(open_bookings_count)
-                self.message_user(request, 'Event %s cancelled; %s' % (obj,  msg))
+                    open_bookings = obj.bookings.filter(status='OPEN', no_show=False)
+                    open_bookings_count = open_bookings.count()
+                    users_to_email = []
+                    for booking in open_bookings:
+                        users_to_email.append(booking.user.email)
+                        if booking.status == 'OPEN' and not booking.no_show:
+                            booking.status = 'CANCELLED'
+                            booking.save()
+
+                    if open_bookings:
+                        ev_type = 'class' if obj.event_type == 'regular_class' else 'workshop'
+                        send_email(
+                            request,
+                            subject='{} has been cancelled'.format(obj),
+                            ctx={'event_type': ev_type, 'event': obj},
+                            template_txt='booking/email/event_cancelled.txt',
+                            bcc_list=users_to_email
+                        )
+
+                    if open_bookings_count == 0:
+                        msg = 'no open bookings'
+                    else:
+                        msg = 'users for {} open booking(s) have been emailed notification'.format(open_bookings_count)
+                    self.message_user(request, 'Event %s cancelled; %s' % (obj,  msg))
 
 
 class WorkshopAdmin(EventAdmin):
