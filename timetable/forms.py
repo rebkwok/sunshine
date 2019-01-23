@@ -87,6 +87,12 @@ class UploadTimetableForm(forms.Form):
             required=False
         )
 
+        self.fields['select/deselect all'] = forms.BooleanField(
+            initial=True,
+            widget=forms.CheckboxInput(attrs={'id': 'select-all'}),
+            required=False
+        )
+
         self.fields['sessions'] = forms.ModelMultipleChoiceField(
             widget=forms.CheckboxSelectMultiple(
                 attrs={'class': 'select-checkbox'}

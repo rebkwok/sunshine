@@ -13,8 +13,8 @@
     <div class="col-sm-11">
         <div>
             <h4>Classes uploaded from the current timetable</h4>
-            <p>Start date: {{ start_date | date:"D d F Y"}}</p>
-            <p>End date: {{ end_date | date:"D d F Y"}}</p>
+            <p><strong>Start date:</strong> {{ start_date | date:"D d F Y"}}</p>
+            <p><strong>End date:</strong> {{ end_date | date:"D d F Y"}}</p>
 
             {% if duplicate_classes %}
                 <h3 style="color: red;">WARNING: The following duplicate classes were found!</h3>
@@ -25,14 +25,18 @@
                 </ul>
             {% endif %}
             {% if created_classes %}
+                <h3>New Classses</h3>
                 <p>The following classes were created :</p>
                 <ul>
                 {% for class in created_classes %}
                     <li><strong>{{ class.name }}</strong>, {{ class.date | date:"D d F Y, g:i a"}}</li>
                 {% endfor %}
                 </ul>
+            {% else %}
+                <p>No new classes have been created.</p>
             {% endif %}
             {% if existing_classes %}
+                <h3>Existing classes</h3>
                 <p>The following classes already existed in the system and have
                     not been added again:</p>
                 <ul>

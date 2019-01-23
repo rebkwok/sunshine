@@ -41,15 +41,21 @@ def upload_timetable(start_date, end_date, session_ids, show_on_site, user=None)
             local_date = localtz.localize(datetime.combine(d,
                 session.start_time))
             converted_date = local_date.astimezone(pytz.utc)
+
+            if session.level:
+                name = '{} ({})'.format(session.name, session.level)
+            else:
+                name = session.name
+
             existing = Event.objects.filter(
-                name=session.name,
+                name=name,
                 event_type="regular_session",
                 date=converted_date,
                 venue=session.venue,
             )
             if not existing:
                 cl = Event.objects.create(
-                    name=session.name,
+                    name=name,
                     event_type="regular_session",
                     date=converted_date,
                     venue=session.venue,
