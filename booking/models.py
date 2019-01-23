@@ -208,11 +208,17 @@ class RegularClass(Event):
         proxy = True
         verbose_name_plural = 'regular classes'
 
+    def get_absolute_url(self):
+        return reverse("booking:event_detail", kwargs={'slug': self.slug})
+
 
 class Register(Event):
 
     class Meta:
         proxy = True
+
+    def get_absolute_url(self):
+        return reverse("booking:event_detail", kwargs={'slug': self.slug})
 
 
 def user_str_patch(self):

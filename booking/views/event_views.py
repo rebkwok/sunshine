@@ -140,7 +140,7 @@ class EventDetailView(DetailView):
         # Call the base implementation first to get a context
         context = super(EventDetailView, self).get_context_data()
         event = self.object
-        event_type = 'workshop'
+        event_type = 'class' if event.event_type == 'regular_session' else 'workshop'
         user = self.request.user
 
         context['event_type'] = event_type
@@ -210,3 +210,6 @@ class EventDetailView(DetailView):
                 )
         context['booking_info_text'] = booking_info_text
         return context
+
+    def get_success_url(self, obj):
+        return reverse("booking:event_detail", kwargs={'slug': self.slug})
