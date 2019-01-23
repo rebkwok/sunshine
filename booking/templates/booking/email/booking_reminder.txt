@@ -1,0 +1,7 @@
+Reminder! You have booked for {{ event }}.
+
+If you can no longer make it, please cancel your booking so someone else can use the space.
+
+View your bookings: https://carouselfitness.co.uk{% url 'booking:bookings' %}
+
+{% include 'account/email/footer.txt' %}

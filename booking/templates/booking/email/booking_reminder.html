@@ -1,0 +1,12 @@
+{% extends 'website/email/email_base.html' %}
+
+{% block messagecontent %}
+
+<div style="font-family: sans-serif">
+<h4>Reminder! You have booked for {{ event }}.</h4>
+<p>If you can no longer make it, please cancel your booking so someone else can use the space.</p>
+
+<p><a href="https://carouselfitness.co.uk{% url 'booking:bookings' %}">View your bookings</a></p>
+
+</div>
+{% endblock %}

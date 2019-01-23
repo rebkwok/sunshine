@@ -123,6 +123,7 @@ class Booking(models.Model):
         default=False, help_text='Booked but did not attend OR cancelled '
                                  'after allowed cancellation period'
     )
+    reminder_sent = models.BooleanField(default=False)
 
     class Meta:
         unique_together = ('user', 'event')
