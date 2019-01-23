@@ -1,11 +1,23 @@
+from functools import wraps
+
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 from django.views.generic import ListView
+from django.urls import reverse
+from django.shortcuts import HttpResponseRedirect
 
 from timetable.models import TimetableSession, Venue
 from timetable.forms import TimetableFilter, UploadTimetableForm
 from timetable.utils import upload_timetable
-from payments.views import staff_required
+
+
+def superuser_required(func):
+    def decorator(request, *args, **kwargs):
+        if request.user.is_superuser:
+            return func(request, *args, **kwargs)
+        else:
+            return HttpResponseRedirect(reverse('permission_denied'))
+    return wraps(func)(decorator)
 
 
 class TimetableListView(ListView):
@@ -51,7 +63,7 @@ class TimetableListView(ListView):
 
 
 @login_required
-@staff_required
+@superuser_required
 def upload_timetable_view(request,
                           template_name="timetable/upload_timetable_form.html"):
 

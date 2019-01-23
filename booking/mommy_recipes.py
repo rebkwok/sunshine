@@ -6,6 +6,8 @@ from django.utils import timezone
 from model_mommy.recipe import Recipe, foreign_key, seq
 
 from booking.models import Event, Booking, WaitingListUser
+from timetable.models import TimetableSession, SessionType, Venue
+
 
 now = timezone.now()
 past = now - timedelta(30)
@@ -29,8 +31,24 @@ past_event = Recipe(
     Event, date=past, event_type='workshop', show_on_site=True, cost=10
 )
 
+future_PC = Recipe(
+    Event, date=future, event_type='regular_session', show_on_site=True, cost=10
+)
+
 booking = Recipe(Booking)
 
 past_booking = Recipe(Booking, event=foreign_key(past_event))
 
 waiting_list_user = Recipe(WaitingListUser)
+
+venue = Recipe(Venue, venue='Test venue', abbreviation='test')
+
+mon_session = Recipe(
+    TimetableSession, session_day=TimetableSession.MON, level='Level 1'
+)
+tue_session = Recipe(
+    TimetableSession, session_day=TimetableSession.TUE, level='Level 2'
+)
+wed_session = Recipe(
+    TimetableSession, session_day=TimetableSession.WED
+)
