@@ -121,12 +121,14 @@ def toggle_booking(request, event_id):
     if booking.event.email_studio_when_booked:
         send_email(
             request,
-            '{} {} has just {} a booking for {}'.format(
-                booking.user.first_name, booking.user.last_name, action,
+            '{} {} has just {} for {}'.format(
+                booking.user.first_name, booking.user.last_name,
+                'cancelled a booking' if action == 'cancelled' else 'booked',
                 booking.event
             ),
             ctx,
-            'booking/email/to_studio_booking.txt',
+            'booking/email/to_studio_booking_cancelled.txt' if action == 'cancelled'
+            else 'booking/email/to_studio_booking.txt',
             to_list=[settings.DEFAULT_STUDIO_EMAIL]
         )
 
