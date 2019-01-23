@@ -251,6 +251,11 @@ class WorkshopAdmin(EventAdmin):
 
 class RegularClassAdmin(EventAdmin):
 
+    def get_form(self, request, obj=None, **kwargs):
+        form = super(RegularClassAdmin, self).get_form(request, obj, **kwargs)
+        form.base_fields['cost'].help_text = '(non-membership cost)'
+        return form
+
     def get_queryset(self, request):
         return super().get_queryset(request).filter(event_type='regular_session')
 
