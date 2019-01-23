@@ -164,6 +164,18 @@ class EventAdmin(admin.ModelAdmin):
         }),
     ]
 
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    def get_form(self, request, obj=None, **kwargs):
+        """
+        Override the formset function in order to remove the delete button beside the foreign key for venue
+        """
+        form = super().get_form(request, obj, **kwargs)
+        widget = form.base_fields['venue'].widget
+        widget.can_delete_related = False
+        return form
+
     def get_actions(self, request):
         actions = super().get_actions(request)
         if 'delete_selected' in actions:
@@ -186,15 +198,17 @@ class EventAdmin(admin.ModelAdmin):
 
     def cancel_event(self, request, queryset):
         for obj in queryset:
+            event_type = 'class' if obj.event_type == 'regular_session' else 'workshop'
+
             obj.cancelled = True
             obj.save()
 
             if not obj.bookings.exists():
                 obj.delete()
-                self.message_user(request, 'Event %s deleted (no open/cancelled bookings)' % obj)
+                self.message_user(request, '%s %s deleted (no open/cancelled bookings)' % (event_type.title(), obj))
             else:
                 if obj.date <= timezone.now():
-                    self.message_user(request, "Can't cancel past event")
+                    self.message_user(request, "Can't cancel past %s" % event_type)
                 else:
                     open_bookings = obj.bookings.filter(status='OPEN', no_show=False)
                     open_bookings_count = open_bookings.count()
@@ -206,11 +220,10 @@ class EventAdmin(admin.ModelAdmin):
                             booking.save()
 
                     if open_bookings:
-                        ev_type = 'class' if obj.event_type == 'regular_class' else 'workshop'
                         send_email(
                             request,
                             subject='{} has been cancelled'.format(obj),
-                            ctx={'event_type': ev_type, 'event': obj},
+                            ctx={'event_type': event_type, 'event': obj},
                             template_txt='booking/email/event_cancelled.txt',
                             bcc_list=users_to_email
                         )
@@ -219,38 +232,35 @@ class EventAdmin(admin.ModelAdmin):
                         msg = 'no open bookings'
                     else:
                         msg = 'users for {} open booking(s) have been emailed notification'.format(open_bookings_count)
-                    self.message_user(request, 'Event %s cancelled; %s' % (obj,  msg))
+                    self.message_user(request, '%s %s cancelled; %s' % (event_type.title(), obj,  msg))
 
 
 class WorkshopAdmin(EventAdmin):
 
     def get_queryset(self, request):
-        return super(
-            WorkshopAdmin, self
-        ).get_queryset(request).filter(event_type='workshop')
-
-    def has_delete_permission(self, request, obj=None):
-        return False
+        return super().get_queryset(request).filter(event_type='workshop')
 
     def status(self, obj):
-        return super(WorkshopAdmin, self).status(obj)
+        return super().status(obj)
     status.short_description = 'Workshop Status'
+
+    def cancel_event(self, request, queryset):
+        return super().cancel_event(request, queryset)
+    cancel_event.short_description = 'Cancel workshop'
 
 
 class RegularClassAdmin(EventAdmin):
 
     def get_queryset(self, request):
-        return super(
-            RegularClassAdmin, self
-        ).get_queryset(request).filter(event_type='regular_session')
-
-    def has_delete_permission(self, request, obj=None):
-        return False
+        return super().get_queryset(request).filter(event_type='regular_session')
 
     def status(self, obj):
-        return super(RegularClassAdmin, self).status(obj)
+        return super().status(obj)
     status.short_description = 'Class Status'
 
+    def cancel_event(self, request, queryset):
+        return super().cancel_event(request, queryset)
+    cancel_event.short_description = 'Cancel class'
 
 class RegisterAdmin(admin.ModelAdmin):
     list_filter = ('name', 'venue')
