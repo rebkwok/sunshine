@@ -11,6 +11,7 @@ from django.conf import settings
 from django.core.mail import send_mail
 from django.template.loader import get_template
 from django.core.management.base import BaseCommand
+from django.db.models import Q
 from booking.models import Booking, Event
 from activitylog.models import ActivityLog
 
@@ -19,9 +20,8 @@ class Command(BaseCommand):
     help = 'email reminders for upcoming bookings'
 
     def handle(self, *args, **options):
-
         target_time = timezone.now() + timedelta(hours=48)
-        events = Event.objects.filter(date__gte=target_time, cancelled=False)
+        events = Event.objects.filter(Q(cancelled=False) & Q(date__gte=timezone.now()) & Q(date__lte=target_time))
 
         upcoming_bookings = Booking.objects.filter(
             event__in=events,
@@ -32,9 +32,8 @@ class Command(BaseCommand):
         )
 
         reminded_bookings = []
-
         for booking in upcoming_bookings:
-            if booking.date_rebooked and booking.date_rebooked < timezone.now() - timedelta(hours=6):
+            if booking.date_rebooked and booking.date_rebooked > (timezone.now() - timedelta(hours=6)):
                 continue
             reminded_bookings.append(booking.id)
             ctx = {

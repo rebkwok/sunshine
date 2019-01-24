@@ -9,7 +9,7 @@ from django.core import management
 from django.core import mail
 from django.utils import timezone
 
-from booking.models import Booking
+from booking.models import Booking, Event
 
 
 class CancelUnpaidBookingsTests(TestCase):
@@ -322,3 +322,135 @@ class CancelUnpaidBookingsTests(TestCase):
         self.unpaid.refresh_from_db()
         # now cancelled
         self.assertEquals(self.unpaid.status, 'CANCELLED')
+
+
+class EmailRemindersTests(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        # Now is 2015, 2, 10, 12, 0
+        cls.mock_now = datetime(2015, 2, 10, 12, 0, tzinfo=timezone.utc)
+        cls.event_within_48_hrs = mommy.make_recipe(
+            'booking.future_EV',
+            event_type='workshop',
+            date=datetime(2015, 2, 12, 11, 0, tzinfo=timezone.utc),
+            cost=10,
+        )
+        cls.event_more_than_48_hrs = mommy.make_recipe(
+            'booking.future_EV',
+            event_type='workshop',
+            date=datetime(2015, 2, 12, 14, 0, tzinfo=timezone.utc),
+            cost=10,
+        )
+        cls.past_event = mommy.make_recipe(
+            'booking.future_EV',
+            event_type='workshop',
+            date=datetime(2015, 2, 9, 18, 0, tzinfo=timezone.utc),
+            cost=10,
+        )
+
+    def setUp(self):
+        # open bookings made > 6 hrs ago
+        for event in Event.objects.all():
+            mommy.make_recipe(
+                'booking.booking', event=event, user__email='test@test.com',
+                date_booked=datetime(2015, 2, 8, 12, 0, tzinfo=timezone.utc)
+            )
+
+    @patch('booking.management.commands.email_reminders.timezone')
+    def test_remind_for_event_within_48_hrs(self, mock_tz):
+        mock_tz.now.return_value = self.mock_now
+        management.call_command('email_reminders')
+        self.assertTrue(self.event_within_48_hrs.bookings.first().reminder_sent)
+        self.assertFalse(self.event_more_than_48_hrs.bookings.first().reminder_sent)
+        self.assertFalse(self.past_event.bookings.first().reminder_sent)
+        self.assertEqual(len(mail.outbox), 1)
+
+    @patch('booking.management.commands.email_reminders.timezone')
+    def test_no_reminders_for_bookings_with_reminder_sent(self, mock_tz):
+        mock_tz.now.return_value = self.mock_now
+        booking = self.event_within_48_hrs.bookings.first()
+        booking.reminder_sent = True
+        booking.save()
+        management.call_command('email_reminders')
+        self.assertEqual(len(mail.outbox), 0)
+
+    @patch('booking.management.commands.email_reminders.timezone')
+    def test_no_reminder_for_booking_within_past_6_hrs(self, mock_tz):
+        mock_tz.now.return_value = self.mock_now
+        booking = mommy.make_recipe(
+            'booking.booking', event=self.event_within_48_hrs, user__email='test1@test.com',
+            date_booked=datetime(2015, 2, 10, 7, 0, tzinfo=timezone.utc)
+        )
+        management.call_command('email_reminders')
+        booking.refresh_from_db()
+        self.assertTrue(self.event_within_48_hrs.bookings.first().reminder_sent)
+        self.assertFalse(booking.reminder_sent)
+        self.assertFalse(self.event_more_than_48_hrs.bookings.first().reminder_sent)
+        self.assertFalse(self.past_event.bookings.first().reminder_sent)
+        self.assertEqual(len(mail.outbox), 1)
+
+    @patch('booking.management.commands.email_reminders.timezone')
+    def test_no_reminder_for_rebooking_within_past_6_hrs(self, mock_tz):
+        mock_tz.now.return_value = self.mock_now
+        booking = self.event_within_48_hrs.bookings.first()
+        self.assertFalse(booking.reminder_sent)
+        booking.date_rebooked = datetime(2015, 2, 10, 7, 0, tzinfo=timezone.utc)
+        booking.save()
+        management.call_command('email_reminders')
+        booking.refresh_from_db()
+        self.assertFalse(booking.reminder_sent)
+        self.assertFalse(self.event_more_than_48_hrs.bookings.first().reminder_sent)
+        self.assertFalse(self.past_event.bookings.first().reminder_sent)
+        self.assertEqual(len(mail.outbox), 0)
+
+    @patch('booking.management.commands.email_reminders.timezone')
+    def test_no_reminder_for_cancelled_event(self, mock_tz):
+        mock_tz.now.return_value = self.mock_now
+        cancelled_event_within_48_hrs = mommy.make_recipe(
+            'booking.future_EV',
+            event_type='workshop',
+            date=datetime(2015, 2, 12, 11, 0, tzinfo=timezone.utc),
+            cost=10,
+            cancelled=True
+        )
+        booking = mommy.make_recipe(
+            'booking.booking', event=cancelled_event_within_48_hrs, user__email='test1@test.com',
+            date_booked=datetime(2015, 2, 10, 7, 0, tzinfo=timezone.utc)
+        )
+        management.call_command('email_reminders')
+        booking.refresh_from_db()
+        self.assertTrue(self.event_within_48_hrs.bookings.first().reminder_sent)
+        self.assertFalse(self.event_more_than_48_hrs.bookings.first().reminder_sent)
+        self.assertFalse(self.past_event.bookings.first().reminder_sent)
+        self.assertFalse(booking.reminder_sent)
+
+    @patch('booking.management.commands.email_reminders.timezone')
+    def test_no_reminder_for_no_show_booking(self, mock_tz):
+        mock_tz.now.return_value = self.mock_now
+
+        booking = mommy.make_recipe(
+            'booking.booking', event=self.event_within_48_hrs, user__email='test2@test.com',
+            date_booked=datetime(2015, 2, 10, 7, 0, tzinfo=timezone.utc), no_show=True
+        )
+        management.call_command('email_reminders')
+        booking.refresh_from_db()
+        self.assertTrue(self.event_within_48_hrs.bookings.first().reminder_sent)
+        self.assertFalse(self.event_more_than_48_hrs.bookings.first().reminder_sent)
+        self.assertFalse(self.past_event.bookings.first().reminder_sent)
+        self.assertFalse(booking.reminder_sent)
+
+    @patch('booking.management.commands.email_reminders.timezone')
+    def test_no_reminder_for_cancelled_booking(self, mock_tz):
+        mock_tz.now.return_value = self.mock_now
+
+        booking = mommy.make_recipe(
+            'booking.booking', event=self.event_within_48_hrs, user__email='test2@test.com',
+            date_booked=datetime(2015, 2, 10, 7, 0, tzinfo=timezone.utc), status='CANCELLED'
+        )
+        management.call_command('email_reminders')
+        booking.refresh_from_db()
+        self.assertTrue(self.event_within_48_hrs.bookings.first().reminder_sent)
+        self.assertFalse(self.event_more_than_48_hrs.bookings.first().reminder_sent)
+        self.assertFalse(self.past_event.bookings.first().reminder_sent)
+        self.assertFalse(booking.reminder_sent)
