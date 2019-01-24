@@ -205,9 +205,6 @@ class EventAdmin(DjangoObjectActions, admin.ModelAdmin):
         for obj in queryset:
             event_type = 'class' if obj.event_type == 'regular_session' else 'workshop'
 
-            obj.cancelled = True
-            obj.save()
-
             if not obj.bookings.exists():
                 obj.delete()
                 self.message_user(request, '%s %s deleted (no open/cancelled bookings)' % (event_type.title(), obj))
@@ -215,6 +212,9 @@ class EventAdmin(DjangoObjectActions, admin.ModelAdmin):
                 if obj.date <= timezone.now():
                     self.message_user(request, "Can't cancel past %s" % event_type)
                 else:
+                    obj.cancelled = True
+                    obj.save()
+
                     open_bookings = obj.bookings.filter(status='OPEN', no_show=False)
                     open_bookings_count = open_bookings.count()
                     users_to_email = []
