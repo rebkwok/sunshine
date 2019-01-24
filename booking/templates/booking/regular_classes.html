@@ -24,7 +24,8 @@
         {% if workshops_available_to_book %}
         <p><a href="{% url 'booking:events' %}?type=workshop">Show Workshops</a></p>
         {% endif %}
-        {% if events %}
+
+    {% if events %}
 
     {% if not day or not time %}
         <form class="filter-row" action="" method="get">
