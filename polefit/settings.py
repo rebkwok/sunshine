@@ -62,6 +62,7 @@ INSTALLED_APPS = (
     'bootstrap3',
     'paypal.standard.ipn',
     'debug_toolbar',
+    'django_object_actions',
     'payments',
     'accounts',
     'timetable',

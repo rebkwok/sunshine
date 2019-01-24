@@ -1,0 +1,32 @@
+{% extends "admin/change_form.html" %}
+
+{% load i18n admin_static admin_modify suit_tags admin_urls %}
+{% load url from suit_compat %}
+
+
+{% block object-tools-items %}
+
+  {% for tool in objectactions %}
+    <li class="objectaction-item" data-tool-name="{{ tool.name }}">
+      <a href='{% url tools_view_name pk=object_id tool=tool.name %}' title="{{ tool.standard_attrs.title }}"
+         {% for k, v in tool.custom_attrs.items %}
+           {{ k }}="{{ v }}"
+         {% endfor %}
+         class="{{ tool.standard_attrs.class }}">
+        {% if tool.name == 'cancel_event' %}<i class="icon-remove-sign icon-alpha75"></i>{% endif %}
+      {{ tool.label|capfirst }}
+      </a>
+    </li>
+  {% endfor %}
+
+  {% if has_absolute_url %}{% endif %}
+
+    {% if has_add_permission %}
+      <li>
+        <a href="{% url opts|admin_urlname:'add' %}">
+          <i class="icon-plus-sign icon-alpha75"></i>{% blocktrans with opts.verbose_name as name %}Add {{ name }}{% endblocktrans %}
+        </a>
+      </li>
+    {% endif %}
+
+{% endblock %}

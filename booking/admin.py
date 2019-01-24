@@ -3,6 +3,9 @@ from django.contrib import admin
 from django.contrib.auth.models import User
 from django.utils import timezone
 
+
+from django_object_actions import DjangoObjectActions, takes_instance_or_queryset
+
 from booking.models import Booking, WaitingListUser, Workshop, RegularClass, Register
 from booking.forms import EventForm
 from booking.email_helpers import send_email
@@ -127,7 +130,7 @@ class BookingInline(admin.TabularInline):
         return formset
 
 
-class EventAdmin(admin.ModelAdmin):
+class EventAdmin(DjangoObjectActions, admin.ModelAdmin):
     list_display = (
         'name', 'get_date', 'venue', 'show_on_site', 'max_participants', 'get_spaces_left',
         'status'
@@ -140,6 +143,7 @@ class EventAdmin(admin.ModelAdmin):
     ordering = ('date',)
     form = EventForm
     actions = ['cancel_event']
+    change_actions = ['cancel_event']
 
     fieldsets = [
         ('Event/Workshop details', {
@@ -196,6 +200,7 @@ class EventAdmin(admin.ModelAdmin):
             return 'CANCELLED'
         return 'OPEN'
 
+    @takes_instance_or_queryset
     def cancel_event(self, request, queryset):
         for obj in queryset:
             event_type = 'class' if obj.event_type == 'regular_session' else 'workshop'
@@ -244,12 +249,17 @@ class WorkshopAdmin(EventAdmin):
         return super().status(obj)
     status.short_description = 'Workshop Status'
 
+    @takes_instance_or_queryset
     def cancel_event(self, request, queryset):
         return super().cancel_event(request, queryset)
-    cancel_event.short_description = 'Cancel workshop'
+    cancel_event.short_description = 'Cancel workshop; this will cancel all bookings and email notifications to students.'
+    cancel_event.label = 'Cancel workshop'
+    cancel_event.attrs = {'style': 'font-weight: bold; color: red;'}
 
 
 class RegularClassAdmin(EventAdmin):
+
+    readonly_fields = ('cancelled', 'paypal_email')
 
     def get_form(self, request, obj=None, **kwargs):
         form = super(RegularClassAdmin, self).get_form(request, obj, **kwargs)
@@ -263,9 +273,13 @@ class RegularClassAdmin(EventAdmin):
         return super().status(obj)
     status.short_description = 'Class Status'
 
+    @takes_instance_or_queryset
     def cancel_event(self, request, queryset):
         return super().cancel_event(request, queryset)
-    cancel_event.short_description = 'Cancel class'
+    cancel_event.short_description = 'Cancel class; this will cancel all bookings and email notifications to students.'
+    cancel_event.label = 'Cancel class'
+    cancel_event.attrs = {'style': 'font-weight: bold; color: red;'}
+
 
 class RegisterAdmin(admin.ModelAdmin):
     list_filter = ('name', 'venue')
