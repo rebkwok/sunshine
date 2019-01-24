@@ -10,6 +10,8 @@ from django.test import TestCase, RequestFactory
 from django.contrib.messages.storage.fallback import FallbackStorage
 from django.utils import timezone
 
+from accounts.models import DataPrivacyPolicy
+
 from activitylog.models import ActivityLog
 
 from booking.models import Event, Booking, WaitingListUser
@@ -67,6 +69,12 @@ class BookingListViewTests(TestSetupMixin, TestCase):
         for booking in resp.context_data['bookings']:
             self.assertEquals(booking.event.event_type, 'workshop')
 
+    def test_data_policy_agreement_required(self):
+        mommy.make(DataPrivacyPolicy)
+        resp = self.client.get(self.url)
+        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(resp.url, reverse('accounts:data_privacy_review') + '?next={}'.format(self.url))
+
     def test_booking_list_by_user(self):
         """
         Test that only bookings for this user are listed
@@ -123,6 +131,21 @@ class BookingListViewTests(TestSetupMixin, TestCase):
             paid=True
         )
         resp = self.client.get(self.url)
+        self.assertIn(
+            '<span class="confirmed fas fa-check"></span>',
+            resp.rendered_content
+        )
+
+    def test_paid_status_display_workshops(self):
+        Event.objects.all().delete()
+        Booking.objects.all().delete()
+        event_with_cost = mommy.make_recipe('booking.future_EV', cost=10)
+
+        mommy.make_recipe(
+            'booking.booking', user=self.user, event=event_with_cost,
+            paid=True
+        )
+        resp = self.client.get(self.url + '?type=workshop')
         self.assertIn(
             '<span class="confirmed fas fa-check"></span>',
             resp.rendered_content

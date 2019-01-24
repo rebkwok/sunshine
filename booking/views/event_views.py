@@ -65,7 +65,6 @@ class EventListView(ListView):
             except (ValueError, IndexError):
                 self.event_time = None
             else:
-
                 localtz = pytz.timezone('Europe/London')
                 event_ids = [
                     event.id for event in events if event.date.weekday() == weekday
@@ -210,6 +209,3 @@ class EventDetailView(DetailView):
                 )
         context['booking_info_text'] = booking_info_text
         return context
-
-    def get_success_url(self, obj):
-        return reverse("booking:event_detail", kwargs={'slug': self.slug})

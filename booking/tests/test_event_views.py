@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
+from datetime import datetime
+from unittest.mock import patch
 
 from model_mommy import mommy
 
-from django.contrib.auth.models import User
 from django.urls import reverse
+from django.utils import timezone
 from django.test import TestCase, RequestFactory, override_settings
 
 from booking.models import Event, Booking
@@ -17,6 +19,10 @@ class EventListViewTests(TestSetupMixin, TestCase):
     def setUpTestData(cls):
         super(EventListViewTests, cls).setUpTestData()
         mommy.make_recipe('booking.future_EV', _quantity=3)
+        venue = mommy.make_recipe('booking.venue')
+        cls.reg_class1 = mommy.make_recipe('booking.future_PC', name='Class 1')
+        cls.reg_class2 = mommy.make_recipe('booking.future_PC', name='Class 2', venue=venue)
+        cls.regular_classes = [cls.reg_class1, cls.reg_class2]
 
     def _get_response(self, user):
         url = reverse('booking:events') + '?type=workshop'
@@ -32,9 +38,15 @@ class EventListViewTests(TestSetupMixin, TestCase):
         url = reverse('booking:events') + '?type=workshop'
         resp = self.client.get(url)
 
-        self.assertEquals(Event.objects.all().count(), 3)
+        self.assertEquals(Event.objects.all().count(), 5)
         self.assertEquals(resp.status_code, 200)
         self.assertEquals(resp.context['events'].count(), 3)
+
+        url = reverse('booking:events')
+        resp = self.client.get(url)
+
+        self.assertEquals(resp.status_code, 200)
+        self.assertEquals(resp.context['events'].count(), 2)
 
     def test_event_list_past_event(self):
         """
@@ -42,7 +54,7 @@ class EventListViewTests(TestSetupMixin, TestCase):
         """
         mommy.make_recipe('booking.past_event')
         # check there are now 4 events
-        self.assertEquals(Event.objects.all().count(), 4)
+        self.assertEquals(Event.objects.all().count(), 6)
         url = reverse('booking:events') + '?type=workshop'
         resp = self.client.get(url)
 
@@ -77,8 +89,11 @@ class EventListViewTests(TestSetupMixin, TestCase):
         """
         Test that booked_events in context
         """
-        resp = self._get_response(self.user)
+        booking = mommy.make_recipe('booking.booking', user=self.user, event=self.regular_classes[0])
+        self.client.login(username=self.user.username, password='test')
+        resp = self.client.get(reverse('booking:events'))
         self.assertTrue('booked_events' in resp.context_data)
+        self.assertEqual(resp.context_data['booked_events'][0], [booking.event.id][0])
 
     def test_event_list_with_booked_events(self):
         """
@@ -120,6 +135,70 @@ class EventListViewTests(TestSetupMixin, TestCase):
         self.assertEquals(Booking.objects.all().count(), 2)
         self.assertEquals(len(booked_events), 1)
         self.assertTrue(event1.id in booked_events)
+
+    def test_event_list_with_name(self):
+        url = reverse('booking:events') + '?name=Class 1'
+        resp = self.client.get(url)
+        self.assertEqual(len(resp.context_data['events']), 1)
+        self.assertEqual(resp.context_data['events'][0], self.reg_class1)
+
+    def test_event_list_with_venue(self):
+        url = reverse('booking:events') + '?venue=test'
+        resp = self.client.get(url)
+        self.assertEqual(len(resp.context_data['events']), 1)
+        self.assertEqual(resp.context_data['events'][0], self.reg_class2)
+
+    @patch('booking.views.event_views.timezone.now')
+    def test_event_list_with_name_day_and_time(self, mock_now):
+        mock_now.return_value = datetime(2019, 1, 1, 18, 0, tzinfo=timezone.utc)
+        self.reg_class1.date = datetime(2019, 1, 23, 18, 0, tzinfo=timezone.utc)  # Wed
+        self.reg_class1.save()
+        self.reg_class2.date = datetime(2019, 1, 24, 18, 0, tzinfo=timezone.utc)  # Thurs
+        self.reg_class2.save()
+        reg_class3 = mommy.make_recipe(
+            'booking.future_PC', name='Class 1', date=datetime(2019, 1, 30, 18, 0, tzinfo=timezone.utc)
+        )  # Wed
+
+        url = reverse('booking:events') + '?name=Class 1&day=03WE&time=18:00'
+        resp = self.client.get(url)
+        self.assertEqual(len(resp.context_data['events']), 2)
+        self.assertEqual(
+            [ev.id for ev in resp.context_data['events']], [self.reg_class1.id, reg_class3.id])
+
+    @patch('booking.views.event_views.timezone.now')
+    def test_event_list_with_day_and_time_errors(self, mock_now):
+        mock_now.return_value = datetime(2019, 1, 1, 18, 0, tzinfo=timezone.utc)
+        self.reg_class1.date = datetime(2019, 1, 23, 18, 0, tzinfo=timezone.utc)  # Wed
+        self.reg_class1.save()
+        self.reg_class2.date = datetime(2019, 1, 24, 18, 0, tzinfo=timezone.utc)  # Thurs
+        self.reg_class2.save()
+        reg_class3 = mommy.make_recipe(
+            'booking.future_PC', name='Class 1', date=datetime(2019, 1, 31, 20, 0, tzinfo=timezone.utc)
+        )  # Wed, diff day/time, same name
+
+        # misformatted time is ignored, just returns by name
+        url = reverse('booking:events') + '?name=Class 1&day=03WE&time=1800'
+        resp = self.client.get(url)
+        self.assertEqual(len(resp.context_data['events']), 2)
+        self.assertEqual(
+            [ev.id for ev in resp.context_data['events']], [self.reg_class1.id, reg_class3.id])
+
+    @patch('booking.views.event_views.timezone.now')
+    def test_event_list_with_day_and_time_including_daylight_savings(self, mock_now):
+        mock_now.return_value = datetime(2019, 1, 1, 18, 0, tzinfo=timezone.utc)
+        self.reg_class1.date = datetime(2019, 1, 23, 18, 0, tzinfo=timezone.utc)  # Wed
+        self.reg_class1.save()
+        self.reg_class2.date = datetime(2019, 1, 24, 18, 0, tzinfo=timezone.utc)  # Thurs
+        self.reg_class2.save()
+        reg_class3 = mommy.make_recipe(
+            'booking.future_PC', name='Class 1', date=datetime(2019, 8, 14, 19, 0, tzinfo=timezone.utc)
+        )  # Wed during DST, same time as self.reg_class1
+
+        url = reverse('booking:events') + '?name=Class 1&day=03WE&time=1800'
+        resp = self.client.get(url)
+        self.assertEqual(len(resp.context_data['events']), 2)
+        self.assertEqual(
+            [ev.id for ev in resp.context_data['events']], [self.reg_class1.id, reg_class3.id])
 
 
 class EventDetailViewTests(TestSetupMixin, TestCase):
