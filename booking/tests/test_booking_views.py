@@ -27,36 +27,45 @@ class BookingListViewTests(TestSetupMixin, TestCase):
     @classmethod
     def setUpTestData(cls):
         super(BookingListViewTests, cls).setUpTestData()
-        cls.events = mommy.make_recipe('booking.future_EV', _quantity=3)
+        cls.regular_sessions = mommy.make_recipe('booking.future_PC', _quantity=3)
+        cls.events = mommy.make_recipe('booking.future_EV', _quantity=2)
+        [mommy.make_recipe(
+            'booking.booking', user=cls.user,
+            event=event) for event in cls.regular_sessions]
         [mommy.make_recipe(
             'booking.booking', user=cls.user,
             event=event) for event in cls.events]
         mommy.make_recipe('booking.past_booking', user=cls.user)
+        cls.url = reverse('booking:bookings')
+        cls.url_workshops = reverse('booking:bookings') + '?type=workshop'
 
-    def _get_response(self, user):
-        url = reverse('booking:bookings')
-        request = self.factory.get(url)
-        request.user = user
-        view = BookingListView.as_view()
-        return view(request)
+    def setUp(self):
+        super(BookingListViewTests, self).setUp()
+        self.client.login(username=self.user.username, password='test')
 
     def test_login_required(self):
         """
         test that page redirects if there is no user logged in
         """
-        url = reverse('booking:bookings')
-        resp = self.client.get(url)
+        self.client.logout()
+        resp = self.client.get(self.url)
         self.assertEqual(resp.status_code, 302)
 
     def test_booking_list(self):
         """
-        Test that only future bookings are listed)
+        Test that only future bookings for relevant event type are listed)
         """
-        resp = self._get_response(self.user)
-
-        self.assertEquals(Booking.objects.all().count(), 4)
+        resp = self.client.get(self.url)
+        self.assertEquals(Booking.objects.all().count(), 6)
         self.assertEquals(resp.status_code, 200)
         self.assertEquals(resp.context_data['bookings'].count(), 3)
+        for booking in resp.context_data['bookings']:
+            self.assertEquals(booking.event.event_type, 'regular_session')
+
+        resp = self.client.get(self.url_workshops)
+        self.assertEquals(resp.context_data['bookings'].count(), 2)
+        for booking in resp.context_data['bookings']:
+            self.assertEquals(booking.event.event_type, 'workshop')
 
     def test_booking_list_by_user(self):
         """
@@ -64,27 +73,41 @@ class BookingListViewTests(TestSetupMixin, TestCase):
         """
         another_user = mommy.make_recipe('booking.user')
         mommy.make_recipe(
-            'booking.booking', user=another_user, event=self.events[0]
+            'booking.booking', user=another_user, event=self.regular_sessions[0]
         )
-        # check there are now 5 bookings
-        self.assertEquals(Booking.objects.all().count(), 5)
-        resp = self._get_response(self.user)
-
+        # check there are now 7 bookings
+        self.assertEquals(Booking.objects.all().count(), 7)
+        resp = self.client.get(self.url)
         # event listing should still only show this user's future bookings
         self.assertEquals(resp.context_data['bookings'].count(), 3)
+
+    def test_workshop_booking_list_by_user(self):
+        """
+        Test that only bookings for this user are listed
+        """
+        another_user = mommy.make_recipe('booking.user')
+        mommy.make_recipe(
+            'booking.booking', user=another_user, event=self.events[0]
+        )
+        # check there are now 7 bookings
+        self.assertEquals(Booking.objects.all().count(), 7)
+        resp = self.client.get(self.url_workshops)
+
+        # event listing should still only show this user's future bookings
+        self.assertEquals(resp.context_data['bookings'].count(), 2)
 
     def test_cancelled_booking_shown_in_booking_list(self):
         """
         Test that all future bookings for this user are listed
         """
-        ev = mommy.make_recipe('booking.future_EV', name="future event")
+        ev = mommy.make_recipe('booking.future_PC', name="future event")
         mommy.make_recipe(
             'booking.booking', user=self.user, event=ev,
             status='CANCELLED'
         )
-        # check there are now 5 bookings (3 future, 1 past, 1 cancelled)
-        self.assertEquals(Booking.objects.all().count(), 5)
-        resp = self._get_response(self.user)
+        # check there are now 7 bookings (3 future, 1 past, 2 workshops,  1 cancelled)
+        self.assertEquals(Booking.objects.all().count(), 7)
+        resp = self.client.get(self.url)
 
         # booking listing should show this user's future bookings,
         # including the cancelled one
@@ -93,17 +116,37 @@ class BookingListViewTests(TestSetupMixin, TestCase):
     def test_paid_status_display(self):
         Event.objects.all().delete()
         Booking.objects.all().delete()
-        event_with_cost = mommy.make_recipe('booking.future_EV', cost=10)
+        event_with_cost = mommy.make_recipe('booking.future_PC', cost=10)
 
-        booking = mommy.make_recipe(
+        mommy.make_recipe(
             'booking.booking', user=self.user, event=event_with_cost,
             paid=True
         )
-        resp = self._get_response(self.user)
+        resp = self.client.get(self.url)
         self.assertIn(
-            '<span class="confirmed fa fa-check"></span>',
+            '<span class="confirmed fas fa-check"></span>',
             resp.rendered_content
         )
+
+    def test_paypalforms_for_unpaid_workshops_only(self):
+        Event.objects.all().delete()
+        Booking.objects.all().delete()
+        class_with_cost = mommy.make_recipe('booking.future_PC', cost=10)
+        event_with_cost = mommy.make_recipe('booking.future_EV', cost=10)
+
+        mommy.make_recipe(
+            'booking.booking', user=self.user, event=class_with_cost,
+            paid=False
+        )
+        mommy.make_recipe(
+            'booking.booking', user=self.user, event=event_with_cost,
+            paid=False
+        )
+        resp = self.client.get(self.url)
+        self.assertEqual(len(resp.context_data['paypalforms']), 0)
+
+        resp = self.client.get(self.url_workshops)
+        self.assertEqual(len(resp.context_data['paypalforms']), 1)
 
 
 class BookingHistoryListViewTests(TestSetupMixin, TestCase):
@@ -111,7 +154,7 @@ class BookingHistoryListViewTests(TestSetupMixin, TestCase):
     @classmethod
     def setUpTestData(cls):
         super(BookingHistoryListViewTests, cls).setUpTestData()
-        event = mommy.make_recipe('booking.future_EV')
+        event = mommy.make_recipe('booking.future_PC')
         cls.booking = mommy.make_recipe(
             'booking.booking', user=cls.user, event=event
         )

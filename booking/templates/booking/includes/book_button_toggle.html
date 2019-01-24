@@ -16,5 +16,5 @@
 {% if booking and booking.status == "OPEN" and not booking.no_show or bookingform.booking_status == 'OPEN' %}
     <button class="btn table-btn btn-danger cancel_button" id="cancel_button">Cancel</button>
 {% else %}
-<button class="btn table-btn btn-success book_button">{% if ref == 'bookings' or bookingform %}Rebook{% else %}Book{% endif %}</button>
+<button class="btn table-btn btn-success book_button">{% if ref == 'bookings' or bookings %}Rebook{% else %}Book{% endif %}</button>
 {% endif %}

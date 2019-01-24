@@ -53,20 +53,21 @@ class BookingListView(DataPolicyAgreementRequiredMixin, LoginRequiredMixin, List
     model = Booking
     context_object_name = 'bookings'
     template_name = 'booking/bookings.html'
+    paginate_by = 20
 
     def get_queryset(self):
-        return Booking.objects.filter(
-            Q(event__date__gte=timezone.now()) & Q(user=self.request.user)
-        ).order_by('event__date')
+        self.event_type = self.request.GET.get('type', 'regular_session')
+        return Booking.objects.filter(event__date__gte=timezone.now(), user=self.request.user, event__event_type=self.event_type)\
+            .order_by('event__date')
 
     def get_context_data(self, **kwargs):
         # Call the base implementation first to get a context
-        context = super(BookingListView, self).get_context_data(**kwargs)
-
-        bookingformlist = {
-            'workshop': [],
-            'regular_session': []
-        }
+        context = super().get_context_data(**kwargs)
+        context['event_type'] = self.event_type
+        paypalforms = {}
+        on_waiting_list = []
+        can_cancel = []
+        booking_status_display = {}
 
         for booking in self.object_list:
             if booking.event.event_type == 'workshop' and booking.status == 'OPEN' and not booking.paid:
@@ -84,35 +85,19 @@ class BookingListView(DataPolicyAgreementRequiredMixin, LoginRequiredMixin, List
                         paypal_email=booking.event.paypal_email,
                     )
                 )
-            else:
-                paypal_form = None
+                paypalforms[booking.id] = paypal_form
 
-            try:
-                WaitingListUser.objects.get(
-                    user=self.request.user, event=booking.event
-                )
-                on_waiting_list = True
-            except WaitingListUser.DoesNotExist:
-                on_waiting_list = False
+            if WaitingListUser.objects.filter(user=self.request.user, event=booking.event).exists():
+                on_waiting_list.append(booking.id)
 
-            can_cancel = booking.event.can_cancel() and \
-                         (booking.status == 'OPEN' and not booking.no_show)
+            if booking.event.can_cancel() and (booking.status == 'OPEN' and not booking.no_show):
+                can_cancel.append(booking.id)
 
-            bookingform = {
-                'booking_status': 'CANCELLED' if
-                (booking.status == 'CANCELLED' or booking.no_show) else 'OPEN',
-                'booking': booking,
-                'paypalform': paypal_form,
-                'can_cancel': can_cancel,
-                'on_waiting_list': on_waiting_list,
-                }
-            bookingformlist[booking.event.event_type].append(bookingform)
-
-        context['bookingformlist'] = {}
-        if bookingformlist['workshop']:
-            context['bookingformlist']['workshop'] = bookingformlist['workshop']
-        if bookingformlist['regular_session']:
-            context['bookingformlist']['regular_session'] = bookingformlist['regular_session']
+            booking_status_display[booking.id] = 'CANCELLED' if (booking.status == 'CANCELLED' or booking.no_show) else 'OPEN'
+        context['paypalforms'] = paypalforms
+        context['on_waiting_list_booking_ids_list'] = on_waiting_list
+        context['can_cancel_booking_ids_list'] = can_cancel
+        context['booking_status_display'] = booking_status_display
 
         return context
 
@@ -122,29 +107,27 @@ class BookingHistoryListView(DataPolicyAgreementRequiredMixin, LoginRequiredMixi
     model = Booking
     context_object_name = 'bookings'
     template_name = 'booking/bookings.html'
+    paginate_by = 20
 
     def get_queryset(self):
-        return Booking.objects.filter(
-            event__date__lte=timezone.now(), user=self.request.user
-        ).order_by('-event__date')
+        self.event_type = self.request.GET.get('type', 'regular_session')
+        return Booking.objects.filter(event__date__gte=timezone.now(), user=self.request.user,
+                                      event__event_type=self.event_type) \
+            .order_by('event__date')
 
     def get_context_data(self, **kwargs):
         # Call the base implementation first to get a context
-        context = super(
-            BookingHistoryListView, self
-            ).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
+        context['event_type'] = self.event_type
+
+        booking_status_display = {
+            booking.id: 'CANCELLED' if (booking.status == 'CANCELLED' or booking.no_show) else 'OPEN'
+            for booking in self.object_list
+        }
+        context['booking_status_display'] = booking_status_display
         # Add in the history flag
         context['history'] = True
 
-        bookingformlist = []
-        for booking in self.object_list:
-            bookingform = {
-                'booking_status': 'CANCELLED' if
-                (booking.status == 'CANCELLED' or booking.no_show) else 'OPEN',
-                'booking': booking,
-            }
-            bookingformlist.append(bookingform)
-        context['bookingformlist'] = bookingformlist
         return context
 
 

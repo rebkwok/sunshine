@@ -3,11 +3,9 @@ from datetime import datetime
 from unittest.mock import patch
 from model_mommy import mommy
 
-from django.conf import settings
 from django.core import mail
 from django.urls import reverse
 from django.test import override_settings, TestCase
-from django.contrib.auth.models import Group, User
 from django.utils import timezone
 
 from accounts.tests import make_data_privacy_agreement
@@ -275,7 +273,7 @@ class AjaxTests(TestSetupMixin, TestCase):
                 'status': 'OPEN',
                 'display_status': 'OPEN',
                 'no_show': False,
-                'display_paid': '<span class="fas fa-times"></span>',
+                'display_paid': '<span class="not-confirmed fas fa-times"></span>',
             }
         )
 
@@ -289,7 +287,7 @@ class AjaxTests(TestSetupMixin, TestCase):
                 'status': 'OPEN',
                 'display_status': 'OPEN',
                 'no_show': False,
-                'display_paid': '<span class="fas fa-times"></span>',
+                'display_paid': '<span class="not-confirmed fas fa-times"></span>',
             }
         )
 
@@ -304,7 +302,7 @@ class AjaxTests(TestSetupMixin, TestCase):
                 'status': 'OPEN',
                 'display_status': 'CANCELLED',
                 'no_show': True,
-                'display_paid': '<span class="fas fa-times"></span>',
+                'display_paid': '<span class="not-confirmed fas fa-times"></span>',
             }
         )
 
@@ -320,6 +318,6 @@ class AjaxTests(TestSetupMixin, TestCase):
                 'status': 'OPEN',
                 'display_status': 'OPEN',
                 'no_show': False,
-                'display_paid': '<span class="fas fa-check"></span>',
+                'display_paid': '<span class="confirmed fas fa-check"></span>',
             }
         )

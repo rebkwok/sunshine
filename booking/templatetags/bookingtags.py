@@ -52,9 +52,9 @@ def plural_format(value):
 @register.filter
 def format_paid_status(booking):
     if booking.paid:
-        return mark_safe('<span class="confirmed fa fa-check"></span>')
+        return mark_safe('<span class="confirmed fas fa-check"></span>')
     else:
-        return mark_safe('<span class="not-confirmed fa fa-close"></span>')
+        return mark_safe('<span class="not-confirmed fas fa-times"></span>')
 
 
 @register.simple_tag
@@ -68,3 +68,13 @@ def get_booking(event, user):
 def get_range(value, start=0):
     # start: 0 or 1
     return range(start, value + start)
+
+
+@register.filter
+def lookup(dictionary, key):
+    if dictionary:
+        return dictionary.get(key)
+
+@register.filter
+def renderpaypalform(paypalforms_dict, key):
+    return paypalforms_dict[key].render()

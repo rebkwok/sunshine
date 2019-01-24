@@ -17,10 +17,11 @@ class PayPalPaymentsListForm(PayPalPaymentsForm):
 
     def render(self):
         super(PayPalPaymentsListForm, self).render()
-        return mark_safe(u"""<form class="paypal-btn-form" action="%s" method="post">
-            %s
-        <input class="paypal-table-btn" type="image" src="%s" border="0" name="submit" alt="Pay Now" />
-        </form>""" % (self.get_endpoint(), self.as_p(), self.get_image()))
+        return mark_safe(
+            u"""<form class="paypal-btn-form" action="{endpoint}" method="post">
+            {form}
+        <input style="height: 75%;" type="image" src="{image}" border="0" name="submit" alt="Pay Now" />
+        </form>""".format(endpoint=self.get_endpoint(), form=self.as_p(), image=self.get_image()))
 
 
 class PayPalPaymentsUpdateForm(PayPalPaymentsForm):
@@ -38,7 +39,7 @@ class PayPalPaymentsUpdateForm(PayPalPaymentsForm):
 
     def render(self):
         super(PayPalPaymentsUpdateForm, self).render()
-        return mark_safe(u"""<form class="paypal-btn-form" action="%s" method="post">
+        return mark_safe(u"""<form action="%s" method="post">
             %s
         <input type="image" src="%s" border="0" name="submit" alt="Paypal" />
         </form>""" % (self.get_endpoint(), self.as_p(), self.get_image()))

@@ -258,19 +258,20 @@ class WaitingListTests(TestSetupMixin, TestCase):
         Test that a cancelled booking shows 'join waiting list' button if
         event is full
         """
-        event = mommy.make_recipe('booking.future_EV', max_participants=3)
+        event = mommy.make_recipe('booking.future_PC', max_participants=3)
         mommy.make_recipe('booking.booking', event=event, _quantity=2)
         mommy.make_recipe(
             'booking.booking', event=event, user=self.user, status='CANCELLED'
         )
         resp = self._get_booking_list(self.user)
         resp.render()
-        self.assertIn('rebook_button', str(resp.content))
+        self.assertIn('book_button', str(resp.content))
+        self.assertIn('Rebook', str(resp.content))
 
         mommy.make_recipe('booking.booking', event=event)
         resp = self._get_booking_list(self.user)
         resp.render()
-        self.assertNotIn('rebook_button', str(resp.content))
+        self.assertNotIn('book_button', str(resp.content))
         self.assertNotIn('leave_waiting_list_button', str(resp.content))
         self.assertIn('join_waiting_list_button', str(resp.content))
 
@@ -280,7 +281,7 @@ class WaitingListTests(TestSetupMixin, TestCase):
         event is full and user already on the waiting list
         """
         event = mommy.make_recipe(
-            'booking.future_EV', max_participants=3)
+            'booking.future_PC', max_participants=3)
         mommy.make_recipe('booking.booking', event=event, _quantity=2)
         mommy.make_recipe(
             'booking.booking', event=event, user=self.user, status='CANCELLED'
@@ -291,7 +292,7 @@ class WaitingListTests(TestSetupMixin, TestCase):
         resp = self._get_booking_list(self.user)
         resp.render()
         # user is on waiting list, but event not full; show "Rebook"
-        self.assertIn('rebook', str(resp.content))
+        self.assertIn('Rebook', str(resp.content))
 
         mommy.make_recipe('booking.booking', event=event)
         resp = self._get_booking_list(self.user)
