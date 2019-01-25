@@ -34,11 +34,16 @@ class EventListView(ListView):
     paginate_by = 20
 
     def get_queryset(self):
-        self.event_type = self.request.GET.get('type', 'regular_session')
-        self.event_name = self.request.GET.get('name', 'all')
-        self.venue = self.request.GET.get('venue', 'all')
-        self.event_day = self.request.GET.get('day')
-        self.event_time = self.request.GET.get('time')
+        self.event_type = self.request.GET.get('type', 'regular_session').strip()
+        name = self.request.GET.get('name', 'all').strip()
+        level = self.request.GET.get('level')
+        if name and level:
+            self.event_name = '{} ({})'.format(name, level.strip())
+        else:
+            self.event_name = name
+        self.venue = self.request.GET.get('venue', 'all').strip()
+        self.event_day = self.request.GET.get('day', '').strip()
+        self.event_time = self.request.GET.get('time', '').strip()
 
         # show all future events for staff users
         if self.request.user.is_staff:
@@ -97,10 +102,10 @@ class EventListView(ListView):
             ).values_list('id', flat=True)
 
         context['workshops_available_to_book'] = Event.objects.filter(
-            event_type='workshop', date__gte=timezone.now()
+            event_type='workshop', date__gte=timezone.now(), cancelled=False
         ).exists()
         context['classes_available_to_book'] = Event.objects.filter(
-            event_type='regular_session', date__gte=timezone.now()
+            event_type='regular_session', date__gte=timezone.now(), cancelled=False
         ).exists()
 
         form = EventsFilter(

@@ -60,7 +60,7 @@
                             {% endif %}>
                             <td class="table-center timetable-row">
                                 <!--<a href="{% url 'website:booking_request' session.pk %}">-->
-                                <a href="{% url 'booking:events' %}?name={{session.name}}&venue={{session.venue.abbreviation}}&day={{session.session_day}}&time={{session.start_time|date:'H:i'}}">
+                                <a href="{% url 'booking:events' %}?name={{session.name}}&level={{session.level}}&venue={{session.venue.abbreviation}}&day={{session.session_day}}&time={{session.start_time|date:'H:i'}}">
                                 <div class="btn btn-info table-btn booking-btn">View Dates</div></a>
                             </td>
                             <td class="timetable-row">{{ session.session_day|format_day }}</td>

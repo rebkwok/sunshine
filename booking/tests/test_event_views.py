@@ -148,6 +148,16 @@ class EventListViewTests(TestSetupMixin, TestCase):
         self.assertEqual(len(resp.context_data['events']), 1)
         self.assertEqual(resp.context_data['events'][0], self.reg_class2)
 
+    def test_event_list_with_name_and_level(self):
+        url = reverse('booking:events') + '?name=Class 1&level=Level 1'
+        resp = self.client.get(url)
+        self.assertEqual(len(resp.context_data['events']), 0)
+
+        event = mommy.make_recipe('booking.future_PC', name='Class 1 (Level 1)')
+        resp = self.client.get(url)
+        self.assertEqual(len(resp.context_data['events']), 1)
+        self.assertEqual(resp.context_data['events'][0], event)
+
     @patch('booking.views.event_views.timezone.now')
     def test_event_list_with_name_day_and_time(self, mock_now):
         mock_now.return_value = datetime(2019, 1, 1, 18, 0, tzinfo=timezone.utc)
@@ -295,7 +305,6 @@ class EventDetailViewTests(TestSetupMixin, TestCase):
             'PREVIEW ONLY: THIS PAGE IS NOT VISIBLE TO NON-STAFF USERS',
             resp.rendered_content
         )
-
 
     def test_with_booked_event(self):
         """
