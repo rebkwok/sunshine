@@ -11,7 +11,13 @@
 
 <div class="container-fluid">
 
-        <h1 class="page-header">Book Classes</h1>
+        <h1 class="page-header">Book Classes
+            {% if workshops_available_to_book %}</br>
+        <a class="page-header-note" href="{% url 'booking:events' %}?type=workshop">Show Workshops</a>
+            {% endif %}
+        </h1>
+
+
         {% if day and time %}
             <h3>
                 Showing classes for {{ name }} - {{ day }} {{ time }} at {{ venue }}<br/>
@@ -20,10 +26,14 @@
             <br/><br/>
         {% endif %}
 
+    {% if not user.is_authenticated %}
+    <div>
+        <p><a class='btn btn-info' href="{% url 'account_login' %}?next={{request.get_full_path}}">Log in</a> to book</p>
+        <span class="divider"></span>
+    </div>
+    {% endif %}
 
-        {% if workshops_available_to_book %}
-        <h4><a href="{% url 'booking:events' %}?type=workshop">Show Workshops</a></h4>
-        {% endif %}
+
 
     {% if events %}
 
@@ -43,22 +53,20 @@
 
         <div class="row">
             <div class="col-sm-12">
-                {% if not user.is_authenticated %}
-                    <p><a href="{% url 'account_login' %}?next={{request.get_full_path}}">Log in</a> to book</p>
-                {% endif %}
+
                         {% include 'booking/includes/pagination.html' %}
 
                 <div class="panel panel-transparent">
 
                     <div class="table-responsive">
                         <table class="table table-book-classes">
-                            <tr class="panel-heading">
+                            <tr>
                                 {% if user.is_authenticated %}
-                                    <th class="table-center"></th>
+                                    <th class="table-center table-book-btn-col"></th>
                                 {% endif %}
-                                <th>Date</th>
-                                <th>Class</th>
-                                <th>Venue</th>
+                                <th class="table-center">Date</th>
+                                <th class="table-center">Class</th>
+                                <th class="table-center">Venue</th>
                                 <th class="table-center">Spaces</th>
                             </tr>
                             <tbody>
@@ -68,9 +76,9 @@
                                 <tr id="table-row-event-{{ event.id }}" class="table-row-transparent {% if event.id in booked_events %}table-row-booked{% endif %}">
                                     {% if user.is_authenticated %}
                                         {% if event.id in staff_only_events %}
-                                            <td class="table-center">VISIBLE TO STAFF ONLY</td>
+                                            <td class="table-center table-book-btn-col">VISIBLE TO STAFF ONLY</td>
                                         {% else %}
-                                            <td class="table-center">
+                                            <td class="table-center table-book-btn-col">
                                                 {% if event.bookable or event.id in booked_events %}
                                                     <span
                                                         id="book_{{ event.id }}"
@@ -91,9 +99,9 @@
                                             </td>
                                         {% endif %}
                                     {% endif %}
-                                    <td>{{ event.date | date:"D d M H:i" }}</td>
-                                    <td>{{ event.name }}</td>
-                                    <td>{{ event.venue.abbreviation }}</td>
+                                    <td class="table-center">{{ event.date | date:"D d M H:i" }}</td>
+                                    <td class="table-center">{{ event.name }}</td>
+                                    <td class="table-center">{{ event.venue.abbreviation }}</td>
                                     <td class="table-center">
                                         {% if event.max_participants %}
                                             <span id="booking_count_{{ event.id }}"
