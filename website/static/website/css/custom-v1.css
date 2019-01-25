@@ -885,7 +885,7 @@ form.mock-bs-form > p > input[type='text'],
 }
 
 .table-row-booked {
-  background-color: rgba(242,189,73,0.3);
+  background-color: rgba(99,206,75,0.3);
   color: #4B088A;
 }
 
@@ -896,4 +896,12 @@ form.mock-bs-form > p > input[type='text'],
 
 span.current-page {
     font-weight: bold;
+}
+
+.page-header-note {
+    font-size: large;
+}
+
+.table > tbody > tr > td.table-book-btn-col, table > tr > th.table-book-btn-col {
+    max-width: 150px;
 }
