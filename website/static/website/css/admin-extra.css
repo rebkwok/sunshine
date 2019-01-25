@@ -1,7 +1,18 @@
-.admin-center > h1, .admin-center > h2, .admin-center > p, .admin-center > form {
+.admin-center > h1, .admin-center > h2, .admin-center > h3, .admin-center > p, .admin-center > form {
     padding-left: 20px;
     margin-left: 0;
 }
+
+.admin-center > h2 {
+    font-size: x-large;
+    margin-bottom: 15px;
+    margin-top: 15px;
+}
+
+.admin-center > h3 {
+    font-size: large;
+}
+
 
 .admin-center > p {
     font-size: small;
@@ -34,4 +45,17 @@ span.helptext {
 
 label.select-all-label {
     display: inline-block;
+}
+
+.new-doc {
+    color: red;
+}
+
+.admin-divider {
+  height: 1px;
+  width:100%;
+  display:block; /* for use on default inline elements like span */
+  margin: 9px 0;
+  overflow: hidden;
+  background-color: darkgrey;
 }

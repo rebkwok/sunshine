@@ -14,27 +14,75 @@
             <h2>Website</h2>
             <p>Add text and photos to populate website main
                 page, class and instructor descriptions.</p>
-
-            <h2>Timetable</h2>
-            <p>Enter scheduled weekly classes to appear on the timetable page.</p>
+            <span class="admin-divider"></span>
 
             <h2>Gallery</h2>
             <p>Add images for the gallery pages.</p>
             <p>Use "Categories" for easier uploading, use "Images" if you
                 need to change the category of an already uploaded image.</p>
 
+            <span class="admin-divider"></span>
             <h2>Accounts</h2>
             <p>List of registered users.</p>
 
-            <h2>Workshops</h2>
-            <p>For online workshop booking.</p>
-            <p>Workshops are only displayed on the site if the "show on site" checkbox has been ticked.</p>
+            <span class="admin-divider"></span>
+            <h2>Timetable</h2>
+            <p>Enter scheduled weekly classes to appear on the timetable page.</p>
+
+             <h3 class="new-doc">Upload Timetable *new*</h3>
+             <p>Upload timetable sessions as regular classes that will be available to book online.  Select
+             required sessions to upload, and start/end dates.  Class names are generated from timetable sessions
+                 as "Session Name (Session Level)".  i.e. a session called "Aerial Hoop" with level "Level 1"
+                 will be uploaded with the name "Aerial Hoop (Level 1)".
+             </p>
+             <p>You have the option to upload classes with or without "show on site".  If you untick the box, classes will
+             not be immediately available to book, and you can go to the "Book" tab on the website to review and check they
+                 look correct (they will be displayed to logged-in staff users only).  You will can turn "show on site" on/off
+                 for multiple classes at once in the "Classes/Workshops" section of the admin.
+             </p>
+
+            <p><strong class="new-doc">IMPORTANT:</strong> the system will check for existing classes by name, date and venue to avoid creating duplicates.
+                 If you change any of these fields on a timetable session OR class (or if you change level on a timetable session)
+                 and then re-upload for the same dates, you will create duplicate classes.
+             </p>
+            <span class="admin-divider"></span>
+
+            <h2>Classes/Workshops</h2>
+            <p>For online class/workshop booking.</p>
+            <p>Classes/Workshops are only displayed on the site if the "show on site" checkbox has been ticked.</p>
+
+            <h3 class="new-doc">Regular Classes *new*</h3>
+            <p>Generated via the Upload Timetable; can also be added individually.</p>
+            <p>Classes are available to book online, but do not take payment.  Reminders will be sent to students
+                who book more than 6 hours before the class.  (Sent up to 48 hrs before the class - depending on when they booked - to give them time to cancel within the
+            24 hr cancellation period.)</p>
+
+            <h3>Workshops</h3>
+
             <p>Payments are via paypal; you can enter any paypal email address here, but make sure you've
             checked it carefully.  Use the "Test paypal email" link to confirm that the site can
             process payments to the email address you've chosen.</p>
 
+            <h3 class="new-doc">Cancelling classes/workshops *new*</h3>
+                <ol>
+                    There are 2 ways to cancel a class/workshop:
+                    <li>From the class/workshop list, check the box for the class(es) you want to cancel,
+                        select "Cancel class..." from the drop down menu, and click Go</li>
+                    <li>From within the page for an indiviudal class/workshop, use the "Cancel class" link
+                        in the menu on the right hand side of the page.
+                    </li>
+                </ol>
+                <p>Both options will cancel the class and send notification emails to anyone with open bookings.</p>
+
+            <h3 class="new-doc">Registers *new*</h3>
+            <p>Shows bookings for upcoming classes; use these to mark students as paid/attended/no-show.  New bookings can
+            also be added here.</p>
+            <p>This section can be made available to selected users (i.e. non-superuser instructors).</p>
+
             <h2>Bookings</h2>
-            <p>Review online bookings and waiting lists for workshops.</p>
+            <p>Review online bookings and waiting lists for classes/workshops.</p>
+
+            <span class="admin-divider"></span>
 
             <h2>Payments</h2>
             <p>Paypal transaction information.</p>
@@ -43,6 +91,8 @@
             associated with the email you are testing.  You must use a different account to the one being
             tested to to send the payment.  Paypal accounts do not need to be business accounts, but they
             must be verified.</p>
+
+            <span class="admin-divider"></span>
 
             <h2>Activity Log</h2>
             <p>Tracks activity on the site, particularly in relation to bookings.</p>
