@@ -29,12 +29,6 @@ class EventTests(TestCase):
         event = Event.objects.get(id=event.id)
         self.assertFalse(event.bookable)
 
-    def test_absolute_url(self):
-        self.assertEqual(
-            self.event.get_absolute_url(),
-            reverse('booking:event_detail', kwargs={'slug': self.event.slug})
-        )
-
     def test_str(self):
         event = mommy.make_recipe(
             'booking.past_event',
