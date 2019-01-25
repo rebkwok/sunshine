@@ -297,6 +297,9 @@ class RegisterAdmin(admin.ModelAdmin):
             del actions['delete_selected']
         return actions
 
+    def get_queryset(self, request):
+        return super().get_queryset(request).filter(cancelled=False)
+
     def has_add_permission(self, request, obj=None):
         return False
 

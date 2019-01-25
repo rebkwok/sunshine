@@ -217,3 +217,10 @@ class BookingTests(TestCase):
 
         booking.refresh_from_db()
         self.assertIsNone(booking.date_rebooked)
+
+    def test_booking_cannot_be_no_show_and_attended(self):
+        booking = mommy.make_recipe('booking.booking', event=self.event)
+        booking.attended = True
+        booking.no_show = True
+        with self.assertRaises(ValidationError):
+            booking.save()

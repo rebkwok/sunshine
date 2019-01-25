@@ -81,9 +81,6 @@ class Event(models.Model):
             time_until_event > self.cancellation_period
         )
 
-    def get_absolute_url(self):
-        return reverse("booking:event_detail", kwargs={'slug': self.slug})
-
     def __str__(self):
         return '{} - {}'.format(
             str(self.name),
@@ -161,6 +158,11 @@ class Booking(models.Model):
                         _('Attempting to create booking for full '
                           'event %s' % self.event.id)
                     )
+
+        if self.attended and self.no_show:
+            raise ValidationError(
+                _('Cannot mark booking as both attended and no-show')
+            )
 
     def save(self, *args, **kwargs):
 
