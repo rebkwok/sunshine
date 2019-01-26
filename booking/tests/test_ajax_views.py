@@ -184,7 +184,10 @@ class BookingToggleAjaxCreateViewTests(TestSetupMixin, TestCase):
         event = mommy.make_recipe('booking.future_PC', date=datetime(2018, 1, 1, 10, tzinfo=timezone.utc))
         url = reverse('booking:toggle_booking', args=[event.id])
 
-        booking = mommy.make_recipe('booking.booking', user=self.user, event=event)
+        booking = mommy.make_recipe(
+            'booking.booking', user=self.user, event=event,
+            date_booked=datetime(2018, 1, 1, 8, 44, tzinfo=timezone.utc)  # booked > 15 mins ago
+        )
         self.client.login(username=self.user.username, password='test')
         resp = self.client.post(url)
         self.assertEqual(resp.status_code, 200)
@@ -194,6 +197,48 @@ class BookingToggleAjaxCreateViewTests(TestSetupMixin, TestCase):
         booking.refresh_from_db()
         self.assertEqual(booking.status, 'OPEN')
         self.assertTrue(booking.no_show)
+
+    @patch('booking.models.timezone.now')
+    def test_cancel_booking_within_15_mins_during_cancellation_period(self, mock_now):
+        """
+        Cancelling within 15 mins allows proper cancelling
+        """
+        mock_now.return_value = datetime(2018, 1, 1, 9, tzinfo=timezone.utc)
+        event = mommy.make_recipe('booking.future_PC', date=datetime(2018, 1, 1, 10, tzinfo=timezone.utc))
+        url = reverse('booking:toggle_booking', args=[event.id])
+        self.client.login(username=self.user.username, password='test')
+
+        booking = mommy.make_recipe(
+            'booking.booking', user=self.user, event=event,
+            date_booked=datetime(2018, 1, 1, 8, 44, tzinfo=timezone.utc)
+        )
+
+        resp = self.client.post(url)
+        booking.refresh_from_db()
+        self.assertEqual(resp.context['alert_message']['message'], 'Cancelled.')
+        self.assertEqual(booking.status, 'OPEN')
+        self.assertTrue(booking.no_show)
+
+    @patch('booking.models.timezone.now')
+    def test_cancel_rebooking_within_15_mins_during_cancellation_period(self, mock_now):
+        """
+        Cancelling within 15 mins of rebooking allows proper cancelling
+        """
+        mock_now.return_value = datetime(2018, 1, 1, 9, tzinfo=timezone.utc)
+        event = mommy.make_recipe('booking.future_PC', date=datetime(2018, 1, 1, 10, tzinfo=timezone.utc))
+        url = reverse('booking:toggle_booking', args=[event.id])
+        self.client.login(username=self.user.username, password='test')
+
+        booking = mommy.make_recipe(
+            'booking.booking', user=self.user, event=event,
+            date_booked=datetime(2018, 1, 1, 5, 0, tzinfo=timezone.utc),
+            date_rebooked=datetime(2018, 1, 1, 8, 46, tzinfo=timezone.utc)
+        )
+        resp = self.client.post(url)
+        booking.refresh_from_db()
+        self.assertEqual(resp.context['alert_message']['message'], 'Cancelled.')
+        self.assertEqual(booking.status, 'CANCELLED')
+        self.assertFalse(booking.no_show)
 
     def test_cancel_full_booking_emails_waiting_list(self):
         """

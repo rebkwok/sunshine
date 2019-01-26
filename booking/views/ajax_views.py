@@ -1,7 +1,10 @@
+from datetime import timedelta
+
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseBadRequest, HttpResponse, JsonResponse
 from django.views.decorators.http import require_http_methods
+from django.utils import timezone
 from django.shortcuts import render, get_object_or_404
 
 from activitylog.models import ActivityLog
@@ -51,12 +54,13 @@ def toggle_booking(request, event_id):
     event_was_full = False
     if existing_booking_status == "OPEN":
         event_was_full = event.spaces_left == 0
-
-        # Booking can be fully cancelled if the event allows cancellation AND
+        # allow 15 mins to properly cancel in case user clicked the wrong button by mistake
+        # Otherwise, booking can be fully cancelled if the event allows cancellation AND
         # the cancellation period is not past
         # If not, we let people cancel but leave the booking status OPEN and
         # set to no-show
-        can_cancel = event.allow_booking_cancellation and event.can_cancel()
+        booked_within_allowed_time = _booked_within_allowed_time(booking)
+        can_cancel = booked_within_allowed_time or (event.allow_booking_cancellation and event.can_cancel())
         if can_cancel:
             booking.status = 'CANCELLED'
         else:
@@ -167,6 +171,12 @@ def toggle_booking(request, event_id):
         "booking/includes/book_button_toggle.html",
         context
     )
+
+
+def _booked_within_allowed_time(booking):
+    allowed_datetime = timezone.now() - timedelta(minutes=15)
+    return (booking.date_rebooked and booking.date_rebooked > allowed_datetime) \
+        or (booking.date_booked > allowed_datetime)
 
 
 @login_required
