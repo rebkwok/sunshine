@@ -70,9 +70,9 @@ class Venue(models.Model):
 
 
 MEMBERSHIP_CATEGORY_CHOICES = (
-    (1, "Pole and hoop classes"),
-    (2, "General fitness and conditioning classes"),
-    (3, "Open training")
+    ("1", "Pole and hoop classes"),
+    ("2", "General fitness and conditioning classes"),
+    ("3", "Open training")
 )
 
 

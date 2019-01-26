@@ -1,4 +1,5 @@
 from django.contrib import admin
+
 from timetable.models import Instructor, TimetableSession, SessionType, Venue
 
 
@@ -40,6 +41,12 @@ class TimetableSessionAdmin(admin.ModelAdmin):
     ordering = ['session_day', 'start_time']
 
     list_filter = ['session_type', 'instructor', 'venue']
+
+    def get_form(self, request, obj=None, **kwargs):
+        form = super().get_form(request, obj, **kwargs)
+        membership = form.base_fields['membership_category']
+        membership.choices.insert(0, (None, '------'))
+        return form
 
 
 admin.site.register(Instructor, InstructorAdmin)
