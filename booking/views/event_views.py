@@ -101,12 +101,20 @@ class EventListView(ListView):
                 show_on_site=False
             ).values_list('id', flat=True)
 
-        context['workshops_available_to_book'] = Event.objects.filter(
-            event_type='workshop', date__gte=timezone.now(), cancelled=False
-        ).exists()
-        context['classes_available_to_book'] = Event.objects.filter(
-            event_type='regular_session', date__gte=timezone.now(), cancelled=False
-        ).exists()
+        if self.event_type == 'regular_session':
+            alternative_events = Event.objects.filter(
+                event_type='workshop', date__gte=timezone.now(), cancelled=False
+            )
+        else:
+            alternative_events = Event.objects.filter(
+                event_type='regular_session', date__gte=timezone.now(), cancelled=False
+            )
+
+        if not self.request.user.is_staff:
+            alternative_events = alternative_events.filter(show_on_site=True)
+
+        context['workshops_available_to_book'] = alternative_events.exists() if self.event_type == 'regular_session' else None
+        context['classes_available_to_book'] = alternative_events.exists() if self.event_type == 'workshop' else None
 
         form = EventsFilter(
             event_type=self.event_type,
