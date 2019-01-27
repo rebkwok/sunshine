@@ -10,7 +10,8 @@
         </h1>
 	</div>
 	<div class="col-xs-12">
-		<p>To book for specific classes, please see the <a href="{% url 'timetable:timetable' %}">timetable</a>.</p>
+		<p>To book for specific classes, please see the <a href="{% url 'timetable:timetable' %}">timetable</a> or
+			view all classes available for booking <a href="{% url 'booking:events' %}">here</a>.</p>
 		<p>For membership queries, private lessons/one-to-one tuition, or any other enquiries, please <a href="{% url 'website:contact_form' %}">contact us</a>.</p>
     </div>
 	<div class="col-xs-12">
@@ -24,7 +25,7 @@
 		<span class="label label-success label-rounded label-member-title">Green classes</span>
 			<ul>
 				<li>General fitnees, condiitioning and stretching classes</li>
-				<li>£ 4.50 per class (HIIT £3.50)</li>
+				<li>£ 5 per class (HIIT/Circuits £3.50)</li>
 			</ul>
 		<span class="label label-primary label-rounded label-member-title">Open training</span>
 			<ul>
@@ -64,11 +65,13 @@
 					<tbody>
 						<tr>
 							<td class="timetable-row">A</td>
-							<td class="timetable-row">£15</td>
+							<td class="timetable-row">£20</td>
 							<td class="timetable-row">--</td>
 							<td class="timetable-row member-data">1</td>
 							<td class="timetable-row">--</td>
-							<td class="timetable-row" rowspan="2">No discount (see non-member costs above)</td>
+							<td class="timetable-row" rowspan="2">
+								No class discounts (see non-member costs above)
+							</td>
 						</tr>
 						<tr>
 							<td class="timetable-row">B</td>
@@ -79,13 +82,12 @@
 						</tr>
 						<tr>
 							<td class="timetable-row">C</td>
-							<td class="timetable-row">£30</td>
+							<td class="timetable-row">£45</td>
 							<td class="timetable-row">--</td>
 							<td class="timetable-row member-data">Unlimited</td>
 							<td class="timetable-row">--</td>
 							<td class="timetable-row">
 								<span class="label label-warning label-rounded label-member">Yellow classes: £5</span>
-								<span class="label label-primary label-rounded label-member">Open training day pass: £10</span>
 							</td>
 						</tr>
 						<tr>
@@ -97,7 +99,6 @@
 							<td class="timetable-row" rowspan="2">
 								<span class="label label-warning label-rounded label-member">Yellow classes: £5</span>
 								<span class="label label-success label-rounded label-member">Green classes: £3.50</span>
-								<span class="label label-primary label-rounded label-member">Open training day pass: £10</span>
 							</td>
 						</tr>
 						<tr>
@@ -136,7 +137,6 @@
 	<div class="col-xs-12">
 		<h3>Terms & Conditions</h3>
 		<ul>
-			<li>Membership options exclude Thursday Cowdenbeath classes</li>
 			<li>Memberships are <strong>non-refundable</strong></li>
 			<li>24 hours notice is required in order to make up a class at a later date</li>
 			<li>We have a 24hrs cancellation policy on drop in classes and private
@@ -150,7 +150,3 @@
 </div>
 
 {% endblock %}
-For more information or to book a class please use the "Booking request" buttons on the
-				<a href="{% url 'timetable:timetable' %}">Timetable</a> page or
-				<a href="mailto:carouselfitness@gmail.com?Subject=Booking%20enquiry" target="_blank">
-				email us</a>.
