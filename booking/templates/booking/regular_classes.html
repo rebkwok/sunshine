@@ -34,9 +34,6 @@
     {% endif %}
 
 
-
-    {% if events %}
-
     {% if not day or not time %}
         <form class="filter-row" action="" method="get">
                 <div class="row">
@@ -45,16 +42,19 @@
                     </div>
                     <div class="col-sm-2 filter">{{ form.name }}</div>
                     <div class="col-sm-2 filter">{{ form.venue }}</div>
+                    <input type="hidden" name="page" value="{{ request.GET.page }}" />
                     <div class="col-sm-1"><input class="btn btn-info table-btn" type="submit" value="Go" /></div>
                 </div>
             </form>
             </br>
     {% endif %}
 
+        {% if events %}
+
         <div class="row">
             <div class="col-sm-12">
 
-                        {% include 'booking/includes/pagination.html' %}
+                        {% include 'booking/includes/events_pagination.html' %}
 
                 <div class="panel panel-transparent">
 
@@ -118,7 +118,7 @@
                     </div>
                 </div>
 
-                {% include 'booking/includes/pagination.html' %}
+                {% include 'booking/includes/events_pagination.html' %}
 
             </div>
          </div>

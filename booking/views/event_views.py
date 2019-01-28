@@ -1,4 +1,3 @@
-from datetime import datetime
 import logging
 import pytz
 
@@ -8,6 +7,7 @@ from django.shortcuts import HttpResponseRedirect, render, get_object_or_404
 from django.views.generic import ListView, DetailView
 from django.utils import timezone
 from django.utils.safestring import mark_safe
+from django.http import Http404
 
 from booking.forms import EventsFilter
 from booking.models import Booking, Event, WaitingListUser
@@ -78,6 +78,19 @@ class EventListView(ListView):
                 ]
                 events = events.filter(id__in=event_ids)
         return events
+
+    def paginate_queryset(self, queryset, page_size):
+        """Paginate the queryset, if needed."""
+        try:
+            resp = super().paginate_queryset(queryset, page_size)
+        except Http404:
+            paginator = self.get_paginator(
+                queryset, page_size, orphans=self.get_paginate_orphans(),
+                allow_empty_first_page=self.get_allow_empty()
+            )
+            page = paginator.page(1)
+            return paginator, page, page.object_list, page.has_other_pages()
+        return resp
 
     def get_context_data(self, **kwargs):
         queryset = self.object_list
