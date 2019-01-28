@@ -136,7 +136,7 @@ class EventAdmin(DjangoObjectActions, admin.ModelAdmin):
         'status'
     )
 
-    list_filter = (EventDateListFilter, 'name')
+    list_filter = ('name', 'venue', EventDateListFilter)
     list_editable = ('show_on_site',)
     readonly_fields = ('cancelled',)
     actions_on_top = True
@@ -282,7 +282,7 @@ class RegularClassAdmin(EventAdmin):
 
 
 class RegisterAdmin(admin.ModelAdmin):
-    list_filter = ('name', 'venue')
+    list_filter = ('name', 'venue', EventDateListFilter)
     list_display = (
         'name', 'get_date', 'venue', 'get_spaces_left'
     )
