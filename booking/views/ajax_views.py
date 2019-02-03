@@ -41,7 +41,9 @@ def toggle_booking(request, event_id):
     # if making a new/reopening booking, make sure the event isn't full or cancelled
     if existing_booking_status != 'OPEN':  # i.e. None (new) or CANCELLED (reopening)
         if not event.spaces_left or event.cancelled:
-            message = "Sorry, this event {}".format('is now full' if not event.spaces_left else "has been cancelled")
+            message = "Sorry, this {} {}".format(
+                ev_type, 'is now full' if not event.spaces_left else "has been cancelled"
+            )
             return HttpResponseBadRequest(message)
 
     if existing_booking_status is None:

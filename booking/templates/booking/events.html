@@ -53,13 +53,14 @@
                             </tr>
                             <tbody>
                             {% for event in events %}
-                                <tr class="table-row-transparent">
+                                <tr class="table-row-transparent {% if event.cancelled %}expired{% elif event.id in booked_events %}table-row-booked{% endif %}">
                                 {% if user.is_authenticated %}
                                     {% if event.id in staff_only_events %}
                                         <td class="table-center table-book-btn-col">VISIBLE TO STAFF ONLY</td>
                                     {% else %}
                                         <td class="table-center table-book-btn-col">
-                                            {% if event.id in booked_events %}
+                                            {% if event.cancelled %}WORKSHOP CANCELLED
+                                            {% elif event.id in booked_events %}
                                                 <span class="fa fa-check"></span> <a href="{% url 'booking:bookings' %}">Booked</a>
                                             {% elif event not in booked_events %}
                                                 {% if event.bookable %}

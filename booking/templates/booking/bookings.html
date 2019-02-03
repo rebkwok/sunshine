@@ -60,7 +60,7 @@
                                     {% if not history %}
                                         <td class="table-center">
                                         {% if booking.event.cancelled %}CLASS CANCELLED
-                                        {% elif booking.event.bookable or booking.status == 'OPEN' %}
+                                        {% elif booking.status == 'OPEN' and not booking.no_show or booking.event.bookable %}
                                             <span
                                                 id="book_{{ booking.event.id }}"
                                                 data-event_id="{{ booking.event.id }}"

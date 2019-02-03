@@ -71,7 +71,7 @@ class Event(models.Model):
 
     @cached_property
     def bookable(self):
-        return self.spaces_left > 0
+        return self.spaces_left > 0 and not self.cancelled
 
     def can_cancel(self):
         time_until_event = self.date - timezone.now()

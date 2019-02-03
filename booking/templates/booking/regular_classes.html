@@ -73,13 +73,16 @@
                             {% for event in events %}
                                 {% get_booking event user as booking %}
 
-                                <tr id="table-row-event-{{ event.id }}" class="table-row-transparent {% if event.id in booked_events %}table-row-booked{% endif %}">
+                                <tr id="table-row-event-{{ event.id }}"
+                                    class="table-row-transparent {% if event.cancelled %}expired{% elif event.id in booked_events %}table-row-booked{% endif %}">
                                     {% if user.is_authenticated %}
                                         {% if event.id in staff_only_events %}
                                             <td class="table-center table-book-btn-col">VISIBLE TO STAFF ONLY</td>
                                         {% else %}
                                             <td class="table-center table-book-btn-col">
-                                                {% if event.bookable or event.id in booked_events %}
+                                                {% if event.cancelled %}
+                                                    CLASS CANCELLED
+                                                {% elif event.bookable or event.id in booked_events %}
                                                     <span
                                                         id="book_{{ event.id }}"
                                                         data-event_id="{{ event.id }}"
@@ -105,7 +108,7 @@
                                     <td class="table-center">
                                         {% if event.max_participants %}
                                             <span id="booking_count_{{ event.id }}"
-                                                class="label label-spaces {% if event.spaces_left == 0 %}label-default{% else %}label-success{% endif%} label-rounded">
+                                                class="label label-spaces {% if event.spaces_left == 0 or event.cancelled %}label-default{% else %}label-success{% endif%} label-rounded">
                                                 {{ event.spaces_left }}/{{ event.max_participants }}
                                             </span>
                                         {% else %}N/A{% endif %}
