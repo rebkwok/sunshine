@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+
+from datetime import timedelta
+
 from django.contrib import admin
 from django.contrib.auth.models import User
 from django.utils import timezone
@@ -103,7 +106,7 @@ class EventDateListFilter(admin.SimpleListFilter):
         if self.value() == 'past':
             return queryset.filter(date__lte=timezone.now())
         if self.value() is None:
-            return queryset.filter(date__gte=timezone.now())
+            return queryset.filter(date__gte=timezone.now() - timedelta(hours=1))
         return queryset
 
 
