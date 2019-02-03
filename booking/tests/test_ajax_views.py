@@ -75,7 +75,7 @@ class BookingToggleAjaxCreateViewTests(TestSetupMixin, TestCase):
         # try to book for event
         resp = self.client.post(self.url)
         self.assertEqual(resp.status_code, 400)
-        self.assertEqual(resp.content.decode('utf-8'), 'Sorry, this event is now full')
+        self.assertEqual(resp.content.decode('utf-8'), 'Sorry, this class is now full')
 
     def test_cannot_book_for_cancelled_event(self):
         """cannot create booking for a full event
@@ -87,7 +87,7 @@ class BookingToggleAjaxCreateViewTests(TestSetupMixin, TestCase):
         # try to book for event
         resp = self.client.post(url)
         self.assertEqual(resp.status_code, 400)
-        self.assertEqual(resp.content.decode('utf-8'), 'Sorry, this event has been cancelled')
+        self.assertEqual(resp.content.decode('utf-8'), 'Sorry, this workshop has been cancelled')
 
     def test_cancelled_booking_can_be_rebooked(self):
         """
