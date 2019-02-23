@@ -141,6 +141,7 @@ class WaitingListInline(admin.TabularInline):
     extra = 0
     max_num = 0
     autocomplete_fields = ('user',)
+    readonly_fields = ('user', 'date_joined')
 
 
 class EventAdmin(DjangoObjectActions, admin.ModelAdmin):
@@ -303,7 +304,7 @@ class RegularClassAdmin(EventAdmin):
 class RegisterAdmin(admin.ModelAdmin):
     list_filter = ('name', 'venue', EventDateListFilter)
     list_display = (
-        'name', 'get_date', 'venue', 'get_spaces_left'
+        'name', 'get_date', 'venue', 'get_spaces_left', 'waiting_list'
     )
     fields = ('name', 'get_date', 'venue')
     readonly_fields = ('name', 'get_date', 'venue')
@@ -328,6 +329,10 @@ class RegisterAdmin(admin.ModelAdmin):
     def get_spaces_left(self, obj):
         return obj.spaces_left
     get_spaces_left.short_description = 'Spaces left'
+
+    def waiting_list(self, obj):
+        return obj.waitinglistusers.exists()
+    waiting_list.boolean = True
 
     def get_date(self, obj):
         return obj.date.strftime('%a %d %b %Y %H:%M')
