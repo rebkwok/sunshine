@@ -133,10 +133,20 @@ class BookingInline(admin.TabularInline):
         return formset
 
 
+class WaitingListInline(admin.TabularInline):
+    fields = ('user', 'date_joined')
+    model = WaitingListUser
+    can_delete = True
+    can_add = False
+    extra = 0
+    max_num = 0
+    autocomplete_fields = ('user',)
+
+
 class EventAdmin(DjangoObjectActions, admin.ModelAdmin):
     list_display = (
         'name', 'get_date', 'venue', 'show_on_site', 'max_participants', 'get_spaces_left',
-        'status'
+        'status', 'waiting_list'
     )
 
     list_filter = ('name', 'venue', EventDateListFilter)
@@ -147,6 +157,7 @@ class EventAdmin(DjangoObjectActions, admin.ModelAdmin):
     form = EventForm
     actions = ['cancel_event']
     change_actions = ['cancel_event']
+    inlines = [BookingInline, WaitingListInline]
 
     fieldsets = [
         ('Event/Workshop details', {
@@ -202,6 +213,11 @@ class EventAdmin(DjangoObjectActions, admin.ModelAdmin):
         if obj.cancelled:
             return 'CANCELLED'
         return 'OPEN'
+
+    def waiting_list(self, obj):
+        return obj.waitinglistusers.exists()
+    waiting_list.boolean = True
+
 
     @takes_instance_or_queryset
     def cancel_event(self, request, queryset):
@@ -291,7 +307,7 @@ class RegisterAdmin(admin.ModelAdmin):
     )
     fields = ('name', 'get_date', 'venue')
     readonly_fields = ('name', 'get_date', 'venue')
-    inlines = (BookingInline,)
+    inlines = (BookingInline, WaitingListInline)
     ordering = ('date',)
 
     def get_actions(self, request):
