@@ -19,6 +19,7 @@ env = environ.Env(DEBUG=(bool, False),
                   PAYPAL_TEST=(bool, False),
                   USE_MAILCATCHER=(bool, False),
                   SHOW_DEBUG_TOOLBAR=(bool, False),
+                  AUTO_BOOK_EMAILS=(list, []),
                   )
 
 environ.Env.read_env(root('polefit/.env'))  # reading .env file
@@ -196,7 +197,7 @@ DEFAULT_STUDIO_EMAIL = 'carouselfitness@gmail.com'
 if DEBUG:  # pragma: no cover
     DEFAULT_STUDIO_EMAIL = 'rebkwok@gmail.com'
 SUPPORT_EMAIL = 'rebkwok@gmail.com'
-
+AUTO_BOOK_EMAILS = env('AUTO_BOOK_EMAILS')
 
 # MAILCATCHER
 if env('USE_MAILCATCHER'):  # pragma: no cover

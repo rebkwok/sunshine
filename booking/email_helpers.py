@@ -1,19 +1,24 @@
 from django.conf import settings
+from django.contrib.auth.models import User
 from django.core.mail import send_mail
 from django.core.mail.message import EmailMessage, EmailMultiAlternatives
 from django.template.loader import get_template
 
-
 from activitylog.models import ActivityLog
+
+from booking.models import Booking, Event, WaitingListUser
 
 
 def send_email(
         request,
         subject, ctx, template_txt, template_html=None,
-        prefix=settings.ACCOUNT_EMAIL_SUBJECT_PREFIX, to_list=[],
-        from_email=settings.DEFAULT_FROM_EMAIL, cc_list=[],
-        bcc_list=[], reply_to_list=[settings.DEFAULT_STUDIO_EMAIL]
+        prefix=settings.ACCOUNT_EMAIL_SUBJECT_PREFIX, to_list=None,
+        from_email=settings.DEFAULT_FROM_EMAIL, cc_list=None,
+        bcc_list=None, reply_to_list=None
 ):
+    to_list = to_list or []
+    bcc_list = bcc_list or []
+    reply_to_list = reply_to_list or [settings.DEFAULT_STUDIO_EMAIL]
     if request:
         host = 'http://{}'.format(request.META.get('HTTP_HOST'))
         ctx.update({'host': host})
@@ -49,21 +54,68 @@ def send_email(
 
 
 def send_waiting_list_email(event, users, host="http://carouselfitness.co.uk"):
-    ev_type = 'workshops'
-    try:
+    auto_book_user = None
+    user_emails = [user.email for user in users]
+
+    for email in settings.AUTO_BOOK_EMAILS:
+        # find first matching autobook email user (who doesn't already have an open booking)
+        if email in user_emails:
+            auto_book_user = User.objects.get(email=email)
+            booking, new = Booking.objects.get_or_create(event=event, user=auto_book_user)
+
+            # new or not, delete from waiting list and remove from user_emails
+            WaitingListUser.objects.filter(user=auto_book_user, event=event).delete()
+            user_emails.remove(auto_book_user.email)
+
+            if not new:  # for existing bookings, reopen if cancelled
+                if booking.status == 'CANCELLED' or booking.no_show:
+                    booking.status = 'OPEN'
+                    booking.no_show = False
+                    booking.save()
+                else:  # already booked and open, no need to autobook or send email
+                    auto_book_user = None
+
+            if auto_book_user is not None:
+                ActivityLog.objects.create(
+                    log='Booking autocreated for User {}, {}'.format(
+                        auto_book_user.username, event
+                    )
+                )
+                ActivityLog.objects.create(
+                    log='User {} removed from waiting list '
+                        'for {}'.format(auto_book_user.username, event)
+                )
+                break  # stop if we find an autobook user; we've now filled the space
+
+    ctx = {
+        'event': event,
+        'host': host,
+    }
+    if auto_book_user:
+        # send email to auto_book_users
         msg = EmailMultiAlternatives(
-            '{} {}'.format(settings.ACCOUNT_EMAIL_SUBJECT_PREFIX, event),
-            get_template('booking/email/waiting_list_email.txt').render(
-                {'event': event, 'host': host, 'ev_type': ev_type}
-            ),
+            '{} You have been booked into {}'.format(settings.ACCOUNT_EMAIL_SUBJECT_PREFIX, event),
+            get_template('booking/email/autobook_email.txt').render(ctx),
             settings.DEFAULT_FROM_EMAIL,
-            bcc=[user.email for user in users],
+            to=[auto_book_user.email],
+        )
+        msg.attach_alternative(
+            get_template('booking/email/autobook_email.html').render(ctx),
+            "text/html"
+        )
+        msg.send(fail_silently=False)
+
+    if user_emails and event.spaces_left:
+        # send email to rest of waiting list
+        msg = EmailMultiAlternatives(
+            '{} {} - space now available'.format(settings.ACCOUNT_EMAIL_SUBJECT_PREFIX, event),
+            get_template('booking/email/waiting_list_email.txt').render(ctx),
+            settings.DEFAULT_FROM_EMAIL,
+            bcc=user_emails,
         )
         msg.attach_alternative(
             get_template(
-                'booking/email/waiting_list_email.html').render(
-                {'event': event, 'host': host, 'ev_type': ev_type}
-            ),
+                'booking/email/waiting_list_email.html').render(ctx),
             "text/html"
         )
         msg.send(fail_silently=False)
@@ -75,9 +127,6 @@ def send_waiting_list_email(event, users, host="http://carouselfitness.co.uk"):
                 event
             )
         )
-    except Exception as e:
-        # send mail to tech support with Exception
-        send_support_email(e, __name__ + '.send_waiting_list_email')
 
 
 def send_support_email(e, source=""):

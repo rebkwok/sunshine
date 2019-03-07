@@ -1,0 +1,11 @@
+{% extends 'website/email/email_base.html' %}
+
+{% block messagecontent %}
+<div style="font-family: sans-serif;">
+
+<p>You have been booked into {{ event }}.  If you no longer wish to attend, please go to
+    <a href="{{ host }}/booking/my-bookings/">your bookings</a> to cancel.</p>
+
+</div>
+
+{% endblock %}
