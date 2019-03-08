@@ -118,7 +118,7 @@ class BookingInline(admin.TabularInline):
     autocomplete_fields = ('user',)
 
     def get_queryset(self, request):
-        return super(BookingInline, self).get_queryset(request).filter(status='OPEN')
+        return super(BookingInline, self).get_queryset(request).order_by('-status', 'no_show')
 
     def get_formset(self, request, obj=None, **kwargs):
         """
