@@ -62,14 +62,14 @@ class Event(models.Model):
         verbose_name = 'Workshop/Class'
         verbose_name_plural = 'Workshops/Classes'
 
-    @cached_property
+    @property
     def spaces_left(self):
         booked_number = Booking.objects.select_related('event', 'user').filter(
             event__id=self.id, status='OPEN', no_show=False
         ).count()
         return self.max_participants - booked_number
 
-    @cached_property
+    @property
     def bookable(self):
         return self.spaces_left > 0 and not self.cancelled
 
