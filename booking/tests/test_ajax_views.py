@@ -3,6 +3,7 @@ from datetime import datetime
 from unittest.mock import patch
 from model_mommy import mommy
 
+from django.conf import settings
 from django.core import mail
 from django.urls import reverse
 from django.test import override_settings, TestCase
@@ -263,6 +264,271 @@ class BookingToggleAjaxCreateViewTests(TestSetupMixin, TestCase):
         self.assertEqual(len(mail.outbox), 3)  # email to user, studio and 1 to all 3 waiting list users
         wl_email = mail.outbox[2]
         self.assertEqual(len(wl_email.bcc), 3)
+
+    @override_settings(AUTO_BOOK_EMAILS=['test1@test.test'])
+    def test_cancel_full_booking_emails_auto_book_user_on_waiting_list(self):
+        # if autobook user is on waiting list, create booking, email user, DO NOT email rest of waiting list
+        mommy.make_recipe('booking.booking', user=self.user, event=self.event)
+        mommy.make_recipe('booking.booking', event=self.event, _quantity=2)
+        for i in range(3):
+            mommy.make(WaitingListUser, event=self.event, user__email='test{}@test.test'.format(i))
+
+        self.assertFalse(self.event.spaces_left)
+        self.assertFalse('test1@test.test' in self.event.bookings.filter(status='OPEN', no_show=False)
+                         .values_list('user__email', flat=True))
+
+        # cancel booking
+        self.client.login(username=self.user.username, password='test')
+        self.client.post(self.url)
+
+        self.event.refresh_from_db()
+        # still no spaces left because autobook user has been booked
+        self.assertFalse(self.event.spaces_left)
+        self.assertTrue('test1@test.test' in self.event.bookings.filter(status='OPEN', no_show=False)
+                        .values_list('user__email', flat=True))
+        self.assertFalse(WaitingListUser.objects.filter(user__email='test1@test.test').exists())
+
+        # email to user, studio and 1 to autobook user. No waiting list emails
+        self.assertEqual(len(mail.outbox), 3)
+        self.assertEqual(
+            [[self.user.email], [settings.DEFAULT_STUDIO_EMAIL], ['test1@test.test']],
+            [mail.to for mail in mail.outbox]
+        )
+        self.assertIn('You have been booked into', mail.outbox[2].subject)
+
+    @override_settings(AUTO_BOOK_EMAILS=['test1@test.test', 'test0@test.test'])
+    def test_cancel_full_booking_emails_auto_book_user_on_waiting_list_multiple_users(self):
+        # if autobook user is on waiting list, create booking for first autobook user, email user,
+        # DO NOT email rest of waiting list
+        # if autobook user is on waiting list, create booking, email user, DO NOT email rest of waiting list
+        mommy.make_recipe('booking.booking', user=self.user, event=self.event)
+        mommy.make_recipe('booking.booking', event=self.event, _quantity=2)
+        for i in range(3):
+            mommy.make(WaitingListUser, event=self.event, user__email='test{}@test.test'.format(i))
+
+        self.assertFalse(self.event.spaces_left)
+        self.assertFalse('test1@test.test' in self.event.bookings.filter(status='OPEN', no_show=False)
+                         .values_list('user__email', flat=True))
+
+        # cancel booking
+        self.client.login(username=self.user.username, password='test')
+        self.client.post(self.url)
+
+        self.event.refresh_from_db()
+        # still no spaces left because autobook user has been booked
+        self.assertFalse(self.event.spaces_left)
+        # Only first autobook user booked
+        open_booking_emails = self.event.bookings.filter(status='OPEN', no_show=False).values_list('user__email', flat=True)
+        self.assertTrue('test1@test.test' in open_booking_emails)
+        self.assertFalse(WaitingListUser.objects.filter(user__email='test1@test.test').exists())
+        self.assertFalse('test0@test.test' in open_booking_emails)
+        self.assertTrue(WaitingListUser.objects.filter(user__email='test0@test.test').exists())
+
+        # email to user, studio and 1 to autobook user. No waiting list emails
+        self.assertEqual(len(mail.outbox), 3)
+        self.assertEqual(
+            [[self.user.email], [settings.DEFAULT_STUDIO_EMAIL], ['test1@test.test']],
+            [mail.to for mail in mail.outbox]
+        )
+        self.assertIn('You have been booked into', mail.outbox[2].subject)
+
+    @override_settings(AUTO_BOOK_EMAILS=['test1@test.test'])
+    def test_cancel_full_booking_emails_auto_book_user_on_waiting_list_previously_cancelled(self):
+        # change existing booking to open, email user, DO NOT email rest of waiting list
+        mommy.make_recipe('booking.booking', user=self.user, event=self.event)
+        cancelled_user = mommy.make_recipe('booking.user', email='test1@test.test')
+        booking = mommy.make_recipe(
+            'booking.booking', user=cancelled_user, event=self.event, status='CANCELLED'
+        )
+        self.assertIsNone(booking.date_rebooked)
+        mommy.make_recipe('booking.booking', event=self.event, _quantity=2)
+        mommy.make(WaitingListUser, event=self.event, user=cancelled_user)
+        for i in range(2, 4):
+            mommy.make(WaitingListUser, event=self.event, user__email='test{}@test.test'.format(i))
+
+        self.assertFalse(self.event.spaces_left)
+        self.assertFalse('test1@test.test' in self.event.bookings.filter(status='OPEN', no_show=False)
+                         .values_list('user__email', flat=True))
+
+        # cancel booking
+        self.client.login(username=self.user.username, password='test')
+        self.client.post(self.url)
+
+        self.event.refresh_from_db()
+        # still no spaces left because autobook user has been booked
+        self.assertFalse(self.event.spaces_left)
+        # Only first autobook user booked
+        open_booking_emails = self.event.bookings.filter(status='OPEN', no_show=False).values_list('user__email', flat=True)
+        self.assertTrue('test1@test.test' in open_booking_emails)
+        self.assertFalse(WaitingListUser.objects.filter(user__email='test1@test.test').exists())
+        # booking has been reopened
+        booking.refresh_from_db()
+        self.assertEqual(booking.status, 'OPEN')
+        self.assertIsNotNone(booking.date_rebooked)
+
+        # email to user, studio and 1 to autobook user. No waiting list emails
+        self.assertEqual(len(mail.outbox), 3)
+        self.assertEqual(
+            [[self.user.email], [settings.DEFAULT_STUDIO_EMAIL], ['test1@test.test']],
+            [mail.to for mail in mail.outbox]
+        )
+        self.assertIn('You have been booked into', mail.outbox[2].subject)
+
+    @override_settings(AUTO_BOOK_EMAILS=['test1@test.test'])
+    def test_cancel_full_booking_emails_auto_book_user_on_waiting_list_previously_no_show(self):
+        # change existing booking to open/not no_show, email user, DO NOT email rest of waiting list
+        mommy.make_recipe('booking.booking', user=self.user, event=self.event)
+        no_show_user = mommy.make_recipe('booking.user', email='test1@test.test')
+        booking = mommy.make_recipe(
+            'booking.booking', user=no_show_user, event=self.event, status='OPEN', no_show=True
+        )
+        self.assertIsNone(booking.date_rebooked)
+        mommy.make_recipe('booking.booking', event=self.event, _quantity=2)
+        mommy.make(WaitingListUser, event=self.event, user=no_show_user)
+        for i in range(2, 4):
+            mommy.make(WaitingListUser, event=self.event, user__email='test{}@test.test'.format(i))
+
+        self.assertFalse(self.event.spaces_left)
+        self.assertFalse('test1@test.test' in self.event.bookings.filter(status='OPEN', no_show=False)
+                         .values_list('user__email', flat=True))
+
+        # cancel booking
+        self.client.login(username=self.user.username, password='test')
+        self.client.post(self.url)
+
+        self.event.refresh_from_db()
+        # still no spaces left because autobook user has been booked
+        self.assertFalse(self.event.spaces_left)
+        # Only first autobook user booked
+        open_booking_emails = self.event.bookings.filter(status='OPEN', no_show=False).values_list('user__email', flat=True)
+        self.assertTrue('test1@test.test' in open_booking_emails)
+        self.assertFalse(WaitingListUser.objects.filter(user__email='test1@test.test').exists())
+        # booking has been reopened
+        booking.refresh_from_db()
+        self.assertEqual(booking.status, 'OPEN')
+        self.assertIsNotNone(booking.date_rebooked)
+
+        # email to user, studio and 1 to autobook user. No waiting list emails
+        self.assertEqual(len(mail.outbox), 3)
+        self.assertEqual(
+            [[self.user.email], [settings.DEFAULT_STUDIO_EMAIL], ['test1@test.test']],
+            [mail.to for mail in mail.outbox]
+        )
+        self.assertIn('You have been booked into', mail.outbox[2].subject)
+
+    @override_settings(AUTO_BOOK_EMAILS=['test1@test.test'])
+    def test_cancel_full_booking_emails_auto_book_user_on_waiting_list_already_booked(self):
+        # leave existing booking as is, do not email autobook user, email rest of waiting list
+        mommy.make_recipe('booking.booking', user=self.user, event=self.event)
+        open_user = mommy.make_recipe('booking.user', email='test1@test.test')
+        mommy.make_recipe(
+            'booking.booking', user=open_user, event=self.event, status='OPEN'
+        )
+        mommy.make_recipe('booking.booking', event=self.event, _quantity=1)
+        mommy.make(WaitingListUser, event=self.event, user=open_user)
+        for i in range(2, 4):
+            mommy.make(WaitingListUser, event=self.event, user__email='test{}@test.test'.format(i))
+
+        self.assertFalse(self.event.spaces_left)
+        self.assertTrue('test1@test.test' in self.event.bookings.filter(status='OPEN', no_show=False)
+                         .values_list('user__email', flat=True))
+
+        # cancel booking
+        self.client.login(username=self.user.username, password='test')
+        self.client.post(self.url)
+
+        self.event.refresh_from_db()
+        # a space left because autobook user was already booked
+        self.assertEqual(self.event.spaces_left, 1)
+
+        open_booking_emails = self.event.bookings.filter(status='OPEN', no_show=False).values_list('user__email', flat=True)
+        self.assertTrue('test1@test.test' in open_booking_emails)
+        # user removed from waiting list
+        self.assertFalse(WaitingListUser.objects.filter(user__email='test1@test.test').exists())
+
+        # email to user, studio and 1 to all waiting list emails
+        self.assertEqual(len(mail.outbox), 3)
+        self.assertEqual(
+            [[self.user.email], [settings.DEFAULT_STUDIO_EMAIL], []],
+            [mail.to for mail in mail.outbox]
+        )
+        self.assertIn('space now available', mail.outbox[2].subject)
+        self.assertEqual(mail.outbox[2].bcc, ['test2@test.test', 'test3@test.test'])
+
+    @override_settings(AUTO_BOOK_EMAILS=['test1@test.test', 'test2@test.test'])
+    def test_cancel_full_booking_emails_auto_book_user_on_waiting_list_already_booked_multiple_users(self):
+        # First autobook user of multiple is already booked
+        # Leave existing booking as is, do not email first user
+        # Create second user's booking and email, DO NOT email rest of waiting list
+        mommy.make_recipe('booking.booking', user=self.user, event=self.event)
+        open_user = mommy.make_recipe('booking.user', email='test1@test.test')
+        booking = mommy.make_recipe(
+            'booking.booking', user=open_user, event=self.event, status='OPEN'
+        )
+        mommy.make_recipe('booking.booking', event=self.event, _quantity=1)
+        for i in range(2, 4):
+            mommy.make(WaitingListUser, event=self.event, user__email='test{}@test.test'.format(i))
+
+        self.assertFalse(self.event.spaces_left)
+        self.assertTrue('test1@test.test' in self.event.bookings.filter(status='OPEN', no_show=False)
+                         .values_list('user__email', flat=True))
+
+        # cancel booking
+        self.client.login(username=self.user.username, password='test')
+        self.client.post(self.url)
+
+        self.event.refresh_from_db()
+        # no space left because 2nd autobook user booked
+        self.assertFalse(self.event.spaces_left)
+
+        open_booking_emails = self.event.bookings.filter(status='OPEN', no_show=False).values_list('user__email', flat=True)
+        self.assertTrue('test1@test.test' in open_booking_emails)
+        self.assertTrue('test2@test.test' in open_booking_emails)
+        # 2nd user removed from waiting list
+        self.assertFalse(WaitingListUser.objects.filter(user__email='test2@test.test').exists())
+
+        # email to cancelled user, studio and 2nd autobook user
+        self.assertEqual(len(mail.outbox), 3)
+        self.assertEqual(
+            [[self.user.email], [settings.DEFAULT_STUDIO_EMAIL], ['test2@test.test']],
+            [mail.to for mail in mail.outbox]
+        )
+
+    @override_settings(AUTO_BOOK_EMAILS=['test1@test.test'])
+    def test_cancel_full_booking_emails_auto_book_user_not_on_waiting_list(self):
+        # Email waiting list as normal
+        # leave existing booking as is, do not email autobook user, email rest of waiting list
+        mommy.make_recipe('booking.booking', user=self.user, event=self.event)
+        mommy.make_recipe(
+            'booking.booking', user__email='test1@test.test', event=self.event, status='OPEN'
+        )
+        mommy.make_recipe('booking.booking', event=self.event, _quantity=1)
+
+        for i in range(2, 4):
+            mommy.make(WaitingListUser, event=self.event, user__email='test{}@test.test'.format(i))
+
+        # cancel booking
+        self.client.login(username=self.user.username, password='test')
+        self.client.post(self.url)
+
+        self.event.refresh_from_db()
+        # a space left because autobook user was already booked
+        self.assertEqual(self.event.spaces_left, 1)
+
+        # autobook user still booked and not on waiting list
+        open_booking_emails = self.event.bookings.filter(status='OPEN', no_show=False).values_list('user__email', flat=True)
+        self.assertTrue('test1@test.test' in open_booking_emails)
+        # user removed from waiting list
+        self.assertFalse(WaitingListUser.objects.filter(user__email='test1@test.test').exists())
+
+        # email to user, studio and 1 to all waiting list emails
+        self.assertEqual(len(mail.outbox), 3)
+        self.assertEqual(
+            [[self.user.email], [settings.DEFAULT_STUDIO_EMAIL], []],
+            [mail.to for mail in mail.outbox]
+        )
+        self.assertIn('space now available', mail.outbox[2].subject)
+        self.assertEqual(mail.outbox[2].bcc, ['test2@test.test', 'test3@test.test'])
 
 
 class AjaxTests(TestSetupMixin, TestCase):

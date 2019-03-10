@@ -282,7 +282,9 @@ class RegisterAdminTests(TestCase):
             'bookings-TOTAL_FORMS': 1,
             'bookings-0-user': user1.id,
             'bookings-0-paid': False,
-            'bookings-0-status': 'OPEN'
+            'bookings-0-status': 'OPEN',
+            'waitinglistusers-INITIAL_FORMS': 0,
+            'waitinglistusers-TOTAL_FORMS': 0,
         }
         self.client.post(
             reverse('admin:booking_register_change', args=[event.id]),

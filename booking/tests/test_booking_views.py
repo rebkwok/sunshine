@@ -970,34 +970,6 @@ class BookingDeleteViewTests(TestSetupMixin, TestCase):
         self.assertEqual(user_mail.to, [self.user.email])
         self.assertEqual(waiting_list_mail.bcc, [wluser.user.email])
 
-    @patch('booking.email_helpers.EmailMultiAlternatives.send')
-    def test_errors_sending_waiting_list_emails(
-            self, mock_send_wl_emails):
-        mock_send_wl_emails.side_effect = Exception('Error sending mail')
-        event = mommy.make_recipe(
-            'booking.future_EV', cost=10, max_participants=3
-        )
-        booking = mommy.make_recipe(
-            'booking.booking', user=self.user, event=event,
-        )
-        mommy.make_recipe('booking.booking', event=event, _quantity=2)
-        mommy.make(
-            WaitingListUser, event=event, user__email='wl@test.com'
-        )
-
-        self._delete_response(self.user, booking)
-
-        self.assertEqual(len(mail.outbox), 0)
-        log = ActivityLog.objects.latest('id')
-        self.assertEqual(
-            log.log,
-            'Problem sending an email (booking.email_helpers.'
-            'send_waiting_list_email: Error sending mail)'
-        )
-
-        booking.refresh_from_db()
-        self.assertEqual(booking.status, 'CANCELLED')
-
 
 class BookingUpdateViewTests(TestSetupMixin, TestCase):
 
