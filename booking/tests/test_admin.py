@@ -62,7 +62,13 @@ class EventAdminTests(TestCase):
 
         ev_admin = admin.EventAdmin(Event, AdminSite())
         ev_query = ev_admin.get_queryset(None)[0]
-        self.assertEqual(ev_admin.get_date(ev_query), 'Wed 23 Jan 2019 18:00 (UTC)')
+        self.assertEqual(ev_admin.get_date(ev_query), 'Wed 23 Jan 2019 18:00 (GMT)')
+
+        # BST datetime
+        event.date = datetime(2019, 7, 23, 17, 0, tzinfo=timezone.utc)
+        event.save()
+        ev_query = ev_admin.get_queryset(None)[0]
+        self.assertEqual(ev_admin.get_date(ev_query), 'Tue 23 Jul 2019 18:00 (BST)')
 
     def test_cancel_event_action(self):
         event = mommy.make_recipe('booking.future_EV', max_participants=5)
@@ -308,7 +314,7 @@ class RegisterAdminTests(TestCase):
 
         reg_admin = admin.RegisterAdmin(Register, AdminSite())
         reg_query = reg_admin.get_queryset(None)[0]
-        self.assertEqual(reg_admin.get_date(reg_query), 'Wed 23 Jan 2019 18:00 (UTC)')
+        self.assertEqual(reg_admin.get_date(reg_query), 'Wed 23 Jan 2019 18:00 (GMT)')
 
     def test_actions(self):
         # no delete option

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+import pytz
 from datetime import timedelta
 
 from django.contrib import admin
@@ -13,6 +13,11 @@ from booking.models import Booking, WaitingListUser, Workshop, RegularClass, Reg
 from booking.forms import EventForm
 from booking.email_helpers import send_email
 
+
+def format_date_in_local_timezone(utc_datetime):
+    local_tz = pytz.timezone('Europe/London')
+    local_datetime = utc_datetime.astimezone(local_tz)
+    return local_datetime.strftime('%a %d %b %Y %H:%M (%Z)')
 
 class UserFilter(admin.SimpleListFilter):
 
@@ -206,7 +211,7 @@ class EventAdmin(DjangoObjectActions, admin.ModelAdmin):
     get_spaces_left.short_description = 'Spaces left'
 
     def get_date(self, obj):
-        return obj.date.strftime('%a %d %b %Y %H:%M (%Z)')
+        return format_date_in_local_timezone(obj.date)
     get_date.short_description = 'Date'
     get_date.admin_order_field = 'date'
 
@@ -335,7 +340,7 @@ class RegisterAdmin(admin.ModelAdmin):
     waiting_list.boolean = True
 
     def get_date(self, obj):
-        return obj.date.strftime('%a %d %b %Y %H:%M (%Z)')
+        return format_date_in_local_timezone(obj.date)
     get_date.short_description = 'Date'
     get_date.admin_order_field = 'date'
 
