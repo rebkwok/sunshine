@@ -206,7 +206,7 @@ class EventAdmin(DjangoObjectActions, admin.ModelAdmin):
     get_spaces_left.short_description = 'Spaces left'
 
     def get_date(self, obj):
-        return obj.date.strftime('%a %d %b %Y %H:%M')
+        return obj.date.strftime('%a %d %b %Y %H:%M (%Z)')
     get_date.short_description = 'Date'
     get_date.admin_order_field = 'date'
 
@@ -335,7 +335,7 @@ class RegisterAdmin(admin.ModelAdmin):
     waiting_list.boolean = True
 
     def get_date(self, obj):
-        return obj.date.strftime('%a %d %b %Y %H:%M')
+        return obj.date.strftime('%a %d %b %Y %H:%M (%Z)')
     get_date.short_description = 'Date'
     get_date.admin_order_field = 'date'
 
