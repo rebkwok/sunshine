@@ -2,6 +2,7 @@
 {% load static %}
 
 {% block extrastyle %}
+{{ block.super }}
 <link href="{% static 'website/css/admin-extra.css' %}" rel="stylesheet">
 {% endblock %}
 

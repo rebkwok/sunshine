@@ -1,5 +1,10 @@
 {% extends "admin/base_site.html" %}
 
+{% block extrastyle %}
+{{ block.super }}
+<style>.suit-columns { display: flex; }</style>
+{% endblock %}
+
 {% block footer_links %}{% endblock %}
 
 {# Footer copyright (right side) #}
