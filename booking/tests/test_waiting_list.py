@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from model_mommy import mommy
+from model_bakery import baker
 from django.core import mail
 from django.urls import reverse
 from django.test import TestCase, RequestFactory
@@ -101,14 +101,14 @@ class WaitingListTests(TestSetupMixin, TestCase):
         Test that a full event displays the 'Join Waiting List' button on the
         events list page
         """
-        event = mommy.make_recipe('booking.future_EV', max_participants=3)
-        mommy.make_recipe('booking.booking', event=event, _quantity=2)
+        event = baker.make_recipe('booking.future_EV', max_participants=3)
+        baker.make_recipe('booking.booking', event=event, _quantity=2)
         resp = self._get_event_list(self.user)
         resp.render()
         self.assertIn('book_button', str(resp.content))
         self.assertNotIn('join_waiting_list_button', str(resp.content))
 
-        mommy.make_recipe('booking.booking', event=event)
+        baker.make_recipe('booking.booking', event=event)
         resp = self._get_event_list(self.user)
         resp.render()
         self.assertIn('join_waiting_list_button', str(resp.content))
@@ -119,9 +119,9 @@ class WaitingListTests(TestSetupMixin, TestCase):
         Test that a full event that the user is already booked for does not
         display 'Join waiting list'
         """
-        event = mommy.make_recipe('booking.future_EV', max_participants=3)
-        mommy.make_recipe('booking.booking', event=event, _quantity=2)
-        mommy.make_recipe('booking.booking', event=event, user=self.user)
+        event = baker.make_recipe('booking.future_EV', max_participants=3)
+        baker.make_recipe('booking.booking', event=event, _quantity=2)
+        baker.make_recipe('booking.booking', event=event, user=self.user)
         resp = self._get_event_list(self.user,)
         self.assertEquals(list(resp.context_data['booked_events']), [event.id])
         resp.render()
@@ -133,9 +133,9 @@ class WaitingListTests(TestSetupMixin, TestCase):
         Test that a full event that the user is already on the waiting list for
         displays 'On waiting list'
         """
-        event = mommy.make_recipe('booking.future_EV', max_participants=3)
-        mommy.make_recipe('booking.booking', event=event, _quantity=3)
-        mommy.make_recipe(
+        event = baker.make_recipe('booking.future_EV', max_participants=3)
+        baker.make_recipe('booking.booking', event=event, _quantity=3)
+        baker.make_recipe(
             'booking.waiting_list_user', event=event, user=self.user
         )
         resp = self._get_event_list(self.user)
@@ -149,14 +149,14 @@ class WaitingListTests(TestSetupMixin, TestCase):
         self.assertIn('leave_waiting_list_button', str(resp.content))
 
     def test_waiting_list_events_context(self):
-        wlevent = mommy.make_recipe('booking.future_EV', max_participants=2)
-        events = mommy.make_recipe('booking.future_EV', _quantity=5)
+        wlevent = baker.make_recipe('booking.future_EV', max_participants=2)
+        events = baker.make_recipe('booking.future_EV', _quantity=5)
         event = events[0]
-        mommy.make_recipe('booking.booking', event=wlevent, _quantity=2)
-        mommy.make_recipe(
+        baker.make_recipe('booking.booking', event=wlevent, _quantity=2)
+        baker.make_recipe(
             'booking.waiting_list_user', event=wlevent, user=self.user
         )
-        mommy.make_recipe('booking.booking', event=event, user=self.user)
+        baker.make_recipe('booking.booking', event=event, user=self.user)
 
         resp = self._get_event_list(self.user)
         self.assertEquals(
@@ -171,9 +171,9 @@ class WaitingListTests(TestSetupMixin, TestCase):
         Test that a not full event that the user is already on the waiting list
         for displays 'Book' button
         """
-        event = mommy.make_recipe('booking.future_EV', max_participants=3)
-        mommy.make_recipe('booking.booking', event=event, _quantity=2)
-        mommy.make_recipe(
+        event = baker.make_recipe('booking.future_EV', max_participants=3)
+        baker.make_recipe('booking.booking', event=event, _quantity=2)
+        baker.make_recipe(
             'booking.waiting_list_user', event=event, user=self.user
         )
         resp = self._get_event_list(self.user)
@@ -191,14 +191,14 @@ class WaitingListTests(TestSetupMixin, TestCase):
         Test that a full event displays the 'Join Waiting List' button on the
         event detail page
         """
-        event = mommy.make_recipe('booking.future_EV', max_participants=3)
-        mommy.make_recipe('booking.booking', event=event, _quantity=2)
+        event = baker.make_recipe('booking.future_EV', max_participants=3)
+        baker.make_recipe('booking.booking', event=event, _quantity=2)
         resp = self._get_event_detail(self.user, event)
         resp.render()
         self.assertIn('book_button', str(resp.content))
         self.assertNotIn('join_waiting_list_button', str(resp.content))
 
-        mommy.make_recipe('booking.booking', event=event)
+        baker.make_recipe('booking.booking', event=event)
         resp = self._get_event_detail(self.user, event)
         resp.render()
         self.assertIn('join_waiting_list_button', str(resp.content))
@@ -209,9 +209,9 @@ class WaitingListTests(TestSetupMixin, TestCase):
         Test that a full event that the user is already booked for does not
         display 'Join waiting list'
         """
-        event = mommy.make_recipe('booking.future_EV', max_participants=3)
-        mommy.make_recipe('booking.booking', event=event, _quantity=2)
-        mommy.make_recipe('booking.booking', event=event, user=self.user)
+        event = baker.make_recipe('booking.future_EV', max_participants=3)
+        baker.make_recipe('booking.booking', event=event, _quantity=2)
+        baker.make_recipe('booking.booking', event=event, user=self.user)
         resp = self._get_event_detail(self.user, event)
         self.assertTrue(resp.context_data['booked'])
         self.assertNotIn('waiting_list', resp.context_data)
@@ -224,9 +224,9 @@ class WaitingListTests(TestSetupMixin, TestCase):
         Test that a full event that the user is already on the waiting list for
         displays 'On waiting list'
         """
-        event = mommy.make_recipe('booking.future_EV', max_participants=3)
-        mommy.make_recipe('booking.booking', event=event, _quantity=3)
-        mommy.make_recipe(
+        event = baker.make_recipe('booking.future_EV', max_participants=3)
+        baker.make_recipe('booking.booking', event=event, _quantity=3)
+        baker.make_recipe(
             'booking.waiting_list_user', event=event, user=self.user
         )
         resp = self._get_event_detail(self.user, event)
@@ -241,9 +241,9 @@ class WaitingListTests(TestSetupMixin, TestCase):
         Test that a not full event that the user is already on the waiting list
         for displays 'book_button' button
         """
-        event = mommy.make_recipe('booking.future_EV', max_participants=3)
-        mommy.make_recipe('booking.booking', event=event, _quantity=2)
-        mommy.make_recipe(
+        event = baker.make_recipe('booking.future_EV', max_participants=3)
+        baker.make_recipe('booking.booking', event=event, _quantity=2)
+        baker.make_recipe(
             'booking.waiting_list_user', event=event, user=self.user
         )
         resp = self._get_event_detail(self.user, event)
@@ -258,9 +258,9 @@ class WaitingListTests(TestSetupMixin, TestCase):
         Test that a cancelled booking shows 'join waiting list' button if
         event is full
         """
-        event = mommy.make_recipe('booking.future_PC', max_participants=3)
-        mommy.make_recipe('booking.booking', event=event, _quantity=2)
-        mommy.make_recipe(
+        event = baker.make_recipe('booking.future_PC', max_participants=3)
+        baker.make_recipe('booking.booking', event=event, _quantity=2)
+        baker.make_recipe(
             'booking.booking', event=event, user=self.user, status='CANCELLED'
         )
         resp = self._get_booking_list(self.user)
@@ -268,7 +268,7 @@ class WaitingListTests(TestSetupMixin, TestCase):
         self.assertIn('book_button', str(resp.content))
         self.assertIn('Rebook', str(resp.content))
 
-        mommy.make_recipe('booking.booking', event=event)
+        baker.make_recipe('booking.booking', event=event)
         resp = self._get_booking_list(self.user)
         resp.render()
         self.assertNotIn('book_button', str(resp.content))
@@ -280,13 +280,13 @@ class WaitingListTests(TestSetupMixin, TestCase):
         Test that a cancelled booking shows 'on waiting list' button if
         event is full and user already on the waiting list
         """
-        event = mommy.make_recipe(
+        event = baker.make_recipe(
             'booking.future_PC', max_participants=3)
-        mommy.make_recipe('booking.booking', event=event, _quantity=2)
-        mommy.make_recipe(
+        baker.make_recipe('booking.booking', event=event, _quantity=2)
+        baker.make_recipe(
             'booking.booking', event=event, user=self.user, status='CANCELLED'
         )
-        mommy.make_recipe(
+        baker.make_recipe(
             'booking.waiting_list_user', user=self.user, event=event
         )
         resp = self._get_booking_list(self.user)
@@ -294,7 +294,7 @@ class WaitingListTests(TestSetupMixin, TestCase):
         # user is on waiting list, but event not full; show "Rebook"
         self.assertIn('Rebook', str(resp.content))
 
-        mommy.make_recipe('booking.booking', event=event)
+        baker.make_recipe('booking.booking', event=event)
         resp = self._get_booking_list(self.user)
         resp.render()
         # user is on waiting list, event is full; show "On waiting list"
@@ -307,8 +307,8 @@ class WaitingListTests(TestSetupMixin, TestCase):
         Test that joining waiting list add WaitingListUser to event and
         redirects to bookings list
         """
-        event = mommy.make_recipe('booking.future_EV', max_participants=3)
-        mommy.make_recipe('booking.booking', event=event, _quantity=3)
+        event = baker.make_recipe('booking.future_EV', max_participants=3)
+        baker.make_recipe('booking.booking', event=event, _quantity=3)
 
         self.assertEqual(WaitingListUser.objects.count(), 0)
         resp = self._get_booking_create(
@@ -330,8 +330,8 @@ class WaitingListTests(TestSetupMixin, TestCase):
         Test that joining waiting list from event view ('bookings' not in GET)
         adds WaitingListUser to event and redirects to events list
         """
-        event = mommy.make_recipe('booking.future_EV', max_participants=3)
-        mommy.make_recipe('booking.booking', event=event, _quantity=3)
+        event = baker.make_recipe('booking.future_EV', max_participants=3)
+        baker.make_recipe('booking.booking', event=event, _quantity=3)
 
         self.assertEqual(WaitingListUser.objects.count(), 0)
         resp = self._get_booking_create(
@@ -352,9 +352,9 @@ class WaitingListTests(TestSetupMixin, TestCase):
         Test that leaving waiting list removes WaitingListUser to event and
         redirects to bookings list
         """
-        event = mommy.make_recipe('booking.future_EV', max_participants=3)
-        mommy.make_recipe('booking.booking', event=event, _quantity=3)
-        mommy.make_recipe(
+        event = baker.make_recipe('booking.future_EV', max_participants=3)
+        baker.make_recipe('booking.booking', event=event, _quantity=3)
+        baker.make_recipe(
             'booking.waiting_list_user', user=self.user, event=event
         )
         self.assertEqual(WaitingListUser.objects.count(), 1)
@@ -376,9 +376,9 @@ class WaitingListTests(TestSetupMixin, TestCase):
         removes WaitingListUser from event and
         redirects to events list
         """
-        event = mommy.make_recipe('booking.future_EV', max_participants=3)
-        mommy.make_recipe('booking.booking', event=event, _quantity=3)
-        mommy.make_recipe(
+        event = baker.make_recipe('booking.future_EV', max_participants=3)
+        baker.make_recipe('booking.booking', event=event, _quantity=3)
+        baker.make_recipe(
             'booking.waiting_list_user', user=self.user, event=event
         )
         self.assertEqual(WaitingListUser.objects.count(), 1)
@@ -398,8 +398,8 @@ class WaitingListTests(TestSetupMixin, TestCase):
         Test that leaving waiting list when not on it just redirects to
         bookings page
         """
-        event = mommy.make_recipe('booking.future_EV', max_participants=3)
-        mommy.make_recipe('booking.booking', event=event, _quantity=3)
+        event = baker.make_recipe('booking.future_EV', max_participants=3)
+        baker.make_recipe('booking.booking', event=event, _quantity=3)
         self.assertEqual(WaitingListUser.objects.count(), 0)
         resp = self._get_booking_create(
             self.user, event,
@@ -418,10 +418,10 @@ class WaitingListTests(TestSetupMixin, TestCase):
         Test that trying to join waiting list when already on it does add
         another WaitingListUser and redirects to events list
         """
-        event = mommy.make_recipe('booking.future_EV', max_participants=3)
-        mommy.make_recipe('booking.booking', event=event, _quantity=3)
+        event = baker.make_recipe('booking.future_EV', max_participants=3)
+        baker.make_recipe('booking.booking', event=event, _quantity=3)
         # create waiting list user for this user and event
-        mommy.make_recipe(
+        baker.make_recipe(
             'booking.waiting_list_user', user=self.user, event=event
         )
         self.assertEqual(WaitingListUser.objects.count(), 1)
@@ -441,10 +441,10 @@ class WaitingListTests(TestSetupMixin, TestCase):
         """
         Test that when booking, a user is removed from the waiting list
         """
-        event = mommy.make_recipe('booking.future_EV', max_participants=3)
-        mommy.make_recipe('booking.booking', event=event, _quantity=2)
+        event = baker.make_recipe('booking.future_EV', max_participants=3)
+        baker.make_recipe('booking.booking', event=event, _quantity=2)
         # create waiting list user for this user and event
-        mommy.make_recipe(
+        baker.make_recipe(
             'booking.waiting_list_user', user=self.user, event=event
         )
         self.assertEqual(WaitingListUser.objects.count(), 1)
@@ -462,13 +462,13 @@ class WaitingListTests(TestSetupMixin, TestCase):
         Test that when booking, a user is removed from the waiting list but
         other users remain on the waiting list
         """
-        event = mommy.make_recipe('booking.future_EV', max_participants=3)
-        mommy.make_recipe('booking.booking', event=event, _quantity=2)
+        event = baker.make_recipe('booking.future_EV', max_participants=3)
+        baker.make_recipe('booking.booking', event=event, _quantity=2)
         # create waiting list user for this user and event
-        mommy.make_recipe(
+        baker.make_recipe(
             'booking.waiting_list_user', user=self.user, event=event
         )
-        mommy.make_recipe(
+        baker.make_recipe(
             'booking.waiting_list_user', event=event, _quantity=5
         )
         waiting_list = WaitingListUser.objects.filter(event=event)
@@ -492,8 +492,8 @@ class WaitingListTests(TestSetupMixin, TestCase):
         redirect to update_booking_cancelled, which shows rebook
         button
         """
-        event = mommy.make_recipe('booking.future_EV')
-        booking = mommy.make_recipe(
+        event = baker.make_recipe('booking.future_EV')
+        booking = baker.make_recipe(
             'booking.booking',
             user=self.user, event=event, status='CANCELLED'
         )
@@ -516,9 +516,9 @@ class WaitingListTests(TestSetupMixin, TestCase):
         redirect to update_booking_cancelled, which shows join waiting
         list button if the event is full
         """
-        event = mommy.make_recipe('booking.future_EV', max_participants=3)
-        mommy.make_recipe('booking.booking', event=event, _quantity=3)
-        booking = mommy.make_recipe(
+        event = baker.make_recipe('booking.future_EV', max_participants=3)
+        baker.make_recipe('booking.booking', event=event, _quantity=3)
+        booking = baker.make_recipe(
             'booking.booking',
             user=self.user, event=event, status='CANCELLED'
         )
@@ -540,13 +540,13 @@ class WaitingListTests(TestSetupMixin, TestCase):
         Test that when a user cancels from a full booking, any
         users on the waiting list are emailed by bcc
         """
-        event = mommy.make_recipe('booking.future_EV', max_participants=3)
-        mommy.make_recipe('booking.booking', event=event, _quantity=2)
-        booking = mommy.make_recipe(
+        event = baker.make_recipe('booking.future_EV', max_participants=3)
+        baker.make_recipe('booking.booking', event=event, _quantity=2)
+        booking = baker.make_recipe(
             'booking.booking', user=self.user, event=event
         )
         for i in range(3):
-            mommy.make_recipe(
+            baker.make_recipe(
                 'booking.waiting_list_user', event=event,
                 user__email='test{}@test.com'.format(i)
             )

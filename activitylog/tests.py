@@ -1,4 +1,4 @@
-from model_mommy import mommy
+from model_bakery import baker
 
 from django.contrib.admin.sites import AdminSite
 from django.test import TestCase
@@ -10,7 +10,7 @@ from activitylog.models import ActivityLog
 class ActivityLogAdminTests(TestCase):
 
     def test_timestamp_display(self):
-        mommy.make(ActivityLog, log="New log")
+        baker.make(ActivityLog, log="New log")
 
         log_admin = admin.ActivityLogAdmin(ActivityLog, AdminSite())
         log_query = log_admin.get_queryset(None)[0]

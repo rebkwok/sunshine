@@ -2,7 +2,7 @@
 import os
 from datetime import datetime, time, timedelta
 from unittest.mock import patch
-from model_mommy import mommy
+from model_bakery import baker
 
 from django.conf import settings
 from django.contrib.admin.sites import AdminSite
@@ -55,7 +55,7 @@ class ManagementCommands(TestCase):
 class AdminTests(TestCase):
 
     def test_about_info_admin_display(self):
-        info = mommy.make(AboutInfo)
+        info = baker.make(AboutInfo)
 
         info_admin = admin.AboutInfoAdmin(AboutInfo, AdminSite())
         info_query = info_admin.get_queryset(None)[0]
@@ -69,7 +69,7 @@ class AdminTests(TestCase):
 class ModelTests(TestCase):
 
     def test_about_info_str(self):
-        about = mommy.make(
+        about = baker.make(
             AboutInfo, heading='Foo', content='Foo'
         )
         self.assertEqual(
@@ -77,12 +77,12 @@ class ModelTests(TestCase):
         )
 
     def test_past_event_str(self):
-        past = mommy.make(PastEvent, name="past event")
+        past = baker.make(PastEvent, name="past event")
         self.assertEqual(str(past), 'past event')
 
     def test_achievement_str(self):
-        past = mommy.make(PastEvent, name="past event")
-        achievement = mommy.make(
+        past = baker.make(PastEvent, name="past event")
+        achievement = baker.make(
             Achievement, event=past, category='Pro')
         self.assertEqual(str(achievement), 'past event, Pro')
 
@@ -95,7 +95,7 @@ class WebsitePagesTests(TestCase):
         resp = self.client.get(reverse('website:about'))
         self.assertEqual(resp.status_code, 200)
 
-        mommy.make(
+        baker.make(
             AboutInfo, heading='About', subheading='Our subheading',
             content='Foo'
         )
@@ -111,7 +111,7 @@ class WebsitePagesTests(TestCase):
         self.assertEqual(resp.status_code, 200)
 
         # with info, no images
-        session_type = mommy.make(
+        session_type = baker.make(
             SessionType, name="Polefit", info='About pole'
         )
         resp = self.client.get(reverse('website:classes'))
@@ -146,7 +146,7 @@ class WebsitePagesTests(TestCase):
         self.assertEqual(resp.status_code, 200)
 
         # with info
-        instructor = mommy.make(Instructor, name='Kira', info="About Kira.")
+        instructor = baker.make(Instructor, name='Kira', info="About Kira.")
         resp = self.client.get(reverse('website:instructors'))
         self.assertEqual(resp.status_code, 200)
         self.assertIn('<h3>Kira</h3>', str(resp.content))
@@ -301,7 +301,7 @@ class BookingRequestTests(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        cls.ttsession = mommy.make(
+        cls.ttsession = baker.make(
             TimetableSession, name='Polefit', session_day='01MO',
             start_time=time(18, 0), venue__abbreviation='Inverkeithing'
         )

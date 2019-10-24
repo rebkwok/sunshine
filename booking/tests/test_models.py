@@ -7,7 +7,7 @@ from django.urls import reverse
 
 from datetime import timedelta, datetime
 from unittest.mock import patch
-from model_mommy import mommy
+from model_bakery import baker
 
 from booking.models import Event, Booking
 
@@ -18,19 +18,19 @@ class EventTests(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        cls.event = mommy.make_recipe('booking.future_EV')
+        cls.event = baker.make_recipe('booking.future_EV')
 
     def test_bookable_spaces(self):
-        event = mommy.make_recipe('booking.future_EV', max_participants=2)
+        event = baker.make_recipe('booking.future_EV', max_participants=2)
         self.assertTrue(event.bookable)
 
-        mommy.make_recipe('booking.booking', event=event, _quantity=2)
+        baker.make_recipe('booking.booking', event=event, _quantity=2)
         # need to get event again as bookable is cached property
         event = Event.objects.get(id=event.id)
         self.assertFalse(event.bookable)
 
     def test_str(self):
-        event = mommy.make_recipe(
+        event = baker.make_recipe(
             'booking.past_event',
             name='Test event',
             date=datetime(2015, 1, 1, tzinfo=timezone.utc)
@@ -42,12 +42,12 @@ class BookingTests(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        cls.event = mommy.make_recipe('booking.future_EV', max_participants=20)
+        cls.event = baker.make_recipe('booking.future_EV', max_participants=20)
 
     def setUp(self):
-        mommy.make_recipe('booking.user', _quantity=15)
+        baker.make_recipe('booking.user', _quantity=15)
         self.users = User.objects.all()
-        self.event_with_cost = mommy.make_recipe('booking.future_EV')
+        self.event_with_cost = baker.make_recipe('booking.future_EV')
 
     def test_event_spaces_left(self):
         """
@@ -58,7 +58,7 @@ class BookingTests(TestCase):
         self.assertEqual(self.event.spaces_left, 20)
 
         for user in self.users:
-            mommy.make_recipe('booking.booking', user=user, event=self.event)
+            baker.make_recipe('booking.booking', user=user, event=self.event)
 
         # we need to get the event again as spaces_left is cached property
         event = Event.objects.get(id=self.event.id)
@@ -73,11 +73,11 @@ class BookingTests(TestCase):
         self.assertEqual(self.event.spaces_left, 20)
 
         for user in self.users:
-            mommy.make_recipe('booking.booking', user=user, event=self.event)
-        mommy.make_recipe(
+            baker.make_recipe('booking.booking', user=user, event=self.event)
+        baker.make_recipe(
             'booking.booking', event=self.event, no_show=True
         )
-        mommy.make_recipe(
+        baker.make_recipe(
             'booking.booking', event=self.event, status='CANCELLED'
         )
         # 20 total spaces, 15 open bookings, 1 cancelled, 1 no-show; still 5
@@ -88,10 +88,10 @@ class BookingTests(TestCase):
         self.assertEqual(event.spaces_left, 5)
 
     def test_str(self):
-        booking = mommy.make_recipe(
+        booking = baker.make_recipe(
             'booking.booking',
-            event=mommy.make_recipe('booking.future_EV', name='Test event'),
-            user=mommy.make_recipe('booking.user', username='Test user'),
+            event=baker.make_recipe('booking.future_EV', name='Test event'),
+            user=baker.make_recipe('booking.user', username='Test user'),
             )
         self.assertEqual(str(booking), 'Test event - Test user')
 
@@ -102,7 +102,7 @@ class BookingTests(TestCase):
         """
         self.event_with_cost.max_participants = 3
         self.event_with_cost.save()
-        mommy.make_recipe(
+        baker.make_recipe(
             'booking.booking', event=self.event_with_cost, _quantity=3
         )
         # we need to get the event again as spaces_left is cached property
@@ -120,11 +120,11 @@ class BookingTests(TestCase):
         self.event_with_cost.max_participants = 3
         self.event_with_cost.save()
         user = self.users[0]
-        mommy.make_recipe(
+        baker.make_recipe(
             'booking.booking', event=self.event_with_cost, _quantity=3
         )
         event = Event.objects.get(id=self.event_with_cost.id)
-        booking = mommy.make_recipe(
+        booking = baker.make_recipe(
             'booking.booking', event=event, user=user, status='CANCELLED'
         )
         with self.assertRaises(ValidationError):
@@ -138,7 +138,7 @@ class BookingTests(TestCase):
         """
         self.event_with_cost.max_participants = 3
         self.event_with_cost.save()
-        mommy.make_recipe(
+        baker.make_recipe(
             'booking.booking', event=self.event_with_cost, _quantity=3
         )
         Booking.objects.create(
@@ -157,7 +157,7 @@ class BookingTests(TestCase):
         mock_now = datetime(2015, 1, 1, tzinfo=timezone.utc)
         mock_tz.now.return_value = mock_now
         user = self.users[0]
-        booking = mommy.make_recipe(
+        booking = baker.make_recipe(
             'booking.booking', event=self.event_with_cost, user=user,
             status='CANCELLED'
         )
@@ -177,7 +177,7 @@ class BookingTests(TestCase):
         mock_now = datetime(2015, 3, 1, tzinfo=timezone.utc)
         mock_tz.now.return_value = mock_now
         user = self.users[0]
-        booking = mommy.make_recipe(
+        booking = baker.make_recipe(
             'booking.booking', event=self.event_with_cost, user=user,
             status='CANCELLED',
             date_rebooked=datetime(2015, 1, 1, tzinfo=timezone.utc)
@@ -198,11 +198,11 @@ class BookingTests(TestCase):
         self.event_with_cost.max_participants = 3
         self.event_with_cost.save()
         user = self.users[0]
-        mommy.make_recipe(
+        baker.make_recipe(
             'booking.booking', event=self.event_with_cost, _quantity=3
         )
         event = Event.objects.get(id=self.event_with_cost.id)
-        booking = mommy.make_recipe(
+        booking = baker.make_recipe(
             'booking.booking', event=event, user=user, status='CANCELLED'
         )
         with self.assertRaises(ValidationError):
@@ -213,7 +213,7 @@ class BookingTests(TestCase):
         self.assertIsNone(booking.date_rebooked)
 
     def test_booking_cannot_be_no_show_and_attended(self):
-        booking = mommy.make_recipe('booking.booking', event=self.event)
+        booking = baker.make_recipe('booking.booking', event=self.event)
         booking.attended = True
         booking.no_show = True
         with self.assertRaises(ValidationError):

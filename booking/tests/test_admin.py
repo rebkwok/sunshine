@@ -1,7 +1,7 @@
 from datetime import timedelta, datetime
 from unittest.mock import Mock
 
-from model_mommy import mommy
+from model_bakery import baker
 
 from django.core import mail
 from django.contrib.auth.models import User
@@ -17,8 +17,8 @@ from booking.models import Event, Booking, Workshop, RegularClass, Register
 class EventAdminTests(TestCase):
 
     def test_event_date_list_filter(self):
-        mommy.make_recipe('booking.past_event', name='past')
-        mommy.make_recipe('booking.future_EV', name='future')
+        baker.make_recipe('booking.past_event', name='past')
+        baker.make_recipe('booking.future_EV', name='future')
 
         filter = admin.EventDateListFilter(
             None, {'date': 'past'}, Event, admin.EventAdmin
@@ -38,7 +38,7 @@ class EventAdminTests(TestCase):
         self.assertEqual(events.count(), 1)
 
     def test_get_cancelled_status_display(self):
-        event = mommy.make_recipe('booking.future_EV')
+        event = baker.make_recipe('booking.future_EV')
         ev_admin = admin.EventAdmin(Event, AdminSite())
         ev_query = ev_admin.get_queryset(None)[0]
         self.assertEqual(ev_admin.status(ev_query), 'OPEN')
@@ -49,16 +49,16 @@ class EventAdminTests(TestCase):
         self.assertEqual(ev_admin.status(ev_query), 'CANCELLED')
 
     def test_spaces_left_display(self):
-        event = mommy.make_recipe('booking.future_EV', max_participants=5)
-        mommy.make_recipe('booking.booking', event=event, _quantity=3)
+        event = baker.make_recipe('booking.future_EV', max_participants=5)
+        baker.make_recipe('booking.booking', event=event, _quantity=3)
 
         ev_admin = admin.EventAdmin(Event, AdminSite())
         ev_query = ev_admin.get_queryset(None)[0]
         self.assertEqual(ev_admin.get_spaces_left(ev_query), 2)
 
     def test_event_date_display(self):
-        event = mommy.make_recipe('booking.future_EV', date=datetime(2019, 1, 23, 18, 0, tzinfo=timezone.utc))
-        mommy.make_recipe('booking.booking', event=event, _quantity=3)
+        event = baker.make_recipe('booking.future_EV', date=datetime(2019, 1, 23, 18, 0, tzinfo=timezone.utc))
+        baker.make_recipe('booking.booking', event=event, _quantity=3)
 
         ev_admin = admin.EventAdmin(Event, AdminSite())
         ev_query = ev_admin.get_queryset(None)[0]
@@ -71,9 +71,9 @@ class EventAdminTests(TestCase):
         self.assertEqual(ev_admin.get_date(ev_query), 'Tue 23 Jul 2019 18:00 (BST)')
 
     def test_cancel_event_action(self):
-        event = mommy.make_recipe('booking.future_EV', max_participants=5)
+        event = baker.make_recipe('booking.future_EV', max_participants=5)
         for i in range(3):
-            mommy.make_recipe('booking.booking', event=event, user__email='test{}@test.test'.format(i))
+            baker.make_recipe('booking.booking', event=event, user__email='test{}@test.test'.format(i))
         self.assertEqual(event.bookings.filter(status='OPEN').count(), 3)
 
         ev_admin = admin.EventAdmin(Event, AdminSite())
@@ -89,11 +89,11 @@ class EventAdminTests(TestCase):
         self.assertEqual(len(mail.outbox[0].bcc), 3)
 
     def test_cancel_event_action_cancelled_bookings(self):
-        event = mommy.make_recipe('booking.future_EV', max_participants=5)
+        event = baker.make_recipe('booking.future_EV', max_participants=5)
         for i in range(3):
-            mommy.make_recipe('booking.booking', event=event, user__email='test{}@test.test'.format(i))
-        mommy.make_recipe('booking.booking', event=event, no_show=True, user__email='test3@test.test')
-        mommy.make_recipe('booking.booking', event=event, status='CANCELLED', user__email='test4@test.test')
+            baker.make_recipe('booking.booking', event=event, user__email='test{}@test.test'.format(i))
+        baker.make_recipe('booking.booking', event=event, no_show=True, user__email='test3@test.test')
+        baker.make_recipe('booking.booking', event=event, status='CANCELLED', user__email='test4@test.test')
 
         ev_admin = admin.EventAdmin(Event, AdminSite())
         request = Mock()
@@ -109,9 +109,9 @@ class EventAdminTests(TestCase):
         self.assertEqual(len(mail.outbox[0].bcc), 3)
 
     def test_cancel_event_action_cancelled_bookings_only(self):
-        event = mommy.make_recipe('booking.future_EV', max_participants=5)
-        mommy.make_recipe('booking.booking', event=event, no_show=True, user__email='test3@test.test')
-        mommy.make_recipe('booking.booking', event=event, status='CANCELLED', user__email='test4@test.test')
+        event = baker.make_recipe('booking.future_EV', max_participants=5)
+        baker.make_recipe('booking.booking', event=event, no_show=True, user__email='test3@test.test')
+        baker.make_recipe('booking.booking', event=event, status='CANCELLED', user__email='test4@test.test')
         self.assertEqual(event.bookings.filter(status='OPEN', no_show=False).count(), 0)
 
         ev_admin = admin.EventAdmin(Event, AdminSite())
@@ -124,7 +124,7 @@ class EventAdminTests(TestCase):
         self.assertEqual(len(mail.outbox), 0)
 
     def test_cancel_event_action_no_bookings(self):
-        event = mommy.make_recipe('booking.future_EV', max_participants=5)
+        event = baker.make_recipe('booking.future_EV', max_participants=5)
         self.assertEqual(event.bookings.filter(status='OPEN').count(), 0)
 
         ev_admin = admin.EventAdmin(Event, AdminSite())
@@ -136,8 +136,8 @@ class EventAdminTests(TestCase):
         self.assertEqual(len(mail.outbox), 0)
 
     def test_cannot_cancel_past_event_with_booking(self):
-        event = mommy.make_recipe('booking.past_event')
-        mommy.make_recipe('booking.booking', event=event, user__email='test@test.test')
+        event = baker.make_recipe('booking.past_event')
+        baker.make_recipe('booking.booking', event=event, user__email='test@test.test')
 
         ev_admin = admin.EventAdmin(Event, AdminSite())
         request = Mock()
@@ -149,8 +149,8 @@ class EventAdminTests(TestCase):
         self.assertEqual(len(mail.outbox), 0)
 
     def test_cannot_cancel_past_event_with_cancelled_booking(self):
-        event = mommy.make_recipe('booking.past_event')
-        mommy.make_recipe('booking.booking', event=event, user__email='test@test.test', status='CANCELLED')
+        event = baker.make_recipe('booking.past_event')
+        baker.make_recipe('booking.booking', event=event, user__email='test@test.test', status='CANCELLED')
 
         ev_admin = admin.EventAdmin(Event, AdminSite())
         request = Mock()
@@ -169,7 +169,7 @@ class EventAdminTests(TestCase):
         self.assertEqual(list(actions.keys()), ['cancel_event'])
 
     def test_form_venue_not_deleteable(self):
-        event = mommy.make_recipe('booking.future_EV', max_participants=5)
+        event = baker.make_recipe('booking.future_EV', max_participants=5)
         ev_admin = admin.EventAdmin(Event, AdminSite())
         request = Mock()
         form = ev_admin.get_form(request, obj=event)
@@ -180,8 +180,8 @@ class EventProxyAdminTests(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        cls.workshops = mommy.make_recipe('booking.future_EV', _quantity=2)
-        cls.regularclasses = mommy.make_recipe('booking.future_PC', _quantity=3)
+        cls.workshops = baker.make_recipe('booking.future_EV', _quantity=2)
+        cls.regularclasses = baker.make_recipe('booking.future_PC', _quantity=3)
 
     def test_queryset_workshops(self):
         workshop_admin = admin.WorkshopAdmin(Workshop, AdminSite())
@@ -234,9 +234,9 @@ class EventProxyAdminTests(TestCase):
         self.assertNotIn('Cancel event', resp.rendered_content)
 
     def test_cancel_workshop_action(self):
-        event = mommy.make_recipe('booking.future_EV', max_participants=5)
+        event = baker.make_recipe('booking.future_EV', max_participants=5)
         for i in range(3):
-            mommy.make_recipe('booking.booking', event=event, user__email='test{}@test.test'.format(i))
+            baker.make_recipe('booking.booking', event=event, user__email='test{}@test.test'.format(i))
         self.assertEqual(event.bookings.filter(status='OPEN').count(), 3)
 
         ev_admin = admin.WorkshopAdmin(Workshop, AdminSite())
@@ -252,9 +252,9 @@ class EventProxyAdminTests(TestCase):
         self.assertEqual(len(mail.outbox[0].bcc), 3)
 
     def test_cancel_event_action(self):
-        event = mommy.make_recipe('booking.future_PC', max_participants=5)
+        event = baker.make_recipe('booking.future_PC', max_participants=5)
         for i in range(3):
-            mommy.make_recipe('booking.booking', event=event, user__email='test{}@test.test'.format(i))
+            baker.make_recipe('booking.booking', event=event, user__email='test{}@test.test'.format(i))
         self.assertEqual(event.bookings.filter(status='OPEN').count(), 3)
 
         ev_admin = admin.RegularClassAdmin(RegularClass, AdminSite())
@@ -273,9 +273,9 @@ class EventProxyAdminTests(TestCase):
 class RegisterAdminTests(TestCase):
 
     def test_creating_new_booking(self):
-        event = mommy.make_recipe('booking.future_EV', name='future')
-        user1 = mommy.make(User, username='test1')
-        mommy.make(User, _quantity=2)
+        event = baker.make_recipe('booking.future_EV', name='future')
+        user1 = baker.make(User, username='test1')
+        baker.make(User, _quantity=2)
 
         superuser = User.objects.create_superuser(
             username='superuser', password='test', email='super@test.com'
@@ -301,16 +301,16 @@ class RegisterAdminTests(TestCase):
         self.assertEqual(event.bookings.first().user, user1)
 
     def test_spaces_left_display(self):
-        event = mommy.make_recipe('booking.future_EV', max_participants=5)
-        mommy.make_recipe('booking.booking', event=event, _quantity=3)
+        event = baker.make_recipe('booking.future_EV', max_participants=5)
+        baker.make_recipe('booking.booking', event=event, _quantity=3)
 
         reg_admin = admin.RegisterAdmin(Register, AdminSite())
         reg_query = reg_admin.get_queryset(None)[0]
         self.assertEqual(reg_admin.get_spaces_left(reg_query), 2)
 
     def test_event_date_display(self):
-        event = mommy.make_recipe('booking.future_EV', date=datetime(2019, 1, 23, 18, 0, tzinfo=timezone.utc))
-        mommy.make_recipe('booking.booking', event=event, _quantity=3)
+        event = baker.make_recipe('booking.future_EV', date=datetime(2019, 1, 23, 18, 0, tzinfo=timezone.utc))
+        baker.make_recipe('booking.booking', event=event, _quantity=3)
 
         reg_admin = admin.RegisterAdmin(Register, AdminSite())
         reg_query = reg_admin.get_queryset(None)[0]
@@ -328,16 +328,16 @@ class BookingAdminTests(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        cls.user = mommy.make_recipe(
+        cls.user = baker.make_recipe(
             'booking.user', first_name="Test", last_name="User",
             username="testuser"
         )
 
     def test_booking_date_list_filter(self):
-        past_event = mommy.make_recipe('booking.past_event', name='past')
-        future_event = mommy.make_recipe('booking.future_EV', name='future')
-        mommy.make_recipe('booking.booking', user=self.user, event=past_event)
-        mommy.make_recipe('booking.booking', user=self.user, event=future_event)
+        past_event = baker.make_recipe('booking.past_event', name='past')
+        future_event = baker.make_recipe('booking.future_EV', name='future')
+        baker.make_recipe('booking.booking', user=self.user, event=past_event)
+        baker.make_recipe('booking.booking', user=self.user, event=future_event)
 
         filter = admin.BookingDateListFilter(
             None, {'event__date': 'past'}, Booking, admin.BookingAdmin
@@ -359,9 +359,9 @@ class BookingAdminTests(TestCase):
         self.assertEqual(bookings.count(), 2)
 
     def test_booking_admin_display(self):
-        event = mommy.make_recipe('booking.future_EV', cost=6)
+        event = baker.make_recipe('booking.future_EV', cost=6)
 
-        booking = mommy.make_recipe(
+        booking = baker.make_recipe(
             'booking.booking', user=self.user, event=event
         )
 
@@ -382,7 +382,7 @@ class BookingAdminTests(TestCase):
 
     def test_booking_user_filter_choices(self):
         # test that user filter shows formatted choices ordered by first name
-        user = mommy.make_recipe(
+        user = baker.make_recipe(
             'booking.user', first_name='Donald', last_name='Duck',
             username='dd')
         userfilter = admin.UserFilter(None, {}, Booking, admin.BookingAdmin)
@@ -395,11 +395,11 @@ class BookingAdminTests(TestCase):
         )
 
     def test_booking_user_filter(self):
-        user = mommy.make_recipe(
+        user = baker.make_recipe(
             'booking.user', first_name='Donald', last_name='Duck',
             username='dd')
-        mommy.make_recipe('booking.booking', user=self.user, _quantity=5)
-        mommy.make_recipe('booking.booking', user=user, _quantity=5)
+        baker.make_recipe('booking.booking', user=self.user, _quantity=5)
+        baker.make_recipe('booking.booking', user=user, _quantity=5)
 
         userfilter = admin.UserFilter(None, {}, Booking, admin.BookingAdmin)
         result = userfilter.queryset(None, Booking.objects.all())

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from model_mommy import mommy
+from model_bakery import baker
 from unittest.mock import Mock, patch
 
 from django.conf import settings
@@ -163,7 +163,7 @@ class PaypalSignalsTests(TestCase):
     @patch('paypal.standard.ipn.models.PayPalIPN._postback')
     def test_paypal_notify_url_with_complete_status(self, mock_postback):
         mock_postback.return_value = b"VERIFIED"
-        booking = mommy.make(Booking, event__name='Workshop',
+        booking = baker.make(Booking, event__name='Workshop',
                              event__paypal_email=TEST_RECEIVER_EMAIL,
                              user__email='test@test.com')
         pptrans = create_paypal_transaction(booking.user, booking)
@@ -232,7 +232,7 @@ class PaypalSignalsTests(TestCase):
     @patch('paypal.standard.ipn.models.PayPalIPN._postback')
     def test_successful_paypal_payment_sends_emails(self, mock_postback):
         mock_postback.return_value = b"VERIFIED"
-        booking = mommy.make(
+        booking = baker.make(
             Booking, event__name='Workshop', user__email='testpp@test.com',
             event__paypal_email=TEST_RECEIVER_EMAIL
         )
@@ -258,7 +258,7 @@ class PaypalSignalsTests(TestCase):
     @patch('paypal.standard.ipn.models.PayPalIPN._postback')
     def test_successful_paypal_payment_updates_booking(self, mock_postback):
         mock_postback.return_value = b"VERIFIED"
-        booking = mommy.make(
+        booking = baker.make(
             Booking, event__name='Workshop',
             event__paypal_email=TEST_RECEIVER_EMAIL
         )
@@ -280,13 +280,13 @@ class PaypalSignalsTests(TestCase):
     @patch('paypal.standard.ipn.models.PayPalIPN._postback')
     def test_paypal_notify_only_updates_relevant_booking(self, mock_postback):
         mock_postback.return_value = b"VERIFIED"
-        booking = mommy.make(
+        booking = baker.make(
             Booking, event__name='Workshop', user__email='testpp@test.com',
             event__paypal_email=TEST_RECEIVER_EMAIL
         )
         pptrans = create_paypal_transaction(booking.user, booking)
         invoice_id = pptrans.invoice_id
-        mommy.make(
+        baker.make(
             Booking, event__name='Workshop',
             event__paypal_email=TEST_RECEIVER_EMAIL, _quantity=5
         )
@@ -319,7 +319,7 @@ class PaypalSignalsTests(TestCase):
             self, mock_postback
     ):
         mock_postback.return_value = b"VERIFIED"
-        booking = mommy.make(
+        booking = baker.make(
             Booking, event__name='Workshop',
             event__paypal_email=TEST_RECEIVER_EMAIL,
             user__email='test@test.com'
@@ -355,7 +355,7 @@ class PaypalSignalsTests(TestCase):
         we create one when processing the payment
         """
         mock_postback.return_value = b"VERIFIED"
-        booking = mommy.make(
+        booking = baker.make(
             Booking, event__name='Workshop',
             event__paypal_email=TEST_RECEIVER_EMAIL,
             user__email='test@test.com'
@@ -387,10 +387,10 @@ class PaypalSignalsTests(TestCase):
     @patch('paypal.standard.ipn.models.PayPalIPN._postback')
     def test_paypal_notify_url_with_duplicate_trans_object(self, mock_postback):
         mock_postback.return_value = b"VERIFIED"
-        booking = mommy.make(Booking, event__name='Workshop',
+        booking = baker.make(Booking, event__name='Workshop',
                              event__paypal_email=TEST_RECEIVER_EMAIL,
                              user__email='test@test.com')
-        booking1 = mommy.make(
+        booking1 = baker.make(
             Booking, event__paypal_email=TEST_RECEIVER_EMAIL,
             user__email='test1@test.com'
         )
@@ -427,10 +427,10 @@ class PaypalSignalsTests(TestCase):
     @patch('paypal.standard.ipn.models.PayPalIPN._postback')
     def test_paypal_notify_url_duplicate_trans_not_invoice(self, mock_postback):
         mock_postback.return_value = b"VERIFIED"
-        booking = mommy.make(Booking, event__name='Workshop',
+        booking = baker.make(Booking, event__name='Workshop',
                              event__paypal_email=TEST_RECEIVER_EMAIL,
                              user__email='test@test.com')
-        booking1 = mommy.make(Booking, event__name='Workshop',
+        booking1 = baker.make(Booking, event__name='Workshop',
                               event__paypal_email=TEST_RECEIVER_EMAIL,
                               user__email='test@test.com')
 
@@ -471,7 +471,7 @@ class PaypalSignalsTests(TestCase):
         identify and process refunded payments.
         """
         mock_postback.return_value = b"VERIFIED"
-        booking = mommy.make(
+        booking = baker.make(
             Booking, event__name='Workshop',
             event__paypal_email=TEST_RECEIVER_EMAIL
         )
@@ -506,7 +506,7 @@ class PaypalSignalsTests(TestCase):
     @patch('paypal.standard.ipn.models.PayPalIPN._postback')
     def test_paypal_date_format_with_extra_spaces(self, mock_postback):
         mock_postback.return_value = b"VERIFIED"
-        booking = mommy.make(Booking, event__name='Workshop',
+        booking = baker.make(Booking, event__name='Workshop',
                              event__paypal_email=TEST_RECEIVER_EMAIL)
         pptrans = create_paypal_transaction(booking.user, booking)
         pptrans.transaction_id = "test_trans_id"
@@ -675,11 +675,11 @@ class PaypalSignalsTests(TestCase):
         likely to happen with a duplicate transaction id
         """
         mock_postback.return_value = b"VERIFIED"
-        booking = mommy.make(Booking, event__name='Workshop',
+        booking = baker.make(Booking, event__name='Workshop',
                              event__paypal_email=TEST_RECEIVER_EMAIL)
         pptrans = create_paypal_transaction(booking.user, booking)
         # make an existing completed paypal ipn
-        mommy.make(PayPalIPN, txn_id='test_txn_id', payment_status='Completed')
+        baker.make(PayPalIPN, txn_id='test_txn_id', payment_status='Completed')
         self.assertEqual(PayPalIPN.objects.count(), 1)
 
         params = dict(IPN_POST_PARAMS)
@@ -720,7 +720,7 @@ class PaypalSignalsTests(TestCase):
         mock_send_emails.side_effect = Exception('Error sending mail')
         mock_postback.return_value = b"VERIFIED"
 
-        booking = mommy.make(Booking, event__name='Workshop',
+        booking = baker.make(Booking, event__name='Workshop',
                              event__paypal_email=TEST_RECEIVER_EMAIL)
         pptrans = create_paypal_transaction(booking.user, booking)
 
@@ -766,7 +766,7 @@ class PaypalSignalsTests(TestCase):
         mock_send_emails.side_effect = Exception('Error sending mail')
         payment_models_logger.warning = Mock()
 
-        booking = mommy.make(Booking, event__name='Workshop',
+        booking = baker.make(Booking, event__name='Workshop',
                              event__paypal_email=TEST_RECEIVER_EMAIL)
         pptrans = create_paypal_transaction(booking.user, booking)
 
@@ -801,7 +801,7 @@ class PaypalSignalsTests(TestCase):
         paypal_email. Warning mail sent to support.
         """
         mock_postback.return_value = b"VERIFIED"
-        booking = mommy.make(Booking, event__name='Workshop',
+        booking = baker.make(Booking, event__name='Workshop',
                              event__paypal_email=TEST_RECEIVER_EMAIL)
         pptrans = create_paypal_transaction(booking.user, booking)
 
@@ -849,7 +849,7 @@ class PaypalSignalsTests(TestCase):
         payment status that is not Completed or Refunded.
         """
         mock_postback.return_value = b"VERIFIED"
-        booking = mommy.make(Booking, event__name='Workshop',
+        booking = baker.make(Booking, event__name='Workshop',
                              event__paypal_email=TEST_RECEIVER_EMAIL)
         pptrans = create_paypal_transaction(booking.user, booking)
 
@@ -897,7 +897,7 @@ class PaypalSignalsTests(TestCase):
         payment status that is not Completed or Refunded.
         """
         mock_postback.return_value = b"VERIFIED"
-        booking = mommy.make(Booking, event__name='Workshop',
+        booking = baker.make(Booking, event__name='Workshop',
                              event__paypal_email=TEST_RECEIVER_EMAIL)
         pptrans = create_paypal_transaction(booking.user, booking)
 

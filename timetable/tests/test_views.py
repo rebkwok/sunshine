@@ -2,7 +2,7 @@ import pytz
 
 from datetime import datetime
 from unittest.mock import patch
-from model_mommy import mommy
+from model_bakery import baker
 
 from django.contrib.auth.models import User
 from django.urls import reverse
@@ -18,23 +18,23 @@ class TimetableListViewTests(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.url = reverse('timetable:timetable')
-        cls.pole = mommy.make(SessionType, name='pole')
-        cls.hoop = mommy.make(SessionType, name='hoop')
-        cls.venue1 = mommy.make(Venue, abbreviation='venue1')
-        cls.venue2 = mommy.make(Venue, abbreviation='venue2')
-        mommy.make(
+        cls.pole = baker.make(SessionType, name='pole')
+        cls.hoop = baker.make(SessionType, name='hoop')
+        cls.venue1 = baker.make(Venue, abbreviation='venue1')
+        cls.venue2 = baker.make(Venue, abbreviation='venue2')
+        baker.make(
             TimetableSession, session_type=cls.pole, venue=cls.venue1,
             cost=4, _quantity=2
         )
-        mommy.make(
+        baker.make(
             TimetableSession, session_type=cls.pole, venue=cls.venue2,
             cost=3.5, _quantity=2
         )
-        mommy.make(
+        baker.make(
             TimetableSession, session_type=cls.hoop, venue=cls.venue1,
             cost=4, _quantity=2
         )
-        mommy.make(
+        baker.make(
             TimetableSession, session_type=cls.hoop, venue=cls.venue2,
             cost=3.5, _quantity=2
         )
@@ -122,7 +122,7 @@ class UploadTimetableTests(TestCase):
         mock_tz.now.return_value = datetime(
             2015, 6, 1, 0, 0, tzinfo=timezone.utc
         )
-        mommy.make_recipe('booking.mon_session', _quantity=5)
+        baker.make_recipe('booking.mon_session', _quantity=5)
         self.assertEqual(Event.objects.count(), 0)
         form_data = {
             'start_date': 'Mon 08 Jun 2015',
@@ -142,7 +142,7 @@ class UploadTimetableTests(TestCase):
         mock_tz.now.return_value = datetime(
             2015, 6, 1, 0, 0, tzinfo=timezone.utc
         )
-        mommy.make_recipe('booking.mon_session', _quantity=5)
+        baker.make_recipe('booking.mon_session', _quantity=5)
         self.assertEqual(Event.objects.count(), 0)
         form_data = {
             'start_date': 'Mon 08 Jun 2015',
@@ -152,7 +152,7 @@ class UploadTimetableTests(TestCase):
         self.client.post(self.url, data=form_data)
         self.assertEqual(Event.objects.count(), 5)
 
-        mommy.make_recipe('booking.tue_session', _quantity=2)
+        baker.make_recipe('booking.tue_session', _quantity=2)
         form_data.update(
             {'sessions': [session.id for session in TimetableSession.objects.all()]}
         )
@@ -169,7 +169,7 @@ class UploadTimetableTests(TestCase):
         mock_tz.now.return_value = datetime(
             2015, 6, 1, 0, 0, tzinfo=timezone.utc
         )
-        session = mommy.make_recipe('booking.tue_session', name='test')
+        session = baker.make_recipe('booking.tue_session', name='test')
         # this session recipe has level 2 which will be incorporated into the class name
 
         # create date in Europe/London, convert to UTC
@@ -181,7 +181,7 @@ class UploadTimetableTests(TestCase):
         converted_ev_date = local_ev_date.astimezone(pytz.utc)
 
         # create duplicate existing classes for (tues) 2/6/15
-        mommy.make_recipe(
+        baker.make_recipe(
             'booking.future_PC', name='test (Level 2)',
             venue=session.venue,
             date=converted_ev_date,

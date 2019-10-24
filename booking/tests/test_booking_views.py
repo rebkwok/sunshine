@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
 from unittest.mock import Mock, patch
-from model_mommy import mommy
+from model_bakery import baker
 
 from django.conf import settings
 from django.core import mail
@@ -29,15 +29,15 @@ class BookingListViewTests(TestSetupMixin, TestCase):
     @classmethod
     def setUpTestData(cls):
         super(BookingListViewTests, cls).setUpTestData()
-        cls.regular_sessions = mommy.make_recipe('booking.future_PC', _quantity=3)
-        cls.events = mommy.make_recipe('booking.future_EV', _quantity=2)
-        [mommy.make_recipe(
+        cls.regular_sessions = baker.make_recipe('booking.future_PC', _quantity=3)
+        cls.events = baker.make_recipe('booking.future_EV', _quantity=2)
+        [baker.make_recipe(
             'booking.booking', user=cls.user,
             event=event) for event in cls.regular_sessions]
-        [mommy.make_recipe(
+        [baker.make_recipe(
             'booking.booking', user=cls.user,
             event=event) for event in cls.events]
-        mommy.make_recipe('booking.past_booking', user=cls.user)
+        baker.make_recipe('booking.past_booking', user=cls.user)
         cls.url = reverse('booking:bookings')
         cls.url_workshops = reverse('booking:bookings') + '?type=workshop'
 
@@ -70,7 +70,7 @@ class BookingListViewTests(TestSetupMixin, TestCase):
             self.assertEquals(booking.event.event_type, 'workshop')
 
     def test_data_policy_agreement_required(self):
-        mommy.make(DataPrivacyPolicy)
+        baker.make(DataPrivacyPolicy)
         resp = self.client.get(self.url)
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(resp.url, reverse('accounts:data_privacy_review') + '?next={}'.format(self.url))
@@ -79,8 +79,8 @@ class BookingListViewTests(TestSetupMixin, TestCase):
         """
         Test that only bookings for this user are listed
         """
-        another_user = mommy.make_recipe('booking.user')
-        mommy.make_recipe(
+        another_user = baker.make_recipe('booking.user')
+        baker.make_recipe(
             'booking.booking', user=another_user, event=self.regular_sessions[0]
         )
         # check there are now 7 bookings
@@ -93,8 +93,8 @@ class BookingListViewTests(TestSetupMixin, TestCase):
         """
         Test that only bookings for this user are listed
         """
-        another_user = mommy.make_recipe('booking.user')
-        mommy.make_recipe(
+        another_user = baker.make_recipe('booking.user')
+        baker.make_recipe(
             'booking.booking', user=another_user, event=self.events[0]
         )
         # check there are now 7 bookings
@@ -108,8 +108,8 @@ class BookingListViewTests(TestSetupMixin, TestCase):
         """
         Test that all future bookings for this user are listed
         """
-        ev = mommy.make_recipe('booking.future_PC', name="future event")
-        mommy.make_recipe(
+        ev = baker.make_recipe('booking.future_PC', name="future event")
+        baker.make_recipe(
             'booking.booking', user=self.user, event=ev,
             status='CANCELLED'
         )
@@ -124,9 +124,9 @@ class BookingListViewTests(TestSetupMixin, TestCase):
     def test_paid_status_display(self):
         Event.objects.all().delete()
         Booking.objects.all().delete()
-        event_with_cost = mommy.make_recipe('booking.future_PC', cost=10)
+        event_with_cost = baker.make_recipe('booking.future_PC', cost=10)
 
-        mommy.make_recipe(
+        baker.make_recipe(
             'booking.booking', user=self.user, event=event_with_cost,
             paid=True
         )
@@ -139,9 +139,9 @@ class BookingListViewTests(TestSetupMixin, TestCase):
     def test_paid_status_display_workshops(self):
         Event.objects.all().delete()
         Booking.objects.all().delete()
-        event_with_cost = mommy.make_recipe('booking.future_EV', cost=10)
+        event_with_cost = baker.make_recipe('booking.future_EV', cost=10)
 
-        mommy.make_recipe(
+        baker.make_recipe(
             'booking.booking', user=self.user, event=event_with_cost,
             paid=True
         )
@@ -154,14 +154,14 @@ class BookingListViewTests(TestSetupMixin, TestCase):
     def test_paypalforms_for_unpaid_workshops_only(self):
         Event.objects.all().delete()
         Booking.objects.all().delete()
-        class_with_cost = mommy.make_recipe('booking.future_PC', cost=10)
-        event_with_cost = mommy.make_recipe('booking.future_EV', cost=10)
+        class_with_cost = baker.make_recipe('booking.future_PC', cost=10)
+        event_with_cost = baker.make_recipe('booking.future_EV', cost=10)
 
-        mommy.make_recipe(
+        baker.make_recipe(
             'booking.booking', user=self.user, event=class_with_cost,
             paid=False
         )
-        mommy.make_recipe(
+        baker.make_recipe(
             'booking.booking', user=self.user, event=event_with_cost,
             paid=False
         )
@@ -177,11 +177,11 @@ class BookingHistoryListViewTests(TestSetupMixin, TestCase):
     @classmethod
     def setUpTestData(cls):
         super(BookingHistoryListViewTests, cls).setUpTestData()
-        event = mommy.make_recipe('booking.future_PC')
-        cls.booking = mommy.make_recipe(
+        event = baker.make_recipe('booking.future_PC')
+        cls.booking = baker.make_recipe(
             'booking.booking', user=cls.user, event=event
         )
-        cls.past_booking = mommy.make_recipe(
+        cls.past_booking = baker.make_recipe(
             'booking.past_booking', user=cls.user
         )
 
@@ -214,8 +214,8 @@ class BookingHistoryListViewTests(TestSetupMixin, TestCase):
         """
         Test that only past booking for this user are listed
         """
-        another_user = mommy.make_recipe('booking.user')
-        mommy.make_recipe(
+        another_user = baker.make_recipe('booking.user')
+        baker.make_recipe(
             'booking.booking', user=another_user, event=self.past_booking.event
         )
         # check there are now 3 bookings
@@ -255,7 +255,7 @@ class BookingCreateViewTests(TestSetupMixin, TestCase):
         """
         Get the booking page with the event context
         """
-        event = mommy.make_recipe('booking.future_EV', max_participants=3)
+        event = baker.make_recipe('booking.future_EV', max_participants=3)
         resp = self._get_response(self.user, event)
         self.assertEqual(resp.context_data['event'], event)
 
@@ -263,7 +263,7 @@ class BookingCreateViewTests(TestSetupMixin, TestCase):
         """
         Test creating a booking
         """
-        event = mommy.make_recipe('booking.future_EV', max_participants=3)
+        event = baker.make_recipe('booking.future_EV', max_participants=3)
         self.assertEqual(Booking.objects.all().count(), 0)
         self._post_response(self.user, event)
         self.assertEqual(Booking.objects.all().count(), 1)
@@ -272,7 +272,7 @@ class BookingCreateViewTests(TestSetupMixin, TestCase):
         """
         Test creating a booking sends email to user only if not on event
         """
-        event = mommy.make_recipe(
+        event = baker.make_recipe(
             'booking.future_EV', max_participants=3,
             email_studio_when_booked=True
         )
@@ -286,7 +286,7 @@ class BookingCreateViewTests(TestSetupMixin, TestCase):
         """
         Test creating a booking send email to user and studio
         """
-        event = mommy.make_recipe(
+        event = baker.make_recipe(
             'booking.future_EV', max_participants=3,
         )
         self.assertEqual(Booking.objects.all().count(), 0)
@@ -302,7 +302,7 @@ class BookingCreateViewTests(TestSetupMixin, TestCase):
         """
         mock_send_emails.side_effect = Exception('Error sending mail')
 
-        event = mommy.make_recipe(
+        event = baker.make_recipe(
             'booking.future_EV', max_participants=3,
             email_studio_when_booked=True
         )
@@ -324,7 +324,7 @@ class BookingCreateViewTests(TestSetupMixin, TestCase):
         """
         Test trying to get the create page for existing redirects
         """
-        event = mommy.make_recipe('booking.future_EV', max_participants=3)
+        event = baker.make_recipe('booking.future_EV', max_participants=3)
 
         resp = self._post_response(self.user, event)
         booking = Booking.objects.latest('id')
@@ -342,7 +342,7 @@ class BookingCreateViewTests(TestSetupMixin, TestCase):
         """
         Test trying to create a duplicate booking redirects
         """
-        event = mommy.make_recipe('booking.future_EV', max_participants=3)
+        event = baker.make_recipe('booking.future_EV', max_participants=3)
 
         resp = self._post_response(self.user, event)
         booking = Booking.objects.latest('id')
@@ -360,10 +360,10 @@ class BookingCreateViewTests(TestSetupMixin, TestCase):
         """
         Test trying to get create booking page for a full event redirects
         """
-        event = mommy.make_recipe('booking.future_EV', max_participants=3)
-        users = mommy.make_recipe('booking.user', _quantity=3)
+        event = baker.make_recipe('booking.future_EV', max_participants=3)
+        users = baker.make_recipe('booking.user', _quantity=3)
         for user in users:
-            mommy.make_recipe('booking.booking', event=event, user=user)
+            baker.make_recipe('booking.booking', event=event, user=user)
         # check event is full; we need to get the event again as spaces_left is
         # cached property
         event = Event.objects.get(id=event.id)
@@ -383,10 +383,10 @@ class BookingCreateViewTests(TestSetupMixin, TestCase):
     def test_cannot_book_for_full_event(self):
         """cannot create booking for a full event
         """
-        event = mommy.make_recipe('booking.future_EV', max_participants=3)
-        users = mommy.make_recipe('booking.user', _quantity=3)
+        event = baker.make_recipe('booking.future_EV', max_participants=3)
+        users = baker.make_recipe('booking.user', _quantity=3)
         for user in users:
-            mommy.make_recipe('booking.booking', event=event, user=user)
+            baker.make_recipe('booking.booking', event=event, user=user)
 
         # check event is full; we need to get the event again as spaces_left is
         # cached property
@@ -410,7 +410,7 @@ class BookingCreateViewTests(TestSetupMixin, TestCase):
         Test can load create booking page with a cancelled booking
         """
 
-        event = mommy.make_recipe('booking.future_EV')
+        event = baker.make_recipe('booking.future_EV')
         # book for event
         self._post_response(self.user, event)
 
@@ -427,12 +427,12 @@ class BookingCreateViewTests(TestSetupMixin, TestCase):
         """
         Test can load create booking page with a no_show open booking
         """
-        event = mommy.make_recipe(
+        event = baker.make_recipe(
             'booking.future_EV', allow_booking_cancellation=False, cost=10
         )
 
         # book for non-refundable event and mark as no_show
-        booking = mommy.make_recipe(
+        booking = baker.make_recipe(
             'booking.booking', user=self.user, event=event, paid=True,
             no_show=True, status='OPEN'
         )
@@ -449,7 +449,7 @@ class BookingCreateViewTests(TestSetupMixin, TestCase):
         Test can rebook a cancelled booking
         """
 
-        event = mommy.make_recipe('booking.future_EV')
+        event = baker.make_recipe('booking.future_EV')
         # book for event
         self._post_response(self.user, event)
 
@@ -470,11 +470,11 @@ class BookingCreateViewTests(TestSetupMixin, TestCase):
         Test can rebook a booking marked as no_show
         """
 
-        event = mommy.make_recipe(
+        event = baker.make_recipe(
             'booking.future_EV', allow_booking_cancellation=False, cost=10
         )
         # book for non-refundable event and mark as no_show
-        booking = mommy.make_recipe(
+        booking = baker.make_recipe(
             'booking.booking', user=self.user, event=event, paid=True,
             no_show=True
         )
@@ -510,8 +510,8 @@ class BookingCreateViewTests(TestSetupMixin, TestCase):
         Test rebooking a cancelled booking still marked as paid reopend booking
         and emails studi
         """
-        event = mommy.make_recipe('booking.future_EV')
-        mommy.make_recipe(
+        event = baker.make_recipe('booking.future_EV')
+        baker.make_recipe(
             'booking.booking', event=event, user=self.user, paid=True,
             status='CANCELLED'
         )
@@ -537,8 +537,8 @@ class BookingCreateViewTests(TestSetupMixin, TestCase):
         booking status open but does not confirm space, fetches the paypal
         transaction id
         """
-        event = mommy.make_recipe('booking.future_EV')
-        booking = mommy.make_recipe(
+        event = baker.make_recipe('booking.future_EV')
+        booking = baker.make_recipe(
             'booking.booking', event=event, user=self.user, paid=True,
             status='CANCELLED'
         )
@@ -564,7 +564,7 @@ class BookingCreateViewTests(TestSetupMixin, TestCase):
 
     def test_create_booking_sets_flag_on_session(self):
         self.client.login(username=self.user.username, password='test')
-        event = mommy.make_recipe('booking.future_EV')
+        event = baker.make_recipe('booking.future_EV')
         self.client.post(
             reverse('booking:book_event', kwargs={'event_slug': event.slug}),
             {'event': event.id}
@@ -580,10 +580,10 @@ class BookingCreateViewTests(TestSetupMixin, TestCase):
         session so that if the user clicks the back button they get returned
         to the events list page instead of the create booking page again
         """
-        event = mommy.make_recipe('booking.future_EV')
+        event = baker.make_recipe('booking.future_EV')
         url = reverse('booking:book_event', kwargs={'event_slug': event.slug})
         self.client.login(username=self.user.username, password='test')
-        booking = mommy.make_recipe(
+        booking = baker.make_recipe(
             'booking.booking', event=event, user=self.user
         )
 
@@ -622,7 +622,7 @@ class BookingCreateViewTests(TestSetupMixin, TestCase):
         rebook while the booking_created flag is still on the session.  In this
         case, allow the booking page to be retrieved
         """
-        event = mommy.make_recipe('booking.future_EV')
+        event = baker.make_recipe('booking.future_EV')
         url = reverse('booking:book_event', kwargs={'event_slug': event.slug})
         self.client.login(username=self.user.username, password='test')
 
@@ -681,7 +681,7 @@ class BookingErrorRedirectPagesTests(TestSetupMixin, TestCase):
         """
         Get the duplicate booking page with the event context
         """
-        event = mommy.make_recipe('booking.future_EV')
+        event = baker.make_recipe('booking.future_EV')
         resp = self._get_duplicate_booking(self.user, event)
         self.assertIn(event.name, str(resp.content))
 
@@ -689,7 +689,7 @@ class BookingErrorRedirectPagesTests(TestSetupMixin, TestCase):
         """
         Get the fully booked page with the event context
         """
-        event = mommy.make_recipe('booking.future_EV')
+        event = baker.make_recipe('booking.future_EV')
         resp = self._get_fully_booked(self.user, event)
         self.assertIn(event.name, str(resp.content))
 
@@ -698,8 +698,8 @@ class BookingErrorRedirectPagesTests(TestSetupMixin, TestCase):
         Get the redirected page when trying to update a cancelled booking
         with the event context
         """
-        event = mommy.make_recipe('booking.future_EV')
-        booking = mommy.make_recipe(
+        event = baker.make_recipe('booking.future_EV')
+        booking = baker.make_recipe(
             'booking.booking', status='CANCELLED', event=event
         )
         resp = self._get_update_booking_cancelled(self.user, booking)
@@ -711,11 +711,11 @@ class BookingErrorRedirectPagesTests(TestSetupMixin, TestCase):
         Get the redirected page when trying to update a cancelled booking
         for an event that's now full
         """
-        event = mommy.make_recipe('booking.future_EV', max_participants=3)
-        booking = mommy.make_recipe(
+        event = baker.make_recipe('booking.future_EV', max_participants=3)
+        booking = baker.make_recipe(
             'booking.booking', status='CANCELLED', event=event
         )
-        mommy.make_recipe(
+        baker.make_recipe(
             'booking.booking', status='OPEN', event=event, _quantity=3
         )
         # check event is full; we need to get the event again as spaces_left is
@@ -731,7 +731,7 @@ class BookingErrorRedirectPagesTests(TestSetupMixin, TestCase):
         Get the redirected page when trying to cancel a cancelled booking
         for an event that's now full
         """
-        booking = mommy.make_recipe('booking.booking', status='CANCELLED')
+        booking = baker.make_recipe('booking.booking', status='CANCELLED')
         resp = self.client.get(
             reverse('booking:already_cancelled', args=[booking.id])
         )
@@ -741,7 +741,7 @@ class BookingErrorRedirectPagesTests(TestSetupMixin, TestCase):
         """
         Get the cannot cancel page with the event context
         """
-        event = mommy.make_recipe('booking.future_EV')
+        event = baker.make_recipe('booking.future_EV')
         url = reverse(
             'booking:cancellation_period_past',
             kwargs={'event_slug': event.slug}
@@ -756,7 +756,7 @@ class BookingErrorRedirectPagesTests(TestSetupMixin, TestCase):
         self.assertIn(event.name, str(resp.content))
 
     def test_already_paid(self):
-        booking = mommy.make_recipe('booking.booking', paid=True)
+        booking = baker.make_recipe('booking.booking', paid=True)
         resp = self.client.get(
             reverse('booking:already_paid', args=[booking.id])
         )
@@ -780,8 +780,8 @@ class BookingDeleteViewTests(TestSetupMixin, TestCase):
         """
         Get the delete booking page with the event context
         """
-        event = mommy.make_recipe('booking.future_EV')
-        booking = mommy.make_recipe('booking.booking', event=event, user=self.user)
+        event = baker.make_recipe('booking.future_EV')
+        booking = baker.make_recipe('booking.booking', event=event, user=self.user)
         url = reverse(
             'booking:delete_booking', args=[booking.id]
         )
@@ -799,8 +799,8 @@ class BookingDeleteViewTests(TestSetupMixin, TestCase):
         """
         Test deleting a booking
         """
-        event = mommy.make_recipe('booking.future_EV')
-        booking = mommy.make_recipe('booking.booking', event=event,
+        event = baker.make_recipe('booking.future_EV')
+        booking = baker.make_recipe('booking.booking', event=event,
                                     user=self.user)
         self.assertEqual(Booking.objects.all().count(), 1)
         self._delete_response(self.user, booking)
@@ -813,10 +813,10 @@ class BookingDeleteViewTests(TestSetupMixin, TestCase):
         """
         Test cancelling a booking when user has more than one
         """
-        events = mommy.make_recipe('booking.future_EV', _quantity=3)
+        events = baker.make_recipe('booking.future_EV', _quantity=3)
 
         for event in events:
-            mommy.make_recipe('booking.booking', user=self.user, event=event)
+            baker.make_recipe('booking.booking', user=self.user, event=event)
 
         self.assertEqual(Booking.objects.all().count(), 3)
         booking = Booking.objects.all()[0]
@@ -833,12 +833,12 @@ class BookingDeleteViewTests(TestSetupMixin, TestCase):
         Cancellation is allowed but shows warning message
         """
         mock_tz.now.return_value = datetime(2015, 2, 1, tzinfo=timezone.utc)
-        event = mommy.make_recipe(
+        event = baker.make_recipe(
             'booking.future_EV',
             date=datetime(2015, 2, 2, tzinfo=timezone.utc),
             cancellation_period=48
         )
-        booking = mommy.make_recipe(
+        booking = baker.make_recipe(
             'booking.booking', event=event, user=self.user
         )
 
@@ -858,12 +858,12 @@ class BookingDeleteViewTests(TestSetupMixin, TestCase):
         Test cancellation after cancellation period sets no_show to True
         """
         mock_tz.now.return_value = datetime(2015, 2, 1, tzinfo=timezone.utc)
-        event = mommy.make_recipe(
+        event = baker.make_recipe(
             'booking.future_EV',
             date=datetime(2015, 2, 2, tzinfo=timezone.utc),
             cancellation_period=48
         )
-        booking = mommy.make_recipe(
+        booking = baker.make_recipe(
             'booking.booking', event=event, user=self.user, paid=True
         )
 
@@ -881,8 +881,8 @@ class BookingDeleteViewTests(TestSetupMixin, TestCase):
         self.assertTrue(booking.paid)
 
     def test_cannot_cancel_twice(self):
-        event = mommy.make_recipe('booking.future_EV')
-        booking = mommy.make_recipe('booking.booking', event=event,
+        event = baker.make_recipe('booking.future_EV')
+        booking = baker.make_recipe('booking.booking', event=event,
                                     user=self.user)
         self.assertEqual(Booking.objects.all().count(), 1)
         self._delete_response(self.user, booking)
@@ -902,10 +902,10 @@ class BookingDeleteViewTests(TestSetupMixin, TestCase):
         Paid booking stays OPEN but is set to no_show
         Unpaid booking is just cancelled
         """
-        event = mommy.make_recipe(
+        event = baker.make_recipe(
             'booking.future_EV', allow_booking_cancellation=False
         )
-        paid_booking = mommy.make_recipe('booking.booking', event=event,
+        paid_booking = baker.make_recipe('booking.booking', event=event,
                                     user=self.user, paid=True)
         resp = self._delete_response(self.user, paid_booking)
         paid_booking.refresh_from_db()
@@ -913,10 +913,10 @@ class BookingDeleteViewTests(TestSetupMixin, TestCase):
         self.assertEqual('OPEN', paid_booking.status)
         self.assertTrue(paid_booking.no_show)
 
-        event1 = mommy.make_recipe(
+        event1 = baker.make_recipe(
             'booking.future_EV', allow_booking_cancellation=False
         )
-        unpaid_booking = mommy.make_recipe(
+        unpaid_booking = baker.make_recipe(
             'booking.booking', event=event1, user=self.user
         )
         resp = self._delete_response(self.user, unpaid_booking)
@@ -929,8 +929,8 @@ class BookingDeleteViewTests(TestSetupMixin, TestCase):
         """ emails are always sent to user; only sent to studio if previously
         direct paid
         """
-        event_with_cost = mommy.make_recipe('booking.future_EV', cost=10)
-        booking = mommy.make_recipe(
+        event_with_cost = baker.make_recipe('booking.future_EV', cost=10)
+        booking = baker.make_recipe(
             'booking.booking', user=self.user, event=event_with_cost,
         )
         self._delete_response(self.user, booking)
@@ -952,14 +952,14 @@ class BookingDeleteViewTests(TestSetupMixin, TestCase):
         self.assertEqual(studio_mail.to, [settings.DEFAULT_STUDIO_EMAIL])
 
     def test_cancelling_full_event_sends_waiting_list_emails(self):
-        event = mommy.make_recipe(
+        event = baker.make_recipe(
             'booking.future_EV', cost=10, max_participants=3
         )
-        booking = mommy.make_recipe(
+        booking = baker.make_recipe(
             'booking.booking', user=self.user, event=event,
         )
-        mommy.make_recipe('booking.booking', event=event, _quantity=2)
-        wluser = mommy.make(
+        baker.make_recipe('booking.booking', event=event, _quantity=2)
+        wluser = baker.make(
             WaitingListUser, event=event, user__email='wl@test.com'
         )
 
@@ -998,8 +998,8 @@ class BookingUpdateViewTests(TestSetupMixin, TestCase):
         return view(request, pk=booking.id)
 
     def test_can_get_page_for_open_booking(self):
-        event = mommy.make_recipe('booking.future_EV', cost=10)
-        booking = mommy.make_recipe(
+        event = baker.make_recipe('booking.future_EV', cost=10)
+        booking = baker.make_recipe(
             'booking.booking',
             user=self.user, event=event, paid=False
         )
@@ -1007,8 +1007,8 @@ class BookingUpdateViewTests(TestSetupMixin, TestCase):
         self.assertEqual(resp.status_code, 200)
 
     def test_cannot_get_page_for_paid_booking(self):
-        event = mommy.make_recipe('booking.future_EV', cost=10)
-        booking = mommy.make_recipe(
+        event = baker.make_recipe('booking.future_EV', cost=10)
+        booking = baker.make_recipe(
             'booking.booking',
             user=self.user, event=event, paid=True
         )

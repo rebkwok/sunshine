@@ -1,4 +1,4 @@
-from model_mommy import mommy
+from model_bakery import baker
 
 from django.contrib.auth.models import User
 from django.test import TestCase
@@ -10,8 +10,8 @@ from ..models import create_paypal_transaction, PaypalBookingTransaction
 class TestHelpers(TestCase):
 
     def test_create_entry_transaction(self):
-        user = mommy.make(User)
-        booking = mommy.make(Booking)
+        user = baker.make(User)
+        booking = baker.make(Booking)
         ppt = create_paypal_transaction(user, booking)
         self.assertEqual(ppt.booking, booking)
         self.assertEqual(
@@ -21,8 +21,8 @@ class TestHelpers(TestCase):
         self.assertEqual(str(ppt), ppt.invoice_id)
 
     def test_try_to_create_existing_entry_transaction(self):
-        user = mommy.make(User)
-        booking = mommy.make(Booking)
+        user = baker.make(User)
+        booking = baker.make(Booking)
         ppt = create_paypal_transaction(user, booking)
         self.assertEqual(ppt.booking, booking)
         self.assertEqual(
@@ -40,8 +40,8 @@ class TestHelpers(TestCase):
         transaction_id, we do need to create a new transaction, with new
         invoice number with incremented counter
         """
-        user = mommy.make(User)
-        booking = mommy.make(Booking)
+        user = baker.make(User)
+        booking = baker.make(Booking)
         ppt = create_paypal_transaction(user, booking)
         self.assertEqual(ppt.booking, booking)
         self.assertEqual(

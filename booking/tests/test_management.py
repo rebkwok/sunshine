@@ -2,7 +2,7 @@
 
 from datetime import datetime, timedelta
 from unittest.mock import patch
-from model_mommy import mommy
+from model_bakery import baker
 
 from django.test import TestCase, override_settings
 from django.core import management
@@ -15,14 +15,14 @@ from booking.models import Booking, Event
 class CancelUnpaidBookingsTests(TestCase):
 
     def setUp(self):
-        self.event = mommy.make_recipe(
+        self.event = baker.make_recipe(
             'booking.future_EV',
             event_type='workshop',
             date=datetime(2015, 2, 13, 18, 0, tzinfo=timezone.utc),
             cost=10,
             cancellation_period=1
         )
-        self.unpaid = mommy.make_recipe(
+        self.unpaid = baker.make_recipe(
             'booking.booking', event=self.event, paid=False,
             status='OPEN',
             user__email="unpaid@test.com",
@@ -30,7 +30,7 @@ class CancelUnpaidBookingsTests(TestCase):
                 2015, 2, 9, 18, 0, tzinfo=timezone.utc
             ),
         )
-        self.paid = mommy.make_recipe(
+        self.paid = baker.make_recipe(
             'booking.booking', event=self.event, paid=True,
             status='OPEN',
             user__email="paid@test.com",
@@ -126,14 +126,14 @@ class CancelUnpaidBookingsTests(TestCase):
             2015, 2, 10, 19, 0, tzinfo=timezone.utc
         )
 
-        regular_session = mommy.make_recipe(
+        regular_session = baker.make_recipe(
             'booking.future_EV',
             event_type='regular_session',
             date=datetime(2015, 2, 13, 18, 0, tzinfo=timezone.utc),
             cost=10,
             cancellation_period=1
         )
-        unpaid_class_booking = mommy.make_recipe(
+        unpaid_class_booking = baker.make_recipe(
             'booking.booking', event=regular_session, paid=False,
             status='OPEN',
             user__email="unpaid@test.com",
@@ -161,7 +161,7 @@ class CancelUnpaidBookingsTests(TestCase):
             2015, 2, 10, 18, 0, tzinfo=timezone.utc
         )
 
-        unpaid_within_24_hrs = mommy.make_recipe(
+        unpaid_within_24_hrs = baker.make_recipe(
             'booking.booking', event=self.event, paid=False,
             status='OPEN',
             user__email="unpaid@test.com",
@@ -169,7 +169,7 @@ class CancelUnpaidBookingsTests(TestCase):
                 2015, 2, 9, 18, 30, tzinfo=timezone.utc
             ),
         )
-        unpaid_more_than_24_hrs = mommy.make_recipe(
+        unpaid_more_than_24_hrs = baker.make_recipe(
             'booking.booking', event=self.event, paid=False,
             status='OPEN',
             user__email="unpaid@test.com",
@@ -204,7 +204,7 @@ class CancelUnpaidBookingsTests(TestCase):
 
         # make some waiting list users
         for i in range(3):
-            mommy.make_recipe(
+            baker.make_recipe(
                 'booking.waiting_list_user', event=self.event,
                 user__email='test{}@test.com'.format(i)
             )
@@ -234,7 +234,7 @@ class CancelUnpaidBookingsTests(TestCase):
         self.event.save()
 
         # make another booking that will be cancelled
-        mommy.make_recipe(
+        baker.make_recipe(
             'booking.booking', event=self.event, paid=False,
             status='OPEN',
             user__email="unpaid@test.com",
@@ -245,7 +245,7 @@ class CancelUnpaidBookingsTests(TestCase):
 
         # make some waiting list users
         for i in range(3):
-            mommy.make_recipe(
+            baker.make_recipe(
                 'booking.waiting_list_user', event=self.event,
                 user__email='test{}@test.com'.format(i)
             )
@@ -280,7 +280,7 @@ class CancelUnpaidBookingsTests(TestCase):
 
         # make some waiting list users
         for i in range(3):
-            mommy.make_recipe(
+            baker.make_recipe(
                 'booking.waiting_list_user', event=self.event,
                 user__email='test{}@test.com'.format(i)
             )
@@ -330,19 +330,19 @@ class EmailRemindersTests(TestCase):
     def setUpTestData(cls):
         # Now is 2015, 2, 10, 12, 0
         cls.mock_now = datetime(2015, 2, 10, 12, 0, tzinfo=timezone.utc)
-        cls.event_within_48_hrs = mommy.make_recipe(
+        cls.event_within_48_hrs = baker.make_recipe(
             'booking.future_EV',
             event_type='workshop',
             date=datetime(2015, 2, 12, 11, 0, tzinfo=timezone.utc),
             cost=10,
         )
-        cls.event_more_than_48_hrs = mommy.make_recipe(
+        cls.event_more_than_48_hrs = baker.make_recipe(
             'booking.future_EV',
             event_type='workshop',
             date=datetime(2015, 2, 12, 14, 0, tzinfo=timezone.utc),
             cost=10,
         )
-        cls.past_event = mommy.make_recipe(
+        cls.past_event = baker.make_recipe(
             'booking.future_EV',
             event_type='workshop',
             date=datetime(2015, 2, 9, 18, 0, tzinfo=timezone.utc),
@@ -352,7 +352,7 @@ class EmailRemindersTests(TestCase):
     def setUp(self):
         # open bookings made > 6 hrs ago
         for event in Event.objects.all():
-            mommy.make_recipe(
+            baker.make_recipe(
                 'booking.booking', event=event, user__email='test@test.com',
                 date_booked=datetime(2015, 2, 8, 12, 0, tzinfo=timezone.utc)
             )
@@ -378,7 +378,7 @@ class EmailRemindersTests(TestCase):
     @patch('booking.management.commands.email_reminders.timezone')
     def test_no_reminder_for_booking_within_past_6_hrs(self, mock_tz):
         mock_tz.now.return_value = self.mock_now
-        booking = mommy.make_recipe(
+        booking = baker.make_recipe(
             'booking.booking', event=self.event_within_48_hrs, user__email='test1@test.com',
             date_booked=datetime(2015, 2, 10, 7, 0, tzinfo=timezone.utc)
         )
@@ -407,14 +407,14 @@ class EmailRemindersTests(TestCase):
     @patch('booking.management.commands.email_reminders.timezone')
     def test_no_reminder_for_cancelled_event(self, mock_tz):
         mock_tz.now.return_value = self.mock_now
-        cancelled_event_within_48_hrs = mommy.make_recipe(
+        cancelled_event_within_48_hrs = baker.make_recipe(
             'booking.future_EV',
             event_type='workshop',
             date=datetime(2015, 2, 12, 11, 0, tzinfo=timezone.utc),
             cost=10,
             cancelled=True
         )
-        booking = mommy.make_recipe(
+        booking = baker.make_recipe(
             'booking.booking', event=cancelled_event_within_48_hrs, user__email='test1@test.com',
             date_booked=datetime(2015, 2, 10, 7, 0, tzinfo=timezone.utc)
         )
@@ -429,7 +429,7 @@ class EmailRemindersTests(TestCase):
     def test_no_reminder_for_no_show_booking(self, mock_tz):
         mock_tz.now.return_value = self.mock_now
 
-        booking = mommy.make_recipe(
+        booking = baker.make_recipe(
             'booking.booking', event=self.event_within_48_hrs, user__email='test2@test.com',
             date_booked=datetime(2015, 2, 10, 7, 0, tzinfo=timezone.utc), no_show=True
         )
@@ -444,7 +444,7 @@ class EmailRemindersTests(TestCase):
     def test_no_reminder_for_cancelled_booking(self, mock_tz):
         mock_tz.now.return_value = self.mock_now
 
-        booking = mommy.make_recipe(
+        booking = baker.make_recipe(
             'booking.booking', event=self.event_within_48_hrs, user__email='test2@test.com',
             date_booked=datetime(2015, 2, 10, 7, 0, tzinfo=timezone.utc), status='CANCELLED'
         )

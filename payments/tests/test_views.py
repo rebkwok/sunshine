@@ -1,4 +1,4 @@
-from model_mommy import mommy
+from model_bakery import baker
 
 from django.core.cache import cache
 from django.core import mail
@@ -19,7 +19,7 @@ class TestViews(TestCase):
         cls.url = reverse('payments:paypal_confirm')
 
     def test_confirm_return(self):
-        booking = mommy.make(Booking, event__name='Event1')
+        booking = baker.make(Booking, event__name='Event1')
         resp = self.client.post(
             self.url,
             {
@@ -86,7 +86,7 @@ class TestViews(TestCase):
 
     def test_confirm_return_with_paypal_test_and_valid_ipn(self):
         url = reverse('payments:paypal_confirm')
-        mommy.make(
+        baker.make(
             PayPalIPN, invoice='testpp@test.com_123456',
             payment_status='Completed'
         )
@@ -118,7 +118,7 @@ class ConfirmRefundViewTests(TestPermissionMixin, TestCase):
 
     def setUp(self):
         super(ConfirmRefundViewTests, self).setUp()
-        self.booking = mommy.make_recipe(
+        self.booking = baker.make_recipe(
             'booking.booking', user=self.user,
             paid=True)
         self.url = reverse('payments:confirm-refund', args=[self.booking.id])

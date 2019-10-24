@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from model_mommy import mommy
+from model_bakery import baker
 
 from django.urls import reverse
 from django.test import TestCase, RequestFactory
@@ -29,32 +29,32 @@ class BookingtagTests(TestSetupMixin, TestCase):
         """
         Test that cancellation period is formatted correctly
         """
-        event = mommy.make_recipe('booking.future_EV', cancellation_period=24)
+        event = baker.make_recipe('booking.future_EV', cancellation_period=24)
         resp = self._get_response(self.user, event)
         resp.render()
         self.assertIn('24 hours', str(resp.content))
 
-        event = mommy.make_recipe('booking.future_EV', cancellation_period=25)
+        event = baker.make_recipe('booking.future_EV', cancellation_period=25)
         resp = self._get_response(self.user, event)
         resp.render()
         self.assertIn('1 day and 1 hour', str(resp.content))
 
-        event = mommy.make_recipe('booking.future_EV', cancellation_period=48)
+        event = baker.make_recipe('booking.future_EV', cancellation_period=48)
         resp = self._get_response(self.user, event)
         resp.render()
         self.assertIn('2 days', str(resp.content))
 
-        event = mommy.make_recipe('booking.future_EV', cancellation_period=619)
+        event = baker.make_recipe('booking.future_EV', cancellation_period=619)
         resp = self._get_response(self.user, event)
         resp.render()
         self.assertIn('3 weeks, 4 days and 19 hours', str(resp.content))
 
-        event = mommy.make_recipe('booking.future_EV', cancellation_period=168)
+        event = baker.make_recipe('booking.future_EV', cancellation_period=168)
         resp = self._get_response(self.user, event)
         resp.render()
         self.assertIn('1 week', str(resp.content))
 
-        event = mommy.make_recipe('booking.future_EV', cancellation_period=192)
+        event = baker.make_recipe('booking.future_EV', cancellation_period=192)
         resp = self._get_response(self.user, event)
         resp.render()
         self.assertIn('1 week, 1 day and 0 hours', str(resp.content))

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from decimal import Decimal
-from model_mommy import mommy
+from model_bakery import baker
 
 from django.core.cache import cache
 from django.core.exceptions import ValidationError
@@ -24,8 +24,8 @@ from booking.tests.helpers import TestSetupMixin
 def make_data_privacy_agreement(user):
     if not has_active_data_privacy_agreement(user):
         if DataPrivacyPolicy.current_version() == 0:
-            mommy.make(DataPrivacyPolicy,content='Foo')
-        mommy.make(
+            baker.make(DataPrivacyPolicy,content='Foo')
+        baker.make(
             SignedDataPrivacy, user=user,
             version=DataPrivacyPolicy.current_version()
         )
@@ -76,7 +76,7 @@ class SignUpFormTests(TestSetupMixin, TestCase):
         self.assertEquals('Name', user.last_name)
 
     def test_signup_dataprotection_confirmation_required(self):
-        mommy.make(DataPrivacyPolicy)
+        baker.make(DataPrivacyPolicy)
         self.form_data.update({
             'first_name': 'Test',
             'last_name': 'User',
@@ -86,7 +86,7 @@ class SignUpFormTests(TestSetupMixin, TestCase):
         self.assertFalse(form.is_valid())
 
     def test_sign_up_with_data_protection(self):
-        dp = mommy.make(DataPrivacyPolicy)
+        dp = baker.make(DataPrivacyPolicy)
         self.assertFalse(SignedDataPrivacy.objects.exists())
         self.form_data.update(
             {
@@ -109,7 +109,7 @@ class ProfileUpdateViewTests(TestSetupMixin, TestCase):
         """
         Test custom view to allow users to update their details
         """
-        user = mommy.make(User, username="test_user",
+        user = baker.make(User, username="test_user",
                           first_name="Test",
                           last_name="User",
                           )
@@ -138,7 +138,7 @@ class ProfileTests(TestSetupMixin, TestCase):
         self.assertEquals(resp.status_code, 200)
 
     def test_profile_requires_signed_data_privacy(self):
-        mommy.make(DataPrivacyPolicy)
+        baker.make(DataPrivacyPolicy)
         resp = self._get_response(self.user)
         self.assertEqual(resp.status_code, 302)
         self.assertIn(reverse('accounts:data_privacy_review'), resp.url)
@@ -273,7 +273,7 @@ class SignedDataPrivacyModelTests(TestCase):
         DataPrivacyPolicy.objects.create(content='Foo')
 
     def setUp(self):
-        self.user = mommy.make_recipe('booking.user')
+        self.user = baker.make_recipe('booking.user')
 
     def test_cached_on_save(self):
         make_data_privacy_agreement(self.user)
@@ -294,8 +294,8 @@ class DataPrivacyAgreementFormTests(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        cls.user = mommy.make(User)
-        mommy.make(DataPrivacyPolicy)
+        cls.user = baker.make(User)
+        baker.make(DataPrivacyPolicy)
 
     def test_confirm_required(self):
         form = DataPrivacyAgreementForm(next_url='/', data={'confirm': False})
@@ -310,7 +310,7 @@ class SignedDataPrivacyCreateViewTests(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.url = reverse('accounts:data_privacy_review')
-        cls.data_privacy_policy = mommy.make(DataPrivacyPolicy, version=None)
+        cls.data_privacy_policy = baker.make(DataPrivacyPolicy, version=None)
         cls.user = User.objects.create_user(
             username='test', email='test@test.com', password='test'
         )
@@ -329,7 +329,7 @@ class SignedDataPrivacyCreateViewTests(TestCase):
 
         # make new policy
         cache.clear()
-        mommy.make(DataPrivacyPolicy, version=None)
+        baker.make(DataPrivacyPolicy, version=None)
         self.assertFalse(has_active_data_privacy_agreement(self.user))
         resp = self.client.get(self.url)
         self.assertEqual(resp.status_code, 200)
@@ -337,7 +337,7 @@ class SignedDataPrivacyCreateViewTests(TestCase):
     def test_create_new_agreement(self):
         # make new policy
         cache.clear()
-        mommy.make(DataPrivacyPolicy, version=None)
+        baker.make(DataPrivacyPolicy, version=None)
         self.assertFalse(has_active_data_privacy_agreement(self.user))
 
         self.client.post(self.url, data={'confirm': True})
@@ -352,7 +352,7 @@ class CookiePolicyAdminFormTests(TestCase):
         self.assertEqual(form.fields['version'].help_text, '')
         self.assertEqual(form.fields['version'].initial, 1.0)
 
-        mommy.make(CookiePolicy, version=1.0)
+        baker.make(CookiePolicy, version=1.0)
         # help text added if updating
         form = CookiePolicyAdminForm()
         self.assertEqual(
@@ -362,7 +362,7 @@ class CookiePolicyAdminFormTests(TestCase):
         self.assertIsNone(form.fields['version'].initial)
 
     def test_validation_error_if_no_changes(self):
-        policy = mommy.make(CookiePolicy, version=1.0, content='Foo')
+        policy = baker.make(CookiePolicy, version=1.0, content='Foo')
         form = CookiePolicyAdminForm(
             data={
                 'content': 'Foo',
@@ -388,7 +388,7 @@ class DataPrivacyPolicyAdminFormTests(TestCase):
         self.assertEqual(form.fields['version'].help_text, '')
         self.assertEqual(form.fields['version'].initial, 1.0)
 
-        mommy.make(DataPrivacyPolicy, version=1.0)
+        baker.make(DataPrivacyPolicy, version=1.0)
         # help text added if updating
         form = DataPrivacyPolicyAdminForm()
         self.assertEqual(
@@ -398,7 +398,7 @@ class DataPrivacyPolicyAdminFormTests(TestCase):
         self.assertIsNone(form.fields['version'].initial)
 
     def test_validation_error_if_no_changes(self):
-        policy = mommy.make(DataPrivacyPolicy, version=1.0, content='Foo')
+        policy = baker.make(DataPrivacyPolicy, version=1.0, content='Foo')
         form = DataPrivacyPolicyAdminForm(
             data={
                 'content': 'Foo',

@@ -2,7 +2,7 @@
 from datetime import datetime
 from unittest.mock import patch
 
-from model_mommy import mommy
+from model_bakery import baker
 
 from django.urls import reverse
 from django.utils import timezone
@@ -18,10 +18,10 @@ class EventListViewTests(TestSetupMixin, TestCase):
     @classmethod
     def setUpTestData(cls):
         super(EventListViewTests, cls).setUpTestData()
-        mommy.make_recipe('booking.future_EV', _quantity=3)
-        venue = mommy.make_recipe('booking.venue')
-        cls.reg_class1 = mommy.make_recipe('booking.future_PC', name='Class 1')
-        cls.reg_class2 = mommy.make_recipe('booking.future_PC', name='Class 2', venue=venue)
+        baker.make_recipe('booking.future_EV', _quantity=3)
+        venue = baker.make_recipe('booking.venue')
+        cls.reg_class1 = baker.make_recipe('booking.future_PC', name='Class 1')
+        cls.reg_class2 = baker.make_recipe('booking.future_PC', name='Class 2', venue=venue)
         cls.regular_classes = [cls.reg_class1, cls.reg_class2]
 
     def _get_response(self, user):
@@ -52,7 +52,7 @@ class EventListViewTests(TestSetupMixin, TestCase):
         """
         Test that past events is not listed
         """
-        mommy.make_recipe('booking.past_event')
+        baker.make_recipe('booking.past_event')
         # check there are now 4 events
         self.assertEquals(Event.objects.all().count(), 6)
         url = reverse('booking:events') + '?type=workshop'
@@ -89,7 +89,7 @@ class EventListViewTests(TestSetupMixin, TestCase):
         """
         Test that booked_events in context
         """
-        booking = mommy.make_recipe('booking.booking', user=self.user, event=self.regular_classes[0])
+        booking = baker.make_recipe('booking.booking', user=self.user, event=self.regular_classes[0])
         self.client.login(username=self.user.username, password='test')
         resp = self.client.get(reverse('booking:events'))
         self.assertTrue('booked_events' in resp.context_data)
@@ -105,7 +105,7 @@ class EventListViewTests(TestSetupMixin, TestCase):
 
         # create a booking for this user
         booked_event = Event.objects.all()[0]
-        mommy.make_recipe('booking.booking', user=self.user, event=booked_event)
+        baker.make_recipe('booking.booking', user=self.user, event=booked_event)
         resp = self._get_response(self.user)
         booked_events = [event for event in resp.context_data['booked_events']]
         self.assertEquals(len(booked_events), 1)
@@ -124,10 +124,10 @@ class EventListViewTests(TestSetupMixin, TestCase):
         self.assertEquals(len(resp.context_data['booked_events']), 0)
 
         # create booking for this user
-        mommy.make_recipe('booking.booking', user=self.user, event=event1)
+        baker.make_recipe('booking.booking', user=self.user, event=event1)
         # create booking for another user
-        user1 = mommy.make_recipe('booking.user')
-        mommy.make_recipe('booking.booking', user=user1, event=event2)
+        user1 = baker.make_recipe('booking.user')
+        baker.make_recipe('booking.booking', user=user1, event=event2)
 
         # check only event1 shows in the booked events
         resp = self._get_response(self.user)
@@ -153,7 +153,7 @@ class EventListViewTests(TestSetupMixin, TestCase):
         resp = self.client.get(url)
         self.assertEqual(len(resp.context_data['events']), 0)
 
-        event = mommy.make_recipe('booking.future_PC', name='Class 1 (Level 1)')
+        event = baker.make_recipe('booking.future_PC', name='Class 1 (Level 1)')
         resp = self.client.get(url)
         self.assertEqual(len(resp.context_data['events']), 1)
         self.assertEqual(resp.context_data['events'][0], event)
@@ -165,7 +165,7 @@ class EventListViewTests(TestSetupMixin, TestCase):
         self.reg_class1.save()
         self.reg_class2.date = datetime(2019, 1, 24, 18, 0, tzinfo=timezone.utc)  # Thurs
         self.reg_class2.save()
-        reg_class3 = mommy.make_recipe(
+        reg_class3 = baker.make_recipe(
             'booking.future_PC', name='Class 1', date=datetime(2019, 1, 30, 18, 0, tzinfo=timezone.utc)
         )  # Wed
 
@@ -182,7 +182,7 @@ class EventListViewTests(TestSetupMixin, TestCase):
         self.reg_class1.save()
         self.reg_class2.date = datetime(2019, 1, 24, 18, 0, tzinfo=timezone.utc)  # Thurs
         self.reg_class2.save()
-        reg_class3 = mommy.make_recipe(
+        reg_class3 = baker.make_recipe(
             'booking.future_PC', name='Class 1', date=datetime(2019, 1, 31, 20, 0, tzinfo=timezone.utc)
         )  # Wed, diff day/time, same name
 
@@ -200,7 +200,7 @@ class EventListViewTests(TestSetupMixin, TestCase):
         self.reg_class1.save()
         self.reg_class2.date = datetime(2019, 1, 24, 18, 0, tzinfo=timezone.utc)  # Thurs
         self.reg_class2.save()
-        reg_class3 = mommy.make_recipe(
+        reg_class3 = baker.make_recipe(
             'booking.future_PC', name='Class 1', date=datetime(2019, 8, 14, 19, 0, tzinfo=timezone.utc)
         )  # Wed during DST, same time as self.reg_class1
 
@@ -216,10 +216,10 @@ class EventDetailViewTests(TestSetupMixin, TestCase):
     @classmethod
     def setUpTestData(cls):
         super(EventDetailViewTests, cls).setUpTestData()
-        mommy.make_recipe('booking.future_EV', _quantity=3)
+        baker.make_recipe('booking.future_EV', _quantity=3)
 
     def setUp(self):
-        self.event = mommy.make_recipe('booking.future_EV')
+        self.event = baker.make_recipe('booking.future_EV')
 
     def _get_response(self, user, event):
         url = reverse('booking:event_detail', args=[event.slug])
@@ -255,7 +255,7 @@ class EventDetailViewTests(TestSetupMixin, TestCase):
         """
         self.event.max_participants = 3
         self.event.save()
-        mommy.make(Booking, event=self.event, _quantity=3)
+        baker.make(Booking, event=self.event, _quantity=3)
         resp = self.client.get(
             reverse('booking:event_detail', args=[self.event.slug])
         )
@@ -311,7 +311,7 @@ class EventDetailViewTests(TestSetupMixin, TestCase):
         Test that booked event is shown as booked
         """
         #create a booking for this event and user
-        mommy.make_recipe('booking.booking', user=self.user, event=self.event)
+        baker.make_recipe('booking.booking', user=self.user, event=self.event)
         resp = self._get_response(self.user, self.event)
         self.assertTrue(resp.context_data['booked'])
         self.assertEquals(resp.context_data['booking_info_text'],
@@ -322,9 +322,9 @@ class EventDetailViewTests(TestSetupMixin, TestCase):
         Test that the event is not shown as booked if the current user has
         not booked it
         """
-        user1 = mommy.make_recipe('booking.user')
+        user1 = baker.make_recipe('booking.user')
         #create a booking for this event and a different user
-        mommy.make_recipe('booking.booking', user=user1, event=self.event)
+        baker.make_recipe('booking.booking', user=user1, event=self.event)
 
         resp = self._get_response(self.user, self.event)
         self.assertFalse('booked' in resp.context_data)
@@ -379,7 +379,7 @@ class EventDetailViewTests(TestSetupMixin, TestCase):
         )
 
     def test_past_event(self):
-        past_event = mommy.make_recipe('booking.past_event')
+        past_event = baker.make_recipe('booking.past_event')
         resp = self._get_response(self.user, past_event)
         self.assertTrue(resp.context_data['past'])
         self.assertNotIn('book_button', resp.rendered_content)
@@ -388,7 +388,7 @@ class EventDetailViewTests(TestSetupMixin, TestCase):
 
     def test_cancelled_booking(self):
         # create a cancelled booking for this event and user
-        mommy.make_recipe(
+        baker.make_recipe(
             'booking.booking', user=self.user, event=self.event,
             status='CANCELLED'
         )
@@ -406,7 +406,7 @@ class EventDetailViewTests(TestSetupMixin, TestCase):
         No show booking displays as cancelled to user
         """
         # create a no_show booking for this event and user
-        mommy.make_recipe(
+        baker.make_recipe(
             'booking.booking', user=self.user, event=self.event,
             status='OPEN', no_show=True
         )

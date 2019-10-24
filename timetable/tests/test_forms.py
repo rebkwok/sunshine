@@ -2,7 +2,7 @@
 
 from datetime import datetime
 from unittest.mock import patch
-from model_mommy import mommy
+from model_bakery import baker
 
 from django.test import TestCase
 from django.utils import timezone
@@ -13,7 +13,7 @@ from ..forms import UploadTimetableForm
 class UploadTimetableFormTests(TestCase):
 
     def setUp(self):
-        self.session = mommy.make_recipe('booking.mon_session')
+        self.session = baker.make_recipe('booking.mon_session')
 
     def form_data(self, extra_data={}):
         data = {
