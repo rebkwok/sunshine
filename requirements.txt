@@ -18,3 +18,4 @@ django-debug-toolbar==2.0
 python-memcached==1.59
 model-bakery==1.0.1
 coverage==4.5.4
+gunicorn==19.7.1
