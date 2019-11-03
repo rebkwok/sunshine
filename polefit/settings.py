@@ -403,3 +403,9 @@ if env('SHOW_DEBUG_TOOLBAR') and 'test' not in sys.argv:  # pragma: no cover
         "SHOW_TOOLBAR_CALLBACK": show_toolbar,
     }
 
+# Activitylogs
+EMPTY_JOB_TEXT = ["CRON: auto cancel bookings run; nothing to cancel",]
+
+S3_LOG_BACKUP_PATH = "s3://backups.polefitstarlet.co.uk/polefit_activitylogs"
+S3_LOG_BACKUP_ROOT_FILENAME = "polefit_activity_logs_backup"
+
