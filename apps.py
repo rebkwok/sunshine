@@ -1,4 +1,4 @@
-from suit.apps import DjangoSuitConfig, SUIT_FORM_SIZE_LARGE, SUIT_FORM_SIZE_X_LARGE
+from suit.apps import DjangoSuitConfig, SUIT_FORM_SIZE_SMALL, SUIT_FORM_SIZE_LARGE, SUIT_FORM_SIZE_X_LARGE
 from suit.menu import ParentItem, ChildItem
 
 
@@ -6,10 +6,10 @@ class SuitConfig(DjangoSuitConfig):
     layout = 'horizontal'
 
     form_size = {
-        'default': SUIT_FORM_SIZE_LARGE,
+        'default': SUIT_FORM_SIZE_SMALL,
         # 'fields': {}
         'widgets': {
-            'RelatedFieldWidgetWrapper': SUIT_FORM_SIZE_X_LARGE
+            'RelatedFieldWidgetWrapper': SUIT_FORM_SIZE_LARGE
         }
         # 'fieldsets': {}
     }
@@ -49,7 +49,7 @@ class SuitConfig(DjangoSuitConfig):
         ParentItem('Payments', children=[
             ChildItem(model='payments.paypalbookingtransaction'),
             ChildItem(model='ipn.paypalipn'),
-            ChildItem("Test paypal email", url='/payments/test-paypal-email')
+            ChildItem("Test paypal email", url='/pf_admin/ipn/paypalipn/test-paypal-email')
         ], icon='fa fa-credit-card', permissions=superuser_permissions),
         ParentItem('Activity Log', children=[
             ChildItem("Activitylog", 'activitylog.activitylog'),

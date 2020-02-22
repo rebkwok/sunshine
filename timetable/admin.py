@@ -54,10 +54,10 @@ class TimetableSessionAdmin(admin.ModelAdmin):
 
     def get_urls(self):
         urls = super().get_urls()
-        my_urls = [
+        extra_urls = [
             path('upload/', self.upload_timetable, name="upload_timetable"),
         ]
-        return my_urls + urls
+        return extra_urls + urls
 
     def upload_timetable(self, request, template_name="timetable/upload_timetable_form.html"):
 

@@ -121,55 +121,14 @@ class ConfirmRefundViewTests(TestPermissionMixin, TestCase):
         self.booking = baker.make_recipe(
             'booking.booking', user=self.user,
             paid=True)
-        self.url = reverse('payments:confirm-refund', args=[self.booking.id])
-
-    def test_cannot_access_if_not_logged_in(self):
-        """
-        test that the page redirects if user is not logged in
-        """
-        resp = self.client.get(self.url)
-        redirected_url = reverse('account_login') + "?next={}".format(self.url)
-        self.assertEquals(resp.status_code, 302)
-        self.assertIn(redirected_url, resp.url)
-
-    def test_cannot_access_if_not_staff(self):
-        """
-        test that the page redirects if user is not a staff user
-        """
-        self.assertIsNone(
-            cache.get('user_%s_is_staff' % str(self.user.id))
-        )
-        self.client.login(username=self.user.username, password='test')
-        resp = self.client.get(self.url)
-        self.assertEquals(resp.status_code, 302)
-        self.assertEquals(resp.url, reverse('permission_denied'))
-        self.assertFalse(
-            cache.get('user_%s_is_staff' % str(self.staff_user.id))
-        )
-
-    def test_can_access_as_staff_user_and_cache_set(self):
-        """
-        test that the page can be accessed by a staff user
-        """
-        self.assertIsNone(
-            cache.get('user_%s_is_staff' % str(self.staff_user.id))
-        )
-        self.client.login(username=self.staff_user.username, password='test')
-        resp = self.client.get(self.url)
-        self.assertEquals(resp.status_code, 200)
-        self.assertTrue(
-            cache.get('user_%s_is_staff' % str(self.staff_user.id))
-        )
-        # get again to hit cache
-        resp = self.client.get(self.url)
-        self.assertEquals(resp.status_code, 200)
+        self.url = reverse('admin:confirm_refund', args=[self.booking.id])
 
     def test_confirm_refund_for_paid_booking(self):
         """
         test that the page can be accessed by a staff user
         """
         self.assertTrue(self.booking.paid)
-        self.client.login(username=self.staff_user.username, password='test')
+        self.client.login(username=self.superuser.username, password='test')
         resp = self.client.post(self.url, {'confirmed': ['Confirm']})
 
         self.assertEquals(resp.status_code, 302)
@@ -183,7 +142,7 @@ class ConfirmRefundViewTests(TestPermissionMixin, TestCase):
         test that page redirects without changes if cancel button used
         """
         self.assertTrue(self.booking.paid)
-        self.client.login(username=self.staff_user.username, password='test')
+        self.client.login(username=self.superuser.username, password='test')
         resp = self.client.post(self.url, {'cancelled': ['Cancel']})
         self.assertEquals(resp.status_code, 302)
         self.assertEquals(resp.url, reverse('admin:index'))
@@ -194,37 +153,10 @@ class ConfirmRefundViewTests(TestPermissionMixin, TestCase):
 
 class TestPaypalViewTests(TestPermissionMixin, TestCase):
 
-    def test_staff_login_required_and_cache_set(self):
-        url = reverse('payments:test_paypal_email')
-        resp = self.client.get(url)
-        self.assertEqual(resp.status_code, 302)
-
-        self.assertIsNone(
-            cache.get('user_%s_is_staff' % str(self.user.id))
-        )
-        self.client.login(username=self.user.username, password='test')
-        resp = self.client.get(url)
-        self.assertEqual(resp.status_code, 302)
-        self.assertFalse(
-            cache.get('user_%s_is_staff' % str(self.user.id))
-        )
-
-        self.assertIsNone(
-            cache.get('user_%s_is_staff' % str(self.staff_user.id))
-        )
-        self.client.login(username=self.staff_user.username, password='test')
-        resp = self.client.get(url)
-        self.assertEqual(resp.status_code, 200)
-        self.assertTrue(
-            cache.get('user_%s_is_staff' % str(self.staff_user.id))
-        )
-        # get again to hit cache
-        resp = self.client.get(url)
-        self.assertEqual(resp.status_code, 200)
 
     def test_post_created_paypal_form(self):
-        url = reverse('payments:test_paypal_email')
-        self.client.login(username=self.staff_user.username, password='test')
+        url = reverse('admin:test_paypal_email')
+        self.client.login(username=self.superuser.username, password='test')
         resp = self.client.post(url, {'email': 'testpp@test.com'})
         self.assertEqual(resp.status_code, 200)
 
@@ -243,8 +175,8 @@ class TestPaypalViewTests(TestPermissionMixin, TestCase):
         )
 
     def test_post_with_no_email_address(self):
-        url = reverse('payments:test_paypal_email')
-        self.client.login(username=self.staff_user.username, password='test')
+        url = reverse('admin:test_paypal_email')
+        self.client.login(username=self.superuser.username, password='test')
         resp = self.client.post(url)
         self.assertEqual(resp.status_code, 200)
 

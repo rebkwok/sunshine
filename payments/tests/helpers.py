@@ -9,6 +9,9 @@ class TestPermissionMixin(object):
             username='testnonstaffuser', email='nonstaff@test.com',
             password='test'
         )
+        self.superuser = User.objects.create_superuser(
+            username='superuser', email='test@test.com', password='test'
+        )
         self.staff_user = User.objects.create_user(
             username='testuser', email='test@test.com', password='test'
         )

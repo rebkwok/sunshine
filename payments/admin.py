@@ -1,9 +1,17 @@
+import shortuuid
+
 from django.contrib import admin
 from django.contrib.auth.models import User
 from payments.models import PaypalBookingTransaction
+from django.template.response import TemplateResponse
+from django.urls import path
 
 from paypal.standard.ipn.models import PayPalIPN
 from paypal.standard.ipn.admin import PayPalIPNAdmin
+
+from booking.views.booking_views import get_paypal_dict
+from payments.forms import PayPalPaymentsUpdateForm
+from payments.views import ConfirmRefundView
 
 
 class UserFilter(admin.SimpleListFilter):
@@ -63,6 +71,48 @@ class PayPalAdmin(PayPalIPNAdmin):
         return "{} {}".format(obj.first_name, obj.last_name)
     buyer.admin_order_field = 'first_name'
 
+    def get_urls(self):
+        urls = super().get_urls()
+        extra_urls = [
+            path('test-paypal-email/', self.paypal_email_test_view, name="test_paypal_email"),
+            path('confirm-refunded/<int:pk>', self.confirm_refund, name="confirm_refund"),
+        ]
+        return extra_urls + urls
+
+    def paypal_email_test_view(self, request):
+        ctx = {'current_app': self.admin_site.name, 'available_apps': self.admin_site.get_app_list(request)}
+        if request.method == 'GET':
+            email = request.GET.get('email', '')
+            ctx.update({'email': email})
+        elif request.method == 'POST':
+            email = request.POST.get('email')
+            if not email:
+                ctx.update(
+                    {'email_errors': 'Please enter an email address to test'}
+                )
+            else:
+                ramdomnum = shortuuid.ShortUUID().random(length=6)
+                invoice_id = '{}_{}'.format(email, ramdomnum)
+                host = 'http://{}'.format(request.META.get('HTTP_HOST'))
+                paypal_form = PayPalPaymentsUpdateForm(
+                    initial=get_paypal_dict(
+                        host,
+                        0.01,
+                        'paypal_test',
+                        invoice_id,
+                        'paypal_test 0 {} {} {}'.format(
+                            invoice_id, email, request.user.email
+                        ),
+                        paypal_email=email,
+                    )
+                )
+                ctx.update({'paypalform': paypal_form, 'email': email})
+
+        return TemplateResponse(request, 'payments/test_paypal_email.html', ctx)
+
+    def confirm_refund(self, request, pk):
+        view = ConfirmRefundView.as_view(admin_site=self.admin_site)
+        return view(request, pk=pk)
 
 admin.site.register(PaypalBookingTransaction, PaypalBookingTransactionAdmin)
 admin.site.unregister(PayPalIPN)

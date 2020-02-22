@@ -1,13 +1,9 @@
 # -*- coding: utf-8 -*-
 
-import shortuuid
-
 from functools import wraps
-
 
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
 from django.core.cache import cache
 from django.core.mail import send_mail
 from django.urls import reverse
@@ -22,10 +18,8 @@ from braces.views import LoginRequiredMixin
 from paypal.standard.ipn.models import PayPalIPN
 
 from booking.models import Booking
-from booking.views.booking_views import get_paypal_dict
 
 from activitylog.models import ActivityLog
-from payments.forms import PayPalPaymentsUpdateForm
 
 
 class StaffUserMixin(object):
@@ -138,13 +132,23 @@ def paypal_cancel_return(request):
     return render(request, 'payments/cancelled_payment.html')
 
 
-class ConfirmRefundView(LoginRequiredMixin, StaffUserMixin, UpdateView):
+class ConfirmRefundView(UpdateView):
 
     model = Booking
     template_name = 'payments/confirm_refunded.html'
     success_message = "Refund of payment for {}'s booking for {} has been " \
                       "confirmed.  An update email has been sent to {}."
     fields = ('id',)
+
+    @classmethod
+    def as_view(cls, *args, **kwargs):
+        cls.admin_site = kwargs.pop("admin_site")
+        return super().as_view(*args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(ConfirmRefundView, self).get_context_data(**kwargs)
+        context.update({'current_app': self.admin_site.name, 'available_apps': self.admin_site.get_app_list(self.request)})
+        return context
 
     def form_valid(self, form):
         booking = form.save(commit=False)
@@ -160,7 +164,7 @@ class ConfirmRefundView(LoginRequiredMixin, StaffUserMixin, UpdateView):
                 )
             )
 
-            ctx = {
+            mail_ctx = {
                 'event': booking.event,
                 'host': 'http://{}'.format(self.request.META.get('HTTP_HOST')),
             }
@@ -169,11 +173,11 @@ class ConfirmRefundView(LoginRequiredMixin, StaffUserMixin, UpdateView):
                 '{} Payment refund confirmed for {}'.format(
                     settings.ACCOUNT_EMAIL_SUBJECT_PREFIX, booking.event,
                 ),
-                get_template('payments/email/confirm_refund.txt').render(ctx),
+                get_template('payments/email/confirm_refund.txt').render(mail_ctx),
                 settings.DEFAULT_FROM_EMAIL,
                 [self.request.user.email],
                 html_message=get_template(
-                    'payments/email/confirm_refund.html').render(ctx),
+                    'payments/email/confirm_refund.html').render(mail_ctx),
                 fail_silently=False)
 
             ActivityLog.objects.create(
@@ -196,35 +200,4 @@ class ConfirmRefundView(LoginRequiredMixin, StaffUserMixin, UpdateView):
         return reverse('admin:index')
 
 
-@login_required
-@staff_required
-def test_paypal_view(request):
-    ctx = dict()
-    if request.method == 'GET':
-        email = request.GET.get('email', '')
-        ctx.update({'email': email})
-    elif request.method == 'POST':
-        email = request.POST.get('email')
-        if not email:
-            ctx.update(
-                {'email_errors': 'Please enter an email address to test'}
-            )
-        else:
-            ramdomnum = shortuuid.ShortUUID().random(length=6)
-            invoice_id = '{}_{}'.format(email, ramdomnum)
-            host = 'http://{}'.format(request.META.get('HTTP_HOST'))
-            paypal_form = PayPalPaymentsUpdateForm(
-                initial=get_paypal_dict(
-                    host,
-                    0.01,
-                    'paypal_test',
-                    invoice_id,
-                    'paypal_test 0 {} {} {}'.format(
-                        invoice_id, email, request.user.email
-                    ),
-                    paypal_email=email,
-                )
-            )
-            ctx.update({'paypalform': paypal_form, 'email': email})
 
-    return TemplateResponse(request, 'payments/test_paypal_email.html', ctx)
