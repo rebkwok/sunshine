@@ -9,7 +9,7 @@ from django.utils import timezone
 
 from django_object_actions import DjangoObjectActions, takes_instance_or_queryset
 
-from booking.models import Booking, WaitingListUser, Workshop, RegularClass, Register
+from booking.models import Booking, Event, WaitingListUser, Workshop, RegularClass, Register
 from booking.forms import EventForm
 from booking.email_helpers import send_email
 
@@ -95,7 +95,7 @@ class EventDateListFilter(admin.SimpleListFilter):
         """
 
         return (
-            (None, 'Upcoming events only'),
+            ("upcoming", 'Upcoming events only'),
             ('past', 'Past events only'),
             ('all', 'All events'),
         )
@@ -110,7 +110,7 @@ class EventDateListFilter(admin.SimpleListFilter):
         # to decide how to filter the queryset.
         if self.value() == 'past':
             return queryset.filter(date__lte=timezone.now())
-        if self.value() is None:
+        if self.value() == 'upcoming':
             return queryset.filter(date__gte=timezone.now() - timedelta(hours=1))
         return queryset
 
@@ -154,8 +154,8 @@ class EventAdmin(DjangoObjectActions, admin.ModelAdmin):
         'name', 'get_date', 'venue', 'show_on_site', 'max_participants', 'get_spaces_left',
         'status', 'waiting_list'
     )
-
     list_filter = ('name', 'venue', EventDateListFilter)
+
     list_editable = ('show_on_site',)
     readonly_fields = ('cancelled',)
     actions_on_top = True
@@ -267,8 +267,14 @@ class EventAdmin(DjangoObjectActions, admin.ModelAdmin):
 
 class WorkshopAdmin(EventAdmin):
 
-    def get_queryset(self, request):
-        return super().get_queryset(request).filter(event_type='workshop')
+    def get_form(self, request, obj=None, **kwargs):
+        form = super().get_form(request, obj, **kwargs)
+        form.base_fields['event_type'].choices = [('workshop', "Workshop"),]
+        return form
+
+    # def get_queryset(self, request):
+    #     queryset = super().get_queryset(request)
+    #     return queryset.filter(event_type='workshop')
 
     def status(self, obj):
         return super().status(obj)
@@ -289,10 +295,12 @@ class RegularClassAdmin(EventAdmin):
     def get_form(self, request, obj=None, **kwargs):
         form = super(RegularClassAdmin, self).get_form(request, obj, **kwargs)
         form.base_fields['cost'].help_text = '(non-membership cost)'
+        form.base_fields['event_type'].choices = [('regular_session', "Regular timetabled session"),]
         return form
 
     def get_queryset(self, request):
-        return super().get_queryset(request).filter(event_type='regular_session')
+        queryset = super().get_queryset(request)
+        return queryset.filter(event_type='regular_session')
 
     def status(self, obj):
         return super().status(obj)
@@ -397,6 +405,7 @@ class WaitingListUserAdmin(admin.ModelAdmin):
         'user__first_name', 'user__last_name', 'user__username', 'event__name'
     )
 
+admin.site.site_header = "Carousel Fitness Admin"
 
 admin.site.register(RegularClass, RegularClassAdmin)
 admin.site.register(Workshop, WorkshopAdmin)

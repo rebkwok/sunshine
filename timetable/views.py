@@ -1,14 +1,11 @@
 from functools import wraps
 
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import render
 from django.views.generic import ListView
 from django.urls import reverse
 from django.shortcuts import HttpResponseRedirect
 
 from timetable.models import TimetableSession, Venue
-from timetable.forms import TimetableFilter, UploadTimetableForm
-from timetable.utils import upload_timetable
+from timetable.forms import TimetableFilter
 
 
 def superuser_required(func):
@@ -60,36 +57,3 @@ class TimetableListView(ListView):
 
         context['form'] = form
         return context
-
-
-@login_required
-@superuser_required
-def upload_timetable_view(request,
-                          template_name="timetable/upload_timetable_form.html"):
-
-    if request.method == 'POST':
-        form = UploadTimetableForm(request.POST)
-        if form.is_valid():
-            start_date = form.cleaned_data['start_date']
-            end_date = form.cleaned_data['end_date']
-            session_ids = form.cleaned_data['sessions']
-            show_on_site = form.cleaned_data['show_on_site']
-
-            created_classes, existing_classes, duplicate_classes = upload_timetable(
-                start_date, end_date, session_ids, show_on_site, request.user
-            )
-            context = {'start_date': start_date,
-                       'end_date': end_date,
-                       'created_classes': created_classes,
-                       'existing_classes': existing_classes,
-                       'duplicate_classes': duplicate_classes,
-                       'sidenav_selection': 'upload_timetable'}
-            return render(
-                request, 'timetable/upload_timetable_confirmation.html',
-                context
-            )
-
-    else:
-        form = UploadTimetableForm()
-
-    return render(request, template_name, {'form': form})

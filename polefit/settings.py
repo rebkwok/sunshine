@@ -47,7 +47,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = (
-    'suit',
+    'apps.SuitConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -283,7 +283,7 @@ LOGGING = {
 import sys
 TESTING = 'test' in sys.argv
 if not TESTING:
-    ADMINS = [SUPPORT_EMAIL]
+    ADMINS = [("Becky Smith", SUPPORT_EMAIL)]
 
 
 from django.contrib import messages
@@ -292,92 +292,6 @@ MESSAGE_TAGS = {
 }
 
 APPEND_SLASH = True
-
-
-# DJANGO-SUIT
-SUIT_CONFIG = {
-    'SEARCH_URL': '',
-    'ADMIN_NAME': "Carousel Fitness",
-    'MENU': (
-        '-',
-        {
-            'label': 'Website',
-            'icon': 'icon-globe',
-            'models': (
-                'website.aboutinfo', 'timetable.sessiontype',
-                'timetable.instructor'
-            )
-        },
-        {
-            'label': 'Gallery',
-            'app': 'gallery',
-            'icon': 'icon-asterisk',
-        },
-        '-',
-        {
-            'label': 'Accounts',
-            'models': (
-                'auth.user',
-                {'model': 'account.emailaddress'},
-                {'model': 'account.emailconfirmation'},
-                {'model': 'accounts.cookiepolicy'},
-                {'model': 'accounts.dataprivacypolicy'},
-                {'model': 'accounts.signeddataprivacy'},
-            ),
-            'icon': 'icon-user',
-        },
-        '-',
-        {
-            'label': 'Timetable',
-            'models': (
-                'timetable.timetablesession',
-                {'label': 'Upload timetable', 'url': '/timetable/upload'}
-            ),
-            'icon': 'icon-calendar',
-        },
-        {
-            'label': 'Classes/Workshops',
-            'icon': 'icon-star',
-            'models': ('booking.regularclass', 'booking.workshop'),
-        },
-        {
-            'label': 'Registers',
-            'icon': 'icon-star',
-            'models': ('booking.register',),
-            'staff_user_can_view': True
-        },
-        {
-            'label': 'Bookings',
-            'icon': 'icon-heart',
-            'models': ('booking.booking', 'booking.waitinglistuser')
-        },
-        '-',
-        {
-            'label': 'Payments',
-            'models': ('payments.paypalbookingtransaction',
-                       'ipn.paypalipn'),
-            'icon': 'icon-asterisk',
-        },
-        {
-            'label': 'Test paypal email',
-            'url': '/payments/test-paypal-email',
-            'icon': 'icon-envelope',
-        },
-        '-',
-        {
-            'label': 'Activity Log',
-            'app': 'activitylog',
-            'icon': 'icon-asterisk',
-        },
-        '-',
-        {
-            'label': 'Go to main site',
-            'url': '/',
-            'icon': 'icon-map-marker',
-            'staff_user_can_view': True
-        },
-    )
-}
 
 
 # DJANGO-PAYPAL

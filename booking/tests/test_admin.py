@@ -32,11 +32,6 @@ class EventAdminTests(TestCase):
         event = filter.queryset(None, Event.objects.all())[0]
         self.assertEqual(event.name, 'future')
 
-        # no filter parameters returns future only
-        filter = admin.EventDateListFilter(None, {}, Event, admin.EventAdmin)
-        events = filter.queryset(None, Event.objects.all())
-        self.assertEqual(events.count(), 1)
-
     def test_get_cancelled_status_display(self):
         event = baker.make_recipe('booking.future_EV')
         ev_admin = admin.EventAdmin(Event, AdminSite())

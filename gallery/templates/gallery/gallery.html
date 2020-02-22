@@ -1,5 +1,5 @@
 {% extends "website/_base.html" %}
-{% load staticfiles %}
+{% load static %}
 
 {% block extrahead %}<link rel="stylesheet" href="{% static 'gallery/css/gallery.css' %}">{% endblock %}
 
@@ -39,7 +39,7 @@
                            data-image-id=""
                            data-toggle="modal"
                            data-title="{{ image.category }}"
-                           data-caption="{{ image.caption }}"
+                           data-caption="{% if image.caption %}{{ image.caption }}{% endif %}"
                            data-image="{{ MEDIA_URL }}{{ image.photo.name }}"
                            data-target="#image-gallery">
                             <div class="thumbnail-container"><img

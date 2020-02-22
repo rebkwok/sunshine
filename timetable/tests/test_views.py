@@ -78,7 +78,7 @@ class UploadTimetableTests(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        cls.url = reverse('timetable:upload_timetable')
+        cls.url = reverse('admin:upload_timetable')
         cls.superuser = User.objects.create_superuser(
             username='superuser', email='test@test.com', password='test'
         )
@@ -88,33 +88,6 @@ class UploadTimetableTests(TestCase):
         cls.user = User.objects.create_user(
             username='test', email='test@test.com', password='test'
         )
-
-    def test_cannot_access_if_not_logged_in(self):
-        """
-        test that the page redirects if user is not logged in
-        """
-        resp = self.client.get(self.url)
-        redirected_url = reverse('account_login') + "?next={}".format(self.url)
-        self.assertEquals(resp.status_code, 302)
-        self.assertIn(redirected_url, resp.url)
-
-    def test_cannot_access_if_not_superuser(self):
-        """
-        test that the page redirects if user is not a super user
-        """
-        self.client.login(username=self.user.username, password='test')
-        resp = self.client.get(self.url)
-        self.assertEquals(resp.status_code, 302)
-        self.assertEquals(resp.url, reverse('permission_denied'))
-
-        self.client.login(username=self.staff_user.username, password='test')
-        resp = self.client.get(self.url)
-        self.assertEquals(resp.status_code, 302)
-        self.assertEquals(resp.url, reverse('permission_denied'))
-
-        self.client.login(username=self.superuser.username, password='test')
-        resp = self.client.get(self.url)
-        self.assertEquals(resp.status_code, 200)
 
     @patch('timetable.forms.timezone')
     def test_events_are_created(self, mock_tz):

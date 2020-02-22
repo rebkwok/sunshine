@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
 from django import forms
-from django.contrib.auth.models import User
 from django.utils.safestring import mark_safe
 from django.utils import timezone
 
-from suit.widgets import EnclosedInput, SuitSplitDateTimeWidget
+from suit.widgets import EnclosedInput
 
 from booking.models import Booking, Event
 
@@ -42,7 +41,7 @@ class EventForm(forms.ModelForm):
             # You can also use prepended and appended together
             'cost': EnclosedInput(prepend=u'\u00A3'),
             'cancellation_period': forms.Select(choices=cancel_choices),
-            'date': SuitSplitDateTimeWidget()
+            # 'date': SuitSplitDateTimeWidget()
             }
         help_texts = {
             'cancellation_period': mark_safe(

@@ -8,10 +8,8 @@ from django.db import models
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
-from django.urls import reverse
 from django.utils import timezone
-from django.utils.functional import cached_property
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from django_extensions.db.fields import AutoSlugField
 
@@ -198,7 +196,15 @@ class WaitingListUser(models.Model):
         verbose_name_plural = 'waiting list'
 
 
+class WorkshopManager(models.Manager):
+
+    def get_queryset(self):
+        return super().get_queryset().filter(event_type='workshop')
+
+
+
 class Workshop(Event):
+    objects = WorkshopManager()
 
     class Meta:
         proxy = True

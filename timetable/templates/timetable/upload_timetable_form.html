@@ -41,7 +41,7 @@
             <form method="post">
             {% csrf_token %}
             <div class="upload-timetable-form">
-                {{form}}
+                {{form.as_p}}
             </div>
 
             <div>
