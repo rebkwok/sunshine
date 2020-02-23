@@ -1,0 +1,17 @@
+{% extends "admin/base.html" %}
+{% load static bootstrap3 %}
+
+{% block branding %}
+{{ block.super }}
+<button class="btn btn-sm btn-info" id="menu-collapse-button" data-toggle="collapse" data-target="#suit-nav">Show/Hide Main Menu</button>
+{% endblock %}
+
+{% block nav-global %}
+    {{ block.super }}
+{% endblock %}
+
+{% block footer %}
+{{ block.super}}
+    {% bootstrap_javascript jquery=3 %}
+    <script src="{% static 'booking/js/collapse-admin-menu.js' %}"></script>
+{% endblock %}
