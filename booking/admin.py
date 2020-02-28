@@ -159,7 +159,7 @@ class EventAdmin(DjangoObjectActions, admin.ModelAdmin):
     list_editable = ('show_on_site',)
     readonly_fields = ('cancelled',)
     actions_on_top = True
-    ordering = ('date',)
+    ordering = ('-date',)
     form = EventForm
     actions = ['cancel_event']
     change_actions = ['cancel_event']
@@ -322,7 +322,7 @@ class RegisterAdmin(admin.ModelAdmin):
     fields = ('name', 'get_date', 'venue')
     readonly_fields = ('name', 'get_date', 'venue')
     inlines = (BookingInline, WaitingListInline)
-    ordering = ('date',)
+    ordering = ('-date',)
 
     def get_actions(self, request):
         actions = super().get_actions(request)

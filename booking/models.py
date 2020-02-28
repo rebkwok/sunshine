@@ -43,7 +43,7 @@ class Event(models.Model):
     cancellation_period = models.PositiveIntegerField(
         default=24
     )
-    email_studio_when_booked = models.BooleanField(default=True)
+    email_studio_when_booked = models.BooleanField(default=False)
     slug = AutoSlugField(
         populate_from=['name', 'date'], max_length=40, unique=True
     )
