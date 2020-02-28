@@ -13,6 +13,7 @@ from django.utils.translation import gettext_lazy as _
 
 from django_extensions.db.fields import AutoSlugField
 
+from activitylog.models import ActivityLog
 from timetable.models import Venue
 
 logger = logging.getLogger(__name__)
@@ -54,6 +55,7 @@ class Event(models.Model):
                   'Check this carefully!'
     )
     cancelled = models.BooleanField(default=False)
+    cancellation_fee = models.DecimalField(max_digits=8, decimal_places=2, default=1.00)
 
     class Meta:
         ordering = ['-date']
@@ -120,6 +122,9 @@ class Booking(models.Model):
     )
     reminder_sent = models.BooleanField(default=False)
 
+    cancellation_fee_incurred = models.BooleanField(default=False)
+    cancellation_fee_paid = models.BooleanField(default=False)
+
     class Meta:
         unique_together = ('user', 'event')
 
@@ -141,6 +146,13 @@ class Booking(models.Model):
             and self.status == 'OPEN'
         was_no_show = self._old_booking().no_show and not self.no_show
         return was_cancelled or was_no_show
+
+    def _is_cancelling(self):
+        if not self.pk:
+            return False
+        cancelling = self._old_booking().status == 'OPEN' and self.status == 'CANCELLED'
+        setting_as_no_show = self.no_show and not self._old_booking().no_show
+        return cancelling or setting_as_no_show
 
     def clean(self):
         if self._is_rebooking():
@@ -174,7 +186,22 @@ class Booking(models.Model):
 
         if rebooking:
             self.date_rebooked = timezone.now()
+            if self.cancellation_fee_incurred:
+                self.cancellation_fee_incurred = False
+                self.cancellation_paid = False
+                ActivityLog.objects.create(
+                    log=f"Booking {self.id} rebooked; cancellation fee recinded."
+                )
 
+        if self._is_cancelling() and not self.event.cancelled:
+            if not self.event.can_cancel() and self.event.cancellation_fee > 0:
+                self.cancellation_fee_incurred = True
+                ActivityLog.objects.create(
+                    log=f"Booking {self.id} cancelled after cancellation period; cancellation fee cancellation_fee_incurred."
+                )
+        # we shouldn't ever set cancellation fee paid without it also being flagged as incurred
+        if self.cancellation_fee_paid:
+            self.cancellation_fee_incurred = True
         super(Booking, self).save(*args, **kwargs)
 
 
@@ -227,4 +254,14 @@ def user_str_patch(self):
     return '%s %s (%s)' % (self.first_name, self.last_name, self.username)
 
 
+def has_outstanding_fees(self):
+    return any(
+        booking.cancellation_fee_incurred
+        and not booking.cancellation_fee_paid
+        and booking.event.cancellation_fee > 0
+        for booking in self.bookings.all()
+    )
+
+
+User.add_to_class("has_outstanding_fees", has_outstanding_fees)
 User.__str__ = user_str_patch

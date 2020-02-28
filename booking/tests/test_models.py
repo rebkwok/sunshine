@@ -43,6 +43,9 @@ class BookingTests(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.event = baker.make_recipe('booking.future_EV', max_participants=20)
+        cls.event_no_cost = baker.make_recipe(
+            'booking.future_PC', cost=0, date=datetime(2020, 2, 10, 18, 0, tzinfo=timezone.utc)
+        )
 
     def setUp(self):
         baker.make_recipe('booking.user', _quantity=15)
@@ -218,3 +221,79 @@ class BookingTests(TestCase):
         booking.no_show = True
         with self.assertRaises(ValidationError):
             booking.save()
+
+    @patch('booking.models.timezone')
+    def test_cancel_booking_within_cancellation_period(self, mock_tz):
+        # event_no_cost date 2020-2-10 18:00
+        # < 24hrs before event date
+        mock_tz.return_value = datetime(2020, 2, 9, 20, 0, tzinfo=timezone.utc)
+        booking = baker.make_recipe('booking.booking', event=self.event_no_cost, status="OPEN", paid=False)
+        self.assertFalse(booking.cancellation_fee_incurred)
+        self.assertFalse(booking.cancellation_fee_paid)
+        booking.status = "CANCELLED"
+        booking.save()
+        self.assertTrue(booking.cancellation_fee_incurred)
+        self.assertFalse(booking.cancellation_fee_paid)
+
+    @patch('booking.models.timezone')
+    def test_set_to_no_show_within_cancellation_period(self, mock_tz):
+        # event_no_cost date 2020-2-10 18:00
+        # < 24hrs before event date
+        mock_tz.return_value = datetime(2020, 2, 9, 20, 0, tzinfo=timezone.utc)
+        booking = baker.make_recipe('booking.booking', event=self.event_no_cost, status="OPEN", paid=False)
+        self.assertFalse(booking.cancellation_fee_incurred)
+        self.assertFalse(booking.cancellation_fee_paid)
+        booking.no_show = True
+        booking.save()
+        self.assertEqual(booking.status, "OPEN")
+        self.assertTrue(booking.cancellation_fee_incurred)
+        self.assertFalse(booking.cancellation_fee_paid)
+
+    @patch('booking.models.timezone')
+    def test_no_cancellation_fees_if_event_cancelled(self, mock_tz):
+        cancelled_event = baker.make_recipe(
+            'booking.future_PC', cost=0, date=datetime(2020, 2, 10, 18, 0, tzinfo=timezone.utc)
+        )
+        # < 24hrs before event date
+        mock_tz.return_value = datetime(2020, 2, 9, 20, 0, tzinfo=timezone.utc)
+        booking = baker.make_recipe('booking.booking', event=cancelled_event, status="OPEN", paid=False)
+        cancelled_event.cancelled = False
+        cancelled_event.save()
+
+        self.assertFalse(booking.cancellation_fee_incurred)
+        self.assertFalse(booking.cancellation_fee_paid)
+        booking.status = "CANCELLED"
+        booking.save()
+        self.assertFalse(booking.cancellation_fee_incurred)
+        self.assertFalse(booking.cancellation_fee_paid)
+
+    @patch('booking.models.timezone')
+    def test_rebooking_resets_cancellation_fee_flags(self, mock_tz):
+        # event_no_cost date 2020-2-10 18:00
+        # < 24hrs before event date
+        mock_tz.return_value = datetime(2020, 2, 9, 20, 0, tzinfo=timezone.utc)
+        booking = baker.make_recipe(
+            'booking.booking', event=self.event_no_cost, status="CANCELLED", paid=False,
+            cancellation_fee_incurred=True, cancellation_fee_paid=True
+        )
+        self.assertTrue(booking.cancellation_fee_incurred)
+        self.assertTrue(booking.cancellation_fee_paid)
+        booking.status = "OPEN"
+        booking.save()
+        self.assertFalse(booking.cancellation_fee_incurred)
+        self.assertFalse(booking.cancellation_fee_paid)
+
+    @patch('booking.models.timezone')
+    def test_resetting_no_show_resets_cancellation_fee_flags(self, mock_tz):
+        # event_no_cost date 2020-2-10 18:00
+        # < 24hrs before event date
+        mock_tz.return_value = datetime(2020, 2, 9, 20, 0, tzinfo=timezone.utc)
+        booking = baker.make_recipe(
+            'booking.booking', event=self.event_no_cost, status="OPEN", paid=False, no_show=False,
+            cancellation_fee_incurred=True, cancellation_fee_paid=False
+        )
+        self.assertTrue(booking.cancellation_fee_incurred)
+        booking.no_show = False
+        booking.save()
+        self.assertFalse(booking.cancellation_fee_incurred)
+        self.assertFalse(booking.cancellation_fee_paid)
