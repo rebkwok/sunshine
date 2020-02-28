@@ -26,11 +26,26 @@ class EventAdminTests(TestCase):
         event = filter.queryset(None, Event.objects.all())[0]
         self.assertEqual(event.name, 'past')
 
+        # default value
         filter = admin.EventDateListFilter(
-            None, {'date': 'upcoming'}, Event, admin.EventAdmin
+            None, {'date': None}, Event, admin.EventAdmin
+        )
+        events = filter.queryset(None, Event.objects.all())
+        self.assertEqual(len(events), 1)
+        event = events[0]
+        self.assertEqual(event.name, 'future')
+
+        filter = admin.EventDateListFilter(
+            None, {}, Event, admin.EventAdmin
         )
         event = filter.queryset(None, Event.objects.all())[0]
         self.assertEqual(event.name, 'future')
+
+        filter = admin.EventDateListFilter(
+            None, {'date': "all"}, Event, admin.EventAdmin
+        )
+        events = filter.queryset(None, Event.objects.all())
+        self.assertEqual(len(events), 2)
 
     def test_get_cancelled_status_display(self):
         event = baker.make_recipe('booking.future_EV')
@@ -340,15 +355,15 @@ class BookingAdminTests(TestCase):
         booking = filter.queryset(None, Booking.objects.all())[0]
         self.assertEqual(booking.event.name, 'past')
 
+        # no filter parameters returns default (upcoming)
         filter = admin.BookingDateListFilter(
-            None, {'event__date': 'upcoming'}, Booking, admin.BookingAdmin
+            None, {'event__date': None}, Booking, admin.BookingAdmin
         )
         booking = filter.queryset(None, Booking.objects.all())[0]
         self.assertEqual(booking.event.name, 'future')
 
-        # no filter parameters returns all
         filter = admin.BookingDateListFilter(
-            None, {}, Booking, admin.BookingAdmin
+            None, {'event__date': 'all'}, Booking, admin.BookingAdmin
         )
         bookings = filter.queryset(None, Booking.objects.all())
         self.assertEqual(bookings.count(), 2)

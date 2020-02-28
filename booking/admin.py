@@ -44,7 +44,7 @@ class UserFilter(admin.SimpleListFilter):
 class BookingDateListFilter(admin.SimpleListFilter):
     # Human-readable title which will be displayed in the
     # right admin sidebar just above the filter options.
-    title = 'date'
+    title = 'event date'
 
     # Parameter for the filter that will be used in the URL query.
     parameter_name = 'event__date'
@@ -58,9 +58,18 @@ class BookingDateListFilter(admin.SimpleListFilter):
         in the right sidebar.
         """
         return (
-            ('past', ('past events only')),
-            ('upcoming', ('upcoming events only')),
+            (None, ('Upcoming events only')),
+            ('past', ('Past events only')),
+            ('all', ('All events')),
         )
+
+    def choices(self, cl):
+        for lookup, title in self.lookup_choices:
+            yield {
+                'selected': self.value() == lookup,
+                'query_string': cl.get_query_string({self.parameter_name: lookup,}, []),
+                'display': title,
+            }
 
     def queryset(self, request, queryset):
         """
@@ -72,7 +81,7 @@ class BookingDateListFilter(admin.SimpleListFilter):
         # to decide how to filter the queryset.
         if self.value() == 'past':
             return queryset.filter(event__date__lte=timezone.now())
-        if self.value() == 'upcoming':
+        if self.value() is None:
             return queryset.filter(event__date__gte=timezone.now())
         return queryset
 
@@ -95,10 +104,18 @@ class EventDateListFilter(admin.SimpleListFilter):
         """
 
         return (
-            ("upcoming", 'Upcoming events only'),
+            (None, 'Upcoming events only'),
             ('past', 'Past events only'),
             ('all', 'All events'),
         )
+
+    def choices(self, cl):
+        for lookup, title in self.lookup_choices:
+            yield {
+                'selected': self.value() == lookup,
+                'query_string': cl.get_query_string({self.parameter_name: lookup,}, []),
+                'display': title,
+            }
 
     def queryset(self, request, queryset):
         """
@@ -110,7 +127,7 @@ class EventDateListFilter(admin.SimpleListFilter):
         # to decide how to filter the queryset.
         if self.value() == 'past':
             return queryset.filter(date__lte=timezone.now())
-        if self.value() == 'upcoming':
+        if self.value() is None:
             return queryset.filter(date__gte=timezone.now() - timedelta(hours=1))
         return queryset
 
@@ -159,7 +176,7 @@ class EventAdmin(DjangoObjectActions, admin.ModelAdmin):
     list_editable = ('show_on_site',)
     readonly_fields = ('cancelled',)
     actions_on_top = True
-    ordering = ('-date',)
+    ordering = ('date',)
     form = EventForm
     actions = ['cancel_event']
     change_actions = ['cancel_event']
@@ -322,7 +339,7 @@ class RegisterAdmin(admin.ModelAdmin):
     fields = ('name', 'get_date', 'venue')
     readonly_fields = ('name', 'get_date', 'venue')
     inlines = (BookingInline, WaitingListInline)
-    ordering = ('-date',)
+    ordering = ('date',)
 
     def get_actions(self, request):
         actions = super().get_actions(request)
