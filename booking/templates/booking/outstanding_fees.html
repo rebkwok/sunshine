@@ -1,0 +1,16 @@
+{% extends "website/_base.html" %}
+{% load static %}
+
+{% block content %}
+
+<div>
+
+    <h2>Your account is currently locked</h2>
+    <p>You have outstanding cancellation fees of £{{ fees }}. You cannot make any
+        bookings until this has been resolved.
+    </p>
+    <p>Please contact the studio to arrange payment and to unlock your account.</p>
+
+</div>
+
+{% endblock content %}

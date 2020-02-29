@@ -82,6 +82,10 @@
                                             <td class="table-center table-book-btn-col">
                                                 {% if event.cancelled %}
                                                     CLASS CANCELLED
+                                                {% elif user.has_outstanding_fees %}
+                                                    {% include "booking/includes/outstanding_fee_disabled_buttons.html" %}
+                                                {% elif event.id in booked_events and not event.can_cancel %}
+                                                    <a class="btn table-btn btn-danger cancel_button" href="{% url 'booking:delete_booking' booking.id %}">Cancel</a>
                                                 {% elif event.bookable or event.id in booked_events %}
                                                     <span
                                                         id="book_{{ event.id }}"

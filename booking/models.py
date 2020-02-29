@@ -188,13 +188,12 @@ class Booking(models.Model):
             self.date_rebooked = timezone.now()
             if self.cancellation_fee_incurred:
                 self.cancellation_fee_incurred = False
-                self.cancellation_paid = False
+                self.cancellation_fee_paid = False
                 ActivityLog.objects.create(
                     log=f"Booking {self.id} rebooked; cancellation fee recinded."
                 )
-
         if self._is_cancelling() and not self.event.cancelled:
-            if not self.event.can_cancel() and self.event.cancellation_fee > 0:
+            if self.event.cancellation_fee > 0 and not self.event.can_cancel():
                 self.cancellation_fee_incurred = True
                 ActivityLog.objects.create(
                     log=f"Booking {self.id} cancelled after cancellation period; cancellation fee cancellation_fee_incurred."

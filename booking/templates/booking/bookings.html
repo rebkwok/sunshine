@@ -59,7 +59,12 @@
                                 <tr id='booked-{{ booking.event.id }}-row' {% if booking_status_display|lookup:booking.id == 'CANCELLED' %}class='expired'{% endif %}>
                                     {% if not history %}
                                         <td class="table-center">
-                                        {% if booking.event.cancelled %}CLASS CANCELLED
+                                        {% if booking.event.cancelled %}
+                                            CLASS CANCELLED
+                                        {% elif user.has_outstanding_fees %}
+                                            {% include "booking/includes/outstanding_fee_disabled_buttons.html" %}
+                                        {% elif booking.status == 'OPEN' and not booking.no_show and not event.can_cancel %}
+                                            <a class="btn table-btn btn-danger cancel_button" href="{% url 'booking:delete_booking' booking.id %}">Cancel</a>
                                         {% elif booking.status == 'OPEN' and not booking.no_show or booking.event.bookable %}
                                             <span
                                                 id="book_{{ booking.event.id }}"

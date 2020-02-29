@@ -17,10 +17,15 @@
                     refunded.</p>
                 {% else %}
                     {% if not event.allow_booking_cancellation %}
-                        <p>This event is not eligible for refunds on cancellation.</p>
+                        <p>This event does not allow cancellation.</p>
                     {% else %}
-                        <p>The allowed cancellation period for this booking has passed.  If you continue, you will not be eligible for any refunds.</p>
+                        <p>The allowed cancellation period for this booking has passed.</p>
                     {% endif %}
+                    <p>A cancellation fee of £{{event.cancellation_fee}} will be incurred for cancelling this booking.</p>
+                    <p>
+                        If you choose to cancel (or do not show up for the {{ event_type }}), your account will be locked and you will not
+                        be able to make any further bookings until the fee has been paid.
+                    </p>
                 {% endif %}
                 <p>For further information on payments/refunds, please contact <a href="mailto:{{ event.contact_email }}?Subject=Enquiry regarding booking for {{ event.name }}" target="_blank">{{ event.contact_email }}</a></p>
 

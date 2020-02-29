@@ -20,7 +20,7 @@ from payments.models import PaypalBookingTransaction
 from booking.models import Booking, Event, WaitingListUser
 from booking.forms import BookingCreateForm
 from booking.email_helpers import send_email, send_waiting_list_email
-from .views_utils import DataPolicyAgreementRequiredMixin
+from .views_utils import DataPolicyAgreementRequiredMixin, FeesDueMixin
 
 from payments.models import create_paypal_transaction
 from activitylog.models import ActivityLog
@@ -131,7 +131,7 @@ class BookingHistoryListView(DataPolicyAgreementRequiredMixin, LoginRequiredMixi
         return context
 
 
-class BookingCreateView(DataPolicyAgreementRequiredMixin, LoginRequiredMixin, CreateView):
+class BookingCreateView(DataPolicyAgreementRequiredMixin, FeesDueMixin, LoginRequiredMixin, CreateView):
 
     model = Booking
     template_name = 'booking/create_booking.html'
@@ -476,6 +476,7 @@ class BookingDeleteView(LoginRequiredMixin, DeleteView):
         event = Event.objects.get(id=booking.event.id)
         # Add in the event
         context['event'] = event
+        context['event_type'] = "class" if event.event_type == "regular_session" else "workshop"
         return context
 
     def delete(self, request, *args, **kwargs):
@@ -543,55 +544,36 @@ class BookingDeleteView(LoginRequiredMixin, DeleteView):
             )
 
         else:
-            # if the booking wasn't paid, just cancel it
-            if not booking.paid:
-                booking.status = 'CANCELLED'
-                booking.save()
-                messages.success(
-                    self.request,
-                    self.success_message.format(booking.event)
-                )
+            # set to no-show
+            booking.no_show = True
+            booking.save()
+
+            if booking.event.cancellation_fee == 0:
+                cancel_msg = " This booking is not eligible for refunds."
+            else:
+                cancel_msg = " A cancellation fee has been incurred.  Your account is locked " \
+                             "for further booking until the fee has been paid."
+
+            if not booking.event.allow_booking_cancellation:
                 ActivityLog.objects.create(
-                    log='Booking id {} for event {}, user {}, was cancelled by user '
-                        '{}'.format(
+                    log='Booking id {} for NON-CANCELLABLE event {}, user {}, '
+                        'was cancelled and set to no-show'.format(
                             booking.id, booking.event, booking.user.username,
                             self.request.user.username
                         )
                 )
-            else:  # set to no-show
-                booking.no_show = True
-                booking.save()
-
-                if not booking.event.allow_booking_cancellation:
-                    messages.success(
-                        self.request,
-                        self.success_message.format(booking.event) +
-                        ' Please note that this booking is not eligible for '
-                        'refunds.'
-                    )
-                    ActivityLog.objects.create(
-                        log='Booking id {} for NON-CANCELLABLE event {}, user {}, '
-                            'was cancelled and set to no-show'.format(
-                                booking.id, booking.event, booking.user.username,
-                                self.request.user.username
-                            )
-                    )
-                else:
-                    messages.success(
-                        self.request,
-                        self.success_message.format(booking.event) +
-                        ' Please note that this booking is not eligible for '
-                        'refunds as the allowed '
-                        'cancellation period has passed.'
-                    )
-                    ActivityLog.objects.create(
-                        log='Booking id {} for event {}, user {}, was cancelled '
-                            'after the cancellation period and set to '
-                            'no-show'.format(
-                                booking.id, booking.event, booking.user.username,
-                                self.request.user.username
-                            )
-                    )
+            else:
+                ActivityLog.objects.create(
+                    log='Booking id {} for event {}, user {}, was cancelled '
+                        'after the cancellation period and set to '
+                        'no-show'.format(
+                            booking.id, booking.event, booking.user.username,
+                            self.request.user.username
+                        )
+                )
+            messages.success(
+                    self.request, self.success_message.format(booking.event) + cancel_msg
+                )
 
         # if applicable, email users on waiting list
         if event_was_full:
@@ -649,3 +631,11 @@ def already_paid(request, pk):
     booking = get_object_or_404(Booking, pk=pk)
     context = {'booking': booking}
     return render(request, 'booking/already_paid.html', context)
+
+def outstanding_fees(request):
+    if request.user.has_outstanding_fees():
+        bookings_with_fees = request.user.bookings.filter(cancellation_fee_incurred=True, cancellation_fee_paid=False)
+        fees = sum(booking.event.cancellation_fee for booking in bookings_with_fees)
+        context = {"fees": fees}
+        return render(request, 'booking/outstanding_fees.html', context)
+    return HttpResponseRedirect(reverse("booking:events"))

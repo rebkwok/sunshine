@@ -7,7 +7,8 @@ from booking.views import EventListView, EventDetailView, BookingCreateView, \
     BookingHistoryListView, BookingUpdateView, \
     BookingDeleteView, update_booking_cancelled, \
     cancellation_period_past, duplicate_booking, fully_booked, \
-    toggle_booking, toggle_waiting_list, booking_details, update_booking_count
+    toggle_booking, toggle_waiting_list, booking_details, update_booking_count, \
+    outstanding_fees
 
 
 app_name = 'booking'
@@ -41,6 +42,7 @@ urlpatterns = [
         'workshops/<slug:slug>/', EventDetailView.as_view(),
         name='event_detail'
     ),
+    path('outstanding-fees/', outstanding_fees, name="outstanding_fees"),
     path(
         'toggle-booking/<int:event_id>/',
         toggle_booking, name='toggle_booking'

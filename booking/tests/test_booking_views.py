@@ -848,7 +848,7 @@ class BookingDeleteViewTests(TestSetupMixin, TestCase):
 
         self.assertEqual(200, resp.status_code)
         self.assertIn(
-            'If you continue, you will not be eligible for any refunds.',
+            'A cancellation fee of £1.00 will be incurred for cancelling this booking.',
             resp.rendered_content
         )
 
@@ -871,9 +871,7 @@ class BookingDeleteViewTests(TestSetupMixin, TestCase):
         self.client.login(username=self.user.username, password='test')
         resp = self.client.delete(url, follow=True)
         self.assertIn(
-            'Please note that this booking is not eligible for refunds '
-            'as the allowed cancellation period has passed.',
-            resp.rendered_content
+            'A cancellation fee has been incurred.', resp.rendered_content
         )
         booking.refresh_from_db()
         self.assertTrue(booking.no_show)
@@ -899,15 +897,14 @@ class BookingDeleteViewTests(TestSetupMixin, TestCase):
     def test_event_with_cancellation_not_allowed(self):
         """
         Can still be cancelled but not refundable
-        Paid booking stays OPEN but is set to no_show
-        Unpaid booking is just cancelled
+        Paid or unpaid, booking stays OPEN but is set to no_show
         """
         event = baker.make_recipe(
             'booking.future_EV', allow_booking_cancellation=False
         )
         paid_booking = baker.make_recipe('booking.booking', event=event,
                                     user=self.user, paid=True)
-        resp = self._delete_response(self.user, paid_booking)
+        self._delete_response(self.user, paid_booking)
         paid_booking.refresh_from_db()
         # still open, but no_show
         self.assertEqual('OPEN', paid_booking.status)
@@ -919,11 +916,11 @@ class BookingDeleteViewTests(TestSetupMixin, TestCase):
         unpaid_booking = baker.make_recipe(
             'booking.booking', event=event1, user=self.user
         )
-        resp = self._delete_response(self.user, unpaid_booking)
+        self._delete_response(self.user, unpaid_booking)
         unpaid_booking.refresh_from_db()
-        # cancelled
-        self.assertEqual('CANCELLED', unpaid_booking.status)
-        self.assertFalse(unpaid_booking.no_show)
+        # still open, but no_show
+        self.assertEqual('OPEN', unpaid_booking.status)
+        self.assertTrue(unpaid_booking.no_show)
 
     def test_cancelling_sends_email_to_user_and_studio_if_applicable(self):
         """ emails are always sent to user; only sent to studio if previously

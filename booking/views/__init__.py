@@ -7,7 +7,7 @@ from booking.views.booking_views import already_cancelled, already_paid, \
     BookingCreateView, BookingDeleteView, \
     BookingHistoryListView, BookingListView, BookingUpdateView, \
     duplicate_booking, update_booking_cancelled, fully_booked, \
-    cancellation_period_past
+    cancellation_period_past, outstanding_fees
 
 __all__ = [
     'already_cancelled', 'already_paid',
@@ -16,7 +16,8 @@ __all__ = [
     'BookingDeleteView', 'duplicate_booking',
     'update_booking_cancelled',
     'fully_booked', 'cancellation_period_past',
-    'booking_details', 'toggle_booking', 'toggle_waiting_list', 'update_booking_count'
+    'booking_details', 'toggle_booking', 'toggle_waiting_list', 'update_booking_count',
+    'outstanding_fees'
 ]
 
 

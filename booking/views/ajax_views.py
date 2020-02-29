@@ -39,7 +39,12 @@ def toggle_booking(request, event_id):
             existing_booking_status = "OPEN"
 
     # if making a new/reopening booking, make sure the event isn't full or cancelled
+    # and abort if user has outstanding fees
     if existing_booking_status != 'OPEN':  # i.e. None (new) or CANCELLED (reopening)
+        if request.user.has_outstanding_fees():
+            message = f"Action forbidden until outstanding cancellation fees have been resolved"
+            return HttpResponseBadRequest(message)
+
         if not event.spaces_left or event.cancelled:
             message = "Sorry, this {} {}".format(
                 ev_type, 'is now full' if not event.spaces_left else "has been cancelled"
