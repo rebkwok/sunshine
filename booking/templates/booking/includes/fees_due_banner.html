@@ -1,0 +1,13 @@
+{% if user.has_outstanding_fees %}
+  <div id="message-row"  class="row">
+    <div class="col-xs-12">
+        <div class="message alert alert-outstanding-fees">
+            <i class="fas fa-ban fa-2x"></i>
+            Your account is locked for booking due to outstanding fees.  You can still cancel existing bookings.<br/>
+            Please contact the studio to unlock your account.
+            <i class="fas fa-ban"></i>
+        </div>
+    </div>
+  </div>
+
+{% endif %}

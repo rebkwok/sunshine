@@ -12,6 +12,8 @@
 <div class="col-xs-12">
 
 <div class="container-fluid row">
+    {% include "booking/includes/fees_due_banner.html" %}
+
     {% if history %}
         <h1>Past bookings</h1>
     {% else %}
@@ -63,8 +65,12 @@
                                             CLASS CANCELLED
                                         {% elif user.has_outstanding_fees %}
                                             {% include "booking/includes/outstanding_fee_disabled_buttons.html" %}
-                                        {% elif booking.status == 'OPEN' and not booking.no_show and not event.can_cancel %}
-                                            <a class="btn table-btn btn-danger cancel_button" href="{% url 'booking:delete_booking' booking.id %}">Cancel</a>
+                                        {% elif event.bookable and not event.can_cancel %}
+                                            {% if booking.status == 'OPEN' and not booking.no_show %}
+                                                <a class="btn table-btn btn-danger cancel_button" href="{% url 'booking:delete_booking' booking.id %}">Cancel</a>
+                                            {%  else %}
+                                                <a class="btn table-btn btn-success rebook_button" href="{% url 'booking:book_class' booking.event.slug %}">Rebook</a>
+                                            {% endif %}
                                         {% elif booking.status == 'OPEN' and not booking.no_show or booking.event.bookable %}
                                             <span
                                                 id="book_{{ booking.event.id }}"

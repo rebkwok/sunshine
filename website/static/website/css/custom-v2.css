@@ -905,3 +905,14 @@ span.current-page {
 .table > tbody > tr > td.table-book-btn-col, table > tr > th.table-book-btn-col {
     max-width: 150px;
 }
+
+.alert-outstanding-fees {
+    color: rgb(	51, 8, 7);
+    background-color: rgba(205, 33, 30, 0.6) ;
+    border-color: #ebccd1;
+}
+.alert-outstanding-fees > i {
+  color: rgb(255, 0, 0);
+  font-weight: bold;
+  font-size: 1.3em;
+}

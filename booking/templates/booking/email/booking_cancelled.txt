@@ -1,5 +1,8 @@
 Your booking for {{ event }} has been cancelled.
-{% if not event.allow_booking_cancellation %}Please note that this booking is not eligible for any refund on cancellation.{% elif not event.can_cancel %}Please note that you have cancelled after the allowed cancellation period and therefore you are not eligible for any refund.
+{% if not event.allow_booking_cancellation %}
+{% if event.cancellation_fee > 0 %}A cancellation fee of £{{ event.cancellation_fee }} has been incurred.  Please contact thestudio to arrange payment.{% else %}Please note that this booking is not eligible for any refund on cancellation.{% endif %}
+{% elif not event.can_cancel %}
+{% if event.cancellation_fee > 0 %}A cancellation fee of £{{ event.cancellation_fee }} has been incurred.  Please contact the studio to arrange payment.{% else %}Please note that you have cancelled after the allowed cancellation period and therefore you are not eligible for any refund.{% endif %}
 {% else %}
 {% if booking.paid %}
 Please note that payments are not automatically refunded. The organiser has been informed of your cancellation and will be in contact soon.

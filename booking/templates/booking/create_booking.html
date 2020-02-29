@@ -17,22 +17,29 @@
                     <div class="form-group">
 
                         {% if not event.allow_booking_cancellation %}
-                            <p>Bookings are final and non-refundable.  If you cancel, you will not be eligible for any refunds.</p>
+                            <p>Bookings are final and non-refundable.  If you cancel, you will not be eligible for any refunds
+                                {% if event.cancellation_fee > 0 %} and a cancellation fee of £{{ event.cancellation_fee}} will be incurred{% endif %}.
+                            </p>
                         {% elif not event.can_cancel %}
                             <p class="cancel-warning">Please note that the allowed cancellation period for this {{ ev_type }} has passed.
-                            If you cancel, you will not be eligible for any refunds.
+                            If you cancel, you will not be eligible for any refunds
+                            {% if event.cancellation_fee > 0 %} and a cancellation fee of £{{ event.cancellation_fee}} will be incurred{% endif %}.
                             </p>
                         {% elif event.cancellation_period > 0 %}
                             <p>Cancellation is only allowed up to {{ event.cancellation_period | format_cancellation }}
                             before the {{ ev_type }} date.</p>
                         {% endif %}
 
+
                         <span class="hide">{{ form.event }}</span>
                         <span class="hide">{{ form.user }}</span>
                         <input class="btn btn-success update-btn" type="submit" name="book_one_off" value="Book" />
-
+                        <a class="btn btn-danger" href="{% if request.GET.ref == 'cl' %}{% url 'booking:events' %}{% else %}{% url 'booking:bookings' %}{% endif %}">Back</a>
+                        <!--Note this is for possible future use only - we don't have advance_payment_required on events yet -->
+                        {% if event.advance_payment_required %}
                         <p class="cancel-warning">If payment has not been received within approximately
                                     24 hours of booking, your booking will be automatically cancelled.</p>
+                        {% endif %}
 
                     </div>
                 </form>

@@ -32,7 +32,7 @@
             <form action="" method="post">{% csrf_token %}
                 {{ form.as_p }}
                 <input class="btn btn-danger" type="submit" value="Confirm cancel" />
-                <a href="{% url 'booking:bookings' %}"><div class="btn btn-warning">Back</div></a>
+                <a class="btn btn-warning" href="{% if request.GET.ref == 'cl' %}{% url 'booking:events' %}{% else %}{% url 'booking:bookings' %}{% endif %}">Back</a>
             </form>
         </div>
         </div>

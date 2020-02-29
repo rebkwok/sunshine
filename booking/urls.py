@@ -38,6 +38,8 @@ urlpatterns = [
         name='fully_booked'),
     path('workshops/<slug:event_slug>/book/', BookingCreateView.as_view(),
         name='book_event'),
+    path('class/<slug:event_slug>/book/', BookingCreateView.as_view(),
+        name='book_class'),
     path(
         'workshops/<slug:slug>/', EventDetailView.as_view(),
         name='event_detail'

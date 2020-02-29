@@ -10,13 +10,13 @@
 {% block content %}
 
 <div class="container-fluid">
+        {% include "booking/includes/fees_due_banner.html" %}
 
         <h1 class="page-header">Book Classes
             {% if workshops_available_to_book %}</br>
         <a class="page-header-note" href="{% url 'booking:events' %}?type=workshop">Show Workshops</a>
             {% endif %}
         </h1>
-
 
         {% if day and time %}
             <h3>
@@ -84,8 +84,12 @@
                                                     CLASS CANCELLED
                                                 {% elif user.has_outstanding_fees %}
                                                     {% include "booking/includes/outstanding_fee_disabled_buttons.html" %}
-                                                {% elif event.id in booked_events and not event.can_cancel %}
-                                                    <a class="btn table-btn btn-danger cancel_button" href="{% url 'booking:delete_booking' booking.id %}">Cancel</a>
+                                                {% elif event.bookable and not event.can_cancel %}
+                                                    {% if event.id in booked_events %}
+                                                        <a class="btn table-btn btn-danger cancel_button" href="{% url 'booking:delete_booking' booking.id %}?ref=cl">Cancel</a>
+                                                    {%  else %}
+                                                        <a class="btn table-btn btn-success book_button" href="{% url 'booking:book_class' event.slug %}?ref=cl">Book</a>
+                                                    {% endif %}
                                                 {% elif event.bookable or event.id in booked_events %}
                                                     <span
                                                         id="book_{{ event.id }}"
