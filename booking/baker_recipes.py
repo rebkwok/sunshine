@@ -35,6 +35,10 @@ future_PC = Recipe(
     Event, date=future, event_type='regular_session', show_on_site=True, cost=10, email_studio_when_booked=True
 )
 
+past_class = Recipe(
+    Event, date=past, event_type='regular_session', show_on_site=True, cost=10, email_studio_when_booked=True
+)
+
 booking = Recipe(Booking)
 
 past_booking = Recipe(Booking, event=foreign_key(past_event))

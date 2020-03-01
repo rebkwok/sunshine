@@ -11,7 +11,7 @@ from django.urls import reverse
 from django.utils import timezone
 
 import booking.admin as admin
-from booking.models import Event, Booking, Workshop, RegularClass, Register
+from booking.models import Event, Booking, Workshop, RegularClass
 
 
 class EventAdminTests(TestCase):
@@ -278,60 +278,6 @@ class EventProxyAdminTests(TestCase):
         # emails sent to 3 open bookings
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual(len(mail.outbox[0].bcc), 3)
-
-
-class RegisterAdminTests(TestCase):
-
-    def test_creating_new_booking(self):
-        event = baker.make_recipe('booking.future_EV', name='future')
-        user1 = baker.make(User, username='test1')
-        baker.make(User, _quantity=2)
-
-        superuser = User.objects.create_superuser(
-            username='superuser', password='test', email='super@test.com'
-        )
-        self.client.login(username=superuser.username, password='test')
-        self.assertFalse(event.bookings.exists())
-
-        form_data = {
-            'bookings-INITIAL_FORMS': 0,
-            'bookings-TOTAL_FORMS': 1,
-            'bookings-0-user': user1.id,
-            'bookings-0-paid': False,
-            'bookings-0-status': 'OPEN',
-            'waitinglistusers-INITIAL_FORMS': 0,
-            'waitinglistusers-TOTAL_FORMS': 0,
-        }
-        self.client.post(
-            reverse('admin:booking_register_change', args=[event.id]),
-            form_data
-        )
-
-        self.assertEqual(event.bookings.count(), 1)
-        self.assertEqual(event.bookings.first().user, user1)
-
-    def test_spaces_left_display(self):
-        event = baker.make_recipe('booking.future_EV', max_participants=5)
-        baker.make_recipe('booking.booking', event=event, _quantity=3)
-
-        reg_admin = admin.RegisterAdmin(Register, AdminSite())
-        reg_query = reg_admin.get_queryset(None)[0]
-        self.assertEqual(reg_admin.get_spaces_left(reg_query), 2)
-
-    def test_event_date_display(self):
-        event = baker.make_recipe('booking.future_EV', date=datetime(2019, 1, 23, 18, 0, tzinfo=timezone.utc))
-        baker.make_recipe('booking.booking', event=event, _quantity=3)
-
-        reg_admin = admin.RegisterAdmin(Register, AdminSite())
-        reg_query = reg_admin.get_queryset(None)[0]
-        self.assertEqual(reg_admin.get_date(reg_query), 'Wed 23 Jan 2019 18:00 (GMT)')
-
-    def test_actions(self):
-        # no delete option
-        ev_admin = admin.RegisterAdmin(Register, AdminSite())
-        request = Mock(GET=[])
-        actions = ev_admin.get_actions(request)
-        self.assertEqual(list(actions.keys()), [])
 
 
 class BookingAdminTests(TestCase):
