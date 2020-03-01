@@ -5,7 +5,6 @@ from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import ValidationError
 from django.urls import reverse
-from django.db.models import Q
 from django.shortcuts import HttpResponseRedirect, render, get_object_or_404
 from django.views.generic import (
     ListView, CreateView, UpdateView, DeleteView
@@ -634,8 +633,6 @@ def already_paid(request, pk):
 
 def outstanding_fees(request):
     if request.user.has_outstanding_fees():
-        bookings_with_fees = request.user.bookings.filter(cancellation_fee_incurred=True, cancellation_fee_paid=False)
-        fees = sum(booking.event.cancellation_fee for booking in bookings_with_fees)
-        context = {"fees": fees}
+        context = {"fees": request.user.outstanding_fees_total()}
         return render(request, 'booking/outstanding_fees.html', context)
     return HttpResponseRedirect(reverse("booking:events"))

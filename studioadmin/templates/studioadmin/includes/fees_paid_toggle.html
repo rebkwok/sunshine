@@ -1,0 +1,21 @@
+{% if booking.cancellation_fee_incurred %}
+    {% if booking.cancellation_fee_paid %}
+        <div class="btn-group btn-group-toggle" id="fees_paid_button_group">
+          <label class="btn btn-sm btn-success btn-fee-payment active">
+            <input type="radio" name="options" id="option1" checked> Paid
+          </label>
+          <label class="btn btn-sm btn-outline-secondary btn-fee-payment">
+            <input type="radio" name="options" id="option2"> Unpaid
+          </label>
+        </div>
+    {% else %}
+        <div class="btn-group btn-group-toggle" id="fees_unpaid_button_group">
+          <label class="btn btn-sm btn-outline-secondary btn-fee-payment">
+            <input type="radio" name="options" id="option1" checked> Paid
+          </label>
+          <label class="btn btn-sm btn-danger btn-fee-payment">
+            <input type="radio" name="options" id="option2"> Unpaid
+          </label>
+        </div>
+    {% endif %}
+{% endif %}

@@ -75,8 +75,12 @@
                                 <li><a class="account-menu-option" href="{% url 'booking:booking_history' %}">Past bookings</a></li>
                                 <li><a class="account-menu-option" href="{% url 'account_logout' %}">Log out</a></li>
                                 {% if user.is_staff %}
-                                    <li><a class="account-menu-option" href="{% url 'admin:index' %}">Admin</a></li>
+                                    <li><a class="account-menu-option" href="{% url 'studioadmin:class_register_list' %}">Instructors Admin</a></li>
                                 {% endif %}
+                                {% if user.is_superuser %}
+                                    <li><a class="account-menu-option" href="{% url 'admin:index' %}">Site Admin</a></li>
+                                {% endif %}
+
                           </ul>
                         </li>
                       {% else %}

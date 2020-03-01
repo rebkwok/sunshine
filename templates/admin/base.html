@@ -15,5 +15,7 @@
 {% block footer %}
 {{ block.super}}
     {% bootstrap_javascript jquery=3 %}
+    {% block extra_scripts %}
     <script src="{% static 'booking/js/collapse-admin-menu.js' %}"></script>
+    {% endblock %}
 {% endblock %}

@@ -49,6 +49,7 @@ ALLOWED_HOSTS = []
 INSTALLED_APPS = (
     'apps.SuitConfig',
     'django.contrib.admin',
+    'studioadmin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -61,6 +62,7 @@ INSTALLED_APPS = (
     'allauth.account',
     'django_extensions',
     'bootstrap3',
+    'bootstrap4',
     'paypal.standard.ipn',
     'debug_toolbar',
     'django_object_actions',
@@ -70,7 +72,7 @@ INSTALLED_APPS = (
     'website',
     'gallery',
     'activitylog',
-    'booking'
+    'booking',
 )
 
 

@@ -262,5 +262,10 @@ def has_outstanding_fees(self):
     )
 
 
+def outstanding_fees_total(self):
+    bookings_with_fees = self.bookings.filter(cancellation_fee_incurred=True, cancellation_fee_paid=False)
+    return sum(booking.event.cancellation_fee for booking in bookings_with_fees)
+
 User.add_to_class("has_outstanding_fees", has_outstanding_fees)
+User.add_to_class("outstanding_fees_total", outstanding_fees_total)
 User.__str__ = user_str_patch

@@ -1,0 +1,64 @@
+{% extends "studioadmin/base.html" %}
+{% load static studioadmintags %}
+
+{% block subcontent %}
+
+<h2>Students with outstanding cancellation fees</h2>
+
+{% if users_with_outstanding_fees %}
+<div class="row">
+    <div class="table-responsive">
+        <table class="table table-striped" id="sortedUserFeesTable">
+            <thead class="thead-dark">
+            <tr>
+                <th class="table-center">Username</th>
+                <th class="table-center">First Name</th>
+                <th class="table-center">Last Name</th>
+                <th class="table-center">Email</th>
+                <th class="table-center">Cancellation Fees</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for user in users_with_outstanding_fees %}
+            <tr>
+                <td class="table-center studioadmin-tbl">{{ user.username|abbr_username }}</td>
+                <td class="table-center studioadmin-tbl">{{ user.first_name|abbr_name }}</td>
+                <td class="table-center studioadmin-tbl">{{ user.last_name|abbr_name }}</td>
+                <td class="table-center studioadmin-tbl"><a href="mailto:{{ user.email }}" target="_blank">{{ user.email|abbr_email }}</a></td>
+                <td class="table-center">
+                    <span class="fees">
+                        {% if user.has_outstanding_fees %}
+                            <span class="fees-due"><a href="{% url 'studioadmin:user_fees' user.id %}">£{{ user.outstanding_fees_total }} <i class="far fa-arrow-alt-circle-right"></i></a></span>
+                        {% else %}
+                            -
+                        {% endif %}
+                    </span>
+                </td>
+            </tr>
+            {% endfor %}
+
+            </tbody>
+        </table>
+    </div>
+</div>
+{% else %}
+No outstanding fees.
+{% endif %}
+
+
+{% endblock subcontent %}
+
+{% block extra_page_js %}
+<script>
+
+    $(document).ready(function() {
+        $('#sortedUserFeesTable').DataTable({
+            "pagingType": "full_numbers",
+            "lengthChange":     false,
+            "searching": false
+
+        });
+    } );
+
+</script>
+{% endblock %}

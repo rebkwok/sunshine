@@ -1,0 +1,47 @@
+{% extends "studioadmin/base.html" %}
+{% load static %}
+{% load tz %}
+{% load studioadmintags %}
+
+{% block subcontent %}
+
+    <h2>Waiting List for {{ event }}</h2>
+    <p>(Currently {% if event.spaces_left %}not {% endif %} full)
+
+    <div class="row">
+        <div class="col-xs-9">
+
+            {% if waiting_list_users %}
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead class="thead-dark">
+                            <tr>
+                                <th>User</th>
+                                <th>Date joined</th>
+                                <th></th>
+                            </tr>
+                            </thead>
+
+                            {% for wluser in waiting_list_users %}
+                            <tr>
+                                <td>{{ wluser.user.first_name }} {{ wluser.user.last_name }} ({{ wluser.user.username }})</td>
+                                <td >{{ wluser.date_joined|formatted_uk_date }}</td>
+                                <td class="table-center studioadmin-tbl">
+                                    <form class="wl-table-form" method="post">
+                                        {% csrf_token %}
+                                        <button class="btn btn-sm btn-success" type="submit" name="remove_user"
+                                                id="remove_user_button" value="{{ wluser.id }}">Remove</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </table>
+                    </div>
+            {% else %}
+                <p>There are no users on the waiting list.</p>
+            {% endif %}
+        </div>
+    </div>
+
+
+{% endblock subcontent %}

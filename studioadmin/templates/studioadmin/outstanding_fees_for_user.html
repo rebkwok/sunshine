@@ -1,0 +1,78 @@
+{% extends "studioadmin/base.html" %}
+{% load static studioadmintags %}
+
+{% block subcontent %}
+
+<h2>Outstanding cancellation fees for {{ user_with_fees.first_name }} {{ user_with_fees.last_name }}</h2>
+
+{% if user_bookings_with_fees %}
+    <div class="row">
+        <div class="table-responsive">
+                <table class="table table-striped" id="sortedFeesForUserTable">
+                    <thead class="thead-dark">
+                    <tr>
+                        <th>Class/Workshop</th>
+                        <th class="table-center">Date/Time Cancelled</th>
+                        <th class="table-center no-sort">Fees Due</th>
+                        <th class="table-center no-sort">Update<br/>
+                            <span class="studioadmin-help">Change payment status or remove fee entirely</span>
+                        </th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for booking in user_bookings_with_fees %}
+                    <tr>
+                        <td>{{ booking.event.name }}<br/>{{ booking.event.date|date:'d M H:i' }}</td>
+                        <td class="table-center">
+                            {% if booking.date_cancelled %}
+                                {{ booking.date_cancelled|date:'d M H:i' }}
+                            {% elif booking.no_show %}
+                                No show
+                            {% endif %}
+                        </td>
+                        <td class="table-center studioadmin-tbl">£{{ booking.event.cancellation_fee }}</td>
+                        <td class="table-center">
+                            <span
+                                id="fee_{{ booking.id }}"
+                                data-booking_id="{{ booking.id }}"
+                                class="td_ajax_fee_btn">
+                                {% include "studioadmin/includes/fees_paid_toggle.html" %}
+                            </span>
+                            <span
+                                id="remove_fee_{{ booking.id }}",
+                                data-booking_id="{{ booking.id }}"
+                                class="td_ajax_remove_fee_btn">
+                                <button class="btn btn-sm btn-dark btn-remove-fee" id="remove_fee_btn_{{ booking.id }}">Remove fee</button>
+                            </span>
+
+                            </td>
+                        </td>
+                    </tr>
+                    {% endfor %}
+
+                    </tbody>
+                </table>
+            </div>
+    </div>
+{% else %}
+    No outstanding fees.
+{% endif %}
+
+{% endblock subcontent %}
+
+{% block extra_page_js %}
+<script type='text/javascript' src="{% static 'studioadmin/js/toggle_user_cancellation_fees_ajax.js' %}"></script>
+<script>
+    $jq(document).ready(function() {
+        $jq('#sortedFeesForUserTable').DataTable({
+            "pagingType": "full_numbers",
+            "lengthChange":     false,
+            "searching": false,
+            columnDefs: [{
+              orderable: false,
+              targets: "no-sort"
+            }]
+        });
+    });
+</script>
+{% endblock %}

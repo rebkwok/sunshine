@@ -7,6 +7,7 @@ from django.conf.urls.static import static
 from accounts.views import CustomLoginView, CustomSignUpView, \
     data_privacy_policy, cookie_policy
 from booking.views import permission_denied
+from studioadmin.views.views import redirect_to_admin
 
 urlpatterns = [
     path('', include('website.urls')),
@@ -24,7 +25,9 @@ urlpatterns = [
     path(
         'cookie-policy/', cookie_policy, name='cookie_policy'
     ),
-    path('pf_admin/', admin.site.urls),
+    path('pf_admin/', redirect_to_admin, name='redirect_old_link'),
+    path('instructor-admin/', include('studioadmin.urls')),
+    path('site-admin/', admin.site.urls),
     path('booking/', include('booking.urls')),
     path('gallery/', include('gallery.urls')),
     path('timetable/', include('timetable.urls')),

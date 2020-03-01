@@ -1,0 +1,79 @@
+{% extends "studioadmin/base.html" %}
+{% load static %}
+{% load studioadmintags %}
+
+{% block subcontent %}
+
+
+        <h2>Registered Students</h2>
+
+        <div class=row>
+            <div class="col-sm-12">
+            <form action="" method="get" id="user-search-form">
+                Filter by first name<br/>
+                {% for opt in filter_options %}
+                    <input
+                            class="btn btn-alph-filter {% if not opt.available %}btn-disabled{% elif active_filter == opt.value %}btn-primary{% else %}btn-unselected{% endif %} "
+                            {% if not opt.available %}disabled{% endif %}
+                            type="submit"
+                            name="filter"
+                            value="{{ opt.value }}"
+                    />
+                {% endfor %}
+            </form>
+            </div><br/>
+
+        </div>
+
+        <div class="row">
+                <div class="table-responsive">
+                    <table class="table table-striped" id="sortedUserTable">
+                        <thead class="thead-dark">
+                        <tr>
+                            <th class="table-center">Username</th>
+                            <th class="table-center">First Name</th>
+                            <th class="table-center">Last Name</th>
+                            <th class="table-center">Email</th>
+                            <th class="table-center">Cancellation Fees</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for user in users %}
+                        <tr>
+                            <td class="table-center studioadmin-tbl">{{ user.username|abbr_username }}</td>
+                            <td class="table-center studioadmin-tbl">{{ user.first_name|abbr_name }}</td>
+                            <td class="table-center studioadmin-tbl">{{ user.last_name|abbr_name }}</td>
+                            <td class="table-center studioadmin-tbl"><a href="mailto:{{ user.email }}" target="_blank">{{ user.email|abbr_email }}</a></td>
+                            <td class="table-center">
+                                <span class="fees">
+                                    {% if user.has_outstanding_fees %}
+                                        <span class="fees-due"><a href="{% url 'studioadmin:user_fees' user.id %}">£{{ user.outstanding_fees_total }} <i class="far fa-arrow-alt-circle-right"></i></a></span>
+                                    {% else %}
+                                        -
+                                    {% endif %}
+                                </span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+
+{% endblock subcontent %}
+
+{% block extra_page_js %}
+<script>
+
+    $(document).ready(function() {
+        $('#sortedUserTable').DataTable({
+            "pagingType": "full_numbers",
+            "lengthChange":     false,
+
+        });
+    } );
+
+</script>
+{% endblock %}
