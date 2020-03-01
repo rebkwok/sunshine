@@ -35,6 +35,7 @@
                             <span
                                 id="fee_{{ booking.id }}"
                                 data-booking_id="{{ booking.id }}"
+                                data-user_id="{{ booking.user.id }}"
                                 class="td_ajax_fee_btn">
                                 {% include "studioadmin/includes/fees_paid_toggle.html" %}
                             </span>
@@ -49,8 +50,14 @@
                         </td>
                     </tr>
                     {% endfor %}
-
                     </tbody>
+                    <tfoot class="table-dark">
+                        <tr>
+                            <td colspan="2">Total fees:</td>
+                            <td class="table-center">£<span id="total-fees">{{ user_with_fees.outstanding_fees_total }}</span></td>
+                            <td></td>
+                        </tr>
+                    </tfoot>
                 </table>
             </div>
     </div>

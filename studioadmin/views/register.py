@@ -191,13 +191,23 @@ def ajax_toggle_attended(request, booking_id):
 
     spaces_left = f"{booking.event.spaces_left} / {booking.event.max_participants}"
 
+    if booking.cancellation_fee_incurred:
+        if booking.cancellation_fee_paid:
+            this_booking_fee_text = "Paid"
+        else:
+            this_booking_fee_text = f"£{booking.event.cancellation_fee}"
+    else:
+        this_booking_fee_text = '-'
+
     return JsonResponse(
         {
             'attended': booking.attended,
             'user_id': booking.user.id,
             'user_has_outstanding_fees': booking.user.has_outstanding_fees(),
             'outstanding_fees_total': booking.user.outstanding_fees_total(),
+            'this_booking_fee_text': this_booking_fee_text,
             'spaces_left': spaces_left,
+            'can_add_more': booking.event.spaces_left > 0,
             'alert_msg': alert_msg
         }
     )

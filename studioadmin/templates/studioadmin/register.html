@@ -29,7 +29,8 @@
                 <th class="table-center">Attended</th>
                 <th class="table-center" >Status</th>
                 <th class="table-center">User</th>
-                <th class="table-center">Cancellation Fees<br/><span class="studioadmin-help">Click to view/update</span></th>
+                <th class="table-center">Cancellation Fees<br/><span class="studioadmin-help">(this booking)</span></th>
+                <th class="table-center">Outstanding Fees<br/><span class="studioadmin-help">Click to view/update</span></th>
             </tr>
 
             {% for booking in bookings %}
@@ -62,10 +63,21 @@
                     <td class="table-center"> {{ booking.user.first_name|abbr_name }} {{ booking.user.last_name|abbr_name }}</td>
                     <td class="table-center">
                         <span class="fees" id="fees-{{ booking.id }}">
+                            {% if booking.cancellation_fee_incurred %}
+                                {% if booking.cancellation_fee_paid %}
+                                    Paid
+                                {% else %}
+                                    £{{ booking.event.cancellation_fee }}
+                                {% endif %}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </span>
+                    </td>
+                    <td class="table-center">
+                        <span class="fees" id="total-fees-{{ booking.id }}">
                             {% if booking.user.has_outstanding_fees %}
                                 <span class="fees-due"><a href="{% url 'studioadmin:user_fees' booking.user.id %}">£{{ booking.user.outstanding_fees_total }} <i class="far fa-arrow-alt-circle-right"></i></a></span>
-                            {% elif booking.cancellation_fee_paid %}
-                                Paid
                             {% else %}
                                 -
                             {% endif %}
@@ -73,13 +85,11 @@
                     </td>
                 </tr>
             {% endfor %}
-            {% if can_add_more %}
-                <tr>
-                    <td colspan="6">
-                        <a class="bookingadd btn btn-success btn-sm register-table-btn" href="#" data-form="{% url 'studioadmin:bookingregisteradd' event.id %}" title="add booking">Add booking</a>
-                    </td>
-                </tr>
-            {% endif %}
+            <tr {% if not can_add_more %}class="d-none"{% endif %} id="add-more-btn">
+                <td colspan="6">
+                    <a class="bookingadd btn btn-success btn-sm register-table-btn" href="#" data-form="{% url 'studioadmin:bookingregisteradd' event.id %}" title="add booking">Add booking</a>
+                </td>
+            </tr>
             {% if event.max_participants %}
                 <tr>
                     <td colspan="6">

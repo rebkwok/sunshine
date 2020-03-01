@@ -69,6 +69,13 @@ def ajax_update_cancellation_fee_payment_status(request, booking_id):
 @login_required
 @staff_member_required
 @require_http_methods(['POST'])
+def ajax_get_user_total_fees(request, user_id):
+    user = get_object_or_404(User, pk=user_id)
+    return JsonResponse({'total_fees': user.outstanding_fees_total()})
+
+@login_required
+@staff_member_required
+@require_http_methods(['POST'])
 def ajax_toggle_remove_cancellation_fee(request, booking_id):
     booking = get_object_or_404(Booking, pk=booking_id)
     if booking.cancellation_fee_incurred:
@@ -86,4 +93,4 @@ def ajax_toggle_remove_cancellation_fee(request, booking_id):
     )
     booking.save()
 
-    return JsonResponse({'fee_status': new_fee_status})
+    return JsonResponse({'fee_status': new_fee_status, 'total_fees': booking.user.outstanding_fees_total()})

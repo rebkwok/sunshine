@@ -4,7 +4,7 @@ from django.urls import path
 
 from .views.fees import outstanding_fees_user, outstanding_fees_list, \
     ajax_toggle_cancellation_fee_payment, ajax_toggle_remove_cancellation_fee, \
-    ajax_update_cancellation_fee_payment_status
+    ajax_update_cancellation_fee_payment_status, ajax_get_user_total_fees
 from .views.register import EventRegisterListView, register_view, \
     booking_register_add_view, ajax_toggle_attended
 from .views.users import UserListView
@@ -30,15 +30,19 @@ urlpatterns = [
     path('fees/<int:user_id>/', outstanding_fees_user, name="user_fees"),
     path(
         'fees/ajax-toggle-cancellation-fee-payment/<int:booking_id>/',
-        ajax_toggle_cancellation_fee_payment, name="toggle_cancellation_fee_payment"
+        ajax_toggle_cancellation_fee_payment, name="ajax_toggle_cancellation_fee_payment"
     ),
     path(
         'fees/ajax-toggle-remove-cancellation-fee/<int:booking_id>/',
-        ajax_toggle_remove_cancellation_fee, name="toggle_remove_cancellation_fee"
+        ajax_toggle_remove_cancellation_fee, name="ajax_toggle_remove_cancellation_fee"
     ),
     path(
         'fees/ajax-update-cancellation-fee-payment-status/<int:booking_id>/',
-        ajax_update_cancellation_fee_payment_status, name="toggle_cancellation_fee_payment"
+        ajax_update_cancellation_fee_payment_status, name="ajax_toggle_cancellation_fee_payment"
+    ),
+    path(
+        'fees/ajax-user-total-fees/<int:user_id>/',
+        ajax_get_user_total_fees, name="ajax_get_user_total_fees"
     ),
     path('fees/', outstanding_fees_list, name="outstanding_fees"),
     path('', RedirectView.as_view(url='/instructor-admin/registers/classes/', permanent=True)),

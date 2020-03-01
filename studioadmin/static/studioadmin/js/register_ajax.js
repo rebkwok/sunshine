@@ -49,12 +49,19 @@ const processToggleAttended = function()  {
        }
        if(result.user_has_outstanding_fees === true) {
            var fee_url = '/instructor-admin/fees/' + result.user_id + '/';
-           $('#fees-' + booking_id).html("<span class='fees-due'><a href='" + fee_url + "'>£" + result.outstanding_fees_total + " <i class='far fa-arrow-alt-circle-right'></a></span>");
+           $('#total-fees-' + booking_id).html("<span class='fees-due'><a href='" + fee_url + "'>£" + result.outstanding_fees_total + " <i class='far fa-arrow-alt-circle-right'></a></span>");
        } else {
-            $('#fees-' + booking_id).html("-");
+            $('#total-fees-' + booking_id).html("-");
        }
+       $('#fees-' + booking_id).text(result.this_booking_fee_text);
+
        $('#spaces-left').text(result.spaces_left);
 
+       if (result.can_add_more === true) {
+           $('#add-more-btn').removeClass('d-none');
+       } else {
+           $('#add-more-btn').addClass('d-none');
+       }
        if (result.alert_msg) {
         vNotify.error({text:result.alert_msg, title:'Error', position: 'bottomRight'});
       }

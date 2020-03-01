@@ -25,11 +25,28 @@ var toggleFeePaid = function()  {
 
     //The value of the "data-booking_id" attribute.
     var booking_id = $button_just_clicked_on.data('booking_id');
+    var user_id = $button_just_clicked_on.data('user_id');
+
+    var updateFeeTotal = function(result, status, jqXHR)  {
+        $jq('#total-fees').text(result.total_fees);
+    };
 
     var updatePaymentButton = function(result, status, jqXHR)  {
       //console.log("sf result='" + result + "', status='" + status + "', jqXHR='" + jqXHR + "', user_id='" + user_id + "'");
       //update the booking fee payment status
         $jq('#fee_' + booking_id).html(result);
+
+        // update the total
+        $jq.ajax(
+            {
+                url: '/instructor-admin/fees/ajax-user-total-fees/' + user_id + '/',
+                dataType: 'json',
+                headers: {'X-CSRFToken': csrftoken},
+                type: "POST",
+                success: updateFeeTotal
+                //Should also have a "fail" call as well.
+            }
+        );
     };
 
     var csrftoken = Cookies.get('csrftoken');
@@ -82,6 +99,9 @@ var toggleRemoveFee = function()  {
         else {
             $jq('#remove_fee_btn_' + booking_id).text('Remove fee');
         }
+        // update the total
+        $jq('#total-fees').text(result.total_fees);
+
         // update the booking fee payment status
         $jq.ajax(
             {
