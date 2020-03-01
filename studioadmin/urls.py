@@ -41,5 +41,5 @@ urlpatterns = [
         ajax_update_cancellation_fee_payment_status, name="toggle_cancellation_fee_payment"
     ),
     path('fees/', outstanding_fees_list, name="outstanding_fees"),
-    path('', RedirectView.as_view(url='/studioadmin/registers/classes/', permanent=True)),
+    path('', RedirectView.as_view(url='/instructor-admin/registers/classes/', permanent=True)),
 ]

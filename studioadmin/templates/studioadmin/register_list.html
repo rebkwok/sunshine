@@ -13,8 +13,7 @@
                 <table class="table table-striped order-column" id="sortedRegisterTable">
                     <thead class="thead-dark">
                     <tr>
-                        <th class="timestamp-header"></th>
-                        <th class="no-sort">Date</th>
+                        <th>Date</th>
                         <th>{% if type == 'workshop' %}Workshop{% else %}Class{% endif %}<br/>
                             <span class="studioadmin-help">Click to view register</span></th>
                         <th>Location</th>
@@ -26,7 +25,6 @@
                     <tbody>
                     {% for event in events %}
                     <tr>
-                        <td class="timestamp-hidden">{{ event.date | date:"dmHi" }}</td>
                         <td>{{ event.date | date:"D d M, H:i" }}</td>
                         <td>
                             <a href="{% url 'studioadmin:event_register' event.slug %}">{{ event.name }}</a>
@@ -60,6 +58,7 @@
 {% block extra_page_js %}
 <script>
     $(document).ready(function() {
+        $.fn.dataTable.moment( 'ddd DD MMM, HH:mm' );
         $('#sortedRegisterTable').DataTable({
             "pagingType": "full_numbers",
             "lengthChange":     false,

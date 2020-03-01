@@ -94,19 +94,3 @@ label.btn-fee-payment {
   margin-top: 1px;
   min-width: 60px;
 }
-
-.timestamp-hidden {
-  font-size: 2pt;
-  color: transparent;
-  width: 1px;
-  overflow: hidden;
-}
-td.timestamp-hidden {
-  padding: 0;
-  margin: 0;
-}
-
-th.timestamp-header {
-  padding: 0;
-  margin: 0;
-}
