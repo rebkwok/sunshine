@@ -14,7 +14,7 @@ class SuitConfig(DjangoSuitConfig):
         # 'fieldsets': {}
     }
 
-    # instructor users can only view registers; all other menu items require this permission
+    # staff users cannot see anything at the moment
     superuser_permissions = ["add_event"]
     menu = (
         ParentItem('Website', children=[
@@ -22,7 +22,7 @@ class SuitConfig(DjangoSuitConfig):
             ChildItem(model='timetable.sessiontype'),
             ChildItem(model='timetable.instructor'),
         ], icon='fa fa-globe', permissions=superuser_permissions),
-        ParentItem('Gallery', app="gallery", icon='fa fa-camera'),
+        ParentItem('Gallery', app="gallery", icon='fa fa-camera', permissions=superuser_permissions),
         ParentItem('Accounts', children=[
             ChildItem(model='auth.user'),
             ChildItem(model='account.emailaddress'),
@@ -39,9 +39,6 @@ class SuitConfig(DjangoSuitConfig):
             ChildItem(model='booking.regularclass'),
             ChildItem(model='booking.workshop'),
         ], icon='fa fa-calendar', permissions=superuser_permissions),
-        ParentItem('Registers', children=[
-            ChildItem(model='booking.register'),
-        ], icon='fa fa-star'),
         ParentItem('Bookings', children=[
             ChildItem(model='booking.booking'),
             ChildItem(model='booking.waitinglistuser'),

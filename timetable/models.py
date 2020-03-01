@@ -118,6 +118,7 @@ class TimetableSession(models.Model):
         help_text="Cost for additional session for members"
     )
     max_participants = models.PositiveIntegerField(default=12)
+    cancellation_fee = models.DecimalField(max_digits=8, decimal_places=2, default=1.00)
 
     def __str__(self):
 

@@ -124,6 +124,7 @@ class Booking(models.Model):
 
     cancellation_fee_incurred = models.BooleanField(default=False)
     cancellation_fee_paid = models.BooleanField(default=False)
+    date_cancelled = models.DateTimeField(null=True, blank=True)
 
     class Meta:
         unique_together = ('user', 'event')
@@ -178,6 +179,7 @@ class Booking(models.Model):
 
         rebooking = self._is_rebooking()
         new_booking = self._is_new_booking()
+        cancellation = self._is_cancelling()
 
         if new_booking:
             self.booking_reference = shortuuid.ShortUUID().random(length=22)
@@ -186,14 +188,16 @@ class Booking(models.Model):
 
         if rebooking:
             self.date_rebooked = timezone.now()
+            self.date_cancelled = None
             if self.cancellation_fee_incurred:
                 self.cancellation_fee_incurred = False
                 self.cancellation_fee_paid = False
                 ActivityLog.objects.create(
-                    log=f"Booking {self.id} rebooked; cancellation fee recinded."
+                    log=f"Booking {self.id} re-booked; cancellation fee rescinded."
                 )
-        if self._is_cancelling() and not self.event.cancelled:
-            if self.event.cancellation_fee > 0 and not self.event.can_cancel():
+        if cancellation:
+            self.date_cancelled = timezone.now()
+            if not self.event.cancelled and self.event.cancellation_fee > 0 and not self.event.can_cancel():
                 self.cancellation_fee_incurred = True
                 ActivityLog.objects.create(
                     log=f"Booking {self.id} cancelled after cancellation period; cancellation fee cancellation_fee_incurred."
@@ -241,12 +245,6 @@ class RegularClass(Event):
     class Meta:
         proxy = True
         verbose_name_plural = 'regular classes'
-
-
-class Register(Event):
-
-    class Meta:
-        proxy = True
 
 
 def user_str_patch(self):

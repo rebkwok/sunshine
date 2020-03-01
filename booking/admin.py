@@ -9,7 +9,7 @@ from django.utils import timezone
 
 from django_object_actions import DjangoObjectActions, takes_instance_or_queryset
 
-from booking.models import Booking, Event, WaitingListUser, Workshop, RegularClass, Register
+from booking.models import Booking, WaitingListUser, Workshop, RegularClass
 from booking.forms import EventForm
 from booking.email_helpers import send_email
 
@@ -195,7 +195,8 @@ class EventAdmin(DjangoObjectActions, admin.ModelAdmin):
             'fields': ('cost', 'paypal_email')
         }),
         ('Cancellation (refundable)', {
-            'fields': ('allow_booking_cancellation', 'cancellation_period',),
+            'fields': ('allow_booking_cancellation', 'cancellation_period',
+                       'cancellation_fee'),
         }),
         ('Display options', {
             'fields': ('show_on_site',)
@@ -289,9 +290,9 @@ class WorkshopAdmin(EventAdmin):
         form.base_fields['event_type'].choices = [('workshop', "Workshop"),]
         return form
 
-    # def get_queryset(self, request):
-    #     queryset = super().get_queryset(request)
-    #     return queryset.filter(event_type='workshop')
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request)
+        return queryset.filter(event_type='workshop')
 
     def status(self, obj):
         return super().status(obj)
@@ -329,45 +330,6 @@ class RegularClassAdmin(EventAdmin):
     cancel_event.short_description = 'Cancel class; this will cancel all bookings and email notifications to students.'
     cancel_event.label = 'Cancel class'
     cancel_event.attrs = {'style': 'font-weight: bold; color: red;'}
-
-
-class RegisterAdmin(admin.ModelAdmin):
-    list_filter = ('name', 'venue', EventDateListFilter)
-    list_display = (
-        'name', 'get_date', 'venue', 'get_spaces_left', 'waiting_list'
-    )
-    fields = ('name', 'get_date', 'venue')
-    readonly_fields = ('name', 'get_date', 'venue')
-    inlines = (BookingInline, WaitingListInline)
-    ordering = ('date',)
-
-    def get_actions(self, request):
-        actions = super().get_actions(request)
-        if 'delete_selected' in actions:
-            del actions['delete_selected']
-        return actions
-
-    def get_queryset(self, request):
-        return super().get_queryset(request).filter(cancelled=False)
-
-    def has_add_permission(self, request, obj=None):
-        return False
-
-    def has_delete_permission(self, request, obj=None):
-        return False
-
-    def get_spaces_left(self, obj):
-        return obj.spaces_left
-    get_spaces_left.short_description = 'Spaces left'
-
-    def waiting_list(self, obj):
-        return obj.waitinglistusers.exists()
-    waiting_list.boolean = True
-
-    def get_date(self, obj):
-        return format_date_in_local_timezone(obj.date)
-    get_date.short_description = 'Date'
-    get_date.admin_order_field = 'date'
 
 
 class BookingAdmin(admin.ModelAdmin):
@@ -428,5 +390,4 @@ admin.site.register(RegularClass, RegularClassAdmin)
 admin.site.register(Workshop, WorkshopAdmin)
 
 admin.site.register(Booking, BookingAdmin)
-admin.site.register(Register, RegisterAdmin)
 admin.site.register(WaitingListUser, WaitingListUserAdmin)

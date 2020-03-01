@@ -36,7 +36,8 @@ class TimetableSessionAdmin(admin.ModelAdmin):
     fieldsets = [
         ('Session information', {
             'fields': ['name', 'session_type', 'level', 'membership_category',
-                       'instructor', 'venue', 'max_participants', 'cost', 'alt_cost']
+                       'instructor', 'venue', 'max_participants', 'cost', 'alt_cost',
+                       'cancellation_fee']
         }),
         ('Date and time', {
             'fields': ['session_day', 'start_time', 'end_time']
