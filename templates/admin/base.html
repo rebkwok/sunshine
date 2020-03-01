@@ -3,7 +3,9 @@
 
 {% block branding %}
 {{ block.super }}
+{% if user.is_authenticated %}
 <button class="btn btn-sm btn-info" id="menu-collapse-button" data-toggle="collapse" data-target="#suit-nav">Show/Hide Main Menu</button>
+{% endif %}
 {% endblock %}
 
 {% block nav-global %}
