@@ -105,7 +105,7 @@ var toggleRemoveFee = function()  {
         // update the booking fee payment status
         $jq.ajax(
             {
-                url: '/instructor-admin/fees/ajax-update-cancellation-fee-payment-status/' + booking_id + '/',
+                url: '/instructor-admin/fees/ajax-cancellation-fee-payment-status/' + booking_id + '/',
                 dataType: 'html',
                 headers: {'X-CSRFToken': csrftoken},
                 type: "POST",

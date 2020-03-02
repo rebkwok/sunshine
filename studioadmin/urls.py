@@ -4,7 +4,7 @@ from django.urls import path
 
 from .views.fees import outstanding_fees_user, outstanding_fees_list, \
     ajax_toggle_cancellation_fee_payment, ajax_toggle_remove_cancellation_fee, \
-    ajax_update_cancellation_fee_payment_status, ajax_get_user_total_fees
+    ajax_get_cancellation_fee_payment_status, ajax_get_user_total_fees
 from .views.register import EventRegisterListView, register_view, \
     booking_register_add_view, ajax_toggle_attended
 from .views.users import UserListView
@@ -37,8 +37,8 @@ urlpatterns = [
         ajax_toggle_remove_cancellation_fee, name="ajax_toggle_remove_cancellation_fee"
     ),
     path(
-        'fees/ajax-update-cancellation-fee-payment-status/<int:booking_id>/',
-        ajax_update_cancellation_fee_payment_status, name="ajax_toggle_cancellation_fee_payment"
+        'fees/ajax-cancellation-fee-payment-status/<int:booking_id>/',
+        ajax_get_cancellation_fee_payment_status, name="ajax_get_cancellation_fee_payment_status"
     ),
     path(
         'fees/ajax-user-total-fees/<int:user_id>/',

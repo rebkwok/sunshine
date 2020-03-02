@@ -5,6 +5,7 @@ psycopg2==2.8.4
 Pillow==6.2.0
 envdir==1.0.1
 django-bootstrap3==12.0.3
+django-bootstrap4==1.1.1
 django-classy-tags==1.0.0  # for cookie-law
 django-cookie-law==2.0.3
 django-extensions==2.2.8

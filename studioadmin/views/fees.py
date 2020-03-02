@@ -60,7 +60,7 @@ def ajax_toggle_cancellation_fee_payment(request, booking_id):
 @login_required
 @staff_member_required
 @require_http_methods(['POST'])
-def ajax_update_cancellation_fee_payment_status(request, booking_id):
+def ajax_get_cancellation_fee_payment_status(request, booking_id):
     booking = get_object_or_404(Booking, pk=booking_id)
     return TemplateResponse(
         request, 'studioadmin/includes/fees_paid_toggle.html', {"booking": booking}

@@ -61,9 +61,11 @@ def toggle_booking(request, event_id):
     event_was_full = False
     if existing_booking_status == "OPEN":
         event_was_full = event.spaces_left == 0
-        # allow 15 mins to properly cancel in case user clicked the wrong button by mistake
+        # allow 5 mins to properly cancel in case user clicked the wrong button by mistake
         # Otherwise, booking can be fully cancelled if the event allows cancellation AND
         # the cancellation period is not past
+        # NOTE: this shouldn't happen, because user should be redirected to confirmation page instead of here if booking
+        # is within cancellation period, but it's possible if they're left a page open
         # If not, we let people cancel but leave the booking status OPEN and
         # set to no-show
         booked_within_allowed_time = _booked_within_allowed_time(booking)
@@ -181,7 +183,7 @@ def toggle_booking(request, event_id):
 
 
 def _booked_within_allowed_time(booking):
-    allowed_datetime = timezone.now() - timedelta(minutes=15)
+    allowed_datetime = timezone.now() - timedelta(minutes=5)
     return (booking.date_rebooked and booking.date_rebooked > allowed_datetime) \
         or (booking.date_booked > allowed_datetime)
 
