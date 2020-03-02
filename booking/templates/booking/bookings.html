@@ -125,22 +125,30 @@
                                             {% elif not booking.event.bookable %}
                                                 {% if not booking.event.spaces_left %}
                                                     {% if booking.id in on_waiting_list_booking_ids_list %}
-                                                        <form class="wl-table-form" action="{% url 'booking:book_event' booking.event.slug %}" method="get">
-                                                            <input id='leave_waiting_list_button' class="btn btn-warning table-btn booking-btn" type="submit" value="Leave waiting list" name="leave waiting list"/>
-                                                            <input class="hide" type="text" name="bookings" value="bookings" />
-                                                        </form>
+                                                        {% if user.has_outstanding_fees %}
+                                                            <button class="btn btn-warning table-btn booking-btn disabled">Leave waiting list</button>
+                                                        {% else %}
+                                                            <form class="wl-table-form" action="{% url 'booking:book_event' booking.event.slug %}" method="get">
+                                                                <input id='leave_waiting_list_button' class="btn btn-warning table-btn booking-btn" type="submit" value="Leave waiting list" name="leave waiting list"/>
+                                                                <input class="hide" type="text" name="bookings" value="bookings" />
+                                                            </form>
+                                                        {% endif %}
                                                     {% else %}
-                                                        <form class="wl-table-form" action="{% url 'booking:book_event' booking.event.slug %}" method="get">
-                                                            <input id='join_waiting_list_button' class="btn btn-success table-btn booking-btn" type="submit" value="Join waiting list" name="join waiting list"/>
-                                                            <input class="hide" type="text" name="bookings" value="bookings" />
-                                                        </form>
+                                                        {% if user.has_outstanding_fees %}
+                                                            <button class="btn btn-success table-btn booking-btn disabled">Join waiting list</button>
+                                                        {% else %}
+                                                            <form class="wl-table-form" action="{% url 'booking:book_event' booking.event.slug %}" method="get">
+                                                                <input id='join_waiting_list_button' class="btn btn-success table-btn booking-btn" type="submit" value="Join waiting list" name="join waiting list"/>
+                                                                <input class="hide" type="text" name="bookings" value="bookings" />
+                                                            </form>
+                                                        {% endif %}
                                                     {% endif %}
                                                 {% elif booking_status_display|lookup:booking.id  == 'CANCELLED' %}
                                                     <div type="button" id="rebook_button_disabled" class="btn btn-success table-btn booking-btn disabled">Rebook</div>
                                                 {% endif %}
                                             {% else %}
                                                 <a href="{% url 'booking:book_event' booking.event.slug %}">
-                                                    <div type="button" id="rebook_button" class="btn btn-success table-btn booking-btn">Rebook</div></a>
+                                                    <div type="button" id="rebook_button" class="btn btn-success table-btn booking-btn {% if user.has_outstanding_fees %}disabled{% endif %}">Rebook</div></a>
                                             {% endif %}
                                         </td>
                                     {% endif %}
