@@ -25,7 +25,7 @@
                     <tbody>
                     {% for event in events %}
                     <tr>
-                        <td>{{ event.date | date:"D d M, H:i" }}</td>
+                        <td>{{ event.date|formatted_uk_date:"%a %d %b, %H:%M" }}</td>
                         <td>
                             <a href="{% url 'studioadmin:event_register' event.slug %}">{{ event.name }}</a>
                         </td>

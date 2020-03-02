@@ -22,10 +22,10 @@
                     <tbody>
                     {% for booking in user_bookings_with_fees %}
                     <tr>
-                        <td>{{ booking.event.name }}<br/>{{ booking.event.date|date:'d M H:i' }}</td>
+                        <td>{{ booking.event.name }} - {{ booking.event.date|formatted_uk_date:"%d %b %H:%M" }}</td>
                         <td class="table-center">
                             {% if booking.date_cancelled %}
-                                {{ booking.date_cancelled|date:'d M H:i' }}
+                                {{ booking.date_cancelled|formatted_uk_date:"%d %b %H:%M" }}
                             {% elif booking.no_show %}
                                 No show
                             {% endif %}

@@ -49,9 +49,9 @@ def abbr_email(email):
 
 
 @register.filter
-def formatted_uk_date(date):
+def formatted_uk_date(date, format):
     """
     return UTC date in uk time
     """
     uk=pytz.timezone('Europe/London')
-    return date.astimezone(uk).strftime("%d %b %Y %H:%M")
+    return date.astimezone(uk).strftime(format)
