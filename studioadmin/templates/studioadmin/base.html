@@ -45,8 +45,12 @@
 
 {% block content %}
 <div class="admin-menu">
-    <span class="{{ regular_session_registers_menu_class }}"><a class="btn btn-primary btn-sm btn-admin-menu" href="{% url 'studioadmin:class_register_list' %}">Class Registers</a></span>
-    <span class="{{ workshop_registers_menu_class }}"><a class="btn btn-primary btn-sm btn-admin-menu" href="{% url 'studioadmin:workshop_register_list' %}">Workshop Registers</a></span>
+    {% if future_events.regular_sessions %}
+        <span class="{{ regular_session_registers_menu_class }}"><a class="btn btn-primary btn-sm btn-admin-menu" href="{% url 'studioadmin:class_register_list' %}">Class Registers</a></span>
+    {% endif %}
+    {% if future_events.workshops %}
+        <span class="{{ workshop_registers_menu_class }}"><a class="btn btn-primary btn-sm btn-admin-menu" href="{% url 'studioadmin:workshop_register_list' %}">Workshop Registers</a></span>
+    {% endif %}
     <span class="{{ cancellation_fees_menu_class }}"><a class="btn btn-primary btn-sm btn-admin-menu" href="{% url 'studioadmin:outstanding_fees' %}">Cancellation Fees</a></span>
     <span class="{{ students_menu_class }}"><a class="btn btn-primary btn-sm btn-admin-menu" href="{% url 'studioadmin:user_list' %}">Students</a></span>
 </div>

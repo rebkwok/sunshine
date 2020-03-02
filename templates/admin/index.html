@@ -7,7 +7,7 @@
 {% endblock %}
 
 {% block content %}
-    {% if request.path == "/pf_admin/" %}
+    {% if request.path == "/site-admin/" %}
         <div id="content-main" class="admin-center">
             <h1>Carousel Fitness Admin</h1>
             {% if request.user.is_superuser %}

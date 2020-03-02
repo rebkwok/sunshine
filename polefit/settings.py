@@ -179,6 +179,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.messages.context_processors.messages",
                 "django.template.context_processors.media",
+                "booking.context_processors.future_events",
             ),
             'debug': DEBUG,
         },

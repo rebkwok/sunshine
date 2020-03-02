@@ -32,7 +32,7 @@ class SuitConfig(DjangoSuitConfig):
         ], icon='fa fa-users', permissions=superuser_permissions),
         ParentItem('Timetable', children=[
             ChildItem(model='timetable.timetablesession'),
-            ChildItem('Upload timetable', url='/pf_admin/timetable/timetablesession/upload'),
+            ChildItem('Upload timetable', url='/site-admin/timetable/timetablesession/upload'),
         ], icon='fa fa-calendar', permissions=superuser_permissions),
         ParentItem('Classes/Workshops', children=[
             ChildItem(model='booking.event'),
@@ -46,7 +46,7 @@ class SuitConfig(DjangoSuitConfig):
         ParentItem('Payments', children=[
             ChildItem(model='payments.paypalbookingtransaction'),
             ChildItem(model='ipn.paypalipn'),
-            ChildItem("Test paypal email", url='/pf_admin/ipn/paypalipn/test-paypal-email')
+            ChildItem("Test paypal email", url='/site-admin/ipn/paypalipn/test-paypal-email')
         ], icon='fa fa-credit-card', permissions=superuser_permissions),
         ParentItem('Activity Log', children=[
             ChildItem("Activitylog", 'activitylog.activitylog'),
