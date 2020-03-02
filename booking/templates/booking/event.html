@@ -5,6 +5,7 @@
 {% block content %}
 
 <div class="container-fluid row">
+    {% include "booking/includes/fees_due_banner.html" %}
     <div class="col-sm-12">
         <div class="panel panel-transparent">
             <div class="panel-heading">
@@ -68,16 +69,16 @@
                             {% if user.is_authenticated %}
                                 {% if bookable %}
                                     <a href="{% url 'booking:book_event' event.slug %}">
-                                        <div id='book_button' class="btn btn-success table-btn {% if user.has_outstanding_fees %} disabled{% endif %}">
+                                        <div id="book_button{% if user.has_outstanding_fees %}_disabled{% endif %}" class="btn btn-success table-btn {% if user.has_outstanding_fees %} disabled{% endif %}">
                                         {% if cancelled %}Rebook{% else %}Book{% endif %}</div></a>
                                 {% else %}
                                         {% if not waiting_list %}
                                             <form action="{% url 'booking:book_event' event.slug %}" method="get">
-                                                <input id='join_waiting_list_button' class="btn btn-success table-btn {% if user.has_outstanding_fees %} disabled{% endif %}" type="submit" value="Join waiting list" name="join waiting list"/>
+                                                <input id="join_waiting_list_button{% if user.has_outstanding_fees %}_disabled{% endif %}" class="btn btn-success table-btn {% if user.has_outstanding_fees %} disabled{% endif %}" type="submit" value="Join waiting list" name="join waiting list"/>
                                             </form>
                                         {% else %}
                                             <form action="{% url 'booking:book_event' event.slug %}" method="get">
-                                                <input id='leave_waiting_list_button' class="btn btn-warning table-btn {% if user.has_outstanding_fees %} disabled{% endif %}" type="submit" value="Leave waiting list" name="leave waiting list"/>
+                                                <input id="leave_waiting_list_button{% if user.has_outstanding_fees %}_disabled{% endif %}" class="btn btn-warning table-btn {% if user.has_outstanding_fees %} disabled{% endif %}" type="submit" value="Leave waiting list" name="leave waiting list"/>
                                             </form>
                                         {% endif %}
                                 {% endif %}

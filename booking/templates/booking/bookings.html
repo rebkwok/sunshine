@@ -126,7 +126,7 @@
                                                 {% if not booking.event.spaces_left %}
                                                     {% if booking.id in on_waiting_list_booking_ids_list %}
                                                         {% if user.has_outstanding_fees %}
-                                                            <button class="btn btn-warning table-btn booking-btn disabled">Leave waiting list</button>
+                                                            <button class="btn btn-warning table-btn booking-btn disabled" id="leave_waiting_list_button_disabled">Leave waiting list</button>
                                                         {% else %}
                                                             <form class="wl-table-form" action="{% url 'booking:book_event' booking.event.slug %}" method="get">
                                                                 <input id='leave_waiting_list_button' class="btn btn-warning table-btn booking-btn" type="submit" value="Leave waiting list" name="leave waiting list"/>
@@ -135,7 +135,7 @@
                                                         {% endif %}
                                                     {% else %}
                                                         {% if user.has_outstanding_fees %}
-                                                            <button class="btn btn-success table-btn booking-btn disabled">Join waiting list</button>
+                                                            <button class="btn btn-success table-btn booking-btn disabled" id="join_waiting_list_button_disabled">Join waiting list</button>
                                                         {% else %}
                                                             <form class="wl-table-form" action="{% url 'booking:book_event' booking.event.slug %}" method="get">
                                                                 <input id='join_waiting_list_button' class="btn btn-success table-btn booking-btn" type="submit" value="Join waiting list" name="join waiting list"/>
@@ -148,7 +148,7 @@
                                                 {% endif %}
                                             {% else %}
                                                 <a href="{% url 'booking:book_event' booking.event.slug %}">
-                                                    <div type="button" id="rebook_button" class="btn btn-success table-btn booking-btn {% if user.has_outstanding_fees %}disabled{% endif %}">Rebook</div></a>
+                                                    <div type="button" id="rebook_button{% if user.has_outstanding_fees %}_disabled{% endif %}" class="btn btn-success table-btn booking-btn {% if user.has_outstanding_fees %}disabled{% endif %}">Rebook</div></a>
                                             {% endif %}
                                         </td>
                                     {% endif %}

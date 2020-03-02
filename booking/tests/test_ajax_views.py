@@ -200,9 +200,9 @@ class BookingToggleAjaxCreateViewTests(TestSetupMixin, TestCase):
         self.assertTrue(booking.no_show)
 
     @patch('booking.models.timezone.now')
-    def test_cancel_booking_within_15_mins_during_cancellation_period(self, mock_now):
+    def test_cancel_booking_within_5_mins_during_cancellation_period(self, mock_now):
         """
-        Cancelling within 15 mins allows proper cancelling
+        Cancelling within 5 mins allows proper cancelling
         """
         mock_now.return_value = datetime(2018, 1, 1, 9, tzinfo=timezone.utc)
         event = baker.make_recipe('booking.future_PC', date=datetime(2018, 1, 1, 10, tzinfo=timezone.utc))
@@ -211,19 +211,19 @@ class BookingToggleAjaxCreateViewTests(TestSetupMixin, TestCase):
 
         booking = baker.make_recipe(
             'booking.booking', user=self.user, event=event,
-            date_booked=datetime(2018, 1, 1, 8, 44, tzinfo=timezone.utc)
+            date_booked=datetime(2018, 1, 1, 8, 56, tzinfo=timezone.utc)
         )
 
         resp = self.client.post(url)
         booking.refresh_from_db()
         self.assertEqual(resp.context['alert_message']['message'], 'Cancelled.')
-        self.assertEqual(booking.status, 'OPEN')
-        self.assertTrue(booking.no_show)
+        self.assertEqual(booking.status, 'CANCELLED')
+        self.assertFalse(booking.no_show)
 
     @patch('booking.models.timezone.now')
-    def test_cancel_rebooking_within_15_mins_during_cancellation_period(self, mock_now):
+    def test_cancel_rebooking_within_5_mins_during_cancellation_period(self, mock_now):
         """
-        Cancelling within 15 mins of rebooking allows proper cancelling
+        Cancelling within 5 mins of rebooking allows proper cancelling
         """
         mock_now.return_value = datetime(2018, 1, 1, 9, tzinfo=timezone.utc)
         event = baker.make_recipe('booking.future_PC', date=datetime(2018, 1, 1, 10, tzinfo=timezone.utc))
@@ -233,7 +233,7 @@ class BookingToggleAjaxCreateViewTests(TestSetupMixin, TestCase):
         booking = baker.make_recipe(
             'booking.booking', user=self.user, event=event,
             date_booked=datetime(2018, 1, 1, 5, 0, tzinfo=timezone.utc),
-            date_rebooked=datetime(2018, 1, 1, 8, 46, tzinfo=timezone.utc)
+            date_rebooked=datetime(2018, 1, 1, 8, 56, tzinfo=timezone.utc)
         )
         resp = self.client.post(url)
         booking.refresh_from_db()
@@ -530,6 +530,13 @@ class BookingToggleAjaxCreateViewTests(TestSetupMixin, TestCase):
         self.assertIn('space now available', mail.outbox[2].subject)
         self.assertEqual(mail.outbox[2].bcc, ['test2@test.test', 'test3@test.test'])
 
+    def test_error_if_outstanding_fees(self):
+        baker.make_recipe('booking.booking', user=self.user, cancellation_fee_incurred=True)
+        self.client.login(username=self.user.username, password='test')
+        resp = self.client.post(self.url)
+        self.assertEqual(resp.status_code, 400)
+        self.assertEqual(resp.content.decode('utf-8'), "Action forbidden until outstanding cancellation fees have been resolved")
+
 
 class AjaxTests(TestSetupMixin, TestCase):
 
@@ -569,6 +576,13 @@ class AjaxTests(TestSetupMixin, TestCase):
         self.assertFalse(WaitingListUser.objects.exists())
         self.assertEqual(resp.context['event'], self.event)
         self.assertEqual(resp.context['on_waiting_list'], False)
+
+    def test_toggle_waiting_error_if_outstanding_fees(self):
+        baker.make_recipe('booking.booking', user=self.user, cancellation_fee_incurred=True)
+        url = reverse('booking:toggle_waiting_list', args=[self.event.id])
+        resp = self.client.post(url)
+        self.assertEqual(resp.status_code, 400)
+        self.assertEqual(resp.content.decode('utf-8'), "Action forbidden until outstanding cancellation fees have been resolved")
 
     def test_booking_details(self):
         """Return correct details to populate the bookings page"""

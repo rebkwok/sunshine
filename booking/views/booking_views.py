@@ -402,7 +402,7 @@ class BookingCreateView(DataPolicyAgreementRequiredMixin, FeesDueMixin, LoginReq
         return HttpResponseRedirect(reverse('booking:bookings'))
 
 
-class BookingUpdateView(DataPolicyAgreementRequiredMixin, LoginRequiredMixin, UpdateView):
+class BookingUpdateView(DataPolicyAgreementRequiredMixin, FeesDueMixin, LoginRequiredMixin, UpdateView):
     model = Booking
     template_name = 'booking/update_booking.html'
     success_message = 'Booking updated for {}!'

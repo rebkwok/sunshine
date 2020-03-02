@@ -31,12 +31,6 @@ class BookingListViewTests(TestSetupMixin, TestCase):
         super(BookingListViewTests, cls).setUpTestData()
         cls.regular_sessions = baker.make_recipe('booking.future_PC', _quantity=3)
         cls.events = baker.make_recipe('booking.future_EV', _quantity=2)
-        [baker.make_recipe(
-            'booking.booking', user=cls.user,
-            event=event) for event in cls.regular_sessions]
-        [baker.make_recipe(
-            'booking.booking', user=cls.user,
-            event=event) for event in cls.events]
         baker.make_recipe('booking.past_booking', user=cls.user)
         cls.url = reverse('booking:bookings')
         cls.url_workshops = reverse('booking:bookings') + '?type=workshop'
@@ -44,6 +38,12 @@ class BookingListViewTests(TestSetupMixin, TestCase):
     def setUp(self):
         super(BookingListViewTests, self).setUp()
         self.client.login(username=self.user.username, password='test')
+        self.regular_sessions_bookings = [
+            baker.make_recipe('booking.booking', user=self.user, event=event) for event in self.regular_sessions
+        ]
+        self.event_bookings = [
+            baker.make_recipe('booking.booking', user=self.user, event=event) for event in self.events
+        ]
 
     def test_login_required(self):
         """
@@ -170,6 +170,43 @@ class BookingListViewTests(TestSetupMixin, TestCase):
 
         resp = self.client.get(self.url_workshops)
         self.assertEqual(len(resp.context_data['paypalforms']), 1)
+
+    def test_outstanding_fees_shows_banner(self):
+        booking = self.regular_sessions_bookings[0]
+        booking.cancellation_fee_incurred = True
+        booking.save()
+        resp = self.client.get(self.url)
+        self.assertIn("Your account is locked for booking due to outstanding fees", resp.rendered_content)
+
+    def test_buttons_disabled_if_user_has_outstanding_fees(self):
+        booking = self.regular_sessions_bookings[0]
+        booking.cancellation_fee_incurred = True
+        booking.status = "CANCELLED"
+        booking.save()
+
+        # full event - join waiting list will be disabled
+        full_event = baker.make_recipe('booking.future_PC', max_participants=1)
+        baker.make_recipe('booking.booking', event=full_event)
+        baker.make_recipe('booking.booking', event=full_event, user=self.user, status="CANCELLED")
+
+        resp = self.client.get(self.url)
+        self.assertIn('id="book_button_disabled"', resp.rendered_content)  # for the cancelled booking
+        self.assertIn('id="join_waiting_list_button_disabled"', resp.rendered_content)
+
+    def test_event_booking_buttons_disabled_if_user_has_outstanding_fees(self):
+        booking = self.event_bookings[0]
+        booking.cancellation_fee_incurred = True
+        booking.status = "CANCELLED"
+        booking.save()
+
+        # full event - join waiting list will be disabled
+        full_event = baker.make_recipe('booking.future_EV', max_participants=1)
+        baker.make_recipe('booking.booking', event=full_event)
+        baker.make_recipe('booking.booking', event=full_event, user=self.user, status="CANCELLED")
+
+        resp = self.client.get(self.url + '?type=workshop')
+        self.assertIn('id="rebook_button_disabled"', resp.rendered_content)  # for the cancelled booking
+        self.assertIn('id="join_waiting_list_button_disabled"', resp.rendered_content)
 
 
 class BookingHistoryListViewTests(TestSetupMixin, TestCase):
@@ -638,6 +675,16 @@ class BookingCreateViewTests(TestSetupMixin, TestCase):
         resp = self.client.get(url)
         self.assertEqual(resp.status_code, 200)
 
+    def test_cannot_make_booking_if_outstanding_fees(self):
+        self.client.login(username=self.user.username, password="test")
+        event = baker.make_recipe('booking.future_PC', max_participants=3)
+        baker.make_recipe("booking.booking", user=self.user, cancellation_fee_incurred=True)
+        # try to book for event
+        resp = self.client.post(reverse('booking:book_class', args=[event.slug]), {'event': event.id})
+
+        # test redirect to outstanding_fees url
+        self.assertEqual(resp.url, reverse('booking:outstanding_fees'))
+
 
 class BookingErrorRedirectPagesTests(TestSetupMixin, TestCase):
 
@@ -1014,3 +1061,11 @@ class BookingUpdateViewTests(TestSetupMixin, TestCase):
         self.assertIn(
             resp.url, reverse('booking:already_paid', args=[booking.pk])
         )
+
+    def test_cannot_get_page_if_outstanding_fees(self):
+        self.client.login(username=self.user.username, password="test")
+        booking = baker.make_recipe("booking.booking", user=self.user, cancellation_fee_incurred=True)
+        url = reverse('booking:update_booking', args=[booking.id])
+        resp = self.client.get(url)
+        # test redirect to outstanding_fees url
+        self.assertEqual(resp.url, reverse('booking:outstanding_fees'))

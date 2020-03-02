@@ -209,6 +209,10 @@ def toggle_waiting_list(request, event_id):
     user = request.user
     event = get_object_or_404(Event, pk=event_id)
 
+    if request.user.has_outstanding_fees():
+        message = f"Action forbidden until outstanding cancellation fees have been resolved"
+        return HttpResponseBadRequest(message)
+
     # toggle current status
     try:
         waitinglistuser = WaitingListUser.objects.get(user=user, event=event)

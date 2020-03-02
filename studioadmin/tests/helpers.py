@@ -1,11 +1,12 @@
 
 from django.contrib.auth.models import User
 from django.utils.html import strip_tags
+from django.test import RequestFactory
 
-
-class TestPermissionMixin(object):
+class TestPermissionMixin:
 
     def setUp(self):
+        self.factory = RequestFactory()
         self.user =User.objects.create_user(
             username='testnonstaffuser', email='nonstaff@test.com',
             password='test'

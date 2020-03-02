@@ -18,7 +18,7 @@ class EventListViewTests(TestSetupMixin, TestCase):
     @classmethod
     def setUpTestData(cls):
         super(EventListViewTests, cls).setUpTestData()
-        baker.make_recipe('booking.future_EV', _quantity=3)
+        cls.events = baker.make_recipe('booking.future_EV', _quantity=3)
         venue = baker.make_recipe('booking.venue')
         cls.reg_class1 = baker.make_recipe('booking.future_PC', name='Class 1')
         cls.reg_class2 = baker.make_recipe('booking.future_PC', name='Class 2', venue=venue)
@@ -209,6 +209,25 @@ class EventListViewTests(TestSetupMixin, TestCase):
         self.assertEqual(len(resp.context_data['events']), 2)
         self.assertEqual(
             [ev.id for ev in resp.context_data['events']], [self.reg_class1.id, reg_class3.id])
+
+
+    def test_outstanding_fees_shows_banner(self):
+        self.client.login(username=self.user.username, password="test")
+        baker.make_recipe("booking.booking", user=self.user, event=self.reg_class1, status="CANCELLED", cancellation_fee_incurred=True)
+        resp = self.client.get(reverse('booking:events'))
+        self.assertIn("Your account is locked for booking due to outstanding fees", resp.rendered_content)
+
+    def test_buttons_disabled_if_user_has_outstanding_fees(self):
+        self.client.login(username=self.user.username, password="test")
+        baker.make_recipe("booking.booking", user=self.user, event=self.events[0], status="CANCELLED", cancellation_fee_incurred=True)
+
+        # full event - join waiting list will be disabled
+        full_event = baker.make_recipe('booking.future_PC', max_participants=1)
+        baker.make_recipe('booking.booking', event=full_event)
+
+        resp = self.client.get(reverse('booking:events'))
+        self.assertIn('id="book_button_disabled"', resp.rendered_content)  # for the cancelled booking
+        self.assertIn('id="join_waiting_list_button_disabled"', resp.rendered_content)
 
 
 class EventDetailViewTests(TestSetupMixin, TestCase):
@@ -418,3 +437,17 @@ class EventDetailViewTests(TestSetupMixin, TestCase):
             'You have previously booked for this workshop and your booking '
             'has been cancelled.'
         )
+
+    def test_outstanding_fees_shows_banner(self):
+        self.client.login(username=self.user.username, password="test")
+        url = reverse('booking:event_detail', args=[self.event.slug])
+        baker.make_recipe("booking.booking", user=self.user, status="CANCELLED", cancellation_fee_incurred=True)
+        resp = self.client.get(url)
+        self.assertIn("Your account is locked for booking due to outstanding fees", resp.rendered_content)
+
+    def test_buttons_disabled_if_user_has_outstanding_fees(self):
+        self.client.login(username=self.user.username, password="test")
+        baker.make_recipe("booking.booking", user=self.user, status="CANCELLED", cancellation_fee_incurred=True)
+        url = reverse('booking:event_detail', args=[self.event.slug])
+        resp = self.client.get(url)
+        self.assertIn('id="book_button_disabled"', resp.rendered_content)  # for the cancelled booking
