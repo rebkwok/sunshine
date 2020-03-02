@@ -6,7 +6,7 @@ from django.db import migrations
 def default_cancellation_fees(apps, schema_editor):
     Event = apps.get_model('booking', 'Event')
     for event in Event.objects.all():
-        event.cancellation_fee = 1.0
+        event.cancellation_fee = 1.00
         event.save()
 
 
@@ -17,5 +17,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunPython(default_cancellation_fees),
+        migrations.RunPython(default_cancellation_fees, migrations.RunPython.noop)
     ]

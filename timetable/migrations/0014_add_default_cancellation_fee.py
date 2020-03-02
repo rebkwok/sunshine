@@ -16,5 +16,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunPython(default_cancellation_fees),
+        migrations.RunPython(default_cancellation_fees, migrations.RunPython.noop),
     ]

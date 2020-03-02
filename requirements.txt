@@ -12,6 +12,7 @@ django-extensions==2.2.8
 django-environ==0.4.5
 django-allauth==0.40.0
 django-braces==1.14.0
+django-migration-testcase==0.0.15
 django-object-actions==1.1.0
 # django-suit v2 branch 15/2/20
 git+git://github.com/darklow/django-suit.git@0d854c9b5e81adf9b9ea2ca9ee0a2856dcef5e15
