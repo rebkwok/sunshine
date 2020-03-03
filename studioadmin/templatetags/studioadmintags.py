@@ -2,6 +2,7 @@ import pytz
 
 from django import template
 from django.utils.safestring import mark_safe
+from django.urls import reverse
 
 from booking.models import Booking
 
@@ -55,3 +56,11 @@ def formatted_uk_date(date, format):
     """
     uk=pytz.timezone('Europe/London')
     return date.astimezone(uk).strftime(format)
+
+
+@register.filter
+def get_register_list_url(event_type, show_all=None):
+    url = reverse(f"studioadmin:{event_type}_register_list")
+    if show_all:
+        url += "?show_all=true"
+    return url

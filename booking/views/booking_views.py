@@ -130,7 +130,7 @@ class BookingHistoryListView(DataPolicyAgreementRequiredMixin, LoginRequiredMixi
         return context
 
 
-class BookingCreateView(DataPolicyAgreementRequiredMixin, FeesDueMixin, LoginRequiredMixin, CreateView):
+class BookingCreateView(DataPolicyAgreementRequiredMixin, LoginRequiredMixin, FeesDueMixin, CreateView):
 
     model = Booking
     template_name = 'booking/create_booking.html'
@@ -402,7 +402,7 @@ class BookingCreateView(DataPolicyAgreementRequiredMixin, FeesDueMixin, LoginReq
         return HttpResponseRedirect(reverse('booking:bookings'))
 
 
-class BookingUpdateView(DataPolicyAgreementRequiredMixin, FeesDueMixin, LoginRequiredMixin, UpdateView):
+class BookingUpdateView(DataPolicyAgreementRequiredMixin, LoginRequiredMixin, FeesDueMixin, UpdateView):
     model = Booking
     template_name = 'booking/update_booking.html'
     success_message = 'Booking updated for {}!'

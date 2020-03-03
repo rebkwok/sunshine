@@ -21,7 +21,7 @@ class EventRegisterListViewTests(TestPermissionMixin, TestCase):
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()
-        cls.url = reverse('studioadmin:class_register_list')
+        cls.url = reverse('studioadmin:regular_session_register_list')
         cls.workshop_url = reverse('studioadmin:workshop_register_list')
 
     def setUp(self):
@@ -76,6 +76,14 @@ class EventRegisterListViewTests(TestPermissionMixin, TestCase):
         resp = self.client.get(self.url)
         self.assertEqual(len(resp.context_data['events']), 5)
 
+    def test_event_register_list_shows_event_in_next_week_by_default(self):
+        baker.make_recipe('booking.future_PC', date=timezone.now() + timedelta(6), _quantity=4)
+        baker.make_recipe('booking.future_PC', date=timezone.now() + timedelta(8))
+        resp = self.client.get(self.url)
+        self.assertEqual(len(resp.context_data['events']), 4)
+        resp = self.client.get(self.url + "?show_all=true")
+        self.assertEqual(len(resp.context_data['events']), 5)
+
     def test_event_register_list_shows_correct_booking_count(self):
         event = baker.make_recipe('booking.future_PC')
         baker.make_recipe('booking.booking', event=event, _quantity=2)
@@ -90,6 +98,14 @@ class EventRegisterListViewTests(TestPermissionMixin, TestCase):
             ),
             format_content(resp.rendered_content)
         )
+
+    @patch("studioadmin.views.register.timezone")
+    def test_register_shows_event_dates_in_local_time(self, mock_tz):
+        mock_tz.now.return_value = datetime(2020, 7, 28, 18, 0, tzinfo=timezone.utc)
+        # event during BST
+        event = baker.make_recipe('booking.future_PC', date=datetime(2020, 8, 1, 18, 0, tzinfo=timezone.utc))
+        resp = self.client.get(self.url)
+        self.assertIn("Sat 01 Aug, 19:00", resp.rendered_content)
 
 
 class RegisterViewTests(TestPermissionMixin, TestCase):
@@ -318,9 +334,6 @@ class RegisterAjaxAddBookingViewsTests(TestPermissionMixin, TestCase):
 
         self.client.post(self.pc_url, {'user': self.user.id})
         self.assertFalse(WaitingListUser.objects.exists())
-
-    def test_register_shows_event_dates_in_local_time(self):
-        assert "done" == False
 
 
 class RegisterAjaxDisplayUpdateTests(TestPermissionMixin, TestCase):

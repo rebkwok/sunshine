@@ -60,7 +60,12 @@ class EventRegisterListView(LoginRequiredMixin, ListView):
     def get_queryset(self):
         today = timezone.now().replace(hour=0, minute=0)
         event_type = self.kwargs["event_type"]
-        return Event.objects.filter(event_type=event_type, date__gte=today).order_by('date')
+        show_all = self.request.GET.get("show_all", False)
+        if show_all:
+            return Event.objects.filter(event_type=event_type, date__gte=today).order_by('date')
+        else:
+            end_date = timezone.now() + timedelta(7)
+            return Event.objects.filter(event_type=event_type, date__gte=today, date__lte=end_date).order_by('date')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

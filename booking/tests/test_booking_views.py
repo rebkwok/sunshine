@@ -1017,29 +1017,9 @@ class BookingDeleteViewTests(TestSetupMixin, TestCase):
 
 class BookingUpdateViewTests(TestSetupMixin, TestCase):
 
-    def _get_response(self, user, booking):
-        url = reverse('booking:update_booking', args=[booking.id])
-        session = _create_session()
-        request = self.factory.get(url)
-        request.session = session
-        request.user = user
-        messages = FallbackStorage(request)
-        request._messages = messages
-
-        view = BookingUpdateView.as_view()
-        return view(request, pk=booking.id)
-
-    def _post_response(self, user, booking, form_data):
-        url = reverse('booking:update_booking', args=[booking.id])
-        session = _create_session()
-        request = self.factory.post(url, form_data)
-        request.session = session
-        request.user = user
-        messages = FallbackStorage(request)
-        request._messages = messages
-
-        view = BookingUpdateView.as_view()
-        return view(request, pk=booking.id)
+    def setUp(self):
+        super().setUp()
+        self.client.login(username=self.user.username, password="test")
 
     def test_can_get_page_for_open_booking(self):
         event = baker.make_recipe('booking.future_EV', cost=10)
@@ -1047,7 +1027,8 @@ class BookingUpdateViewTests(TestSetupMixin, TestCase):
             'booking.booking',
             user=self.user, event=event, paid=False
         )
-        resp = self._get_response(self.user, booking)
+        url = reverse('booking:update_booking', args=[booking.id])
+        resp = self.client.get(url)
         self.assertEqual(resp.status_code, 200)
 
     def test_cannot_get_page_for_paid_booking(self):
@@ -1056,14 +1037,14 @@ class BookingUpdateViewTests(TestSetupMixin, TestCase):
             'booking.booking',
             user=self.user, event=event, paid=True
         )
-        resp = self._get_response(self.user, booking)
+        url = reverse('booking:update_booking', args=[booking.id])
+        resp = self.client.get(url)
         self.assertEqual(resp.status_code, 302)
         self.assertIn(
             resp.url, reverse('booking:already_paid', args=[booking.pk])
         )
 
     def test_cannot_get_page_if_outstanding_fees(self):
-        self.client.login(username=self.user.username, password="test")
         booking = baker.make_recipe("booking.booking", user=self.user, cancellation_fee_incurred=True)
         url = reverse('booking:update_booking', args=[booking.id])
         resp = self.client.get(url)

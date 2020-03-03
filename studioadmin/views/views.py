@@ -10,4 +10,4 @@ def redirect_to_admin(request):
     if request.user.is_superuser:
         return HttpResponseRedirect(reverse("admin:index"))
     elif request.user.is_staff:
-        return HttpResponseRedirect(reverse("studioadmin:register_list"))
+        return HttpResponseRedirect(reverse("studioadmin:regular_session_register_list"))

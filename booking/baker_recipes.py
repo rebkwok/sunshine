@@ -11,7 +11,7 @@ from timetable.models import TimetableSession, SessionType, Venue
 
 now = timezone.now()
 past = now - timedelta(30)
-future = now + timedelta(30)
+future = now + timedelta(6)
 
 user = Recipe(User,
               username=seq("test_user"),

@@ -16,7 +16,7 @@ app_name = 'studioadmin'
 urlpatterns = [
     path(
         'registers/classes/', staff_member_required(EventRegisterListView.as_view()),
-        {"event_type": "regular_session"}, name="class_register_list"
+        {"event_type": "regular_session"}, name="regular_session_register_list"
     ),
     path(
         'registers/workshops/', staff_member_required(EventRegisterListView.as_view()),

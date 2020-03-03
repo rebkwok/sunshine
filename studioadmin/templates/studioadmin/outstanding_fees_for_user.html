@@ -30,7 +30,7 @@
                                 No show
                             {% endif %}
                         </td>
-                        <td class="table-center studioadmin-tbl">£{{ booking.event.cancellation_fee }}</td>
+                        <td class="table-center studioadmin-tbl event-fee">£{{ booking.event.cancellation_fee }}</td>
                         <td class="table-center">
                             <span
                                 id="fee_{{ booking.id }}"
@@ -72,7 +72,8 @@
 <script>
     $jq(document).ready(function() {
         $jq('#sortedFeesForUserTable').DataTable({
-            "pagingType": "full_numbers",
+            "paging": false,
+            "info": false,
             "lengthChange":     false,
             "searching": false,
             columnDefs: [{
