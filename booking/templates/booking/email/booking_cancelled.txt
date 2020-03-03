@@ -1,6 +1,6 @@
 Your booking for {{ event }} has been cancelled.
 {% if not event.allow_booking_cancellation %}
-{% if event.cancellation_fee > 0 %}A cancellation fee of £{{ event.cancellation_fee }} has been incurred.  Please contact thestudio to arrange payment.{% else %}Please note that this booking is not eligible for any refund on cancellation.{% endif %}
+{% if event.cancellation_fee > 0 %}A cancellation fee of £{{ event.cancellation_fee }} has been incurred and you account is now locked for new bookings.  Payment can be made by bank transfer or cash.  Please contact the studio to arrange payment or to confirm you have paid.{% else %}Please note that this booking is not eligible for any refund on cancellation.{% endif %}
 {% elif not event.can_cancel %}
 {% if event.cancellation_fee > 0 %}A cancellation fee of £{{ event.cancellation_fee }} has been incurred.  Please contact the studio to arrange payment.{% else %}Please note that you have cancelled after the allowed cancellation period and therefore you are not eligible for any refund.{% endif %}
 {% else %}

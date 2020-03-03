@@ -9,29 +9,34 @@
 
 {% block subcontent %}
 
-<h2>Register for {{ event }}</h2>
+<div class="row header">
+    <div class="col-xs-12">
+    <h2>{{ event.name }}: {{ event.date|formatted_uk_date:"%a %d %b %H:%M"}}</h2>
 
-<!-- Modal -->
-<div class="modal" id="RegisterBookingAddModal" role="dialog" aria-labelledby="RegisterBookingAddModalLabel"></div>
-<!-- /.modal -->
+    <!-- Modal -->
+    <div class="modal" id="RegisterBookingAddModal" role="dialog" aria-labelledby="RegisterBookingAddModalLabel"></div>
+    <!-- /.modal -->
 
-<form class="pull-right" action="" method="get">
+    <form class="pull-right" action="" method="get">
     <div class="form-group">
     {{ status_filter.status_choice }}
     </div>
-</form>
+    </form>
+</div>
+</div>
 
 <div class="row">
-        <div class="table-responsive">
-            <table class="table">
-            <tr>
-                <th class="table-center"></th>
-                <th class="table-center">Attended</th>
-                <th class="table-center" >Status</th>
-                <th class="table-center">User</th>
-                <th class="table-center">Cancellation Fees<br/><span class="studioadmin-help">(this booking)</span></th>
-                <th class="table-center">Outstanding Fees<br/><span class="studioadmin-help">Click to view/update</span></th>
-            </tr>
+            <table class="table table-responsive" id="sortedRegisterTable">
+                <thead class="thead-dark">
+                    <tr>
+                        <th class="table-center"></th>
+                        <th class="table-center">Attended</th>
+                        <th class="table-center" >Status</th>
+                        <th class="table-center">User</th>
+                        <th class="table-center d-none d-sm-block">Cancellation Fees<br/><span class="studioadmin-help">(this booking)</span></th>
+                        <th class="table-center">Outstanding Fees<br/><span class="studioadmin-help">Click to view/update</span></th>
+                    </tr>
+                </thead>
 
             {% for booking in bookings %}
                 <tr id='booking-row-{{ booking.id }}' {% if booking.no_show or booking.status == 'CANCELLED' %}class="expired"{% endif %}>
@@ -61,7 +66,7 @@
                     {% endif %}
                     <td id="booking-status-{{ booking.id }}" class="table-center">{{ booking.status }}</td>
                     <td class="table-center"> {{ booking.user.first_name|abbr_name }} {{ booking.user.last_name|abbr_name }}</td>
-                    <td class="table-center">
+                    <td class="table-center d-none d-sm-block">
                         <span class="fees" id="fees-{{ booking.id }}">
                             {% if booking.cancellation_fee_incurred %}
                                 {% if booking.cancellation_fee_paid %}
@@ -99,7 +104,6 @@
             {% endif %}
 
         </table>
-        </div>
 
     </div>
 
@@ -117,6 +121,19 @@
         });
         return false; // prevent the click propagation
     });
+
+</script>
+<script>
+
+    $(document).ready(function() {
+        $('#sortedRegisterTable').DataTable({
+            "paging": false,
+            "info": false,
+            "lengthChange":     false,
+            "searching": false,
+            "responsive": true
+        });
+    } );
 
 </script>
 {% endblock %}

@@ -1,4 +1,4 @@
-{% if user.has_outstanding_fees %}
+{% if user.is_authenticated and user.has_outstanding_fees %}
   <div id="message-row"  class="row">
     <div class="col-xs-12">
         <div class="message alert alert-outstanding-fees">
@@ -9,5 +9,4 @@
         </div>
     </div>
   </div>
-
 {% endif %}

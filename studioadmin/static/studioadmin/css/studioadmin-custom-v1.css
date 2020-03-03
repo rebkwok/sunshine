@@ -24,7 +24,11 @@ span.active > .btn-admin-menu{
 .studioadmin-help {
   font-weight: lighter;
   font-style: italic;
-  font-size: small;
+  font-size: x-small;
+}
+.studioadmin-help.small {
+    font-size: small;
+    font-weight: normal;
 }
 
 .table-center {
@@ -66,10 +70,12 @@ tr > td.table-center.register-index {
 }
 
 .btn.btn-alph-filter {
-    padding-left: 4px;
-    padding-right: 4px;
+    padding-left: 3px;
+    padding-right: 3px;
     padding-top: 0px;
     padding-bottom: 0px;
+    margin-left: 0;
+    margin-right: 0;
 }
 
 .btn.btn-alph-filter.btn-unselected {
@@ -93,4 +99,20 @@ button.btn-remove-fee {
 label.btn-fee-payment {
   margin-top: 1px;
   min-width: 60px;
+}
+
+@media (max-width: 600px) {
+  .table-wrap {
+       max-width: 100px;
+    }
+}
+
+.header {
+    max-width: 100%;
+}
+
+
+div.dataTables_wrapper div.dataTables_paginate {
+    justify-content: flex-start !important;
+    text-align: left !important;
 }

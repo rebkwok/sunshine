@@ -2,18 +2,17 @@
 {% load static studioadmintags %}
 
 {% block subcontent %}
-
-<h2>Students with outstanding cancellation fees</h2>
-
+<div class="row header">
+    <div class="col-sm-12">
+    <h2>Students with outstanding cancellation fees</h2>
+    </div>
+</div>
 {% if users_with_outstanding_fees %}
 <div class="row">
-    <div class="table-responsive">
-        <table class="table table-striped" id="sortedUserFeesTable">
+        <table class="table table-responsive table-striped" id="sortedUserFeesTable">
             <thead class="thead-dark">
             <tr>
-                <th class="table-center">Username</th>
-                <th class="table-center">First Name</th>
-                <th class="table-center">Last Name</th>
+                <th class="table-center">Name</th>
                 <th class="table-center">Email</th>
                 <th class="table-center">Cancellation Fees<br/><span class="studioadmin-help">Click for details</span></th>
             </tr>
@@ -21,9 +20,7 @@
             <tbody>
             {% for user in users_with_outstanding_fees %}
             <tr>
-                <td class="table-center studioadmin-tbl">{{ user.username|abbr_username }}</td>
-                <td class="table-center studioadmin-tbl">{{ user.first_name|abbr_name }}</td>
-                <td class="table-center studioadmin-tbl">{{ user.last_name|abbr_name }}</td>
+                <td class="table-center studioadmin-tbl">{{ user.first_name|abbr_name }} {{ user.last_name|abbr_name }} ({{ user.username|abbr_username }})</td>
                 <td class="table-center studioadmin-tbl"><a href="mailto:{{ user.email }}" target="_blank">{{ user.email|abbr_email }}</a></td>
                 <td class="table-center">
                     <span class="fees">
@@ -39,7 +36,6 @@
 
             </tbody>
         </table>
-    </div>
 </div>
 {% else %}
 No outstanding fees.
@@ -53,10 +49,10 @@ No outstanding fees.
 
     $(document).ready(function() {
         $('#sortedUserFeesTable').DataTable({
-            "pagingType": "full_numbers",
+            "info": false,
             "lengthChange":     false,
-            "searching": false
-
+            "searching": false,
+            "responsive": true
         });
     } );
 

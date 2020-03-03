@@ -10,13 +10,6 @@ register = template.Library()
 
 
 @register.filter
-def get_range(value, start=0):
-    if  value:
-        # start: 0 or 1
-        return range(start, value + start)
-
-
-@register.filter
 def bookings_count(event):
     return Booking.objects.select_related('event', 'user').filter(
         event=event, status='OPEN', no_show=False

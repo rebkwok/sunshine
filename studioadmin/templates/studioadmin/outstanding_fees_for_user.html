@@ -2,16 +2,17 @@
 {% load static studioadmintags %}
 
 {% block subcontent %}
-
-<h2>Outstanding cancellation fees for {{ user_with_fees.first_name }} {{ user_with_fees.last_name }}</h2>
-
+<div class="row">
+    <div class="col-xs-12">
+    <h2>Outstanding cancellation fees for {{ user_with_fees.first_name }} {{ user_with_fees.last_name }}</h2>
+    </div>
+</div>
+<div class="row">
 {% if user_bookings_with_fees %}
-    <div class="row">
-        <div class="table-responsive">
-                <table class="table table-striped" id="sortedFeesForUserTable">
+    <table class="table table-responsive table-striped" id="sortedFeesForUserTable">
                     <thead class="thead-dark">
                     <tr>
-                        <th>Class/Workshop</th>
+                        <th>Class / Workshop</th>
                         <th class="table-center">Date/Time Cancelled</th>
                         <th class="table-center no-sort">Fees Due</th>
                         <th class="table-center no-sort">Update<br/>
@@ -22,12 +23,12 @@
                     <tbody>
                     {% for booking in user_bookings_with_fees %}
                     <tr>
-                        <td>{{ booking.event.name }} - {{ booking.event.date|formatted_uk_date:"%d %b %H:%M" }}</td>
+                        <td>{{ booking.event.name }} - <span class="studioadmin-help small">{{ booking.event.date|formatted_uk_date:"%d %b %H:%M" }}</span></td>
                         <td class="table-center">
                             {% if booking.date_cancelled %}
-                                {{ booking.date_cancelled|formatted_uk_date:"%d %b %H:%M" }}
+                            <span class="studioadmin-help small">{{ booking.date_cancelled|formatted_uk_date:"%d %b %H:%M" }}</span>
                             {% elif booking.no_show %}
-                                No show
+                                    <span class="studioadmin-help small">No show</span>
                             {% endif %}
                         </td>
                         <td class="table-center studioadmin-tbl event-fee">£{{ booking.event.cancellation_fee }}</td>
@@ -59,11 +60,10 @@
                         </tr>
                     </tfoot>
                 </table>
-            </div>
-    </div>
 {% else %}
     No outstanding fees.
 {% endif %}
+</div>
 
 {% endblock subcontent %}
 
@@ -76,6 +76,7 @@
             "info": false,
             "lengthChange":     false,
             "searching": false,
+            "responsive": true,
             columnDefs: [{
               orderable: false,
               targets: "no-sort"
