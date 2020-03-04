@@ -18,8 +18,14 @@ class TestViews(TestPermissionMixin, TestCase):
         resp = self.client.get(reverse("redirect_old_link"))
         self.assertIn(reverse("studioadmin:regular_session_register_list"), resp.url)
 
+        resp = self.client.get(reverse("redirect_old_link") + '/booking/booking/add/')
+        self.assertIn(reverse("studioadmin:regular_session_register_list"), resp.url)
+
     def test_redirect_from_old_admin_superuser(self):
         superuser = User.objects.create_superuser(username="super", password="test")
         self.client.login(username=superuser.username, password="test")
         resp = self.client.get(reverse("redirect_old_link"))
+        self.assertIn(reverse("admin:index"), resp.url)
+
+        resp = self.client.get(reverse("redirect_old_link") + '/sites/')
         self.assertIn(reverse("admin:index"), resp.url)

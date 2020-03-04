@@ -1,4 +1,4 @@
-from django.urls import include, path
+from django.urls import include, path, re_path
 
 from django.contrib import admin
 from django.conf import settings
@@ -25,7 +25,7 @@ urlpatterns = [
     path(
         'cookie-policy/', cookie_policy, name='cookie_policy'
     ),
-    path('pf_admin/', redirect_to_admin, name='redirect_old_link'),
+    re_path(r'^pf_admin.*', redirect_to_admin, name='redirect_old_link'),
     path('instructor-admin/', include('studioadmin.urls')),
     path('site-admin/', admin.site.urls),
     path('booking/', include('booking.urls')),
