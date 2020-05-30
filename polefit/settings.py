@@ -20,6 +20,7 @@ env = environ.Env(DEBUG=(bool, False),
                   USE_MAILCATCHER=(bool, False),
                   SHOW_DEBUG_TOOLBAR=(bool, False),
                   AUTO_BOOK_EMAILS=(list, []),
+                  LOCAL=(bool, False)
                   )
 
 environ.Env.read_env(root('polefit/.env'))  # reading .env file
@@ -41,8 +42,9 @@ if str(DEBUG).lower() in ['true', 'on']:  # pragma: no cover
 else:  # pragma: no cover
     DEBUG = False
 
-ALLOWED_HOSTS = []
-
+ALLOWED_HOSTS = ['.carouselfitness.co.uk']
+if env('LOCAL'):  # pragma: no cover
+    ALLOWED_HOSTS = ['*']
 
 # Application definition
 
@@ -151,9 +153,6 @@ AUTH_PASSWORD_VALIDATORS = [
 
 # Honor the 'X-Forwarded-Proto' header for request.is_secure()
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-
-# Allow all host headers
-ALLOWED_HOSTS = ['*']
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'collected-static')
