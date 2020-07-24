@@ -1,24 +1,40 @@
 from django.shortcuts import render, HttpResponseRedirect, get_object_or_404
 from django.urls import reverse
 from django.contrib.auth.models import User
-from django.views.generic import FormView, UpdateView
+from django.forms.widgets import TextInput
+from django.views.generic.edit import FormMixin
+from django.views.generic import FormView, UpdateView, CreateView
 
 from allauth.account.views import LoginView, SignupView
 
 from braces.views import LoginRequiredMixin
 
-from .forms import DataPrivacyAgreementForm, ProfileForm
-from .models import CookiePolicy, DataPrivacyPolicy, SignedDataPrivacy
+from .forms import DataPrivacyAgreementForm, ProfileForm, DisclaimerContactUpdateForm, DisclaimerForm
+from .models import (
+    CookiePolicy, DataPrivacyPolicy, SignedDataPrivacy, has_expired_disclaimer, has_active_disclaimer,
+    OnlineDisclaimer,
+)
 from .utils import has_active_data_privacy_agreement
 
 
 def profile(request):
+    has_disclaimer = has_active_disclaimer(request.user)
+    has_exp_disclaimer = has_expired_disclaimer(request.user)
+    latest_disclaimer = request.user.online_disclaimer.exists() and request.user.online_disclaimer.latest("id")
+
     if DataPrivacyPolicy.current_version() > 0 and request.user.is_authenticated \
         and not has_active_data_privacy_agreement(request.user):
         return HttpResponseRedirect(
             reverse('accounts:data_privacy_review') + '?next=' + request.path
         )
-    return render(request, 'accounts/profile.html')
+    return render(
+        request, 'accounts/profile.html',
+        {
+            'has_disclaimer': has_disclaimer,
+            'has_expired_disclaimer': has_exp_disclaimer,
+            "latest_disclaimer": latest_disclaimer
+        }
+    )
 
 
 class CustomLoginView(LoginView):
@@ -120,3 +136,102 @@ def cookie_policy(request):
         request, 'accounts/cookie_policy.html',
         {'cookie_policy': CookiePolicy.current()}
     )
+
+
+class DisclaimerContactUpdateView(LoginRequiredMixin, UpdateView):
+
+    model = OnlineDisclaimer
+    template_name = 'accounts/update_emergency_contact.html'
+    form_class = DisclaimerContactUpdateForm
+
+    def dispatch(self, request, *args, **kwargs):
+        self.disclaimer_user = get_object_or_404(User, pk=kwargs["user_id"])
+        if not has_active_disclaimer(self.disclaimer_user):
+            return HttpResponseRedirect(reverse("accounts:disclaimer_form", args=(self.disclaimer_user.id,)))
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data()
+        context["disclaimer_user"] = self.disclaimer_user
+        return context
+
+    def get_object(self, *args, **kwargs):
+        return OnlineDisclaimer.objects.filter(user=self.disclaimer_user).latest("id")
+
+    def get_success_url(self):
+        return reverse('accounts:profile')
+
+
+class DynamicDisclaimerFormMixin(FormMixin):
+
+    def get_form(self, *args, **kwargs):
+        form = super().get_form(*args, **kwargs)
+
+        # # Form should already have the correct disclaimer content added, use it to get the form
+        json_data = form.disclaimer_content.form
+        # Add fields in JSON to dynamic form rendering field.
+        form.fields["health_questionnaire_responses"].add_fields(json_data)
+        if has_expired_disclaimer(self.disclaimer_user):
+            updating_disclaimer = OnlineDisclaimer.objects.filter(user=self.disclaimer_user).last()
+        else:
+            updating_disclaimer = None
+
+        for field in form.fields["health_questionnaire_responses"].fields:
+            if updating_disclaimer and field.label in updating_disclaimer.health_questionnaire_responses.keys():
+                previous_response = updating_disclaimer.health_questionnaire_responses[field.label]
+                # check that previous choices are still valid
+                if hasattr(field.widget, "choices") and isinstance(previous_response, list):
+                    if set(previous_response) - {choice[0] for choice in field.widget.choices} == set():
+                        field.initial = previous_response
+                else:
+                    # if the question type changed and the response type is now invalid, the initial
+                    # will either get ignored or validated by the form, so it should be safe to use the
+                    # previous response and let the form handle any errors
+                    field.initial = previous_response
+            if isinstance(field.widget, TextInput) and not field.initial:
+                # prevent Chrome's wonky autofill
+                field.initial = "-"
+        return form
+
+    def form_pre_commit(self, form):
+        pre_saved_disclaimer = form.save(commit=False)
+        pre_saved_disclaimer.version = form.disclaimer_content.version
+        return pre_saved_disclaimer
+
+
+class DisclaimerCreateView(LoginRequiredMixin, DynamicDisclaimerFormMixin, CreateView):
+
+    form_class = DisclaimerForm
+    template_name = 'accounts/disclaimer_form.html'
+
+    def dispatch(self, request, *args, **kwargs):
+        self.disclaimer_user = get_object_or_404(User, pk=kwargs["user_id"])
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["disclaimer_user"] = self.disclaimer_user
+        context['disclaimer'] = has_active_disclaimer(self.disclaimer_user)
+        context['expired_disclaimer'] = has_expired_disclaimer(self.disclaimer_user)
+        return context
+
+    def get_form_kwargs(self, **kwargs):
+        form_kwargs = super().get_form_kwargs(**kwargs)
+        form_kwargs["disclaimer_user"] = self.disclaimer_user
+        return form_kwargs
+
+    def form_valid(self, form):
+        disclaimer = self.form_pre_commit(form)
+        password = form.cleaned_data['password']
+        # Check the password for self.request.user, but set the disclaimer user to self.user, which could be different
+        if self.request.user.check_password(password):
+            disclaimer.user = self.disclaimer_user
+            disclaimer.save()
+        else:
+            form = DisclaimerForm(form.data, disclaimer_user=self.disclaimer_user)
+            return render(self.request, self.template_name, {'form': form, 'password_error': 'Invalid password entered'})
+
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse('accounts:profile')

@@ -60,6 +60,7 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.humanize',
     'cookielaw',
+    'crispy_forms',
     'allauth',
     'allauth.account',
     'django_extensions',
@@ -67,6 +68,7 @@ INSTALLED_APPS = (
     'bootstrap4',
     'paypal.standard.ipn',
     'debug_toolbar',
+    'dynamic_forms',
     'django_object_actions',
     'payments',
     'accounts',
@@ -325,3 +327,6 @@ EMPTY_JOB_TEXT = ["CRON: auto cancel bookings run; nothing to cancel",]
 S3_LOG_BACKUP_PATH = "s3://backups.polefitstarlet.co.uk/polefit_activitylogs"
 S3_LOG_BACKUP_ROOT_FILENAME = "polefit_activity_logs_backup"
 
+# for dynamic disclaimer form
+CRISPY_TEMPLATE_PACK = 'bootstrap3'
+USE_CRISPY = True

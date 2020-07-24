@@ -1,27 +1,40 @@
-{% extends 'account/base.html' %}
+{% extends 'website/_base.html' %}
 {% load static %}
-{% load bookingtags %}
 
 {% block content %}
+    <div>
+        <h2>Edit Your Account Profile</h2>
+    </div>
+    <form action="" method="post">{% csrf_token %}
+                    {% csrf_token %}
+                      {{ form.non_field_errors }}
+                            {% for field in form %}
+                                {% if field.name == 'confirmation_key' %}
+                                    <span class="hide">{{ field }}</span>
+                                {% elif field.name == "student" or field.name == "manager" %}
+                                    <div class="form-check mb-2">
+                                       {{ field }}
+                                       <label class="form-check-label" for="id_{{ field.name }}">{{ field.label }}{% if field.field.required %}*{% endif %}</label><br/>
+                                       <span class="helptext">{{ field.help_text }}</span>
+                                        {% if field.errors %}
+                                            <span class="errorlist">{{ field.errors }}</span>
+                                        {% endif %}
+                                   </div>
+                                {% else %}
+                                    <div class="form-group">
+                                       <label class="control-label" for="{{ field.name }}_id">{{ field.label }}{% if field.field.required %}*{% endif %}</label><br/>
+                                       <div class="{% if form.field.errors %}errorlist{% endif %}">{{ field }}</div>
+                                       <div class="helptext">{{ field.help_text }}</div>
+                                        {% if field.errors %}
+                                            <div class="errorlist">
+                                                {{ field.errors }}
+                                            </div>
+                                        {% endif %}
+                                   </div>
+                                {% endif %}
+                            {% endfor %}
 
-<div class="container-fluid row">
-    <div class="col-sm-12">
-       <div class="panel panel-transparent">
-            <div class="panel-heading">
-                <h1 class="panel-title">Edit Your Account Profile</h1>
-            </div>
-           <div class="panel-body">
-                <form action="" method="post">{% csrf_token %}
-                    {{ form.as_p}}
                     <input class="btn btn-success" type="submit" value="Update" />
                     <a href="{% url 'accounts:profile' %}"><div class="btn btn-warning">Cancel</div></a>
                 </form>
-                </br>
-
-            </div>
-        </div>
-    </div>
-</div>
-
-
 {% endblock content %}

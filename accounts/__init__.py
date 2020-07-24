@@ -1,1 +1,1 @@
-__author__ = 'becky'
+default_app_config = 'accounts.apps.AccountsConfig'

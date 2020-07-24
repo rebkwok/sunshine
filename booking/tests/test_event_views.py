@@ -10,7 +10,7 @@ from django.test import TestCase, RequestFactory, override_settings
 
 from booking.models import Event, Booking
 from booking.views import EventListView, EventDetailView
-from booking.tests.helpers import TestSetupMixin, format_content
+from booking.tests.helpers import TestSetupMixin, format_content, make_online_disclaimer
 
 
 class EventListViewTests(TestSetupMixin, TestCase):
@@ -18,6 +18,7 @@ class EventListViewTests(TestSetupMixin, TestCase):
     @classmethod
     def setUpTestData(cls):
         super(EventListViewTests, cls).setUpTestData()
+        make_online_disclaimer(user=cls.user)
         cls.events = baker.make_recipe('booking.future_EV', _quantity=3)
         venue = baker.make_recipe('booking.venue')
         cls.reg_class1 = baker.make_recipe('booking.future_PC', name='Class 1')
@@ -235,6 +236,7 @@ class EventDetailViewTests(TestSetupMixin, TestCase):
     @classmethod
     def setUpTestData(cls):
         super(EventDetailViewTests, cls).setUpTestData()
+        make_online_disclaimer(user=cls.user)
         baker.make_recipe('booking.future_EV', _quantity=3)
 
     def setUp(self):

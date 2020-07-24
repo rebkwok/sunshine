@@ -26,9 +26,14 @@ class SuitConfig(DjangoSuitConfig):
         ParentItem('Accounts', children=[
             ChildItem(model='auth.user'),
             ChildItem(model='account.emailaddress'),
+            ChildItem(model='accounts.signeddataprivacy'),
+            ChildItem("Signed disclaimers", model='accounts.onlinedisclaimer'),
+            ChildItem(model='accounts.archiveddisclaimer'),
+        ], icon='fa fa-users', permissions=superuser_permissions),
+        ParentItem('Policies', children=[
             ChildItem(model='accounts.cookiepolicy'),
             ChildItem(model='accounts.dataprivacypolicy'),
-            ChildItem(model='accounts.signeddataprivacy'),
+            ChildItem("Disclaimer versions", model='accounts.disclaimercontent'),
         ], icon='fa fa-users', permissions=superuser_permissions),
         ParentItem('Timetable', children=[
             ChildItem(model='timetable.timetablesession'),

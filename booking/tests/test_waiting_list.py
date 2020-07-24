@@ -11,10 +11,15 @@ from booking.models import Booking, WaitingListUser
 from booking.views import BookingListView, BookingCreateView, \
     BookingDeleteView, BookingUpdateView, update_booking_cancelled, \
     EventListView, EventDetailView
-from booking.tests.helpers import _create_session, TestSetupMixin
+from booking.tests.helpers import _create_session, TestSetupMixin, make_online_disclaimer
 
 
 class WaitingListTests(TestSetupMixin, TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        make_online_disclaimer(user=cls.user)
 
     def _get_event_list(self, user):
         url = reverse('booking:events') + '?type=workshop'

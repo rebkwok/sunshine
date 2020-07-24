@@ -1,6 +1,6 @@
 {% extends "website/_base.html" %}
 {% load static %}
-{% load bookingtags %}
+{% load accounttags bookingtags %}
 
 {% block content %}
 
@@ -67,20 +67,24 @@
                         {% else %}
                             <h5>{{ booking_info_text_cancelled }}{{ booking_info_text }}</h5>
                             {% if user.is_authenticated %}
-                                {% if bookable %}
-                                    <a href="{% url 'booking:book_event' event.slug %}">
-                                        <div id="book_button{% if user.has_outstanding_fees %}_disabled{% endif %}" class="btn btn-success table-btn {% if user.has_outstanding_fees %} disabled{% endif %}">
-                                        {% if cancelled %}Rebook{% else %}Book{% endif %}</div></a>
+                                {% if user|has_disclaimer %}
+                                    {% if bookable %}
+                                        <a href="{% url 'booking:book_event' event.slug %}">
+                                            <div id="book_button{% if user.has_outstanding_fees %}_disabled{% endif %}" class="btn btn-success table-btn {% if user.has_outstanding_fees %} disabled{% endif %}">
+                                            {% if cancelled %}Rebook{% else %}Book{% endif %}</div></a>
+                                    {% else %}
+                                            {% if not waiting_list %}
+                                                <form action="{% url 'booking:book_event' event.slug %}" method="get">
+                                                    <input id="join_waiting_list_button{% if user.has_outstanding_fees %}_disabled{% endif %}" class="btn btn-success table-btn {% if user.has_outstanding_fees %} disabled{% endif %}" type="submit" value="Join waiting list" name="join waiting list"/>
+                                                </form>
+                                            {% else %}
+                                                <form action="{% url 'booking:book_event' event.slug %}" method="get">
+                                                    <input id="leave_waiting_list_button{% if user.has_outstanding_fees %}_disabled{% endif %}" class="btn btn-warning table-btn {% if user.has_outstanding_fees %} disabled{% endif %}" type="submit" value="Leave waiting list" name="leave waiting list"/>
+                                                </form>
+                                            {% endif %}
+                                    {% endif %}
                                 {% else %}
-                                        {% if not waiting_list %}
-                                            <form action="{% url 'booking:book_event' event.slug %}" method="get">
-                                                <input id="join_waiting_list_button{% if user.has_outstanding_fees %}_disabled{% endif %}" class="btn btn-success table-btn {% if user.has_outstanding_fees %} disabled{% endif %}" type="submit" value="Join waiting list" name="join waiting list"/>
-                                            </form>
-                                        {% else %}
-                                            <form action="{% url 'booking:book_event' event.slug %}" method="get">
-                                                <input id="leave_waiting_list_button{% if user.has_outstanding_fees %}_disabled{% endif %}" class="btn btn-warning table-btn {% if user.has_outstanding_fees %} disabled{% endif %}" type="submit" value="Leave waiting list" name="leave waiting list"/>
-                                            </form>
-                                        {% endif %}
+                                    <em><a href="{% url 'accounts:disclaimer_form' user.id %}">Complete a disclaimer before booking</a></em>
                                 {% endif %}
                             {% endif %}
                         {% endif %}

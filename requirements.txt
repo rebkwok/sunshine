@@ -7,6 +7,7 @@ envdir==1.0.1
 django-bootstrap3==12.0.3
 django-bootstrap4==1.1.1
 django-classy-tags==1.0.0  # for cookie-law
+django-crispy-forms==1.9.1
 django-cookie-law==2.0.3
 django-extensions==2.2.8
 django-environ==0.4.5
@@ -17,6 +18,7 @@ django-object-actions==1.1.0
 # django-suit v2 branch 15/2/20
 git+git://github.com/darklow/django-suit.git@0d854c9b5e81adf9b9ea2ca9ee0a2856dcef5e15
 django-paypal==1.0.0
+dynamic-django-forms==0.1.4
 shortuuid==0.5.0
 django-debug-toolbar==2.0
 python-memcached==1.59

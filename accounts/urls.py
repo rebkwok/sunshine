@@ -1,6 +1,6 @@
 from django.urls import path
 
-from .views import profile, ProfileUpdateView, SignedDataPrivacyCreateView
+from .views import profile, ProfileUpdateView, SignedDataPrivacyCreateView, DisclaimerCreateView, DisclaimerContactUpdateView
 
 app_name = 'accounts'
 
@@ -12,5 +12,8 @@ urlpatterns = [
         'data-privacy-review/', SignedDataPrivacyCreateView.as_view(),
          name='data_privacy_review'
     ),
+    path('disclaimer/<int:user_id>/', DisclaimerCreateView.as_view(), name='disclaimer_form'),
+    path('emergency-contact/<int:user_id>/update/', DisclaimerContactUpdateView.as_view(), name='update_emergency_contact'),
+
     path('', profile)
 ]

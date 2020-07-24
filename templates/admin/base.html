@@ -1,6 +1,11 @@
 {% extends "admin/base.html" %}
 {% load static bootstrap3 %}
 
+{% block extrastyle %}
+{{ block.super }}
+<link href="{% static 'website/css/admin-extra.css' %}" rel="stylesheet">
+{% endblock %}
+
 {% block branding %}
 {{ block.super }}
 {% if user.is_authenticated %}

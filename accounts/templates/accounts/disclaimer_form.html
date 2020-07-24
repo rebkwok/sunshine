@@ -1,0 +1,24 @@
+{% extends 'website/_base.html' %}
+{% load static accounttags %}
+
+{% block content %}
+<div class="container row">
+    <div class="panel panel-transparent">
+    <div class="panel-body">
+
+    <h2>Disclaimer Form for {{ user.first_name }} {{ user.last_name }}</h2>
+   {% if disclaimer %}
+            <p>You have already completed a disclaimer.</p>
+
+           <p>If you have any additional questions or concerns about the data you have provided, please contact <a href="mailto:carouselfitness@gmail.com">carouselfitness@gmail.com</a>.</p>
+    {% else %}
+
+       {% include 'accounts/disclaimer_form_content.html' %}
+           <p>If you have any additional questions or concerns, please contact <a href="mailto:carouselfitness@gmail.com">carouselfitness@gmail.com</a>.</p>
+
+    {% endif %}
+       <p>View our <a href="{% url 'data_privacy_policy' %}">data privacy policy.</a></p>
+    </div>
+    </div>
+</div>
+{% endblock content %}

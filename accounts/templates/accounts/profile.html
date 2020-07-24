@@ -1,40 +1,51 @@
-{% extends 'account/base.html' %}
-{% load bookingtags %}
+{% extends 'website/_base.html' %}
+{% load accounttags %}
 
 {% block content %}
-
 <div class="container-fluid">
-       <div class="panel panel-transparent">
-            <div class="panel-heading">
-                <h1 class="panel-title">Your Profile</h1>
-            </div>
-           <div class="panel-body">
-               <div class="col-xs-12">
-                   <div class="col-xs-3"><p><strong>Username:</strong></p></div>
-                   <div class="col-xs-9"><p>{{ user.username }}</p></div>
-               </div>
-
-               <div class="col-xs-12">
-                   <div class="col-xs-3"><p><strong>First name:</strong></p></div>
-                   <div class="col-xs-9"><p>{{ user.first_name }}</p></div>
-               </div>
-
-               <div class="col-xs-12">
-                   <div class="col-xs-3"><p><strong>Last name:</strong></p></div>
-                   <div class="col-xs-6 col-sm-4 col-md-4 col-lg-3"><p>{{ user.last_name }}</p></div>
-                  <div class="col-xs-3 col-sm-5 col-md-5 col-lg-6"><p><a href="{% url 'accounts:update_profile' %}">Change</a></p></div>
-               </div>
-
-
-               <div class="col-xs-12">
-                   <div class="col-xs-3"><p><strong>Primary email address:</strong></p></div>
-                   <div class="col-xs-6 col-sm-4 col-md-4 col-lg-3"><p>{{ user.email }}</p></div>
-                    <div class="col-xs-3 col-sm-5 col-md-5 col-lg-6"><p><a href="{% url 'account_email' %}">Change</a></p></div>
-               </div>
-
-               </div>
+    <div class="panel panel-transparent">
+   <h1>Your Profile</h1>
+   <div class="card">
+       <h2 class="card-header">Personal Details</h2>
+       <div class="card-body">
+           <div class="card-text"><strong>Username:</strong> {{ user.username }}</div>
+           <div class="card-text"><strong>Name:</strong> {{ user.first_name }} {{ user.last_name }}</div>
+<!--           <div class="card-text"><strong>Date of birth:</strong> {{ user.userprofile.date_of_birth }}</div>-->
+<!--           <div class="card-text"><strong>Address:</strong> {{ user.userprofile.address }}, {{ user.userprofile.postcode }}</div>-->
+<!--           <div class="card-text"><strong>Phone:</strong> {{ user.userprofile.phone }}</div>-->
+          <div class="card-text"><a class="btn btn-success" href="{% url 'accounts:update_profile' %}">Change</a></div>
 
         </div>
+       </div>
+    <div class="card">
+       <h2 class="card-header">Emergency Contact Information</h2>
+       <div class="card-body">
+       <div class="card-text"><strong>Name:</strong> {{ latest_disclaimer.emergency_contact_name }} </div>
+       <div class="card-text"><strong>Phone:</strong> {{ latest_disclaimer.emergency_contact_phone }} </div>
+       <div class="card-text"><strong>Relationship:</strong> {{ latest_disclaimer.emergency_contact_relationship }} </div>
+       <div class="card-text"><a class="btn btn-success" href="{% url 'accounts:update_emergency_contact' user.id %}">Change</a></div>
+       </div>
+   </div>
+    <div class="card">
+       <h2 class="card-header">Email Addresses</h2>
+       <div class="card-body">
+        <div class="card-text"><strong>Primary email address:</strong> {{ user.email }}</div>
+       <div class="card-text"><a class="btn btn-success" href="{% url 'account_email' %}">Change</a></div>
+       </div>
+    </div>
+    <div class="card">
+   <h2 class="card-header">Disclaimer</h2>
+        <div class="card-body">
+            <p>All students must have a completed and current disclaimer before any bookings can be made.  Disclaimers will need to be reviewed
+                annually and whenever terms are updated.</p>
+            {% if user|has_disclaimer %}
+                <span class="badge disclaimer-badge badge-success">Completed</span>
+            {% else %}<span class="badge disclaimer-badge badge-dark">{% if user|has_expired_disclaimer %}Expired{% else %}Not Completed{% endif %}</span>
+                <a class="btn btn-success p-0" href="{% url 'accounts:disclaimer_form' user.id %}"> Add new disclaimer</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
 </div>
 {% endblock content %}
 

@@ -1,6 +1,6 @@
 {% extends "website/_base.html" %}
 {% load static %}
-{% load bookingtags %}
+{% load accounttags bookingtags %}
 
 {% block extrahead %}
 <link rel="stylesheet" href="{% static 'booking/vanilla-notify.css' %}">
@@ -31,6 +31,18 @@
         <p><a class='btn btn-info' href="{% url 'account_login' %}?next={{request.get_full_path}}">Log in</a> to book</p>
         <span class="divider"></span>
     </div>
+    {% else %}
+        {% if not user|has_disclaimer %}
+            {% if user|has_expired_disclaimer %}
+                <p>Your disclaimer has expired or our terms have been updated. Please complete a new one
+                    before booking.
+                </p>
+            {% else %}
+                <p>Please complete a disclaimer before booking.</p>
+            {% endif %}
+                <a class="btn btn-primary" href="{% url 'accounts:disclaimer_form' user.id %}">Complete disclaimer now</a>
+        <span class="divider"></span>
+        {% endif %}
     {% endif %}
 
 
@@ -80,32 +92,35 @@
                                             <td class="table-center table-book-btn-col">VISIBLE TO STAFF ONLY</td>
                                         {% else %}
                                             <td class="table-center table-book-btn-col">
-                                                {% if event.cancelled %}
-                                                    CLASS CANCELLED
-                                                {% elif user.has_outstanding_fees %}
-                                                    {% include "booking/includes/outstanding_fee_disabled_buttons.html" %}
-                                                {% elif event.bookable and not event.can_cancel %}
-                                                    {% if event.id in booked_events %}
-                                                        <a class="btn table-btn btn-danger cancel_button" href="{% url 'booking:delete_booking' booking.id %}?ref=cl">Cancel</a>
-                                                    {%  else %}
-                                                        <a class="btn table-btn btn-success book_button" href="{% url 'booking:book_class' event.slug %}?ref=cl">Book</a>
+                                                {% if user|has_disclaimer %}
+                                                    {% if event.cancelled %}
+                                                        CLASS CANCELLED
+                                                    {% elif user.has_outstanding_fees %}
+                                                        {% include "booking/includes/outstanding_fee_disabled_buttons.html" %}
+                                                    {% elif event.bookable and not event.can_cancel %}
+                                                        {% if event.id in booked_events %}
+                                                            <a class="btn table-btn btn-danger cancel_button" href="{% url 'booking:delete_booking' booking.id %}?ref=cl">Cancel</a>
+                                                        {%  else %}
+                                                            <a class="btn table-btn btn-success book_button" href="{% url 'booking:book_class' event.slug %}?ref=cl">Book</a>
+                                                        {% endif %}
+                                                    {% elif event.bookable or event.id in booked_events %}
+                                                        <span
+                                                            id="book_{{ event.id }}"
+                                                            data-event_id="{{ event.id }}"
+                                                            data-ref="events"
+                                                            class="td_ajax_book_btn">
+                                                        {% include "booking/includes/book_button_toggle.html" %}
+                                                        </span>
+                                                    {% else %}
+                                                        <span
+                                                            id="waiting_list_button_{{ event.id }}"
+                                                            data-event_id="{{ event.id }}"
+                                                            class="td_ajax_waiting_list_btn">
+                                                        {% include "booking/includes/waiting_list_toggle.html" %}
+                                                        </span>
                                                     {% endif %}
-                                                {% elif event.bookable or event.id in booked_events %}
-                                                    <span
-                                                        id="book_{{ event.id }}"
-                                                        data-event_id="{{ event.id }}"
-                                                        data-ref="events"
-                                                        class="td_ajax_book_btn">
-                                                    {% include "booking/includes/book_button_toggle.html" %}
-                                                    </span>
                                                 {% else %}
-                                                    <span
-                                                        id="waiting_list_button_{{ event.id }}"
-                                                        data-event_id="{{ event.id }}"
-                                                        class="td_ajax_waiting_list_btn">
-                                                    {% include "booking/includes/waiting_list_toggle.html" %}
-                                                    </span>
-
+                                                <em><a href="{% url 'accounts:disclaimer_form' user.id %}">Complete disclaimer</a></em>
                                                 {% endif %}
                                             </td>
                                         {% endif %}
