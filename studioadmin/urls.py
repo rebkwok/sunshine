@@ -7,7 +7,7 @@ from .views.fees import outstanding_fees_user, outstanding_fees_list, \
     ajax_get_cancellation_fee_payment_status, ajax_get_user_total_fees
 from .views.register import EventRegisterListView, register_view, \
     booking_register_add_view, ajax_toggle_attended
-from .views.users import UserListView
+from .views.users import UserListView, UserDisclaimerView
 from .views.waiting_list import event_waiting_list_view
 
 app_name = 'studioadmin'
@@ -27,6 +27,7 @@ urlpatterns = [
     path('registers/<int:booking_id>/toggle_attended/', ajax_toggle_attended, name='ajax_toggle_attended'),
     path('waiting-list/<slug:event_slug>/', event_waiting_list_view, name="event_waiting_list"),
     path('students/', staff_member_required(UserListView.as_view()), name="user_list"),
+    path('student/<int:pk>/disclaimer/', staff_member_required(UserDisclaimerView.as_view()), name="user_disclaimer"),
     path('fees/<int:user_id>/', outstanding_fees_user, name="user_fees"),
     path(
         'fees/ajax-toggle-cancellation-fee-payment/<int:booking_id>/',

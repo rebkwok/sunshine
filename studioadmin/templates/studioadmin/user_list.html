@@ -1,11 +1,12 @@
 {% extends "studioadmin/base.html" %}
 {% load static %}
-{% load studioadmintags %}
+{% load accounttags studioadmintags email_obfuscator %}
 
 {% block subcontent %}
 
-<div class=row header>
-    <div class="col-xs-12">
+<div class="container-fluid">
+<div class="row header">
+    <div class="col-12">
     <h2>Registered Students</h2>
 
         <form action="" method="get" id="user-search-form">
@@ -30,6 +31,7 @@
             <tr>
                 <th class="table-center">Name</th>
                 <th class="table-center">Email</th>
+                <th class="table-center">Disclaimer</th>
                 <th class="table-center">Cancellation Fees</th>
             </tr>
             </thead>
@@ -37,7 +39,17 @@
             {% for user in users %}
             <tr>
                 <td class="table-center studioadmin-tbl">{{ user.first_name|abbr_name }} {{ user.last_name|abbr_name }} ({{ user.username|abbr_username }})</td>
-                <td class="table-center studioadmin-tbl"><a href="mailto:{{ user.email }}" target="_blank">{{ user.email|abbr_email }}</a></td>
+                <td class="table-center studioadmin-tbl">{{ user.email|obfuscate_mailto }}</td>
+                <td class="table-center">
+                        {% if user|has_disclaimer or user|has_expired_disclaimer %}
+                            <a href="{% url 'studioadmin:user_disclaimer' user.id %}" target="_blank">
+                                <span id="disclaimer" class="far fa-file-alt"></span>
+                            </a>
+                            {% if not user|has_disclaimer %}<span class=helptext">(expired)</span>{% endif %}
+                        {% else %}
+                            <span id="disclaimer" class="fas fa-times"></span>
+                        {% endif %}
+                </td>
                 <td class="table-center">
                     <span class="fees">
                         {% if user.has_outstanding_fees %}
@@ -53,7 +65,7 @@
             </tbody>
         </table>
     </div>
-
+</div>
 
 {% endblock subcontent %}
 

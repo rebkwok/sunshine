@@ -9,6 +9,7 @@ django-bootstrap4==1.1.1
 django-classy-tags==1.0.0  # for cookie-law
 django-crispy-forms==1.9.1
 django-cookie-law==2.0.3
+django-email-obfuscator==0.1.5
 django-extensions==2.2.8
 django-environ==0.4.5
 django-allauth==0.40.0

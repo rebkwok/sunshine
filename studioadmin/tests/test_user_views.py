@@ -81,18 +81,6 @@ class UserListViewTests(TestPermissionMixin, TestCase):
         )
         self.assertIn('name-</br>with-three-hyphens', resp.rendered_content)
 
-    def test_abbreviations_for_long_email(self):
-        """
-        Email > 25 characters is truncated
-        """
-        baker.make_recipe(
-            'booking.user',
-            email='test12345678@longemail.com'
-        )
-        self.client.login(username=self.staff_user.username, password="test")
-        resp = self.client.get(self.url)
-        self.assertIn('test12345678@longemail...', resp.rendered_content)
-
     def test_user_filter(self):
         baker.make_recipe(
             'booking.user', username='FooBar', first_name='AUser',

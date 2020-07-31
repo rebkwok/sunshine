@@ -7,10 +7,11 @@ from django import forms
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import User
 from django.utils.html import format_html, mark_safe
+from django.shortcuts import reverse
 
 from accounts.models import (
     CookiePolicy, DataPrivacyPolicy, SignedDataPrivacy, DisclaimerContent, OnlineDisclaimer, ArchivedDisclaimer,
-    has_active_disclaimer
+    has_active_disclaimer, has_expired_disclaimer
 )
 
 
@@ -221,11 +222,21 @@ class ArchivedDisclaimerAdmin(OnlineDisclaimerAdmin):
 # Define a new User admin
 class UserAdmin(BaseUserAdmin):
 
-    list_display = ("username", "email", "name", "staff_status", "disclaimer_signed")
+    list_display = ("username", "email", "name", "staff_status", "disclaimer", "disclaimer_link")
 
-    def disclaimer_signed(self, obj):
-        return has_active_disclaimer(obj)
-    disclaimer_signed.boolean = True
+    def disclaimer(self, obj):
+        if has_active_disclaimer(obj):
+            return format_html(mark_safe(f"<img src='/static/admin/img/icon-yes.svg' alt='True'>"))
+        elif has_expired_disclaimer(obj):
+            return format_html(mark_safe(f"<img src='/static/admin/img/icon-yes.svg' alt='True'> (Expired)"))
+        else:
+            return format_html(mark_safe(f"<img src='/static/admin/img/icon-no.svg' alt='False'>"))
+
+    def disclaimer_link(self, obj):
+        if has_active_disclaimer(obj) or has_expired_disclaimer(obj):
+            url = reverse("studioadmin:user_disclaimer", args=(obj.id,))
+            return format_html(mark_safe(f"<a href={url}><img src='/static/admin/img/icon-viewlink.svg' alt='View'></a>"))
+    disclaimer_link.short_description = "view disclaimer"
 
     def name(self, obj):
         return f"{obj.first_name} {obj.last_name}"

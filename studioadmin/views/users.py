@@ -1,7 +1,7 @@
 import logging
 
 from django.contrib.auth.models import Group, User,  Permission
-from django.views.generic import CreateView, ListView, UpdateView
+from django.views.generic import CreateView, ListView, DetailView, UpdateView
 
 from braces.views import LoginRequiredMixin
 
@@ -61,4 +61,16 @@ class UserListView(LoginRequiredMixin,  ListView):
 
         context['num_results'] = num_results
         context['total_users'] = total_users
+        return context
+
+
+class UserDisclaimerView(LoginRequiredMixin, DetailView):
+    model = User
+    template_name = "studioadmin/user_disclaimer.html"
+    context_object_name = "account_user"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = self.get_object()
+        context["latest_disclaimer"] = user.online_disclaimer.exists() and user.online_disclaimer.latest("id")
         return context

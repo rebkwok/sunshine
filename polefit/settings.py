@@ -77,6 +77,7 @@ INSTALLED_APPS = (
     'gallery',
     'activitylog',
     'booking',
+    'email_obfuscator',
 )
 
 

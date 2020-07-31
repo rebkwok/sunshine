@@ -1,0 +1,51 @@
+{%  extends "studioadmin/base.html" %}
+
+{% load static accounttags bootstrap4 studioadmintags email_obfuscator %}
+
+
+{% block subcontent %}
+<div class="container-fluid">
+
+    <h1>{{ account_user|full_name }}</h1>
+
+    <div class="card">
+            <div class="card-body">
+                <h4 class="card-header bg-dark">Contact Information and Personal Details</h4>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item">
+                            <b>Email:</b> {{ account_user.email|obfuscate_mailto }}<br/>
+                            <b>Phone:</b> {{ latest_disclaimer.phone }}<br/>
+                            <b>Date of birth:</b> {{ latest_disclaimer.date_of_birth }}<br/>
+                        </li>
+                    </ul>
+
+            {% if latest_disclaimer %}
+            <h4 class="card-header bg-dark">Disclaimer ({% if user|has_disclaimer %}Active{% else %}Expired{% endif %})</h4>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">
+                        <b>Version:</b> {{ latest_disclaimer.version }}<br/>
+                        <b>Completed on:</b> {{ latest_disclaimer.date }}
+                </ul>
+            <h4 class="card-header bg-dark">Emergency Contact Information</h4>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item">
+                    <b>Name:</b> {{ latest_disclaimer.emergency_contact_name }}<br/>
+                    <b>Phone:</b> {{ latest_disclaimer.emergency_contact_phone }}<br/>
+                    <b>Relationship:</b> {{ latest_disclaimer.emergency_contact_relationship }}
+            </ul>
+            <h4 class="card-header bg-dark">Questionnaire Responses</h4>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">
+                        {{ latest_disclaimer.health_questionnaire_responses|format_health_questionnaire }}
+                    </li>
+                </ul>
+
+            {% else %}
+                <h4 class="card-title">Disclaimer</h4>
+            <div class="card-text">No disclaimer completed</div>
+            {% endif %}
+        </div>
+        </div>
+    <a class="btn btn-outline-dark mt-4" href="{{request.META.HTTP_REFERER}}">Back</a>
+</div>
+{% endblock %}

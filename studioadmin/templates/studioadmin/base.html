@@ -44,6 +44,7 @@
 {% endblock %}
 
 {% block content %}
+<div class="container-fluid">
 <div class="admin-menu">
     {% if future_events.regular_sessions %}
         <span class="{{ regular_session_registers_menu_class }}"><a class="btn btn-primary btn-sm btn-admin-menu" href="{% url 'studioadmin:regular_session_register_list' %}">Class Registers</a></span>
@@ -54,6 +55,8 @@
     <span class="{{ cancellation_fees_menu_class }}"><a class="btn btn-primary btn-sm btn-admin-menu" href="{% url 'studioadmin:outstanding_fees' %}">Cancellation Fees</a></span>
     <span class="{{ students_menu_class }}"><a class="btn btn-primary btn-sm btn-admin-menu" href="{% url 'studioadmin:user_list' %}">Students</a></span>
 </div>
+</div>
+
     {% block subcontent %}{% endblock %}
 {% endblock %}
 

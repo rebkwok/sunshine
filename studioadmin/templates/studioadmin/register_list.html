@@ -3,8 +3,9 @@
 
 
 {% block subcontent %}
-<div class="row header">
-    <div class="col-xs-12">
+<div class="container-fluid">
+<div class="row">
+    <div class="col-12">
     <h2>Scheduled {% if event_type == 'workshop' %}Workshops{% else %}Classes{% endif %}: Registers & Waiting Lists</h2>
         {% if request.GET.show_all %}
             Showing registers for all classes.  <a href="{{ event_type|get_register_list_url }}">Show just the next week</a>
@@ -50,6 +51,7 @@
         <p>There are currently no {% if event_type == 'workshop' %}workshops{% else %}classes{% endif %} scheduled.</p>
     {% endif %}
     </div>
+</div>
 {% endblock %}
 
 {% block extra_page_js %}
