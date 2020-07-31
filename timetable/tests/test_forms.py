@@ -44,11 +44,11 @@ class UploadTimetableFormTests(TestCase):
             data={'sessions': [self.session.id]}
         )
         self.assertFalse(form.is_valid())
-        self.assertEquals(len(form.errors), 2)
-        self.assertEquals(
+        self.assertEqual(len(form.errors), 2)
+        self.assertEqual(
             form.errors.get('start_date'), ['This field is required.']
         )
-        self.assertEquals(
+        self.assertEqual(
             form.errors.get('end_date'), ['This field is required.']
         )
 
@@ -61,7 +61,7 @@ class UploadTimetableFormTests(TestCase):
             data=self.form_data({'start_date': 'Monday 08 June 2015'})
         )
         self.assertFalse(form.is_valid())
-        self.assertEquals(len(form.errors), 1)
+        self.assertEqual(len(form.errors), 1)
         self.assertIn('Invalid date format', str(form.errors['start_date']))
 
     @patch('timetable.forms.timezone')
@@ -73,7 +73,7 @@ class UploadTimetableFormTests(TestCase):
             data=self.form_data({'start_date': 'Mon 08 Jun 2000'})
         )
         self.assertFalse(form.is_valid())
-        self.assertEquals(len(form.errors), 1)
+        self.assertEqual(len(form.errors), 1)
         self.assertIn('Must be in the future', str(form.errors['start_date']))
 
     @patch('timetable.forms.timezone')
@@ -85,7 +85,7 @@ class UploadTimetableFormTests(TestCase):
             data=self.form_data({'end_date': 'Monday 15 June 2015'})
         )
         self.assertFalse(form.is_valid())
-        self.assertEquals(len(form.errors), 1)
+        self.assertEqual(len(form.errors), 1)
         self.assertIn('Invalid date format', str(form.errors['end_date']))
 
     @patch('timetable.forms.timezone')
@@ -100,8 +100,8 @@ class UploadTimetableFormTests(TestCase):
             })
         )
         self.assertFalse(form.is_valid())
-        self.assertEquals(len(form.errors), 1)
-        self.assertEquals(
+        self.assertEqual(len(form.errors), 1)
+        self.assertEqual(
             form.errors['end_date'],
             ['Cannot be before start date']
         )

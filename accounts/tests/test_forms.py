@@ -4,6 +4,7 @@ from model_bakery import baker
 
 from django.test import TestCase, override_settings
 from django.contrib.auth.models import User, Group
+from django.core.cache import cache
 from django.urls import reverse
 from django.utils import timezone
 
@@ -56,8 +57,8 @@ class SignUpFormTests(TestSetupMixin, TestCase):
         self.form_data.update({'first_name': 'New', 'last_name': 'Name'})
         self.client.post(self.url, self.form_data)
         user = User.objects.latest('id')
-        self.assertEquals('New', user.first_name)
-        self.assertEquals('Name', user.last_name)
+        self.assertEqual('New', user.first_name)
+        self.assertEqual('Name', user.last_name)
 
     def test_signup_dataprotection_confirmation_required(self):
         baker.make(DataPrivacyPolicy)
@@ -81,66 +82,10 @@ class SignUpFormTests(TestSetupMixin, TestCase):
         )
         self.client.post(self.url, self.form_data)
         user = User.objects.latest('id')
-        self.assertEquals('New', user.first_name)
-        self.assertEquals('Name', user.last_name)
+        self.assertEqual('New', user.first_name)
+        self.assertEqual('Name', user.last_name)
         self.assertTrue(SignedDataPrivacy.objects.exists())
         self.assertEqual(user.data_privacy_agreement.first().version, dp.version)
-
-
-class DisclaimerFormTests(TestSetupMixin, TestCase):
-
-    form_data = {
-        'emergency_contact_name': "test",
-        'emergency_contact_relationship': "test",
-        'emergency_contact_phone': "test",
-        'terms_accepted': True,
-        'password': 'password',
-        'health_questionnaire_responses_0': "test"
-    }
-
-    def setUp(self):
-        make_disclaimer_content(
-            form=[
-                    {
-                        'type': 'text',
-                        'required': False,
-                        'label': 'Say something',
-                        'name': 'text-1234',
-                        'subtype': 'text'
-                    }
-                ]
-        )
-
-    def test_disclaimer_form(self):
-        form = DisclaimerForm(data=self.form_data, disclaimer_user=self.user)
-        assert form.is_valid()
-
-    def test_terms_accepted_required(self):
-        data = {**self.form_data, 'terms_accepted': False}
-        form = DisclaimerForm(data=data, disclaimer_user=self.user)
-        assert form.is_valid() is False
-        assert form.errors == {'terms_accepted': ['This field is required.']}
-
-    def test_with_expired_disclaimer(self):
-        disclaimer = make_online_disclaimer(
-            user=self.user,
-            date=datetime(2015, 2, 10, 19, 0, tzinfo=timezone.utc),
-            emergency_contact_name="Donald Duck",
-            emergency_contact_relationship="Duck",
-            emergency_contact_phone="123",
-            health_questionnaire_responses={"Say something": "Boo"}
-        )
-        assert disclaimer.is_active is False
-
-        form = DisclaimerForm(disclaimer_user=self.user)
-        # initial fields set to expired disclaimer
-        # Note health questionnaire fields are modified in the view after the form is instantiated
-        assert form.fields['emergency_contact_name'].initial == 'Donald Duck'
-        assert form.fields['emergency_contact_relationship'].initial == 'Duck'
-        assert form.fields['emergency_contact_phone'].initial == '123'
-
-        # terms accepted NOT set to expired
-        assert form.fields['terms_accepted'].initial is None
 
 
 class DataPrivacyAgreementFormTests(TestCase):

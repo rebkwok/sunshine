@@ -220,6 +220,9 @@ class BaseOnlineDisclaimer(models.Model):
     date = models.DateTimeField(default=timezone.now)
     version = models.DecimalField(decimal_places=1, max_digits=100)
 
+    phone = models.CharField(max_length=255)
+    date_of_birth = models.DateField()
+
     emergency_contact_name = models.CharField(max_length=255)
     emergency_contact_relationship = models.CharField(max_length=255)
     emergency_contact_phone = models.CharField(max_length=255)
@@ -306,11 +309,8 @@ class ArchivedDisclaimer(BaseOnlineDisclaimer):
     name = models.CharField(max_length=255)
     date_updated = models.DateTimeField(null=True, blank=True)
     date_archived = models.DateTimeField(default=timezone.now)
-    # date_of_birth = models.DateField(verbose_name='date of birth')
-    # address = models.CharField(max_length=512, null=True, blank=True)
-    # postcode = models.CharField(max_length=10, null=True, blank=True)
-    # phone = models.CharField(max_length=255, null=True, blank=True)
-    # event_date = models.DateField(blank=True, null=True)
+    date_of_birth = models.DateField(verbose_name='date of birth')
+    phone = models.CharField(max_length=255, null=True, blank=True)
 
     def __str__(self):
         return '{} - V{} - {} (archived {})'.format(

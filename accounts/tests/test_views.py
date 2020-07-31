@@ -36,7 +36,7 @@ class ProfileUpdateViewTests(TestSetupMixin, TestCase):
         view = ProfileUpdateView.as_view()
         resp = view(request)
         updated_user = User.objects.get(username="test_user")
-        self.assertEquals(updated_user.first_name, "Fred")
+        self.assertEqual(updated_user.first_name, "Fred")
 
 
 class ProfileTests(TestSetupMixin, TestCase):
@@ -49,7 +49,7 @@ class ProfileTests(TestSetupMixin, TestCase):
 
     def test_profile_view(self):
         resp = self._get_response(self.user)
-        self.assertEquals(resp.status_code, 200)
+        self.assertEqual(resp.status_code, 200)
 
     def test_profile_requires_signed_data_privacy(self):
         baker.make(DataPrivacyPolicy)
@@ -168,8 +168,8 @@ class DisclaimerCreateViewTests(TestSetupMixin, TestCase):
             form=[{"label": "test", "type": "text"}]
         )
         self.form_data = {
-            # "date_of_birth": '01-Jan-1990', 'address': '1 test st',
-            # 'postcode': 'TEST1', 'home_phone': '123445', 'mobile_phone': '124566',
+            "date_of_birth": '01-Jan-1990',
+            "phone": '123445',
             'emergency_contact_name': 'test1',
             'emergency_contact_relationship': 'mother',
             'emergency_contact_phone': '4547',
@@ -177,6 +177,7 @@ class DisclaimerCreateViewTests(TestSetupMixin, TestCase):
             'health_questionnaire_responses_0': ["foo"],
             'password': 'test'
         }
+        cache.clear()
         self.client.login(username=self.user.username, password="test")
 
     def test_login_required(self):
@@ -198,28 +199,32 @@ class DisclaimerCreateViewTests(TestSetupMixin, TestCase):
         assert "Submit" not in str(resp.rendered_content)
 
     def test_submitting_form_without_valid_password(self):
-        cache.clear()
         assert OnlineDisclaimer.objects.count() == 0
-
         url = reverse('accounts:disclaimer_form', args=(self.user.id,))
         resp = self.client.post(url, {**self.form_data, "password": "wrong"})
-        assert "password_error" in resp.context
-        assert "Invalid password entered" in str(resp.content)
+        form = resp.context_data["form"]
+        assert form.errors == {"password": ['Invalid password entered']}
 
-    def test_submitting_form_creates_disclaimer(self):
-        cache.clear()
+    def test_must_be_over_16(self):
         assert OnlineDisclaimer.objects.count() == 0
         url = reverse('accounts:disclaimer_form', args=(self.user.id,))
-        self.client.post(url, self.form_data)
+        resp = self.client.post(url, {**self.form_data, "terms_accepted": False})
+        form = resp.context_data["form"]
+        assert form.errors == {"terms_accepted": ['This field is required.']}
 
-        assert OnlineDisclaimer.objects.count() == 1
+    def test_terms_accepted(self):
+        assert OnlineDisclaimer.objects.count() == 0
+        url = reverse('accounts:disclaimer_form', args=(self.user.id,))
+        resp = self.client.post(url, {**self.form_data, "date_of_birth": '01-Jan-2020'})
+        form = resp.context_data["form"]
+        assert form.errors == {"date_of_birth": ["You must be at least 16 years old to register and book classes"]}
 
-        # user now has disclaimer and can't re-access
-        resp = self.client.get(url)
-        assert resp.status_code == 200
-
-        assert "You have already completed a disclaimer." in str(resp.rendered_content)
-        assert "Submit" not in str(resp.rendered_content)
+    def test_phone_number_validation(self):
+        assert OnlineDisclaimer.objects.count() == 0
+        url = reverse('accounts:disclaimer_form', args=(self.user.id,))
+        resp = self.client.post(url, {**self.form_data, "phone": 'test'})
+        form = resp.context_data["form"]
+        assert form.errors == {"phone": ['Enter a valid phone number (no dashes or brackets).']}
 
     def test_disclaimer_health_questionnaire(self):
         content_with_questionnaire = make_disclaimer_content(
@@ -251,6 +256,55 @@ class DisclaimerCreateViewTests(TestSetupMixin, TestCase):
         # text field initial is set to "-"
         assert questionnaire_fields[0].initial == "-"
         assert questionnaire_fields[1].label == "What is your favourite colour?"
+
+
+    def test_submitting_form_creates_disclaimer(self):
+        assert OnlineDisclaimer.objects.count() == 0
+        url = reverse('accounts:disclaimer_form', args=(self.user.id,))
+        self.client.post(url, self.form_data)
+
+        assert OnlineDisclaimer.objects.count() == 1
+
+        # user now has disclaimer and can't re-access
+        resp = self.client.get(url)
+        assert resp.status_code == 200
+
+        assert "You have already completed a disclaimer." in str(resp.rendered_content)
+        assert "Submit" not in str(resp.rendered_content)
+
+    def test_disclaimer_health_questionnaire_required_fields(self):
+        make_disclaimer_content(
+            form=[
+                    {
+                        'type': 'text',
+                        'required': False,
+                        'label': 'Say something',
+                        'name': 'text-1',
+                        'subtype': 'text'
+                    },
+                    {
+                        'type': 'text',
+                        'required': True,
+                        'label': 'What is your favourite colour?',
+                        'name': 'text-2',
+                        'choices': ["red", "green", "blue"],
+                        'subtype': 'text'
+                    }
+                ],
+            version=None  # make sure it's the latest
+        )
+        url = reverse('accounts:disclaimer_form', args=(self.user.id,))
+        # form data only has response for qn 0 (not required)
+        resp = self.client.post(url, {**self.form_data})
+        assert resp.status_code == 200
+        form = resp.context_data["form"]
+        assert form.errors == {"health_questionnaire_responses": ["Please fill in all required fields."]}
+
+        form_data = {**self.form_data}
+        del form_data["health_questionnaire_responses_0"]
+        form_data["health_questionnaire_responses_1"] = "red"
+        resp = self.client.post(url, {**form_data})
+        assert resp.status_code == 302
 
     def test_updating_disclaimer_health_questionnaire(self):
         # health questionnaire fields that exist on the new disclaimer are prepopulated

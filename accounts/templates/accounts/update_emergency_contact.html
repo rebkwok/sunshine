@@ -2,9 +2,9 @@
 {% load accounttags %}
 
 {% block content %}
-
+{% load crispy_forms_tags %}
     <div>
-        <h2>Edit Your Emergency Contact Information</h2>
+        <h2>Edit Your Contact and Emergency Contact Information</h2>
     </div>
     {% if form.errors %}
         <div class="errorlist">Please correct the errors below</div>
@@ -12,17 +12,7 @@
 
        <form class="dirty-check form" action="" method="post">
            {% csrf_token %}
-
-           {% for field in form %}
-                <div class="form-group">
-                     <label class="control-label" for='id_{{ field.name }}'>{{ field.label }}</label>
-                    {{ field }}
-                    {% if field.errors %}<span class="errorlist">{{ field.errors }}</span>{% endif %}
-                   </div>
-                   <div class="helptext ">{{ field.help_text }}</div>
-           {% endfor %}
-
-            <div><input class="btn btn-success" type="submit" value="Submit" /></div>
+            {% crispy form %}
        </form>
 
 {% endblock %}

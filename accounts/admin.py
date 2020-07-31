@@ -84,7 +84,6 @@ class DataPrivacyPolicyAdmin(PolicyAdminMixin, admin.ModelAdmin):
     form = DataPrivacyPolicyAdminForm
 
 
-
 class SignedDataPrivacyAdmin(admin.ModelAdmin):
     readonly_fields = ('user', 'date_signed', 'version')
     fields = readonly_fields
@@ -172,7 +171,7 @@ class DisclaimerContentAdmin(admin.ModelAdmin):
 class OnlineDisclaimerAdmin(admin.ModelAdmin):
 
     readonly_fields = (
-        'user',
+        'user', 'phone', "date_of_birth",
         'emergency_contact_name',
         'emergency_contact_relationship', 'emergency_contact_phone',
         'health_questionnaire',
@@ -201,7 +200,7 @@ class OnlineDisclaimerAdmin(admin.ModelAdmin):
 class ArchivedDisclaimerAdmin(OnlineDisclaimerAdmin):
 
     readonly_fields = (
-        'name',
+        'name', 'phone', "date_of_birth",
         'emergency_contact_name',
         'emergency_contact_relationship', 'emergency_contact_phone',
         'health_questionnaire',

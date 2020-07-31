@@ -47,22 +47,22 @@ class CancelUnpaidBookingsTests(TestCase):
         mock_tz.now.return_value = datetime(
             2015, 2, 10, 19, 0, tzinfo=timezone.utc
         )
-        self.assertEquals(
+        self.assertEqual(
             self.unpaid.status, 'OPEN', self.unpaid.status
         )
-        self.assertEquals(
+        self.assertEqual(
             self.paid.status, 'OPEN', self.paid.status
         )
         management.call_command('cancel_unpaid_bookings')
         # emails are sent to user per cancelled booking
         unpaid_booking = Booking.objects.get(id=self.unpaid.id)
         paid_booking = Booking.objects.get(id=self.paid.id)
-        self.assertEquals(len(mail.outbox), 1)
-        self.assertEquals(mail.outbox[0].to, ['unpaid@test.com'])
-        self.assertEquals(
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(mail.outbox[0].to, ['unpaid@test.com'])
+        self.assertEqual(
             unpaid_booking.status, 'CANCELLED', unpaid_booking.status
         )
-        self.assertEquals(
+        self.assertEqual(
             paid_booking.status, 'OPEN', paid_booking.status
         )
 
@@ -74,10 +74,10 @@ class CancelUnpaidBookingsTests(TestCase):
         mock_tz.now.return_value = datetime(
             2016, 2, 10, tzinfo=timezone.utc
         )
-        self.assertEquals(
+        self.assertEqual(
             self.unpaid.status, 'OPEN', self.unpaid.status
         )
-        self.assertEquals(
+        self.assertEqual(
             self.paid.status, 'OPEN', self.paid.status
         )
         self.assertTrue(timezone.now() > self.event.date)
@@ -86,11 +86,11 @@ class CancelUnpaidBookingsTests(TestCase):
         # for all cancelled bookings
         unpaid_booking = Booking.objects.get(id=self.unpaid.id)
         paid_booking = Booking.objects.get(id=self.paid.id)
-        self.assertEquals(len(mail.outbox), 0)
-        self.assertEquals(
+        self.assertEqual(len(mail.outbox), 0)
+        self.assertEqual(
             unpaid_booking.status, 'OPEN', unpaid_booking.status
         )
-        self.assertEquals(
+        self.assertEqual(
             paid_booking.status, 'OPEN', paid_booking.status
         )
 
@@ -104,15 +104,15 @@ class CancelUnpaidBookingsTests(TestCase):
         )
         self.unpaid.status = 'CANCELLED'
         self.unpaid.save()
-        self.assertEquals(
+        self.assertEqual(
             self.unpaid.status, 'CANCELLED', self.unpaid.status
         )
         management.call_command('cancel_unpaid_bookings')
         # emails are sent to user per cancelled booking and studio once
         # for all cancelled bookings
         unpaid_booking = Booking.objects.get(id=self.unpaid.id)
-        self.assertEquals(len(mail.outbox), 0)
-        self.assertEquals(
+        self.assertEqual(len(mail.outbox), 0)
+        self.assertEqual(
             unpaid_booking.status, 'CANCELLED', unpaid_booking.status
         )
 
@@ -147,9 +147,9 @@ class CancelUnpaidBookingsTests(TestCase):
         self.unpaid.refresh_from_db()
         unpaid_class_booking.refresh_from_db()
 
-        self.assertEquals(len(mail.outbox), 1)
-        self.assertEquals(self.unpaid.status, 'CANCELLED')
-        self.assertEquals(unpaid_class_booking.status, 'OPEN')
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(self.unpaid.status, 'CANCELLED')
+        self.assertEqual(unpaid_class_booking.status, 'OPEN')
 
     @patch('booking.management.commands.cancel_unpaid_bookings.timezone')
     def test_dont_cancel_bookings_created_within_past_24_hours(self, mock_tz):
@@ -178,14 +178,14 @@ class CancelUnpaidBookingsTests(TestCase):
             ),
         )
 
-        self.assertEquals(unpaid_within_24_hrs.status, 'OPEN')
-        self.assertEquals(unpaid_more_than_24_hrs.status, 'OPEN')
+        self.assertEqual(unpaid_within_24_hrs.status, 'OPEN')
+        self.assertEqual(unpaid_more_than_24_hrs.status, 'OPEN')
 
         management.call_command('cancel_unpaid_bookings')
         unpaid_within_24_hrs.refresh_from_db()
         unpaid_more_than_24_hrs.refresh_from_db()
-        self.assertEquals(unpaid_within_24_hrs.status, 'OPEN')
-        self.assertEquals(unpaid_more_than_24_hrs.status, 'CANCELLED')
+        self.assertEqual(unpaid_within_24_hrs.status, 'OPEN')
+        self.assertEqual(unpaid_more_than_24_hrs.status, 'CANCELLED')
 
     @patch('booking.management.commands.cancel_unpaid_bookings.timezone')
     def test_cancelling_for_full_event_emails_waiting_list(self, mock_tz):
@@ -299,7 +299,7 @@ class CancelUnpaidBookingsTests(TestCase):
         )
         self.unpaid.save()
 
-        self.assertEquals(self.unpaid.status, 'OPEN')
+        self.assertEqual(self.unpaid.status, 'OPEN')
 
         management.call_command('cancel_unpaid_bookings')
         # self.unpaid was booked > 6 hrs ago
@@ -308,7 +308,7 @@ class CancelUnpaidBookingsTests(TestCase):
         )
         self.unpaid.refresh_from_db()
         # but still open
-        self.assertEquals(self.unpaid.status, 'OPEN')
+        self.assertEqual(self.unpaid.status, 'OPEN')
 
         # move time on one hour and try again
         mock_tz.now.return_value = datetime(
@@ -321,7 +321,7 @@ class CancelUnpaidBookingsTests(TestCase):
         )
         self.unpaid.refresh_from_db()
         # now cancelled
-        self.assertEquals(self.unpaid.status, 'CANCELLED')
+        self.assertEqual(self.unpaid.status, 'CANCELLED')
 
 
 class EmailRemindersTests(TestCase):

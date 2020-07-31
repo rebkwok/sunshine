@@ -10,18 +10,17 @@
        <div class="card-body">
            <div class="card-text"><strong>Username:</strong> {{ user.username }}</div>
            <div class="card-text"><strong>Name:</strong> {{ user.first_name }} {{ user.last_name }}</div>
-<!--           <div class="card-text"><strong>Date of birth:</strong> {{ user.userprofile.date_of_birth }}</div>-->
-<!--           <div class="card-text"><strong>Address:</strong> {{ user.userprofile.address }}, {{ user.userprofile.postcode }}</div>-->
-<!--           <div class="card-text"><strong>Phone:</strong> {{ user.userprofile.phone }}</div>-->
           <div class="card-text"><a class="btn btn-success" href="{% url 'accounts:update_profile' %}">Change</a></div>
 
         </div>
        </div>
     <div class="card">
-       <h2 class="card-header">Emergency Contact Information</h2>
+       <h2 class="card-header">Your Info and Emergency Contact Information</h2>
        <div class="card-body">
-       <div class="card-text"><strong>Name:</strong> {{ latest_disclaimer.emergency_contact_name }} </div>
-       <div class="card-text"><strong>Phone:</strong> {{ latest_disclaimer.emergency_contact_phone }} </div>
+      <div class="card-text"><strong>Date of birth:</strong> {{ latest_disclaimer.date_of_birth }}</div>
+      <div class="card-text"><strong>Contact phone number:</strong> {{ latest_disclaimer.phone }} </div>
+       <div class="card-text"><strong>Emergency Contact Name:</strong> {{ latest_disclaimer.emergency_contact_name }} </div>
+       <div class="card-text"><strong>Emergency Contact Phone:</strong> {{ latest_disclaimer.emergency_contact_phone }} </div>
        <div class="card-text"><strong>Relationship:</strong> {{ latest_disclaimer.emergency_contact_relationship }} </div>
        <div class="card-text"><a class="btn btn-success" href="{% url 'accounts:update_emergency_contact' user.id %}">Change</a></div>
        </div>

@@ -39,15 +39,15 @@ class EventListViewTests(TestSetupMixin, TestCase):
         url = reverse('booking:events') + '?type=workshop'
         resp = self.client.get(url)
 
-        self.assertEquals(Event.objects.all().count(), 5)
-        self.assertEquals(resp.status_code, 200)
-        self.assertEquals(resp.context['events'].count(), 3)
+        self.assertEqual(Event.objects.all().count(), 5)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.context['events'].count(), 3)
 
         url = reverse('booking:events')
         resp = self.client.get(url)
 
-        self.assertEquals(resp.status_code, 200)
-        self.assertEquals(resp.context['events'].count(), 2)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.context['events'].count(), 2)
 
     def test_event_list_past_event(self):
         """
@@ -55,12 +55,12 @@ class EventListViewTests(TestSetupMixin, TestCase):
         """
         baker.make_recipe('booking.past_event')
         # check there are now 4 events
-        self.assertEquals(Event.objects.all().count(), 6)
+        self.assertEqual(Event.objects.all().count(), 6)
         url = reverse('booking:events') + '?type=workshop'
         resp = self.client.get(url)
 
         # event listing should still only show future events
-        self.assertEquals(resp.context['events'].count(), 3)
+        self.assertEqual(resp.context['events'].count(), 3)
 
     def test_event_list_with_anonymous_user(self):
         """
@@ -102,14 +102,14 @@ class EventListViewTests(TestSetupMixin, TestCase):
         """
         resp = self._get_response(self.user)
         # check there are no booked events yet
-        self.assertEquals(len(resp.context_data['booked_events']), 0)
+        self.assertEqual(len(resp.context_data['booked_events']), 0)
 
         # create a booking for this user
         booked_event = Event.objects.all()[0]
         baker.make_recipe('booking.booking', user=self.user, event=booked_event)
         resp = self._get_response(self.user)
         booked_events = [event for event in resp.context_data['booked_events']]
-        self.assertEquals(len(booked_events), 1)
+        self.assertEqual(len(booked_events), 1)
         self.assertTrue(booked_event.id in booked_events)
 
     def test_event_list_shows_only_current_user_bookings(self):
@@ -122,7 +122,7 @@ class EventListViewTests(TestSetupMixin, TestCase):
 
         resp = self._get_response(self.user)
         # check there are no booked events yet
-        self.assertEquals(len(resp.context_data['booked_events']), 0)
+        self.assertEqual(len(resp.context_data['booked_events']), 0)
 
         # create booking for this user
         baker.make_recipe('booking.booking', user=self.user, event=event1)
@@ -133,8 +133,8 @@ class EventListViewTests(TestSetupMixin, TestCase):
         # check only event1 shows in the booked events
         resp = self._get_response(self.user)
         booked_events = [event for event in resp.context_data['booked_events']]
-        self.assertEquals(Booking.objects.all().count(), 2)
-        self.assertEquals(len(booked_events), 1)
+        self.assertEqual(Booking.objects.all().count(), 2)
+        self.assertEqual(len(booked_events), 1)
         self.assertTrue(event1.id in booked_events)
 
     def test_event_list_with_name(self):
@@ -258,8 +258,8 @@ class EventDetailViewTests(TestSetupMixin, TestCase):
             reverse('booking:event_detail', args=[self.event.slug])
         )
         self.assertEqual(resp.status_code, 200)
-        self.assertEquals(resp.context_data['event_type'], 'workshop')
-        self.assertEquals(
+        self.assertEqual(resp.context_data['event_type'], 'workshop')
+        self.assertEqual(
             resp.context_data['booking_info_text'],
             "Please "
             "<a href='/accounts/login?next=/booking/workshops/{}'>log in</a> "
@@ -281,7 +281,7 @@ class EventDetailViewTests(TestSetupMixin, TestCase):
             reverse('booking:event_detail', args=[self.event.slug])
         )
 
-        self.assertEquals(
+        self.assertEqual(
             resp.context_data['booking_info_text'],
             'This workshop is now full.  Please '
             "<a href='/accounts/login?next=/booking/workshops/{}'>log in</a> "
@@ -297,7 +297,7 @@ class EventDetailViewTests(TestSetupMixin, TestCase):
         """
         resp = self._get_response(self.user, self.event)
         self.assertEqual(resp.status_code, 200)
-        self.assertEquals(resp.context_data['event_type'], 'workshop')
+        self.assertEqual(resp.context_data['event_type'], 'workshop')
 
     def test_show_on_site(self):
         # can get if show on site
@@ -335,7 +335,7 @@ class EventDetailViewTests(TestSetupMixin, TestCase):
         baker.make_recipe('booking.booking', user=self.user, event=self.event)
         resp = self._get_response(self.user, self.event)
         self.assertTrue(resp.context_data['booked'])
-        self.assertEquals(resp.context_data['booking_info_text'],
+        self.assertEqual(resp.context_data['booking_info_text'],
                           'You have booked for this workshop.')
 
     def test_with_booked_event_for_different_user(self):
@@ -349,7 +349,7 @@ class EventDetailViewTests(TestSetupMixin, TestCase):
 
         resp = self._get_response(self.user, self.event)
         self.assertFalse('booked' in resp.context_data)
-        self.assertEquals(resp.context_data['booking_info_text'], '')
+        self.assertEqual(resp.context_data['booking_info_text'], '')
 
     def test_cancellation_information_displayed_cancellation_period(self):
         """
@@ -415,8 +415,8 @@ class EventDetailViewTests(TestSetupMixin, TestCase):
         )
         resp = self._get_response(self.user, self.event)
         self.assertTrue(resp.context_data['cancelled'])
-        self.assertEquals(resp.context_data['booking_info_text'], '')
-        self.assertEquals(
+        self.assertEqual(resp.context_data['booking_info_text'], '')
+        self.assertEqual(
             resp.context_data['booking_info_text_cancelled'],
             'You have previously booked for this workshop and your booking '
             'has been cancelled.'
@@ -433,8 +433,8 @@ class EventDetailViewTests(TestSetupMixin, TestCase):
         )
         resp = self._get_response(self.user, self.event)
         self.assertTrue(resp.context_data['cancelled'])
-        self.assertEquals(resp.context_data['booking_info_text'], '')
-        self.assertEquals(
+        self.assertEqual(resp.context_data['booking_info_text'], '')
+        self.assertEqual(
             resp.context_data['booking_info_text_cancelled'],
             'You have previously booked for this workshop and your booking '
             'has been cancelled.'

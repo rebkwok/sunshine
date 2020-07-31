@@ -222,15 +222,8 @@ class DisclaimerCreateView(LoginRequiredMixin, DynamicDisclaimerFormMixin, Creat
 
     def form_valid(self, form):
         disclaimer = self.form_pre_commit(form)
-        password = form.cleaned_data['password']
-        # Check the password for self.request.user, but set the disclaimer user to self.user, which could be different
-        if self.request.user.check_password(password):
-            disclaimer.user = self.disclaimer_user
-            disclaimer.save()
-        else:
-            form = DisclaimerForm(form.data, disclaimer_user=self.disclaimer_user)
-            return render(self.request, self.template_name, {'form': form, 'password_error': 'Invalid password entered'})
-
+        disclaimer.user = self.disclaimer_user
+        disclaimer.save()
         return super().form_valid(form)
 
     def get_success_url(self):

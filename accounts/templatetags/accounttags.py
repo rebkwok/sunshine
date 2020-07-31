@@ -4,6 +4,7 @@ from ..models import has_active_disclaimer, has_expired_disclaimer as has_expire
 
 register = template.Library()
 
+
 @register.filter
 def has_disclaimer(user):
     return has_active_disclaimer(user)

@@ -28,9 +28,9 @@ class TestViews(TestCase):
                 'item_name': 'Event1'
             }
         )
-        self.assertEquals(resp.status_code, 200)
-        self.assertEquals(resp.context_data['obj_type'], 'booking')
-        self.assertEquals(resp.context_data['obj'], booking)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.context_data['obj_type'], 'booking')
+        self.assertEqual(resp.context_data['obj'], booking)
 
     def test_confirm_return_with_unknown_obj(self):
         resp = self.client.post(
@@ -41,8 +41,8 @@ class TestViews(TestCase):
                 'item_name': 'Foo'
             }
         )
-        self.assertEquals(resp.status_code, 200)
-        self.assertEquals(resp.context_data['obj_unknown'], True)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.context_data['obj_unknown'], True)
         self.assertIn(
             'Everything is probably fine...',
             resp.rendered_content
@@ -56,8 +56,8 @@ class TestViews(TestCase):
                 'item_name': 'Event'
             }
         )
-        self.assertEquals(resp.status_code, 200)
-        self.assertEquals(resp.context_data['obj_unknown'], True)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.context_data['obj_unknown'], True)
         self.assertIn(
             'Everything is probably fine...',
             resp.rendered_content
@@ -75,8 +75,8 @@ class TestViews(TestCase):
                 'item_name': 'paypal_test'
             }
         )
-        self.assertEquals(resp.status_code, 200)
-        self.assertEquals(
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(
             resp.context_data['test_paypal_email'], 'testpp@test.com'
         )
         self.assertIn(
@@ -99,8 +99,8 @@ class TestViews(TestCase):
                 'item_name': 'paypal_test'
             }
         )
-        self.assertEquals(resp.status_code, 200)
-        self.assertEquals(
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(
             resp.context_data['test_paypal_email'], 'testpp@test.com'
         )
         self.assertIn(
@@ -131,8 +131,8 @@ class ConfirmRefundViewTests(TestPermissionMixin, TestCase):
         self.client.login(username=self.superuser.username, password='test')
         resp = self.client.post(self.url, {'confirmed': ['Confirm']})
 
-        self.assertEquals(resp.status_code, 302)
-        self.assertEquals(resp.url, reverse('admin:index'))
+        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(resp.url, reverse('admin:index'))
         booking = Booking.objects.get(id=self.booking.id)
         self.assertFalse(booking.paid)
         self.assertEqual(len(mail.outbox), 1)
@@ -144,8 +144,8 @@ class ConfirmRefundViewTests(TestPermissionMixin, TestCase):
         self.assertTrue(self.booking.paid)
         self.client.login(username=self.superuser.username, password='test')
         resp = self.client.post(self.url, {'cancelled': ['Cancel']})
-        self.assertEquals(resp.status_code, 302)
-        self.assertEquals(resp.url, reverse('admin:index'))
+        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(resp.url, reverse('admin:index'))
         booking = Booking.objects.get(id=self.booking.id)
         self.assertTrue(booking.paid)
         self.assertEqual(len(mail.outbox), 0)

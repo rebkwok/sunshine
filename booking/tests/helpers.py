@@ -1,3 +1,4 @@
+from datetime import datetime
 from importlib import import_module
 import random
 
@@ -57,6 +58,8 @@ def make_online_disclaimer(**kwargs):
     defaults = {
         "health_questionnaire_responses": [],
         "terms_accepted": True,
+        "date_of_birth": datetime(2000, 1, 1, tzinfo=timezone.utc),
+        "phone": 123,
         "emergency_contact_name": "test",
         "emergency_contact_relationship": "test",
         "emergency_contact_phone": "123",
@@ -70,11 +73,9 @@ def make_archived_disclaimer(**kwargs):
         kwargs["version"] = DisclaimerContent.current_version()
     defaults = {
         "name": "Test User",
-        # "address": "test",
-        # "postcode": "test",
-        # "date_of_birth": datetime(1990, 6, 7, tzinfo=timezone.utc),
+        "date_of_birth": datetime(1990, 6, 7, tzinfo=timezone.utc),
         "date_archived": timezone.now().date(),
-        # "phone": "123455",
+        "phone": "123455",
         "health_questionnaire_responses": [],
         "terms_accepted": True,
         "emergency_contact_name": "test",

@@ -58,16 +58,16 @@ class BookingListViewTests(TestSetupMixin, TestCase):
         Test that only future bookings for relevant event type are listed)
         """
         resp = self.client.get(self.url)
-        self.assertEquals(Booking.objects.all().count(), 6)
-        self.assertEquals(resp.status_code, 200)
-        self.assertEquals(resp.context_data['bookings'].count(), 3)
+        self.assertEqual(Booking.objects.all().count(), 6)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.context_data['bookings'].count(), 3)
         for booking in resp.context_data['bookings']:
-            self.assertEquals(booking.event.event_type, 'regular_session')
+            self.assertEqual(booking.event.event_type, 'regular_session')
 
         resp = self.client.get(self.url_workshops)
-        self.assertEquals(resp.context_data['bookings'].count(), 2)
+        self.assertEqual(resp.context_data['bookings'].count(), 2)
         for booking in resp.context_data['bookings']:
-            self.assertEquals(booking.event.event_type, 'workshop')
+            self.assertEqual(booking.event.event_type, 'workshop')
 
     def test_data_policy_agreement_required(self):
         baker.make(DataPrivacyPolicy)
@@ -84,10 +84,10 @@ class BookingListViewTests(TestSetupMixin, TestCase):
             'booking.booking', user=another_user, event=self.regular_sessions[0]
         )
         # check there are now 7 bookings
-        self.assertEquals(Booking.objects.all().count(), 7)
+        self.assertEqual(Booking.objects.all().count(), 7)
         resp = self.client.get(self.url)
         # event listing should still only show this user's future bookings
-        self.assertEquals(resp.context_data['bookings'].count(), 3)
+        self.assertEqual(resp.context_data['bookings'].count(), 3)
 
     def test_workshop_booking_list_by_user(self):
         """
@@ -98,11 +98,11 @@ class BookingListViewTests(TestSetupMixin, TestCase):
             'booking.booking', user=another_user, event=self.events[0]
         )
         # check there are now 7 bookings
-        self.assertEquals(Booking.objects.all().count(), 7)
+        self.assertEqual(Booking.objects.all().count(), 7)
         resp = self.client.get(self.url_workshops)
 
         # event listing should still only show this user's future bookings
-        self.assertEquals(resp.context_data['bookings'].count(), 2)
+        self.assertEqual(resp.context_data['bookings'].count(), 2)
 
     def test_cancelled_booking_shown_in_booking_list(self):
         """
@@ -114,12 +114,12 @@ class BookingListViewTests(TestSetupMixin, TestCase):
             status='CANCELLED'
         )
         # check there are now 7 bookings (3 future, 1 past, 2 workshops,  1 cancelled)
-        self.assertEquals(Booking.objects.all().count(), 7)
+        self.assertEqual(Booking.objects.all().count(), 7)
         resp = self.client.get(self.url)
 
         # booking listing should show this user's future bookings,
         # including the cancelled one
-        self.assertEquals(resp.context_data['bookings'].count(), 4)
+        self.assertEqual(resp.context_data['bookings'].count(), 4)
 
     def test_paid_status_display(self):
         Event.objects.all().delete()
@@ -243,9 +243,9 @@ class BookingHistoryListViewTests(TestSetupMixin, TestCase):
         """
         resp = self._get_response(self.user)
 
-        self.assertEquals(Booking.objects.all().count(), 2)
-        self.assertEquals(resp.status_code, 200)
-        self.assertEquals(resp.context_data['bookings'].count(), 1)
+        self.assertEqual(Booking.objects.all().count(), 2)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.context_data['bookings'].count(), 1)
 
     def test_booking_history_list_by_user(self):
         """
@@ -256,11 +256,11 @@ class BookingHistoryListViewTests(TestSetupMixin, TestCase):
             'booking.booking', user=another_user, event=self.past_booking.event
         )
         # check there are now 3 bookings
-        self.assertEquals(Booking.objects.all().count(), 3)
+        self.assertEqual(Booking.objects.all().count(), 3)
         resp = self._get_response(self.user)
 
         #  listing should still only show this user's past bookings
-        self.assertEquals(resp.context_data['bookings'].count(), 1)
+        self.assertEqual(resp.context_data['bookings'].count(), 1)
 
 
 class BookingCreateViewTests(TestSetupMixin, TestCase):
