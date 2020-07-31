@@ -130,7 +130,7 @@ class DisclaimerForm(forms.ModelForm):
         else:
             self.disclaimer_content = DisclaimerContent.current()
 
-        self.fields["health_questionnaire_responses"].required = any(field["required"] for field in self.disclaimer_content.form)
+        self.fields["health_questionnaire_responses"].required = any(field.get("required") for field in self.disclaimer_content.form)
         self.fields["date_of_birth"] = forms.DateField(
             widget=forms.DateInput(
                 attrs={"autocomplete": "off", 'class': 'form-control'}, format='%d-%b-%Y'
@@ -188,7 +188,7 @@ class DisclaimerForm(forms.ModelForm):
 
     def clean_password(self):
         password = self.cleaned_data.get("password")
-        if self.request_user.check_password(password):
+        if self.user.check_password(password):
             return password
         self.add_error("password", "Invalid password entered")
 

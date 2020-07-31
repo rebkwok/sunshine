@@ -91,8 +91,8 @@ class PaypalSignalsTests(TestCase):
         ppipn = PayPalIPN.objects.first()
         self.assertTrue(ppipn.flag)
 
-        # one warning email sent
-        self.assertEqual(len(mail.outbox), 1)
+        # Warning emails sent. We send one email explictly, the other is sent by the logging
+        self.assertEqual(len(mail.outbox), 2)
 
         self.assertEqual(
             mail.outbox[0].subject,
@@ -118,8 +118,8 @@ class PaypalSignalsTests(TestCase):
         ppipn = PayPalIPN.objects.first()
         self.assertTrue(ppipn.flag)
 
-        # one warning email sent
-        self.assertEqual(len(mail.outbox), 1)
+        # error emails sent. We send one email explictly, the other is sent by the logging
+        self.assertEqual(len(mail.outbox), 2)
 
         self.assertEqual(
             mail.outbox[0].subject,
@@ -145,8 +145,8 @@ class PaypalSignalsTests(TestCase):
         self.assertEqual(PayPalIPN.objects.count(), 1)
         ppipn = PayPalIPN.objects.first()
 
-        # one warning email sent
-        self.assertEqual(len(mail.outbox), 1)
+        # error emails sent. We send one email explictly, the other is sent by the logging
+        self.assertEqual(len(mail.outbox), 2)
         self.assertEqual(
             mail.outbox[0].subject,
             'WARNING! Error processing Invalid Payment Notification from PayPal'
@@ -214,8 +214,8 @@ class PaypalSignalsTests(TestCase):
         self.assertEqual(ppipn.flag_info, '')
 
         # we can't match up the payment to booking, so raise error and send
-        # emails
-        self.assertEqual(len(mail.outbox), 1)
+        # emails.  We send one email explictly, the other is sent by the logging
+        self.assertEqual(len(mail.outbox), 2)
         self.assertEqual(
             mail.outbox[0].subject,
             'WARNING! Error processing PayPal IPN'
