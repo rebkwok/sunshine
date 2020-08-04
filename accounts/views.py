@@ -1,6 +1,7 @@
 from django.shortcuts import render, HttpResponseRedirect, get_object_or_404
 from django.urls import reverse
 from django.contrib.auth.models import User
+from django.contrib.auth.decorators import login_required
 from django.forms.widgets import TextInput
 from django.views.generic.edit import FormMixin
 from django.views.generic import FormView, UpdateView, CreateView
@@ -17,6 +18,7 @@ from .models import (
 from .utils import has_active_data_privacy_agreement
 
 
+@login_required
 def profile(request):
     has_disclaimer = has_active_disclaimer(request.user)
     has_exp_disclaimer = has_expired_disclaimer(request.user)
