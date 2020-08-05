@@ -213,8 +213,8 @@ class DisclaimerContent(models.Model):
             # if no version specified, go to next major version
             self.version = float(floor((DisclaimerContent.current_version() + 1)))
 
-        # Always update issue date on saving drafts
-        if self.is_draft:
+        # Always update issue date on saving drafts or publishing first version
+        if self.is_draft or getattr(self, "is_draft_oldval", False):
             self.issue_date = timezone.now()
         super().save(**kwargs)
         ActivityLog.objects.create(
