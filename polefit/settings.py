@@ -285,10 +285,7 @@ LOGGING = {
     },
 }
 
-import sys
-TESTING = 'test' in sys.argv
-if not TESTING:
-    ADMINS = [("Becky Smith", SUPPORT_EMAIL)]
+ADMINS = [("Becky Smith", SUPPORT_EMAIL)]
 
 
 from django.contrib import messages

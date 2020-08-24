@@ -101,7 +101,7 @@
                                                         {% if event.id in booked_events %}
                                                             <a class="btn table-btn btn-danger cancel_button" href="{% url 'booking:delete_booking' booking.id %}?ref=cl">Cancel</a>
                                                         {%  else %}
-                                                            <a class="btn table-btn btn-success book_button" href="{% url 'booking:book_class' event.slug %}?ref=cl">Book</a>
+                                                            <a class="btn table-btn btn-success book_button" href="{% url 'booking:book_class' event.slug %}?ref=cl">Book{% if event.members_only %}<span class="label label-primary label-membership">Members only</span>{% endif %}</a>
                                                         {% endif %}
                                                     {% elif event.bookable or event.id in booked_events %}
                                                         <span

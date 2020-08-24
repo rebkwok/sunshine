@@ -59,6 +59,7 @@ def upload_timetable(start_date, end_date, session_ids, show_on_site, user=None)
                     cost=session.cost,
                     show_on_site=show_on_site,
                     cancellation_fee=session.cancellation_fee,
+                    members_only=session.members_only,
                 )
                 created_classes.append(cl)
             else:

@@ -32,12 +32,12 @@ class SessionTypeAdmin(admin.ModelAdmin):
 
 class TimetableSessionAdmin(admin.ModelAdmin):
     list_display = ('name', 'session_type', 'level', 'session_day',
-                    'start_time', 'end_time', 'venue', 'max_participants')
+                    'start_time', 'end_time', 'venue', 'max_participants', 'members_only')
     fieldsets = [
         ('Session information', {
             'fields': ['name', 'session_type', 'level', 'membership_category',
                        'instructor', 'venue', 'max_participants', 'cost', 'alt_cost',
-                       'cancellation_fee']
+                       'members_only', 'cancellation_fee']
         }),
         ('Date and time', {
             'fields': ['session_day', 'start_time', 'end_time']
@@ -46,6 +46,7 @@ class TimetableSessionAdmin(admin.ModelAdmin):
     ordering = ['session_day', 'start_time']
 
     list_filter = ['session_type', 'instructor', 'venue']
+    list_editable = ('members_only',)
 
     def get_form(self, request, obj=None, **kwargs):
         form = super().get_form(request, obj, **kwargs)

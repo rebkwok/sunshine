@@ -119,6 +119,7 @@ class TimetableSession(models.Model):
     )
     max_participants = models.PositiveIntegerField(default=12)
     cancellation_fee = models.DecimalField(max_digits=8, decimal_places=2, default=1.00)
+    members_only = models.BooleanField(default=False, help_text="Classes are only available to students with memberships")
 
     def __str__(self):
 

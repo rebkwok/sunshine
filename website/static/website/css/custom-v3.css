@@ -466,8 +466,14 @@ td span.label.label-rounded.label-spaces{
 	padding-left: 0;
 	padding-right: 0;
     font-size: 85%;
-    line-height: 1.5;
-    width: 100px;
+    line-height: 1.75;
+    width: 120px;
+}
+
+span.label.label-primary.label-membership {
+  font-weight: 500;
+  padding: .2em .6em .2em;
+  margin-left: 5px;
 }
 
 .paypal-table-btn {
@@ -485,7 +491,7 @@ td span.label.label-rounded.label-spaces{
 }
 
 .booking-btn {
-    width: 120px;
+    width: 150px;
     }
 .table-center {
     text-align: center !important;

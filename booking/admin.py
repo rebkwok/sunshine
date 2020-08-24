@@ -168,12 +168,12 @@ class WaitingListInline(admin.TabularInline):
 
 class EventAdmin(DjangoObjectActions, admin.ModelAdmin):
     list_display = (
-        'name', 'get_date', 'venue', 'show_on_site', 'max_participants', 'get_spaces_left',
+        'name', 'get_date', 'venue', 'show_on_site', 'members_only', 'max_participants', 'get_spaces_left',
         'status', 'waiting_list'
     )
     list_filter = ('name', 'venue', EventDateListFilter)
 
-    list_editable = ('show_on_site',)
+    list_editable = ('show_on_site', 'members_only')
     readonly_fields = ('cancelled',)
     actions_on_top = True
     ordering = ('date',)
@@ -186,7 +186,7 @@ class EventAdmin(DjangoObjectActions, admin.ModelAdmin):
         ('Event/Workshop details', {
             'fields': (
                 'name', 'date', 'venue', 'event_type', 'max_participants',
-                'description')
+                'description', 'members_only')
         }),
         ('Contacts', {
             'fields': ('contact_email', 'email_studio_when_booked')
