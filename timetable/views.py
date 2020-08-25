@@ -23,7 +23,7 @@ class TimetableListView(ListView):
     template_name = 'timetable/timetable.html'
 
     def get_queryset(self):
-        queryset = TimetableSession.objects.select_related(
+        queryset = TimetableSession.objects.filter(show_on_timetable_page=True).select_related(
             'venue', 'session_type'
         ).order_by(
                 'session_day', 'start_time', 'venue'
