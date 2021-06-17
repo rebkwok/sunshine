@@ -66,11 +66,11 @@ class EventForm(forms.ModelForm):
 def get_names(event_type='regular_session'):
 
     def callable():
-        NAME_CHOICES = list(
+        NAME_CHOICES = list(set(
             Event.objects.select_related('venue')
-            .filter(event_type=event_type, date__gte=timezone.now()).order_by('name').distinct('name')
+            .filter(event_type=event_type, date__gte=timezone.now()).order_by('name')
             .values_list('name', 'name')
-        )
+        ))
         NAME_CHOICES.insert(0, ('all', 'All'))
         return tuple(NAME_CHOICES)
 
@@ -80,11 +80,11 @@ def get_names(event_type='regular_session'):
 def get_venues(event_type='regular_session'):
 
     def callable():
-        VENUE_CHOICES = list(
+        VENUE_CHOICES = list(set(
             Event.objects.select_related('venue')
-            .filter(event_type=event_type, date__gte=timezone.now()).order_by('venue').distinct('venue')
+            .filter(event_type=event_type, date__gte=timezone.now()).order_by('venue')
             .values_list('venue__abbreviation', 'venue__abbreviation')
-        )
+        ))
         VENUE_CHOICES.insert(0, ('all', 'All locations'))
         return tuple(VENUE_CHOICES)
 

@@ -20,7 +20,9 @@ env = environ.Env(DEBUG=(bool, False),
                   USE_MAILCATCHER=(bool, False),
                   SHOW_DEBUG_TOOLBAR=(bool, False),
                   AUTO_BOOK_EMAILS=(list, []),
-                  LOCAL=(bool, False)
+                  LOCAL=(bool, False),
+                  CACHE_BACKEND=(str, 'django.core.cache.backends.memcached.MemcachedCache'),
+                  CACHE_LOCATION=(str, '127.0.0.1:11211')
                   )
 
 environ.Env.read_env(root('polefit/.env'))  # reading .env file
@@ -95,8 +97,8 @@ MIDDLEWARE = [
 
 CACHES = {
     'default': {
-        'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
-        'LOCATION': '127.0.0.1:11211',
+        'BACKEND': env("CACHE_BACKEND"),
+        'LOCATION': env("CACHE_LOCATION"),
     }
 }
 
@@ -188,14 +190,17 @@ TEMPLATES = [
     },
 ]
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_USE_TLS = True
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_HOST_USER = 'carouselfitnessweb@gmail.com'
-EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD', None)
-if EMAIL_HOST_PASSWORD is None:  # pragma: no cover
-    print("No email host password provided!")
-EMAIL_PORT = 587
+if env('LOCAL'):
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+else:
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+    EMAIL_USE_TLS = True
+    EMAIL_HOST = 'smtp.gmail.com'
+    EMAIL_HOST_USER = 'carouselfitnessweb@gmail.com'
+    EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD', None)
+    if EMAIL_HOST_PASSWORD is None:  # pragma: no cover
+        print("No email host password provided!")
+    EMAIL_PORT = 587
 DEFAULT_FROM_EMAIL = 'carouselfitnessweb@gmail.com'
 DEFAULT_STUDIO_EMAIL = 'carouselfitness@gmail.com'
 if DEBUG:  # pragma: no cover

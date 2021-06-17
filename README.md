@@ -1,36 +1,31 @@
-# Polefit Website
+# Carousel Fitness Website
 
-This is the codebase for the Polefit website, which is a Django site.
+This is the codebase for the Carousel Fitness website, which is a Django site.
 
 ## Development
 
-The simplest way to run this site for development is to install [Honcho](https://github.com/nickstenning/honcho).
+Requires Python 3.7+
 
-Create a file in the top-level directory (the one containing this README file) called `.env` and paste in the following:
+Clone this repo and change directory to the cloned folder:
 
-    DATABASE_URL=sqlite:///db.sqlite3
-    SECRET_KEY=put-something-random-here-not-important-for-dev
-    DEBUG=true
+```
+git clone https://rebkwok@bitbucket.org/markandbecky/polefit.git
+cd polefit
+```
 
-# Deployment
+Recommended: Create and activate a virtual env before setting up your local environment.
 
-Ansible deployment for this (and other sites) is configured in this repository (and should probably be extracted).
+To install dev dependencies, run migrations, populate a test database and setup an admin user, run: 
+```
+./setup_dev
+```
 
-## Testing deployment
+Run the django server:
+```
+python manage.py runserver
+```
 
-A Vagrantfile is provided that will provision a Vagrant VM as a production-like machine.
+Access in a web browser at http://127.0.0.1:8000
 
-* Create a file called `.vaultpass` containing the ansible-vault file's password.
-* Run `vagrant up` (or `vagrant provision`)
+To access the Django admin, go to http://127.0.0.1:8000/site-admin.  Login with username admin, password admin. 
 
-## Deploying to EC2
-
-**Always test with Vagrant before running against EC2.**
-
-On a new server, the following will be required:
-
-## To Do
-
-* Configure logging in some way for uwsgi
-* Configure uwsgi to run in emperor mode.
-* Modify manage.py so that it automatically loads in envdir

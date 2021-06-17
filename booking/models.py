@@ -50,7 +50,6 @@ class Event(models.Model):
     )
     allow_booking_cancellation = models.BooleanField(default=True)
     paypal_email = models.EmailField(
-        default=settings.DEFAULT_PAYPAL_EMAIL,
         help_text='Email for the paypal account to be used for payment.  '
                   'Check this carefully!'
     )

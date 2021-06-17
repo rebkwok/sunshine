@@ -13,3 +13,4 @@ venv
 media/
 .coverage
 htmlcov/
+polefit.log
