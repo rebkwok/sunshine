@@ -17,12 +17,7 @@ class SuitConfig(DjangoSuitConfig):
     # staff users cannot see anything at the moment
     superuser_permissions = ["add_event"]
     menu = (
-        ParentItem('Website', children=[
-            ChildItem(model='website.aboutinfo'),
-            ChildItem(model='timetable.sessiontype'),
-            ChildItem(model='timetable.instructor'),
-        ], icon='fa fa-globe', permissions=superuser_permissions),
-        ParentItem('Gallery', app="gallery", icon='fa fa-camera', permissions=superuser_permissions),
+        # ParentItem('Gallery', app="gallery", icon='fa fa-camera', permissions=superuser_permissions),
         ParentItem('Accounts', children=[
             ChildItem(model='auth.user'),
             ChildItem(model='account.emailaddress'),
@@ -36,6 +31,7 @@ class SuitConfig(DjangoSuitConfig):
             ChildItem("Disclaimer versions", model='accounts.disclaimercontent'),
         ], icon='fa fa-users', permissions=superuser_permissions),
         ParentItem('Timetable', children=[
+            ChildItem(model='timetable.sessiontype'),
             ChildItem(model='timetable.timetablesession'),
             ChildItem('Upload timetable', url='/site-admin/timetable/timetablesession/upload'),
         ], icon='fa fa-calendar', permissions=superuser_permissions),
@@ -48,11 +44,11 @@ class SuitConfig(DjangoSuitConfig):
             ChildItem(model='booking.booking'),
             ChildItem(model='booking.waitinglistuser'),
         ], icon='fa fa-heart', permissions=superuser_permissions),
-        ParentItem('Payments', children=[
-            ChildItem(model='payments.paypalbookingtransaction'),
-            ChildItem(model='ipn.paypalipn'),
-            ChildItem("Test paypal email", url='/site-admin/ipn/paypalipn/test-paypal-email')
-        ], icon='fa fa-credit-card', permissions=superuser_permissions),
+        # ParentItem('Payments', children=[
+        #     ChildItem(model='payments.paypalbookingtransaction'),
+        #     ChildItem(model='ipn.paypalipn'),
+        #     ChildItem("Test paypal email", url='/site-admin/ipn/paypalipn/test-paypal-email')
+        # ], icon='fa fa-credit-card', permissions=superuser_permissions),
         ParentItem('Activity Log', children=[
             ChildItem("Activitylog", 'activitylog.activitylog'),
         ], permissions=superuser_permissions)

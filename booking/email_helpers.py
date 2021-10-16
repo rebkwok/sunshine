@@ -53,7 +53,7 @@ def send_email(
         send_support_email(e, __name__ + '.send_email')
 
 
-def send_waiting_list_email(event, users, host="http://carouselfitness.co.uk"):
+def send_waiting_list_email(event, users, host=f"http://{settings.DOMAIN}"):
     auto_book_user = None
     user_emails = [user.email for user in users]
 

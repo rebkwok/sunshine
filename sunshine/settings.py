@@ -44,7 +44,8 @@ if str(DEBUG).lower() in ['true', 'on']:  # pragma: no cover
 else:  # pragma: no cover
     DEBUG = False
 
-ALLOWED_HOSTS = ['.carouselfitness.co.uk']
+DOMAIN = "sunshine-fitness.co.uk"
+ALLOWED_HOSTS = [DOMAIN]
 if env('LOCAL'):  # pragma: no cover
     ALLOWED_HOSTS = ['*']
 
@@ -196,15 +197,14 @@ else:
     EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
     EMAIL_USE_TLS = True
     EMAIL_HOST = 'smtp.gmail.com'
-    EMAIL_HOST_USER = 'carouselfitnessweb@gmail.com'
+    EMAIL_HOST_USER = 'sunshinefitnessweb@gmail.com'
     EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD', None)
     if EMAIL_HOST_PASSWORD is None:  # pragma: no cover
         print("No email host password provided!")
     EMAIL_PORT = 587
-DEFAULT_FROM_EMAIL = 'carouselfitnessweb@gmail.com'
-DEFAULT_STUDIO_EMAIL = 'carouselfitness@gmail.com'
-if DEBUG:  # pragma: no cover
-    DEFAULT_STUDIO_EMAIL = 'rebkwok@gmail.com'
+DEFAULT_FROM_EMAIL = 'sunshinefitnessweb@gmail.com'
+DEFAULT_STUDIO_EMAIL = 'sunshinefitness@gmail.com'
+
 SUPPORT_EMAIL = 'rebkwok@gmail.com'
 AUTO_BOOK_EMAILS = env('AUTO_BOOK_EMAILS')
 
@@ -216,7 +216,6 @@ if env('USE_MAILCATCHER'):  # pragma: no cover
     EMAIL_HOST_PASSWORD = ''
     EMAIL_PORT = 1025
     EMAIL_USE_TLS = False
-
 
 
 LOG_FOLDER = env('LOG_FOLDER')

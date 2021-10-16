@@ -1,1 +1,1 @@
-web: gunicorn polefit.wsgi
+web: gunicorn sunshine.wsgi
