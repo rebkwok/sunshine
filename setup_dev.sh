@@ -1,7 +1,7 @@
 #!/bin/bash
 
-pip install -r requirements-dev.txt
-cp polefit/dev_env polefit/.env
+pip install -r requirements.txt
+cp sunshine/dev_env sunshine/.env
 python manage.py migrate
 python manage.py populatedb
 python manage.py ensure_superuser
