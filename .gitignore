@@ -10,6 +10,7 @@ envdir
 id_rsa*
 inventory.ini
 venv
+.venv
 media/
 .coverage
 htmlcov/

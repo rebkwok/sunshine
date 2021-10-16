@@ -1,6 +1,6 @@
-# Carousel Fitness Website
+# Sunshine Fitness Website
 
-This is the codebase for the Carousel Fitness website, which is a Django site.
+This is the codebase for the Sunshine Fitness website, which is a Django site.
 
 ## Development
 
@@ -9,8 +9,7 @@ Requires Python 3.7+
 Clone this repo and change directory to the cloned folder:
 
 ```
-git clone https://rebkwok@bitbucket.org/markandbecky/polefit.git
-cd polefit
+cd sunshine
 ```
 
 Recommended: Create and activate a virtual env before setting up your local environment.

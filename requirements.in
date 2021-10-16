@@ -1,0 +1,29 @@
+Django
+dj-database-url
+dj-static
+psycopg2
+Pillow
+envdir
+django-bootstrap3
+django-bootstrap4
+django-classy-tags  # for cookie-law
+django-crispy-forms
+django-cookie-law
+django-email-obfuscator
+django-extensions
+django-environ
+django-allauth
+django-braces
+django-migration-testcase
+django-object-actions
+# django-suit v2 branch 15/2/20
+git+git://github.com/darklow/django-suit.git@v2
+django-paypal
+dynamic-django-forms
+shortuuid
+django-debug-toolbar
+python-memcached
+model-bakery
+coverage
+gunicorn
+python-dateutil
