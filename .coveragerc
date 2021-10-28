@@ -1,0 +1,3 @@
+[run]
+omit=venv/*,../*migrations*,../*tests*,../*wsgi*,../*__init__*,manage.py
+relative_files = True
