@@ -76,16 +76,16 @@ class TimetableSession(models.Model):
     venue = models.ForeignKey(Venue, on_delete=models.CASCADE)
     membership_category = models.ForeignKey(MembershipCategory, on_delete=models.CASCADE, null=True, blank=True)
     cost = models.DecimalField(
-        max_digits=8, decimal_places=2, default=7,
+        max_digits=8, decimal_places=2, default=8,
         help_text="Cost for non-members"
     )
     alt_cost = models.DecimalField(
-        max_digits=8, decimal_places=2, null=True, blank=True,
+        max_digits=8, decimal_places=2, default=8,
         verbose_name="Member cost",
         help_text="Cost for additional session for members"
     )
     max_participants = models.PositiveIntegerField(default=12)
-    cancellation_fee = models.DecimalField(max_digits=8, decimal_places=2, default=1.00)
+    cancellation_fee = models.DecimalField(max_digits=8, decimal_places=2, default=0.00)
     members_only = models.BooleanField(default=False, help_text="Classes are only available to students with memberships")
     show_on_timetable_page = models.BooleanField(default=True, help_text="Display this session on the website timetable page")
 

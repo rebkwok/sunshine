@@ -54,7 +54,7 @@ class Event(models.Model):
                   'Check this carefully!'
     )
     cancelled = models.BooleanField(default=False)
-    cancellation_fee = models.DecimalField(max_digits=8, decimal_places=2, default=1.00)
+    cancellation_fee = models.DecimalField(max_digits=8, decimal_places=2, default=0.00)
     members_only = models.BooleanField(default=False, help_text="Classes are only available to students with memberships")
 
     class Meta:
