@@ -24,7 +24,6 @@ class Command(BaseCommand):
 
         # get relevant users
         expire_date = timezone.now() - relativedelta(years=6)
-        expire_date = expire_date.replace(tzinfo=timezone.utc)
 
         old_online_disclaimers_to_delete = OnlineDisclaimer.objects\
             .select_related('user').filter(

@@ -5,22 +5,42 @@
 
 {% block content %}
 
-<div class="container-fluid">
+<div class="container">
 
         <div class="row">
-			<div class="col-sm-12">
-
+			<div class="col-xs-12">
+                <h1 class="page-header">Sunshine Fitness</h1>
                 <p>
                     At Sunshine Fitness we offer fitness classes, personal training, one to ones and pride ourselves on bringing you
                     the highest quality pole dancing classes from the beautiful Sunshine Pole Studio. We run an all-inclusive,
                     safe environment, with a "come as you are" ethos!
                 </p>
 
-                <p>Instagram: Sunshine Fitness Fife</p>
+                <h2>Follow us</h2>
+                <p><a href="https://www.instagram.com/sunshinefitnessfife">
+                    <span class="text-warning fab fa-instagram fa-2x mr-2"></span> 
+                </a>
+                <a href="https://www.facebook.com/sunshinefitnessfife">
+                    <span class="text-primary fab fa-facebook fa-2x"></span>
+                </a></p>
+                <p>#SunshineFitnessFife</p>
 
-                <p>Check out the Sunshine Pole Studio timetable to book a class or <a class="footer-link" href="{% url 'website:contact' %}">contact us</a> for any other enquires.</p>
 
-                </p>
+                <hr>
+                <h2>Classes</h2>
+                <p>Check out the <a href="{% url 'timetable:timetable' %}">timetable</a> to book a class or <a href="{% url 'website:contact' %}">contact us</a> for any other enquires.</p>
+
+                    {% if class_types %}
+                    {% for class_type in class_types %}
+                        <h3>{{ class_type.name }}</h3>
+                        <p>{{ class_type.info }}
+                    {% endfor %}
+
+                {% endif %}
+
+                <hr>
+                {% include 'website/includes/membership.html' %}
+
 		</div>
     </div>
 

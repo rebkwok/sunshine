@@ -3,7 +3,8 @@
 
 {% block content %}
 {% load crispy_forms_tags %}
-    <div>
+<div class="container-fluid">
+    <div class="page-header">
         <h2>Edit Your Contact and Emergency Contact Information</h2>
     </div>
     {% if form.errors %}
@@ -14,5 +15,5 @@
            {% csrf_token %}
             {% crispy form %}
        </form>
-
+</div>
 {% endblock %}

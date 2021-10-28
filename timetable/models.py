@@ -27,7 +27,7 @@ class Venue(models.Model):
         return self.name
 
 
-class MembershipCategory(models.Model):
+class Category(models.Model):
     name = models.CharField(max_length=255)
     description = models.TextField(null=True, blank=True)
     colour = models.CharField(
@@ -44,8 +44,10 @@ class MembershipCategory(models.Model):
     )
 
     class Meta:
-        verbose_name_plural = "membership categories"
+        verbose_name_plural = "categories"
 
+    def __str__(self):
+        return self.name
 
 class TimetableSession(models.Model):
     level = models.CharField(max_length=255, default="All levels")
@@ -74,7 +76,10 @@ class TimetableSession(models.Model):
     name = models.CharField(max_length=255, default="")
     session_type = models.ForeignKey(SessionType, on_delete=models.CASCADE, verbose_name="class type")
     venue = models.ForeignKey(Venue, on_delete=models.CASCADE)
-    membership_category = models.ForeignKey(MembershipCategory, on_delete=models.CASCADE, null=True, blank=True)
+    category = models.ForeignKey(
+        Category, on_delete=models.CASCADE, null=True, blank=True, 
+        help_text="Assign a category if you want to colour-code classes on the timetable (e.g. to group by class cost, membership etc)"
+    )
     cost = models.DecimalField(
         max_digits=8, decimal_places=2, default=8,
         help_text="Cost for non-members"

@@ -4,8 +4,13 @@
 
 {% block content %}
 
-<div class="container-fluid row">
+<div class="row">
     {% include "booking/includes/fees_due_banner.html" %}
+
+    <h2 class="page-header">
+         {{ event_type|title }} Details
+    </h2>
+
     <div class="col-sm-12">
         <div class="panel panel-transparent">
             <div class="panel-heading">
@@ -48,15 +53,15 @@
                             {% elif event.cancellation_period %}
                                 <li class="list-group-item"><strong>Cancellation information</strong>
                                     <p>Cancellation is allowed up to {{ event.cancellation_period | format_cancellation }} prior to the {{ event_type }}.
-                                        If you cancel your booking after this time, you will not be eligible for any refunds and a cancellation fee may be applied.
+                                        If you cancel your booking after this time, you will not be eligible for any refunds{% if event.cancellation_fee > 0%} and a cancellation fee may be applied{% endif %}.
                                     </p>
                                 </li>
 
                             {% endif %}
-                    {% endif %}  <!--- past --->
+                    {% endif %}  
                 </ul>
 
-                {% if not past %}
+                {% comment %} {% if not past %}
                         <h5>There are a maximum {{ event.max_participants }} spaces for this
                             {{ event_type }}.</h5>
                         <h5>Spaces left: {{ event.spaces_left }}</h5>
@@ -67,11 +72,10 @@
                         {% else %}
                             <h5>{{ booking_info_text_cancelled }}{{ booking_info_text }}</h5>
                         {% endif %}
-                    {% endif %}  <!--- past --->
+                    {% endif %} {% endcomment %}
             </div>
         </div>
     </div>
 
 </div>
-
 {% endblock content %}

@@ -2,7 +2,7 @@ import datetime
 
 from django.core.management.base import BaseCommand
 
-from ...models import MembershipCategory, Venue, SessionType, TimetableSession
+from ...models import Category, Venue, SessionType, TimetableSession
 
 
 class Command(BaseCommand):
@@ -11,10 +11,11 @@ class Command(BaseCommand):
 
         studio, _ = Venue.objects.get_or_create(
             name='Sunshine Fitness Studio',
-            address='',
-            postcode='',
-            abbreviation="studio"
+            address='Woodend Business Centre, Cowdenbeath',
+            postcode='KY4 8HG',
+            abbreviation="Fitness Studio"
         )
+        
         tbc, _ = Venue.objects.get_or_create(
             name="Venue TBC",
             abbreviation="TBC"
@@ -56,16 +57,16 @@ class Command(BaseCommand):
             }
         )
 
-        cat, _ = MembershipCategory.objects.get_or_create(name="Membership 1")
+        cat, _ = Category.objects.get_or_create(name="Fitness")
 
         # create timetable:
         sessions = [
-            (TimetableSession.MON, (10, 0), (11, 0), "Pole Fitness", polefit, studio, cat, 7, 5),
-            (TimetableSession.TUE, (18, 0), (19, 0), "Stretch", stretch, studio, cat, 7, 5),
-            (TimetableSession.WED, (20, 0), (21, 0), "Kettle Bells", general_fitness, studio, cat, 7, 5)
+            (TimetableSession.MON, (10, 0), (11, 0), "Pole Fitness", polefit, studio, cat, 8, 8),
+            (TimetableSession.TUE, (18, 0), (19, 0), "Stretch", stretch, studio, cat, 8, 8),
+            (TimetableSession.WED, (20, 0), (21, 0), "Kettle Bells", general_fitness, studio, cat, 8, 8)
         ]
 
-        for (day, start, end, name, session_type, venue, membership_category, cost, alt_cost) in sessions:
+        for (day, start, end, name, session_type, venue, membership_category, cost, alt_cost, "All levels") in sessions:
             TimetableSession.objects.get_or_create(
                 session_day=day,
                 start_time=datetime.time(hour=start[0], minute=start[1]),
@@ -76,4 +77,5 @@ class Command(BaseCommand):
                 membership_category=membership_category,
                 cost=cost,
                 alt_cost=alt_cost
+                level=level,
             )

@@ -32,7 +32,7 @@ class SuitConfig(DjangoSuitConfig):
         ParentItem('Timetable', children=[
             ChildItem(model='timetable.sessiontype'),
             ChildItem(model='timetable.venue'),
-            ChildItem(model='timetable.membershipcategory'),
+            ChildItem(model='timetable.category'),
             ChildItem(model='timetable.timetablesession'),
             ChildItem('Upload timetable', url='/site-admin/timetable/timetablesession/upload'),
         ], icon='fa fa-calendar', permissions=superuser_permissions),

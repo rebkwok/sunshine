@@ -5,11 +5,15 @@ from django.contrib import messages
 from django.utils.safestring import mark_safe
 
 from booking.email_helpers import send_email
+from timetable.models import SessionType
 from website.forms import ContactForm
 
 
 def home(request):
-    return render(request, 'website/home.html', {'section': 'home'})
+
+    class_types = SessionType.objects.filter(regular_session=True)
+
+    return render(request, 'website/home.html', {'section': 'home', 'class_types': class_types})
 
 
 def process_contact_form(request, template_name):

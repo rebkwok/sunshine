@@ -2,7 +2,8 @@
 {% load static %}
 
 {% block content %}
-    <div>
+<div class="container-fluid">
+    <div class="page-header">
         <h2>Edit Your Account Profile</h2>
     </div>
     <form action="" method="post">{% csrf_token %}
@@ -28,4 +29,5 @@
                     <input class="btn btn-success" type="submit" value="Update" />
                     <a href="{% url 'accounts:profile' %}"><div class="btn btn-warning">Cancel</div></a>
                 </form>
+</div>
 {% endblock content %}

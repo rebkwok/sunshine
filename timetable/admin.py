@@ -3,7 +3,7 @@ from django.shortcuts import render
 from django.urls import path
 
 from .forms import UploadTimetableForm
-from .models import MembershipCategory, TimetableSession, SessionType, Venue
+from .models import Category, TimetableSession, SessionType, Venue
 from .utils import upload_timetable
 
 
@@ -18,8 +18,8 @@ class SessionTypeAdmin(admin.ModelAdmin):
     ordering = ['index',]
 
 
-@admin.register(MembershipCategory)
-class MembershipCategoryAdmin(admin.ModelAdmin):
+@admin.register(Category)
+class CategoryAdmin(admin.ModelAdmin):
     list_display = ('name', 'description')
 
 
@@ -29,7 +29,7 @@ class TimetableSessionAdmin(admin.ModelAdmin):
                     'start_time', 'end_time', 'venue', 'max_participants', 'members_only', 'show_on_timetable_page')
     fieldsets = [
         ('Session information', {
-            'fields': ['name', 'session_type', 'level', 'membership_category',
+            'fields': ['name', 'session_type', 'level', 'category',
                        'venue', 'max_participants', 'cost', 'alt_cost',
                        'members_only', 'cancellation_fee', 'show_on_timetable_page']
         }),

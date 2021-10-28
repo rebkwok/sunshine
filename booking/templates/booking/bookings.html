@@ -12,16 +12,11 @@
 <div id="confirm-dialog"></div>
 
 
-<div class="col-xs-12">
-
-<div class="container-fluid row">
     {% include "booking/includes/fees_due_banner.html" %}
 
-    {% if history %}
-        <h1>Past bookings</h1>
-    {% else %}
-        <h1>Bookings</h1>
-    {% endif %}
+    
+        <h1 class="page-header">{% if history %}Past bookings{% else %}Bookings{% endif %}</h1>
+
 
     {% if bookings %}
     <div class="row">
@@ -107,9 +102,7 @@
         {% endif %}
     {% endif %}
 
-</div>
 
-</div>
 {% endblock content %}
 
 
