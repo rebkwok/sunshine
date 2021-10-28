@@ -20,12 +20,12 @@
 
             </div>
             <div class="form-group">
-               <div class="col-xs-12 vspace {% if form.confirm.errors %}ticket-error{% endif %}">
+               <div class="col-12 vspace {% if form.confirm.errors %}ticket-error{% endif %}">
                    {{ form.confirm }}<label for='id_confirm'></label>
                      <label class="control-label" for='id_confirm'>{{ form.confirm.label }}</label>
                     {% if form.confirm.errors %} {{ form.confirm.errors }}{% endif %}
                </div>
-               <div class="studioadmin-help col-xs-10 col-xs-offset-2">{{ form.confirm.help_text }}</div>
+               <div class="studioadmin-help col-10 col-offset-2">{{ form.confirm.help_text }}</div>
            </div>
 
             <input type="hidden" name="next_url" value={{ form.next_url }}/>

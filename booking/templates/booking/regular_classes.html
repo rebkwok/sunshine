@@ -26,9 +26,9 @@
                 Showing classes for {{ name }} - {{ day }} {{ time }} at {{ venue }}<br/>
             </h3>
             {% if event_type == "workshop" %}
-            <a class="btn btn-info table-btn" href="{% url 'booking:workshops' %}">
+            <a class="btn btn-warning table-btn" href="{% url 'booking:workshops' %}">
             {% else %}
-            <a class="btn btn-info table-btn" href="{% url 'booking:classes' %}">
+            <a class="btn btn-warning table-btn" href="{% url 'booking:classes' %}">
             {% endif %}
             Show all</a>
             <br/><br/>
@@ -63,7 +63,7 @@
                     <div class="col-sm-2 filter">{{ form.name }}</div>
                     <div class="col-sm-2 filter">{{ form.venue }}</div>
                     <input type="hidden" name="page" value="{{ request.GET.page }}" />
-                    <div class="col-sm-1"><input class="btn btn-info table-btn" type="submit" value="Go" /></div>
+                    <div class="col-sm-1"><input class="btn btn-warning table-btn" type="submit" value="Go" /></div>
                 </div>
             </form>
             </br>

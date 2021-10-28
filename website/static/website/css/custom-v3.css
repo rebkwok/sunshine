@@ -12,7 +12,6 @@
 
 body {
 	background-color: transparent;
-	padding-top: 40px;
 }
 
 
@@ -145,8 +144,7 @@ ul li img {
 }
 
 .nav-logo {
-    max-height: 50px;
-    margin-top: -15px;
+    max-height: 40px;
 }
 
 .footer-logo-image {
@@ -357,18 +355,19 @@ border-left: 1px solid white;
 	border-right: 1px solid #4B088A;
 }
 
-.navbar { background-color: #fff; border-color: #ffcc00; border-width: 3px 0px 3px 0px;}
-.navbar .container-fluid { background-color: #fff}
-.navbar .navbar-nav { background-color: #fff}
+.navbar-wrap { background-color: #fff; border-style: solid; border-color: #ffcc00; border-width: 3px 0px 3px 0px;}
+
+.navbar.navbar-expand-md.navbar-fixed { padding-top: 0px; padding-bottom: 0px;}
+/* .navbar .navbar-nav { background-color: #fff}
 .navbar .navbar-brand { background-color: #fff}
-.navbar .navbar-collapse { background-color: #fff}
+.navbar .navbar-collapse { background-color: #fff} */
 .navbar .navbar-toggle .icon-bar { background-color: #ffcc00 }
 .navbar .navbar-nav>.active-nav>a:hover {background-color: #ffcc00 ; color: #1A0000}
-.navbar .navbar-nav>li>a:hover {background-color: #ffffcc; color: #1A0000; font-weight: normal;}
-.navbar .navbar-nav>li>a.active {background-color: #ffcc00 ; color: #1A0000; font-weight: normal;}
-.navbar .navbar-nav>li>a {background-color: #fff; color: #ffcc00 ; font-weight: normal;}
-.navbar .navbar-nav>li>a.dropdown-toggle {background-color: #fff; color: #ffcc00 ; font-weight: normal;}
-.navbar .navbar-nav>li>a.dropdown-toggle:hover {background-color: #ffffcc; color: #1A0000; font-weight: normal;}
+.navbar .navbar-nav>li.nav-item>a.nav-link:hover {background-color: #ffffcc; color: #1A0000; font-weight: normal;}
+.navbar .navbar-nav>li.nav-item>a.nav-link.active {background-color: #ffcc00 ; color: #1A0000; font-weight: normal;}
+.navbar .navbar-nav>li.nav-item>a.nav-link {background-color: #fff; color: #ffcc00 ; font-weight: normal;}
+.navbar .navbar-nav>li.nav-item>a.nav-link.dropdown-toggle {background-color: #fff; color: #ffcc00 ; font-weight: normal;}
+.navbar .navbar-nav>li.nav-item>a.nav-link.dropdown-toggle:hover {background-color: #ffffcc; color: #1A0000; font-weight: normal;}
 
 .navbar .navbar-nav .open .dropdown-menu>li>a, .navbar .navbar-nav .open .dropdown-menu {
     color:#1A0000;

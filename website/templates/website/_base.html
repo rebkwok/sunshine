@@ -1,16 +1,16 @@
 {% load static %}
-{% load bootstrap3 %}
+{% load bootstrap4 %}
 {% load cookielaw_tags %}
 
 
 <!DOCTYPE html>
-<html lang="en" class="{% block bg_class %}logo_bg{%  endblock %}">
+{% comment %} <html lang="en" class="{% block bg_class %}logo_bg{%  endblock %}"> {% endcomment %}
 <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=0.65">
         <title>Sunshine Fitness</title>
 
-        <link rel="icon" type="image/png" href="{% static 'website/images/logo_no_text_transparent.png' %}">
+        <link rel="icon" type="image/jpg" href="{% static 'website/images/logo_no_text.jpg' %}">
         <link rel="shortcut icon" href="{% static 'website/images/favicon.ico' %}" type="image/vnd.microsoft.icon">
 
         <!-- Bootstrap core CSS -->
@@ -26,59 +26,57 @@
     </head>
 <body>
 
-    <div class="wrap">
         <!-- Fixed navbar -->
-        <div style="margin-top: 45px" class="navbar navbar-fixed-top" role="navigation">
-            <div class="container-fluid">
-                <div class="navbar-header">
-                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-                        <span class="sr-only">Toggle navigation</span>
-                        <span class="icon-bar"></span>
-                        <span class="icon-bar"></span>
-                        <span class="icon-bar"></span>
-                    </button>
-                    <a class="navbar-brand" rel="home" href="/" title="Sunshine Fitness">
-                        <img  style="max-width:150px; margin-top: -58px; margin-left: 0; padding-left: 0;" src="{% static "website/images/logo_wide_no_text.jpg" %}">
-                    </a>
-                </div>
-                <div class="navbar-collapse collapse">
-                    <ul class="nav navbar-nav pull-left">
-                        <li><a {% if section == 'home' %}class="active"{% endif %} href="{% url 'website:home' %}">Home</a></li>
-                        <li><a {% if section == 'timetable' %}class="active"{% endif %} href="{% url 'timetable:timetable' %}">Timetable</a></li>
-                        <li><a {% if section == 'booking' %}class="active"{% endif %} href="{% url 'booking:classes' %}">Book</a></li>
-                        <li ><a {% if section == 'contact' %}class="active"{% endif %} href="{% url 'website:contact' %}">Contact us</a></li>
-                    </ul>
-                    <ul class="nav navbar-nav pull-right">
-                        {% if user.is_authenticated %}
-                        <li class="dropdown pull-right">
-                          <a href="#" class="dropdown-toggle" data-toggle="dropdown">My account<b class="caret"></b></a>
-                          <ul class="dropdown-menu pull-right">
-                                <li><a class="account-menu-option" href="{% url 'accounts:profile' %}">Profile</a></li>
-                                <li><a class="account-menu-option" href="{% url 'account_change_password' %}">Change password</a></li>
-                                <li><a class="account-menu-option" href="{% url 'booking:bookings' %}">Bookings</a></li>
-                                <li><a class="account-menu-option" href="{% url 'booking:booking_history' %}">Past bookings</a></li>
-                                <li><a class="account-menu-option" href="{% url 'account_logout' %}">Log out</a></li>
-                                {% if user.is_staff %}
-                                    <li><a class="account-menu-option" href="{% url 'studioadmin:regular_session_register_list' %}">Instructor Admin</a></li>
-                                {% endif %}
-                                {% if user.is_superuser %}
-                                    <li><a class="account-menu-option" href="{% url 'admin:index' %}">Site Admin</a></li>
-                                {% endif %}
+        <div class="navbar-wrap">
+        <div class="navbar navbar-expand-md navbar-dark navbar-fixed" role="navigation">
+        <a class="navbar-brand p-0" href="/"><img class="nav-logo" src="{% static 'website/images/logo_no_text.jpg' %}"></a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
 
-                          </ul>
-                        </li>
-                      {% else %}
-                        <li class="pull-right"><a href="{% url 'account_login' %}">Log in</a></li>
-                      {% endif %}
+        <div class="collapse navbar-collapse" id="navbarCollapse">
+          <ul class="nav navbar-nav mr-auto">
+            <li class="nav-item"><a class="nav-link{% if section == 'home' %} active{% endif %}" href="{% url 'website:home' %}">Home</a></li>
+            <li class="nav-item"><a class="nav-link{% if section == 'timetable' %} active{% endif %}" href="{% url 'timetable:timetable' %}">Timetable</a></li>
+            <li class="nav-item"><a class="nav-link{% if section == 'booking' %} active{% endif %}" href="{% url 'booking:classes' %}">Book</a></li>
+            <li class="nav-item"><a class="nav-link{% if section == 'contact' %} active{% endif %}" href="{% url 'website:contact' %}">Contact us</a></li>
+          </ul>
 
-                   </ul>
-                </div><!--/.nav-collapse -->
-            </div>
-        </div>
+         <ul class="nav navbar-nav pull-right">
+            {% if user.is_authenticated %}
+            <li class="dropdown dropleft float-right">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown">My account<b class="caret"></b></a>
+                <ul class="dropdown-menu float-right">
+                    <li class="nav-item"><a class="account-menu-option" href="{% url 'accounts:profile' %}">Profile</a></li>
+                    <li class="nav-item"><a class="account-menu-option" href="{% url 'account_change_password' %}">Change password</a></li>
+                    <li class="nav-item"><a class="account-menu-option" href="{% url 'booking:bookings' %}">Bookings</a></li>
+                    <li class="nav-item"><a class="account-menu-option" href="{% url 'booking:booking_history' %}">Past bookings</a></li>
+                    <li class="nav-item"><a class="account-menu-option" href="{% url 'account_logout' %}">Log out</a></li>
+                    {% if user.is_staff %}
+                        <li class="nav-item"><a class="account-menu-option" href="{% url 'studioadmin:regular_session_register_list' %}">Instructor Admin</a></li>
+                    {% endif %}
+                    {% if user.is_superuser %}
+                        <li class="nav-item"><a class="account-menu-option" href="{% url 'admin:index' %}">Site Admin</a></li>
+                    {% endif %}
+
+                </ul>
+            </li>
+            {% else %}
+            <li class="pull-right"><a href="{% url 'account_login' %}">Log in</a></li>
+            {% endif %}
+
+        </ul> 
+        </div>    
+
+    </div>
+    </div>
+
+            <div class="wrap">
+
         {% cookielaw_banner %}
 
         {% if messages %}
-            <div class="extra-top-margin col-xs-12">
+            <div class="extra-top-margin col-12">
                 {% for message in messages %}
                 <div {% if message.tags and message.tags == 'error' %}
                             class="message alert alert-danger"
@@ -94,9 +92,11 @@
             </div>
         {% endif %}
 
+        <div class="container-fluid">
         {% block content %}
         <p>You need to define a content block!</p>
         {% endblock %}
+        </div>
 
 <!--/.footer -->
     <div class="push">
@@ -133,7 +133,7 @@
 </body>
 
 
-    {% bootstrap_javascript jquery=3 %}
+    {% bootstrap_javascript jquery=True %}
 
     <div id="fb-root"></div>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js" integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU=" crossorigin="anonymous"></script>

@@ -28,7 +28,6 @@ django==3.2.8
     # via
     #   -r requirements.in
     #   django-allauth
-    #   django-bootstrap3
     #   django-bootstrap4
     #   django-braces
     #   django-classy-tags
@@ -40,8 +39,6 @@ django==3.2.8
     #   dynamic-django-forms
     #   model-bakery
 django-allauth==0.45.0
-    # via -r requirements.in
-django-bootstrap3==15.0.0
     # via -r requirements.in
 django-bootstrap4==3.0.1
     # via -r requirements.in

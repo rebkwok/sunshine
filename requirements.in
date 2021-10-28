@@ -4,7 +4,6 @@ dj-static
 psycopg2
 Pillow
 envdir
-django-bootstrap3
 django-bootstrap4
 django-classy-tags  # for cookie-law
 django-crispy-forms

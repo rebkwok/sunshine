@@ -76,6 +76,6 @@ class Command(BaseCommand):
                 venue=venue,
                 membership_category=membership_category,
                 cost=cost,
-                alt_cost=alt_cost
+                alt_cost=alt_cost,
                 level=level,
             )

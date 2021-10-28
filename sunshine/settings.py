@@ -67,7 +67,6 @@ INSTALLED_APPS = (
     'allauth',
     'allauth.account',
     'django_extensions',
-    'bootstrap3',
     'bootstrap4',
     'paypal.standard.ipn',
     'debug_toolbar',
@@ -331,5 +330,5 @@ S3_LOG_BACKUP_PATH = "s3://backups.sunshinestarlet.co.uk/sunshine_activitylogs"
 S3_LOG_BACKUP_ROOT_FILENAME = "sunshine_activity_logs_backup"
 
 # for dynamic disclaimer form
-CRISPY_TEMPLATE_PACK = 'bootstrap3'
+CRISPY_TEMPLATE_PACK = 'bootstrap4'
 USE_CRISPY = True
