@@ -1,79 +1,50 @@
 from django.db import models
 
 
-class Instructor(models.Model):
-    index = models.PositiveIntegerField(null=True, blank=True)
-    name = models.CharField(max_length=255)
-    info = models.TextField('instructor description', blank=True, null=True)
-    regular_instructor = models.BooleanField(
-        default=True,
-        help_text="Tick this box to list this instructor on the "
-                  "Instructors webpage"
-    )
-    photo = models.ImageField(
-        upload_to='instructors', null=True,
-        blank=True, help_text="Please upload a .jpg image with equal height "
-                              "and width. File size must be less than 2Mb."
-    )
-
-    def __str__(self):
-        return self.name
-
-    def save(self, *args, **kwargs):
-        # delete old image file when replacing by updating the file
-        try:
-            this = Instructor.objects.get(id=self.id)
-            if this.photo != self.photo:
-                this.photo.delete(save=False)
-        except: pass # when new photo then we do nothing, normal case
-        super(Instructor, self).save(*args, **kwargs)
-
-
 class SessionType(models.Model):
-    index = models.PositiveIntegerField(null=True, blank=True)
+    index = models.PositiveIntegerField(null=True, blank=True, help_text="Determines order class types are displayed on homepage")
     name = models.CharField(max_length=255)
     info = models.TextField('session description',  null=True)
     regular_session = models.BooleanField(
         'display session', default=True,
-        help_text="Tick this box to list this class type on the homepage "
-                  "and class description pages")
-    photo = models.ImageField(
-        upload_to='sessions', null=True, blank=True,
-        help_text="File size must be less than 2Mb"
-    )
+        help_text="Tick this box to list this class type and its description on the homepage")
 
     def __str__(self):
         return self.name
 
-    def save(self, *args, **kwargs):
-        # delete old image file when replacing by updating the file
-        try:
-            this = SessionType.objects.get(id=self.id)
-            if this.photo != self.photo:
-                this.photo.delete(save=False)
-        except: pass # when new photo then we do nothing, normal case
-        super(SessionType, self).save(*args, **kwargs)
-
     class Meta:
-        verbose_name = "class"
-        verbose_name_plural = "classes"
+        verbose_name = "class type"
+        verbose_name_plural = "class types"
 
 
 class Venue(models.Model):
-    venue = models.CharField(max_length=255, default="Venue TBC")
+    name = models.CharField(max_length=255, default="Venue TBC")
     address = models.CharField(max_length=255, null=True, blank=True)
     postcode = models.CharField(max_length=255, null=True, blank=True)
     abbreviation = models.CharField(max_length=20, default="")
 
     def __str__(self):
-        return self.venue
+        return self.name
 
 
-MEMBERSHIP_CATEGORY_CHOICES = (
-    ("1", "Pole and hoop classes"),
-    ("2", "General fitness and conditioning classes"),
-    ("3", "Open training")
-)
+class MembershipCategory(models.Model):
+    name = models.CharField(max_length=255)
+    description = models.TextField(null=True, blank=True)
+    colour = models.CharField(
+        choices=(
+            ('primary', 'blue'),
+            ('danger', 'red'),
+            ('warning', 'yellow'),
+            ('success', 'green'),
+            ('info', 'light blue')
+        ),
+        max_length=20,
+        help_text="For colour-coding classes on timetable",
+        default="primary",
+    )
+
+    class Meta:
+        verbose_name_plural = "membership categories"
 
 
 class TimetableSession(models.Model):
@@ -99,15 +70,11 @@ class TimetableSession(models.Model):
     session_day = models.CharField(max_length=4, choices=WEEKDAY_CHOICES)
     start_time = models.TimeField()
     end_time = models.TimeField()
-    instructor = models.ForeignKey(
-        Instructor, null=True, blank=True, on_delete=models.SET_NULL
-    )
+
     name = models.CharField(max_length=255, default="")
-    session_type = models.ForeignKey(SessionType, on_delete=models.CASCADE)
+    session_type = models.ForeignKey(SessionType, on_delete=models.CASCADE, verbose_name="class type")
     venue = models.ForeignKey(Venue, on_delete=models.CASCADE)
-    membership_category = models.CharField(
-        max_length=1, help_text="Specify type of class for membership purposes",
-        null=True, blank=True, choices=MEMBERSHIP_CATEGORY_CHOICES)
+    membership_category = models.ForeignKey(MembershipCategory, on_delete=models.CASCADE, null=True, blank=True)
     cost = models.DecimalField(
         max_digits=8, decimal_places=2, default=7,
         help_text="Cost for non-members"

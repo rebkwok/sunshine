@@ -34,13 +34,13 @@
                     <li class="list-group-item"><strong>Date and time:</strong> {{ event.date |  date:"D d F, g:i a" }}</li>
                     {% if not past %}
                              <li class="list-group-item"><strong>Contact:</strong> <a href="mailto:{{ event.contact_email }}?Subject=Enquiry regarding booking for {{ event.name }}" target="_blank">{{ event.contact_email }}</a></li>
-                            <li class="list-group-item"><p><strong>Payment information</strong></p>
-
+                            {% if event.event_type == "workshop" %}
+                             <li class="list-group-item"><p><strong>Payment information</strong></p>
                                 <p>Cost: £ {{ event.cost }}</p>
-                                <p>Payment is required on booking in order to secure your space. If payment has not been received within approximately
-                                24 hours, your booking will be automatically cancelled.</p>
+                                <p>Payment is required to secure your space. Please contact the studio for payment details.</p>
 
                             </li>
+                            {% endif %}
                             {% if not event.allow_booking_cancellation %}
                                 <li class="list-group-item"><strong>Cancellation information</strong>
                                     <p>Bookings are final and non-refundable; if you cancel your booking you will not be eligible for any refund or credit.</p>
@@ -48,7 +48,7 @@
                             {% elif event.cancellation_period %}
                                 <li class="list-group-item"><strong>Cancellation information</strong>
                                     <p>Cancellation is allowed up to {{ event.cancellation_period | format_cancellation }} prior to the {{ event_type }}.
-                                        If you cancel your booking after this time, you will not be eligible for any refunds.
+                                        If you cancel your booking after this time, you will not be eligible for any refunds and a cancellation fee may be applied.
                                     </p>
                                 </li>
 
@@ -66,27 +66,6 @@
                                 and to check if your place has been confirmed.</h5>
                         {% else %}
                             <h5>{{ booking_info_text_cancelled }}{{ booking_info_text }}</h5>
-                            {% if user.is_authenticated %}
-                                {% if user|has_disclaimer %}
-                                    {% if bookable %}
-                                        <a href="{% url 'booking:book_event' event.slug %}">
-                                            <div id="book_button{% if user.has_outstanding_fees %}_disabled{% endif %}" class="btn btn-success table-btn {% if user.has_outstanding_fees %} disabled{% endif %}">
-                                            {% if cancelled %}Rebook{% else %}Book{% endif %}</div></a>
-                                    {% else %}
-                                            {% if not waiting_list %}
-                                                <form action="{% url 'booking:book_event' event.slug %}" method="get">
-                                                    <input id="join_waiting_list_button{% if user.has_outstanding_fees %}_disabled{% endif %}" class="btn btn-success table-btn {% if user.has_outstanding_fees %} disabled{% endif %}" type="submit" value="Join waiting list" name="join waiting list"/>
-                                                </form>
-                                            {% else %}
-                                                <form action="{% url 'booking:book_event' event.slug %}" method="get">
-                                                    <input id="leave_waiting_list_button{% if user.has_outstanding_fees %}_disabled{% endif %}" class="btn btn-warning table-btn {% if user.has_outstanding_fees %} disabled{% endif %}" type="submit" value="Leave waiting list" name="leave waiting list"/>
-                                                </form>
-                                            {% endif %}
-                                    {% endif %}
-                                {% else %}
-                                    <em><a href="{% url 'accounts:disclaimer_form' user.id %}">Complete a disclaimer before booking</a></em>
-                                {% endif %}
-                            {% endif %}
                         {% endif %}
                     {% endif %}  <!--- past --->
             </div>

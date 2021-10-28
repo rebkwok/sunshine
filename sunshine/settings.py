@@ -1,5 +1,5 @@
 """
-Django settings for polefit project.
+Django settings for sunshine project.
 
 For more information on this file, see
 https://docs.djangoproject.com/en/1.6/topics/settings/
@@ -25,7 +25,7 @@ env = environ.Env(DEBUG=(bool, False),
                   CACHE_LOCATION=(str, '127.0.0.1:11211')
                   )
 
-environ.Env.read_env(root('polefit/.env'))  # reading .env file
+environ.Env.read_env(root('sunshine/.env'))  # reading .env file
 BASE_DIR = root()
 
 
@@ -44,7 +44,7 @@ if str(DEBUG).lower() in ['true', 'on']:  # pragma: no cover
 else:  # pragma: no cover
     DEBUG = False
 
-DOMAIN = "sunshine-fitness.co.uk"
+DOMAIN = "sunshinefitness.co.uk"
 ALLOWED_HOSTS = [DOMAIN]
 if env('LOCAL'):  # pragma: no cover
     ALLOWED_HOSTS = ['*']
@@ -77,7 +77,6 @@ INSTALLED_APPS = (
     'accounts',
     'timetable',
     'website',
-    'gallery',
     'activitylog',
     'booking',
     'email_obfuscator',
@@ -105,12 +104,14 @@ CACHES = {
 
 
 SITE_ID = 1
-ROOT_URLCONF = 'polefit.urls'
+ROOT_URLCONF = 'sunshine.urls'
 
-WSGI_APPLICATION = 'polefit.wsgi.application'
+WSGI_APPLICATION = 'sunshine.wsgi.application'
 
 DATABASES = {}
 DATABASES['default'] = env.db()
+
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
 LANGUAGE_CODE = 'en-GB'
 TIME_ZONE = 'Europe/London'
@@ -131,7 +132,7 @@ AUTHENTICATION_BACKENDS = (
 ACCOUNT_AUTHENTICATION_METHOD = "username_email"
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_EMAIL_VERIFICATION = "mandatory"
-ACCOUNT_EMAIL_SUBJECT_PREFIX = "[carousel fitness website]"
+ACCOUNT_EMAIL_SUBJECT_PREFIX = "[sunshine fitness]"
 ACCOUNT_SIGNUP_FORM_CLASS = 'accounts.forms.SignupForm'
 ACCOUNT_LOGOUT_REDIRECT_URL ="/about"
 
@@ -203,7 +204,7 @@ else:
         print("No email host password provided!")
     EMAIL_PORT = 587
 DEFAULT_FROM_EMAIL = 'sunshinefitnessweb@gmail.com'
-DEFAULT_STUDIO_EMAIL = 'sunshinefitness@gmail.com'
+DEFAULT_STUDIO_EMAIL = 'sunshinefitnessfife@gmail.com'
 
 SUPPORT_EMAIL = 'rebkwok@gmail.com'
 AUTO_BOOK_EMAILS = env('AUTO_BOOK_EMAILS')
@@ -234,7 +235,7 @@ LOGGING = {
         'file_app': {
             'level': 'INFO',
             'class': 'logging.handlers.RotatingFileHandler',
-            'filename': os.path.join(LOG_FOLDER, 'polefit.log'),
+            'filename': os.path.join(LOG_FOLDER, 'sunshine.log'),
             'maxBytes': 1024*1024*5,  # 5 MB
             'backupCount': 5,
             'formatter': 'verbose'
@@ -326,8 +327,8 @@ if env('SHOW_DEBUG_TOOLBAR') and 'test' not in sys.argv:  # pragma: no cover
 # Activitylogs
 EMPTY_JOB_TEXT = ["CRON: auto cancel bookings run; nothing to cancel",]
 
-S3_LOG_BACKUP_PATH = "s3://backups.polefitstarlet.co.uk/polefit_activitylogs"
-S3_LOG_BACKUP_ROOT_FILENAME = "polefit_activity_logs_backup"
+S3_LOG_BACKUP_PATH = "s3://backups.sunshinestarlet.co.uk/sunshine_activitylogs"
+S3_LOG_BACKUP_ROOT_FILENAME = "sunshine_activity_logs_backup"
 
 # for dynamic disclaimer form
 CRISPY_TEMPLATE_PACK = 'bootstrap3'

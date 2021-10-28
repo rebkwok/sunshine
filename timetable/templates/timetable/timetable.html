@@ -34,50 +34,28 @@
                             <th></th>
                             <th>Day</th>
                             <th>Time</th>
-                            <th>Class <span class="help-text" style="white-space: nowrap;"></br>
-                                <a href="{% url 'website:classes' %}">Class information</a></span>
-                            </th>
-                            <th>Cost
+                            <th class="table-center">Class</th>
+                            <th class="table-center">Cost
                                 <span data-toggle="tooltip" title="Drop-in Cost for members/non-members">
-                                  <i class="fas fa-info-circle"></i>
+                                    <i class="fas fa-info-circle"></i>
                                 </span>
-                                <span class="help-text" style="white-space: nowrap;"></br>
-                                <a href="{% url 'website:membership' %}">Membership options</a></span>
                             </th>
                             <th>Level</th>
-                            <th>Venue <span class="help-text" style="white-space: nowrap;"></br>
-                                <a href="{% url 'website:venues' %}">Venue locations</a></span>
-                            </th>
+                            <th>Venue</th>
                         </tr>
                         </thead>
                         <tbody>
                         {% for session in timetable_sessions %}
-                        <tr
-                            {% if session.venue.venue == "The Watermelon Studio" %}
-                                class="venue-edinburgh"
-                            {% elif session.venue.venue == "Carousel Fitness Studio" %}
-                                class="venue-inverkeithing"
-                            {% elif session.venue.venue == "Cowdenbeath Studio" %}
-                                class="venue-cowdenbeath"
-                            {% elif session.venue.venue == "Energy Zone" %}
-                                class="venue-energyzone"
-                            {% endif %}>
+                        <tr>
                             <td class="table-center timetable-row">
-                                <!--<a href="{% url 'website:booking_request' session.pk %}">-->
-                                <a href="{% url 'booking:events' %}?name={{session.name}}&level={{session.level}}&venue={{session.venue.abbreviation}}&day={{session.session_day}}&time={{session.start_time|date:'H:i'}}">
+                                <a href="{% url 'booking:classes' %}?name={{session.name}}&level={{session.level}}&venue={{session.venue.abbreviation}}&day={{session.session_day}}&time={{session.start_time|date:'H:i'}}">
                                 <div class="btn btn-info table-btn booking-btn">View Dates</div></a>
                             </td>
                             <td class="timetable-row">{{ session.session_day|format_day }}</td>
                             <td class="timetable-row">{{ session.start_time|time:"H:i" }} - {{ session.end_time|time:"H:i" }}</td>
                             <td class="table-center timetable-row">
-                                {% if session.membership_category == "1" %}
-                                    <span class="membership-label label label-warning label-rounded">
-                                {% elif session.membership_category == "2" %}
-                                    <span class="membership-label label label-success label-rounded">
-                                {% elif session.membership_category == "3" %}
-                                    <span class="membership-label label label-primary label-rounded">
-                                {% else %}
-                                    <span>
+                                {% if session.membership_category %}
+                                    <span class="membership-label label label-{{ session.membership_category.colour }} label-rounded">
                                 {% endif %}
                                     {{ session.name }}
                                 </span></td>

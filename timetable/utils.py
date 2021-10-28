@@ -5,7 +5,7 @@ import pytz
 
 from datetime import timedelta, datetime
 from booking.models import Event
-from timetable.models import TimetableSession
+from .models import TimetableSession
 from activitylog.models import ActivityLog
 
 

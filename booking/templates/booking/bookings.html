@@ -9,6 +9,9 @@
 
 {% block content %}
 
+<div id="confirm-dialog"></div>
+
+
 <div class="col-xs-12">
 
 <div class="container-fluid row">
@@ -18,24 +21,6 @@
         <h1>Past bookings</h1>
     {% else %}
         <h1>Bookings</h1>
-    {% endif %}
-
-    {% if event_type == 'regular_session' %}
-    <h4>Showing class bookings; see
-        {% if history %}
-        <a href="{% url 'booking:booking_history' %}?type=workshop">
-        {% else %}
-        <a href="{% url 'booking:bookings' %}?type=workshop">
-        {% endif %}
-            workshop bookings</a> instead</h4>
-    {% else %}
-    <h4>Showing workshop bookings; see
-        {% if history %}
-        <a href="{% url 'booking:booking_history' %}">
-        {% else %}
-        <a href="{% url 'booking:bookings' %}">
-        {% endif %}
-            class bookings</a> instead</h4>
     {% endif %}
 
     {% if bookings %}
@@ -53,10 +38,8 @@
                             <th>Booking</th>
                             <th>Location</th>
                             <th class="table-center">Status</th>
-                            <th class="table-center">Paid</th>
                         </tr>
 
-                        {% if event_type == 'regular_session' %}
                             {% for booking in bookings %}
                                 <tr id='booked-{{ booking.event.id }}-row' {% if booking_status_display|lookup:booking.id == 'CANCELLED' %}class='expired'{% endif %}>
                                     {% if not history %}
@@ -64,18 +47,28 @@
                                         {% if booking.event.cancelled %}
                                             CLASS CANCELLED
                                         {% elif user.has_outstanding_fees %}
-                                            {% include "booking/includes/outstanding_fee_disabled_buttons.html" %}
-                                        {% elif event.bookable and not event.can_cancel %}
                                             {% if booking.status == 'OPEN' and not booking.no_show %}
-                                                <a class="btn table-btn btn-danger cancel_button" href="{% url 'booking:delete_booking' booking.id %}">Cancel</a>
-                                            {%  else %}
-                                                <a class="btn table-btn btn-success rebook_button" href="{% url 'booking:book_class' booking.event.slug %}">Rebook</a>
+                                                <span
+                                                    id="book_{{ booking.event.id }}"
+                                                    data-event_id="{{ booking.event.id }}"
+                                                    data-event_str="{{ booking.event.name }} ({{ booking.event.date|date:'D d b H:i'|title }})"
+                                                    data-ref="bookings"
+                                                    data-show_warning="{{ booking.event|show_warning }}"
+                                                    data-cancellation_fee="{{ booking.event.cancellation_fee }}"
+                                                    class="td_ajax_book_btn">
+                                                {% include "booking/includes/book_button_toggle.html" %}
+                                                </span>
+                                            {% else %}
+                                                {% include "booking/includes/outstanding_fee_disabled_buttons.html" %}
                                             {% endif %}
-                                        {% elif booking.status == 'OPEN' and not booking.no_show or booking.event.bookable %}
+                                        {% elif booking|show_booking_button %}
                                             <span
                                                 id="book_{{ booking.event.id }}"
                                                 data-event_id="{{ booking.event.id }}"
+                                                data-event_str="{{ booking.event.name }} ({{ booking.event.date|date:'D d b H:i'|title }})"
                                                 data-ref="bookings"
+                                                data-show_warning="{{ booking.event|show_warning }}"
+                                                data-cancellation_fee="{{ booking.event.cancellation_fee }}"
                                                 class="td_ajax_book_btn">
                                             {% include "booking/includes/book_button_toggle.html" %}
                                             </span>
@@ -95,77 +88,9 @@
                                     <td>{{ booking.event.name }}</td>
                                     <td>{{ booking.event.venue.abbreviation }}</td>
                                     <td class="table-center"><span id="booked-{{ booking.event.id }}-status">{{ booking_status_display|lookup:booking.id  }}</span></td>
-                                    <td class="table-center"><span id="booked-{{ booking.event.id }}-paid">
-                                        {% if booking.paid %}<span class="confirmed fas fa-check"></span>{% else %}<span class="not-confirmed fas fa-times"></span>{% endif %}
-                                    </span></td>
                                 </tr>
                             {% endfor %}
 
-                        {% else %}
-
-                            {% for booking in bookings %}
-                                <tr {% if booking_status_display|lookup:booking.id  == 'CANCELLED' %}class='expired'{% endif %}>
-                                     {% if not history %}
-                                        <td>
-                                            {% if not booking.paid %}
-                                            <div class="inc-btm-space table-btn">
-                                                {% if booking_status_display|lookup:booking.id  == 'OPEN' %}
-                                                    {% if booking.id in paypalforms %}
-                                                        {% include 'payments/bookinglistpayment.html' %}
-                                                    {% endif %}
-                                                {% endif %}
-                                            </div>
-                                            {% endif %}
-                                            {% if booking_status_display|lookup:booking.id == 'OPEN'%}
-                                            <a href="{% url 'booking:delete_booking' booking.pk %}">
-                                                <div class="btn btn-danger table-btn booking-btn">Cancel booking</div>
-                                            </a>
-                                            {% elif booking.event.cancelled %}
-                                                WORKSHOP CANCELLED
-                                            {% elif not booking.event.bookable %}
-                                                {% if not booking.event.spaces_left %}
-                                                    {% if booking.id in on_waiting_list_booking_ids_list %}
-                                                        {% if user.has_outstanding_fees %}
-                                                            <button class="btn btn-warning table-btn booking-btn disabled" id="leave_waiting_list_button_disabled">Leave waiting list</button>
-                                                        {% else %}
-                                                            <form class="wl-table-form" action="{% url 'booking:book_event' booking.event.slug %}" method="get">
-                                                                <input id='leave_waiting_list_button' class="btn btn-warning table-btn booking-btn" type="submit" value="Leave waiting list" name="leave waiting list"/>
-                                                                <input class="hide" type="text" name="bookings" value="bookings" />
-                                                            </form>
-                                                        {% endif %}
-                                                    {% else %}
-                                                        {% if user.has_outstanding_fees %}
-                                                            <button class="btn btn-success table-btn booking-btn disabled" id="join_waiting_list_button_disabled">Join waiting list</button>
-                                                        {% else %}
-                                                            <form class="wl-table-form" action="{% url 'booking:book_event' booking.event.slug %}" method="get">
-                                                                <input id='join_waiting_list_button' class="btn btn-success table-btn booking-btn" type="submit" value="Join waiting list" name="join waiting list"/>
-                                                                <input class="hide" type="text" name="bookings" value="bookings" />
-                                                            </form>
-                                                        {% endif %}
-                                                    {% endif %}
-                                                {% elif booking_status_display|lookup:booking.id  == 'CANCELLED' %}
-                                                    <div type="button" id="rebook_button_disabled" class="btn btn-success table-btn booking-btn disabled">Rebook</div>
-                                                {% endif %}
-                                            {% else %}
-                                                <a href="{% url 'booking:book_event' booking.event.slug %}">
-                                                    <div type="button" id="rebook_button{% if user.has_outstanding_fees %}_disabled{% endif %}" class="btn btn-success table-btn booking-btn {% if user.has_outstanding_fees %}disabled{% endif %}">Rebook</div></a>
-                                            {% endif %}
-                                        </td>
-                                    {% endif %}
-
-                                    <td>{{ booking.event.date |  date:"D d M H:i" }}</td>
-                                    <td>
-                                        <a href="{% url 'booking:event_detail' booking.event.slug %}">
-                                            {{ booking.event.name }}</a>
-                                    </td>
-                                    <td>{{ booking.event.venue.abbreviation }}</td>
-                                    <td>{{ booking_status_display|lookup:booking.id }}</td>
-                                    <td class="hidden-sm hidden-xs table-center">£{{ booking.event.cost }}</td>
-                                    <td class="table-center">{{ booking|format_paid_status }}</td>
-
-                                </tr>
-                            {% endfor %}
-                        {% endif %}
                     </table>
                     {% include 'booking/includes/pagination.html' %}
                 </div>

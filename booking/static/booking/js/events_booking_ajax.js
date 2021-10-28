@@ -23,11 +23,51 @@ var toggleBooking = function()  {
     //The "this" in processResult is *not* the button just clicked
     //on.
     var $button_just_clicked_on = $jq(this);
-
+    
     //The value of the "data-event_id" attribute.
     var event_id = $button_just_clicked_on.data('event_id');
+    var event_str = $button_just_clicked_on.data('event_str');
     var ref = $button_just_clicked_on.data('ref');
+    var show_warning = $button_just_clicked_on.data('show_warning');
+    var cancellation_fee = $button_just_clicked_on.data('cancellation_fee');
 
+    if (show_warning) {
+        $jq('#confirm-dialog').dialog({
+          height: "auto",
+          width: 500,
+          modal: true,
+          closeOnEscape: true,
+          dialogClass: "no-close",
+          title: "Warning!",
+          open: function() {
+            const eventText = "<strong>" + event_str + "</strong><br/>";
+            const contentText = "Please note that cancellation at this time will incur a cancellation fee of £" + cancellation_fee + " and your account will be locked for booking until your fees have been paid."
+
+            $jq(this).html(eventText + contentText + "<br><br>Please confirm you want to continue.");
+          },
+          buttons: [
+              {
+                  text: "Continue",
+                  click: function () {
+                      doTheAjax();
+                      $jq(this).dialog('close');
+                  },
+                  "class": "btn btn-success"
+              },
+              {
+                  text: "Go back",
+                  click: function () {
+                      $jq(this).dialog('close');
+                  },
+                  "class": "btn btn-dark"
+              }
+          ]
+      })
+    } else {
+        doTheAjax()
+  }
+
+  function doTheAjax() {
     var processResult = function(
        result, status, jqXHR)  {
       //console.log("sf result='" + result + "', status='" + status + "', jqXHR='" + jqXHR + "', user_id='" + user_id + "'");
@@ -113,6 +153,8 @@ var toggleBooking = function()  {
           error: processFailure
        }
     );
+
+  };
 
 };
 

@@ -17,7 +17,6 @@ class SuitConfig(DjangoSuitConfig):
     # staff users cannot see anything at the moment
     superuser_permissions = ["add_event"]
     menu = (
-        # ParentItem('Gallery', app="gallery", icon='fa fa-camera', permissions=superuser_permissions),
         ParentItem('Accounts', children=[
             ChildItem(model='auth.user'),
             ChildItem(model='account.emailaddress'),
@@ -32,6 +31,8 @@ class SuitConfig(DjangoSuitConfig):
         ], icon='fa fa-users', permissions=superuser_permissions),
         ParentItem('Timetable', children=[
             ChildItem(model='timetable.sessiontype'),
+            ChildItem(model='timetable.venue'),
+            ChildItem(model='timetable.membershipcategory'),
             ChildItem(model='timetable.timetablesession'),
             ChildItem('Upload timetable', url='/site-admin/timetable/timetablesession/upload'),
         ], icon='fa fa-calendar', permissions=superuser_permissions),

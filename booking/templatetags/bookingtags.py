@@ -78,3 +78,15 @@ def lookup(dictionary, key):
 @register.filter
 def renderpaypalform(paypalforms_dict, key):
     return paypalforms_dict[key].render()
+
+
+@register.filter
+def show_warning(event):
+    if not event.can_cancel() and event.cancellation_fee > 0:
+        return 1
+    return 0
+
+
+@register.filter
+def show_booking_button(booking):
+    return booking.event.bookable or (booking.status == "OPEN" and not booking.no_show)

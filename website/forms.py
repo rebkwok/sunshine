@@ -70,7 +70,8 @@ class ContactForm(forms.Form):
         choices=(
             ('Membership Enquiry', 'Membership Enquiry'),
             ('Class Booking Enquiry', 'Class Booking Enquiry'),
-            ('Party Booking', 'Party Booking'),
+            ('Private Booking', 'Private Booking Enquiry'),
+            ('Personal Training', 'PT Enquiry'),
             ('General Enquiry', 'General Enquiry')
         ),
         widget=forms.Select(attrs={'class': 'form-control input-xs disabled'})
@@ -116,26 +117,3 @@ class ContactForm(forms.Form):
             )
         else:
             return accepted
-
-
-class BookingRequestForm(ContactForm):
-
-    def __init__(self, *args, **kwargs):
-        self.session = kwargs.pop('session')
-        super(BookingRequestForm, self).__init__(*args, **kwargs)
-
-        del self.fields['subject']
-        del self.fields['message']
-
-        self.fields['date'] = forms.ChoiceField(
-            choices=get_dates(self.session),
-            label="Date you wish to book for:",
-            help_text="Please note regular weekly bookings are only "
-                      "available if you have a monthly membership"
-        )
-
-        self.fields['additional_message'] = forms.CharField(
-            widget=forms.Textarea(attrs={'class': 'form-control email-message',
-                                         'rows': 10}),
-            label='Additional comments',
-            required=False)

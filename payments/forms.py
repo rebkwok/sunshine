@@ -1,4 +1,4 @@
-from django.utils.safestring import mark_safe
+from django.utils.html import format_html
 from paypal.standard.forms import PayPalPaymentsForm
 
 
@@ -16,13 +16,11 @@ class PayPalPaymentsListForm(PayPalPaymentsForm):
         }[self.test_mode(), self.button_type]
 
     def render(self):
-        super(PayPalPaymentsListForm, self).render()
-        return mark_safe(
-            u"""<form class="paypal-btn-form" action="{endpoint}" method="post">
-            {form}
-        <input style="height: 75%;" type="image" src="{image}" border="0" name="submit" alt="Pay Now" />
-        </form>""".format(endpoint=self.get_endpoint(), form=self.as_p(), image=self.get_image()))
-
+        return format_html(
+            """<form class="paypal-btn-form" action="{0}" method="post">
+            {1}<input type="image" style="height: 75%: width: 9em; " src="{2}" border="0" name="submit" alt="Pay Now" />
+            </form>""", self.get_login_url(), self.as_p(), self.get_image()
+       )
 
 class PayPalPaymentsUpdateForm(PayPalPaymentsForm):
 
@@ -38,10 +36,9 @@ class PayPalPaymentsUpdateForm(PayPalPaymentsForm):
         }[self.test_mode(), self.button_type]
 
     def render(self):
-        super(PayPalPaymentsUpdateForm, self).render()
-        return mark_safe(u"""<form action="%s" method="post">
-            %s
-        <input type="image" src="%s" border="0" name="submit" alt="Paypal" />
-        </form>""" % (self.get_endpoint(), self.as_p(), self.get_image()))
-
-
+        return format_html(
+            """<form class="paypal-btn-form" action="{0}" method="post">
+            {1}<input type="image" style="height: auto; width: 15em;"
+            src="{2}" border="0" name="submit" alt="Paypal" />
+            </form>""", self.get_login_url(), self.as_p(), self.get_image()
+       )

@@ -2,41 +2,35 @@ from django.contrib import admin
 from django.shortcuts import render
 from django.urls import path
 
-from timetable.forms import UploadTimetableForm
-from timetable.models import Instructor, TimetableSession, SessionType, Venue
-from timetable.utils import upload_timetable
+from .forms import UploadTimetableForm
+from .models import MembershipCategory, TimetableSession, SessionType, Venue
+from .utils import upload_timetable
 
 
-class InstructorAdmin(admin.ModelAdmin):
-    list_display = ('name', 'regular_instructor', 'has_photo')
-
-    def has_photo(self, obj):
-        return bool(obj.photo)
-    has_photo.short_description = 'Photo uploaded'
-    has_photo.boolean = True
-
-
+@admin.register(Venue)
 class VenueAdmin(admin.ModelAdmin):
-    list_display = ('venue', 'address', 'postcode')
+    list_display = ('name', 'address', 'postcode')
 
 
+@admin.register(SessionType)
 class SessionTypeAdmin(admin.ModelAdmin):
-    list_display = ('index', 'name', 'regular_session', 'has_photo')
+    list_display = ('index', 'name', 'regular_session')
     ordering = ['index',]
 
-    def has_photo(self, obj):
-        return bool(obj.photo)
-    has_photo.short_description = 'Photo uploaded'
-    has_photo.boolean = True
+
+@admin.register(MembershipCategory)
+class MembershipCategoryAdmin(admin.ModelAdmin):
+    list_display = ('name', 'description')
 
 
+@admin.register(TimetableSession)
 class TimetableSessionAdmin(admin.ModelAdmin):
     list_display = ('name', 'session_type', 'level', 'session_day',
                     'start_time', 'end_time', 'venue', 'max_participants', 'members_only', 'show_on_timetable_page')
     fieldsets = [
         ('Session information', {
             'fields': ['name', 'session_type', 'level', 'membership_category',
-                       'instructor', 'venue', 'max_participants', 'cost', 'alt_cost',
+                       'venue', 'max_participants', 'cost', 'alt_cost',
                        'members_only', 'cancellation_fee', 'show_on_timetable_page']
         }),
         ('Date and time', {
@@ -45,14 +39,8 @@ class TimetableSessionAdmin(admin.ModelAdmin):
          ]
     ordering = ['session_day', 'start_time']
 
-    list_filter = ['session_type', 'instructor', 'venue']
+    list_filter = ['session_type', 'venue']
     list_editable = ('members_only', 'show_on_timetable_page')
-
-    def get_form(self, request, obj=None, **kwargs):
-        form = super().get_form(request, obj, **kwargs)
-        membership = form.base_fields['membership_category']
-        membership.choices.insert(0, (None, '------'))
-        return form
 
     def get_urls(self):
         urls = super().get_urls()
@@ -90,8 +78,3 @@ class TimetableSessionAdmin(admin.ModelAdmin):
             form = UploadTimetableForm()
             context.update({'form': form})
         return render(request, template_name, context)
-
-admin.site.register(Instructor, InstructorAdmin)
-admin.site.register(TimetableSession, TimetableSessionAdmin)
-admin.site.register(SessionType, SessionTypeAdmin)
-admin.site.register(Venue, VenueAdmin)

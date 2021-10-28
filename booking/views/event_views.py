@@ -27,14 +27,13 @@ DAYS = OrderedDict((
 ))
 
 
-class EventListView(ListView):
+class BaseEventListView(ListView):
     model = Event
-    context_object_name = 'events'
+    context_object_name = 'events'    
     template_name = 'booking/regular_classes.html'
     paginate_by = 20
-
+    
     def get_queryset(self):
-        self.event_type = self.request.GET.get('type', 'regular_session').strip()
         name = self.request.GET.get('name', 'all').strip()
         level = self.request.GET.get('level')
         if name and level:
@@ -95,8 +94,8 @@ class EventListView(ListView):
     def get_context_data(self, **kwargs):
         queryset = self.object_list
         # Call the base implementation first to get a context
-        context = super(EventListView, self).get_context_data(**kwargs)
-        context['section'] = 'events'
+        context = super().get_context_data(**kwargs)
+        context['section'] = 'booking'
         if not self.request.user.is_anonymous:
             # Add in the booked_events
             user_booked_events = Booking.objects.select_related()\
@@ -128,6 +127,8 @@ class EventListView(ListView):
 
         context['workshops_available_to_book'] = alternative_events.exists() if self.event_type == 'regular_session' else None
         context['classes_available_to_book'] = alternative_events.exists() if self.event_type == 'workshop' else None
+        context['event_type'] = "class" if self.event_type == "regular_session" else self.event_type
+        context['event_type_plural'] = "classes" if self.event_type == "regular_session" else "workshops"
 
         form = EventsFilter(
             event_type=self.event_type,
@@ -141,11 +142,20 @@ class EventListView(ListView):
         context['time'] = self.event_time
         return context
 
-    def get_template_names(self):
-        if self.event_type == 'workshop':
-            return 'booking/events.html'
-        else:
-            return self.template_name
+
+class RegularClassesEventListView(BaseEventListView):
+
+    @property
+    def event_type(self):
+        return "regular_session"
+
+
+class WorkshopEventListView(BaseEventListView):
+    template_name = 'booking/regular_classes.html'
+
+    @property
+    def event_type(self):
+        return "workshop"
 
 
 class EventDetailView(DetailView):

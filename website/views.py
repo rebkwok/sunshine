@@ -1,7 +1,6 @@
 from django.urls import reverse
 from django.conf import settings
-from django.shortcuts import render, get_object_or_404, \
-    HttpResponseRedirect
+from django.shortcuts import render, HttpResponseRedirect
 from django.contrib import messages
 from django.utils.safestring import mark_safe
 
@@ -10,11 +9,7 @@ from website.forms import ContactForm
 
 
 def home(request):
-    return render(request, 'website/home.html')
-
-
-def venues(request):
-    return render(request, 'website/venues.html', {'section': 'venues'})
+    return render(request, 'website/home.html', {'section': 'home'})
 
 
 def process_contact_form(request, template_name):

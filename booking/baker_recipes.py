@@ -45,7 +45,7 @@ past_booking = Recipe(Booking, event=foreign_key(past_event))
 
 waiting_list_user = Recipe(WaitingListUser)
 
-venue = Recipe(Venue, venue='Test venue', abbreviation='test')
+venue = Recipe(Venue, name='Test venue', abbreviation='test')
 
 mon_session = Recipe(
     TimetableSession, session_day=TimetableSession.MON, level='Level 1'

@@ -29,7 +29,6 @@ urlpatterns = [
     path('instructor-admin/', include('studioadmin.urls')),
     path('site-admin/', admin.site.urls),
     path('booking/', include('booking.urls')),
-    path('gallery/', include('gallery.urls')),
     path('timetable/', include('timetable.urls')),
     path('payments/ipn-paypal-notify/', include('paypal.standard.ipn.urls')),
     path('payments/', include('payments.urls')),
@@ -40,3 +39,7 @@ urlpatterns = [
 if settings.DEBUG:  # pragma: no cover
     import debug_toolbar
     urlpatterns.append(path('__debug__/', include(debug_toolbar.urls)))
+
+admin.autodiscover()
+admin.site.site_header = "Sunshine Fitness Admin"
+admin.site.enable_nav_sidebar = False

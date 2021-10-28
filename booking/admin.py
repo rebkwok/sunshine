@@ -283,6 +283,7 @@ class EventAdmin(DjangoObjectActions, admin.ModelAdmin):
                     self.message_user(request, '%s %s cancelled; %s' % (event_type.title(), obj,  msg))
 
 
+@admin.register(Workshop)
 class WorkshopAdmin(EventAdmin):
 
     def get_form(self, request, obj=None, **kwargs):
@@ -306,6 +307,7 @@ class WorkshopAdmin(EventAdmin):
     cancel_event.attrs = {'style': 'font-weight: bold; color: red;'}
 
 
+@admin.register(RegularClass)
 class RegularClassAdmin(EventAdmin):
 
     readonly_fields = ('cancelled', 'paypal_email')
@@ -332,6 +334,7 @@ class RegularClassAdmin(EventAdmin):
     cancel_event.attrs = {'style': 'font-weight: bold; color: red;'}
 
 
+@admin.register(Booking)
 class BookingAdmin(admin.ModelAdmin):
 
     exclude = ('booking_reference',)
@@ -376,6 +379,7 @@ class BookingAdmin(admin.ModelAdmin):
     get_cost.short_description = 'Cost'
 
 
+@admin.register(WaitingListUser)
 class WaitingListUserAdmin(admin.ModelAdmin):
     fields = ('user', 'event')
     list_display = ('user', 'event')
@@ -383,11 +387,3 @@ class WaitingListUserAdmin(admin.ModelAdmin):
     search_fields = (
         'user__first_name', 'user__last_name', 'user__username', 'event__name'
     )
-
-admin.site.site_header = "Carousel Fitness Admin"
-
-admin.site.register(RegularClass, RegularClassAdmin)
-admin.site.register(Workshop, WorkshopAdmin)
-
-admin.site.register(Booking, BookingAdmin)
-admin.site.register(WaitingListUser, WaitingListUserAdmin)

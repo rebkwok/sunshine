@@ -7,43 +7,22 @@
 
 <div class="container-fluid">
 
-        <div class="container-fluid logo-header">
-            <div class="row">
-                <div class="col-sm-12 text-center">
-					<img class="hidden-xs hidden-sm" style="max-height: 100px; margin:auto;" src="{% static 'website/images/logo_text_only.png' %}" alt="Carousel Fitness" />
-                	<img class="visible-xs" style="max-width: 380px; margin: auto;" src="{% static 'website/images/logo_text_only.png' %}" alt="Carousel Fitness" />
-                    <img class="visible-sm" style="max-width: 680px; margin: auto;" src="{% static 'website/images/logo_text_only.png' %}" alt="Carousel Fitness" />
-                </div>
-            </div>
-
-            <div class="container col-sm-12">
-            <div class="fading">
-                <img src="{% static 'website/images/for_about_page/image1_edited.jpg' %}" alt="fade in image" />
-                <img src="{% static 'website/images/for_about_page/image7_edited.jpg' %}" alt="fade in image" />
-                <img src="{% static 'website/images/for_about_page/image3_edited.jpg' %}" alt="fade in image" />
-                <img src="{% static 'website/images/for_about_page/image4_edited.jpg' %}" alt="fade in image" />
-                <img src="{% static 'website/images/for_about_page/image5_edited.jpg' %}" alt="fade in image" />
-                <img src="{% static 'website/images/for_about_page/image2_edited.jpg' %}" alt="fade in image" />
-                <img src="{% static 'website/images/for_about_page/image6_edited.jpg' %}" alt="fade in image" />
-            </div>
-            </div>
-
         <div class="row">
 			<div class="col-sm-12">
-	            {% for entry in about_text %}
-                {% if entry.heading %}
-                <h1>{{ entry.heading }}</h1>
-                {% endif %}
-                {% if entry.subheading %}
-                <h3>{{ entry.subheading }}</h3>
-                {% endif %}
-                <p>{{ entry.content|linebreaks }}</p>
-            {% endfor %}
+
+                <p>
+                    At Sunshine Fitness we offer fitness classes, personal training, one to ones and pride ourselves on bringing you
+                    the highest quality pole dancing classes from the beautiful Sunshine Pole Studio. We run an all-inclusive,
+                    safe environment, with a "come as you are" ethos!
+                </p>
+
+                <p>Instagram: Sunshine Fitness Fife</p>
+
+                <p>Check out the Sunshine Pole Studio timetable to book a class or <a class="footer-link" href="{% url 'website:contact' %}">contact us</a> for any other enquires.</p>
+
+                </p>
 		</div>
     </div>
-	</div>
-
-
 
 </div>  <!-- container-fluid -->
 

@@ -9,18 +9,9 @@
 {% block content %}
     {% if request.path == "/site-admin/" %}
         <div id="content-main" class="admin-center">
-            <h1>Carousel Fitness Admin</h1>
+            <h1>Sunshine Fitness Admin</h1>
             {% if request.user.is_superuser %}
             <hr>
-            <h2>Website</h2>
-            <p>Add text and photos to populate website main
-                page, class and instructor descriptions.</p>
-            <span class="admin-divider"></span>
-
-            <h2>Gallery</h2>
-            <p>Add images for the gallery pages.</p>
-            <p>Use "Categories" for easier uploading, use "Images" if you
-                need to change the category of an already uploaded image.</p>
 
             <span class="admin-divider"></span>
             <h2>Accounts</h2>
@@ -60,9 +51,10 @@
 
             <h3>Workshops</h3>
 
-            <p>Payments are via paypal; you can enter any paypal email address here, but make sure you've
+            <!-- <p>Payments are via paypal; you can enter any paypal email address here, but make sure you've
             checked it carefully.  Use the "Test paypal email" link to confirm that the site can
-            process payments to the email address you've chosen.</p>
+            process payments to the email address you've chosen.</p> -->
+            <p>Generate workshops manually.  These are also available to book online but do not take payment.</p>
 
             <h3>Cancelling classes/workshops</h3>
                 <ol>
@@ -83,15 +75,15 @@
             <h2>Bookings</h2>
             <p>Review online bookings and waiting lists for classes/workshops.</p>
 
-            <span class="admin-divider"></span>
+            <!-- <span class="admin-divider"></span> -->
 
-            <h2>Payments</h2>
+            <!-- <h2>Payments</h2>
             <p>Paypal transaction information.</p>
             <p><strong>Test Paypal Email:</strong> Use this to check a new paypal email before making a
             workshop available for booking.  This sends a payment of £0.01 to the paypal account
             associated with the email you are testing.  You must use a different account to the one being
             tested to to send the payment.  Paypal accounts do not need to be business accounts, but they
-            must be verified.</p>
+            must be verified.</p> -->
 
             <span class="admin-divider"></span>
 

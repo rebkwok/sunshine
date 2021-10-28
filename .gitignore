@@ -14,4 +14,4 @@ venv
 media/
 .coverage
 htmlcov/
-polefit.log
+sunshine.log
