@@ -74,7 +74,7 @@ def make_archived_disclaimer(**kwargs):
     defaults = {
         "name": "Test User",
         "date_of_birth": datetime(1990, 6, 7, tzinfo=timezone.utc),
-        "date_archived": timezone.now().date(),
+        "date_archived": timezone.now(),
         "phone": "123455",
         "health_questionnaire_responses": [],
         "terms_accepted": True,
