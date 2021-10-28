@@ -26,3 +26,6 @@ model-bakery
 coverage
 gunicorn
 python-dateutil
+pytest
+pytest-django
+pytest-cov

@@ -15,5 +15,6 @@
            {% csrf_token %}
             {% crispy form %}
        </form>
+        <a href="{% url 'accounts:profile' %}"><div class="btn btn-secondary mt-2">Cancel</div></a>
 </div>
 {% endblock %}

@@ -28,7 +28,7 @@
 
         <!-- Fixed navbar -->
         <div class="navbar-wrap">
-        <div class="navbar navbar-expand-md navbar-dark navbar-fixed" role="navigation">
+        <div class="navbar navbar-expand-sm navbar-dark navbar-fixed" role="navigation">
         <a class="navbar-brand p-0" href="/"><img class="nav-logo" src="{% static 'website/images/logo_no_text.jpg' %}"></a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
@@ -71,7 +71,8 @@
     </div>
     </div>
 
-            <div class="wrap">
+<div class="wrapper">
+    <main role="main" class="container-fluid">
 
         {% cookielaw_banner %}
 
@@ -98,12 +99,11 @@
         {% endblock %}
         </div>
 
-<!--/.footer -->
-    <div class="push">
-    </div>
-    </div> <!--/end of page .wrap -->
 
-    <div class="footer">
+    </main> 
+    </div>
+
+    <footer class="footer">
             <span class="divider"></span>
 
         <div class="container-fluid">
@@ -128,12 +128,12 @@
 
             </div>
         </div>
-    </div>
+    </footer>
 
 </body>
 
 
-    {% bootstrap_javascript jquery=True %}
+    {% bootstrap_javascript jquery=3 %}
 
     <div id="fb-root"></div>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js" integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU=" crossorigin="anonymous"></script>

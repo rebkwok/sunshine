@@ -10,7 +10,7 @@
 	background-size: cover;
 }
 
-body {
+/* body {
 	background-color: transparent;
 }
 
@@ -22,23 +22,46 @@ body {
 
 
 /* Wrapper for page content to push down footer */
-.wrap {
+/* .wrap {
 	min-height: 100%;
 	height: auto !important;
 	height: 100%;
 	/* Negative indent footer by it's height */
-	margin-bottom: -80px;
-}
+	/* margin-bottom: -80px;
+} */ 
 
 /* Set the fixed height of the footer here */
-.push,
+/* .push,
 .footer {
 	height: 80px;
 }
 
 .footer {
 	background-color: transparent;
-}
+} */
+
+html, body {
+    height: 100%;
+    width: 100%;
+  }
+  body {
+    background-color: transparent;
+    font-family: "Helvetica Neue", Arial, sans-serif;
+  }
+  .wrapper {
+    min-height: 100%;
+    /* top margin to allow for navbar */
+    margin-top: 80px;
+    /* bottom margin to offset footer */
+    margin-bottom: 60px;
+  }
+  
+  .footer {
+    width: 100%;
+    /* fixed height of the footer */
+    height: 60px;
+  }
+  
 
 /* Lastly, apply responsive CSS fixes as necessary */
 @media (max-width: 767px) {
@@ -357,11 +380,11 @@ border-left: 1px solid white;
 
 .navbar-wrap { background-color: #fff; border-style: solid; border-color: #ffcc00; border-width: 3px 0px 3px 0px;}
 
-.navbar.navbar-expand-md.navbar-fixed { padding-top: 0px; padding-bottom: 0px;}
+.navbar.navbar-expand-sm.navbar-fixed { padding-top: 0px; padding-bottom: 0px;}
 /* .navbar .navbar-nav { background-color: #fff}
 .navbar .navbar-brand { background-color: #fff}
 .navbar .navbar-collapse { background-color: #fff} */
-.navbar .navbar-toggle .icon-bar { background-color: #ffcc00 }
+.navbar .navbar-toggler { background-color: #ffcc00; border-color: #ffffcc;}
 .navbar .navbar-nav>.active-nav>a:hover {background-color: #ffcc00 ; color: #1A0000}
 .navbar .navbar-nav>li.nav-item>a.nav-link:hover {background-color: #ffffcc; color: #1A0000; font-weight: normal;}
 .navbar .navbar-nav>li.nav-item>a.nav-link.active {background-color: #ffcc00 ; color: #1A0000; font-weight: normal;}
@@ -488,6 +511,9 @@ span.label.label-primary.label-membership {
     }
 .table-center {
     text-align: center !important;
+}
+.table-heading {
+    background-color: rgba(0, 0, 0, 0.1); 
 }
 .required {
     color: red;

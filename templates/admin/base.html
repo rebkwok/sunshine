@@ -1,17 +1,11 @@
 {% extends "admin/base.html" %}
-{% load static bootstrap3 %}
+{% load static bootstrap4 %}
 
 {% block extrastyle %}
 {{ block.super }}
 <link href="{% static 'website/css/admin-extra.css' %}" rel="stylesheet">
 {% endblock %}
 
-{% block branding %}
-{{ block.super }}
-{% if user.is_authenticated %}
-<button class="btn btn-sm btn-info" id="menu-collapse-button" data-toggle="collapse" data-target="#suit-nav">Show/Hide Main Menu</button>
-{% endif %}
-{% endblock %}
 
 {% block nav-global %}
     {{ block.super }}
@@ -19,8 +13,8 @@
 
 {% block footer %}
 {{ block.super}}
-    {% bootstrap_javascript jquery=3 %}
+    {% bootstrap_javascript jquery=True %}
     {% block extra_scripts %}
-    <script src="{% static 'booking/js/collapse-admin-menu.js' %}"></script>
+    {% comment %} <script src="{% static 'booking/js/collapse-admin-menu.js' %}"></script> {% endcomment %}
     {% endblock %}
 {% endblock %}

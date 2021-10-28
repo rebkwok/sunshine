@@ -403,6 +403,6 @@ class EventDetailViewTests(TestSetupMixin, TestCase):
         "You have previously booked for this workshop and your booking has been cancelled."
 
     def test_outstanding_fees_shows_banner(self):
-        baker.make_recipe("booking.booking", user=self.user, status="CANCELLED", cancellation_fee_incurred=True)
+        baker.make_recipe("booking.booking", event__cancellation_fee=1.00, user=self.user, status="CANCELLED", cancellation_fee_incurred=True)
         resp = self.client.get(self.url())
         assert "Your account is locked for booking due to outstanding fees" in resp.rendered_content

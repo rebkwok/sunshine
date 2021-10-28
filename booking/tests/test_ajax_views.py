@@ -531,7 +531,7 @@ class BookingToggleAjaxCreateViewTests(TestSetupMixin, TestCase):
         self.assertEqual(mail.outbox[2].bcc, ['test2@test.test', 'test3@test.test'])
 
     def test_error_if_outstanding_fees(self):
-        baker.make_recipe('booking.booking', user=self.user, cancellation_fee_incurred=True)
+        baker.make_recipe('booking.booking', event__cancellation_fee=1.00, user=self.user, cancellation_fee_incurred=True)
         self.client.login(username=self.user.username, password='test')
         resp = self.client.post(self.url)
         self.assertEqual(resp.status_code, 400)
@@ -578,7 +578,7 @@ class AjaxTests(TestSetupMixin, TestCase):
         self.assertEqual(resp.context['on_waiting_list'], False)
 
     def test_toggle_waiting_error_if_outstanding_fees(self):
-        baker.make_recipe('booking.booking', user=self.user, cancellation_fee_incurred=True)
+        baker.make_recipe('booking.booking', event__cancellation_fee=1.00, user=self.user, cancellation_fee_incurred=True)
         url = reverse('booking:toggle_waiting_list', args=[self.event.id])
         resp = self.client.post(url)
         self.assertEqual(resp.status_code, 400)

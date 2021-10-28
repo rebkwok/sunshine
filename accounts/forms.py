@@ -167,7 +167,7 @@ class DisclaimerForm(forms.ModelForm):
             HTML(mark_safe(linebreaks(self.disclaimer_content.disclaimer_terms))),
             "terms_accepted",
             "password",
-            Submit('submit', 'Save')
+            Submit('submit', 'Save', css_class="btn-warning")
         )
 
     class Meta:

@@ -1,9 +1,9 @@
 {% if event.bookable or booking.event.bookable %}
-    <button class="btn table-btn btn-success disabled" id="book_button_disabled">{% if ref == 'bookings' or bookings %}Rebook{% else %}Book{% endif %}</button>
+    <button class="btn table-btn btn-warning disabled" id="book_button_disabled">{% if ref == 'bookings' or bookings %}Rebook{% else %}Book{% endif %}</button>
 {% elif on_waiting_list or booking.id in on_waiting_list_booking_ids_list or event.id in waiting_list_events %}
-    <button class="btn btn-warning table-btn disabled" id="leave_waiting_list_button_disabled">Leave waiting list</button>
+    <button class="btn btn-outline-secondary table-btn disabled" id="leave_waiting_list_button_disabled">Leave waiting list</button>
 {% else %}
-    <button class="btn btn-success table-btn disabled" id="join_waiting_list_button_disabled">Join waiting list</button>
+    <button class="btn btn-secondary table-btn disabled" id="join_waiting_list_button_disabled">Join waiting list</button>
 {% endif %}
 
 

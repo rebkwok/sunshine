@@ -23,20 +23,24 @@ user = Recipe(User,
 # override when using recipes, eg. baker.make_recipe('future_event', cost=10)
 
 future_EV = Recipe(
-    Event, date=future, event_type='workshop', show_on_site=True, cost=10, email_studio_when_booked=True
+    Event, date=future, event_type='workshop', show_on_site=True, cost=10, email_studio_when_booked=True,
+    cancellation_fee=1.00
 )
 
 # past event
 past_event = Recipe(
-    Event, date=past, event_type='workshop', show_on_site=True, cost=10, email_studio_when_booked=True
+    Event, date=past, event_type='workshop', show_on_site=True, cost=10, email_studio_when_booked=True,
+    cancellation_fee=1.00
 )
 
 future_PC = Recipe(
-    Event, date=future, event_type='regular_session', show_on_site=True, cost=10, email_studio_when_booked=True
+    Event, date=future, event_type='regular_session', show_on_site=True, cost=10, email_studio_when_booked=True,
+    cancellation_fee=1.00
 )
 
 past_class = Recipe(
-    Event, date=past, event_type='regular_session', show_on_site=True, cost=10, email_studio_when_booked=True
+    Event, date=past, event_type='regular_session', show_on_site=True, cost=10, email_studio_when_booked=True,
+    cancellation_fee=1.00
 )
 
 booking = Recipe(Booking)

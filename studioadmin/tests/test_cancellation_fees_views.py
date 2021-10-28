@@ -42,12 +42,12 @@ class CancellationFeesListViewTests(TestPermissionMixin, TestCase):
 
     def test_shows_cancellation_fees(self):
         # 2 fees due for self.user
-        baker.make_recipe('booking.booking', user=self.user, cancellation_fee_incurred=True, _quantity=2)
+        baker.make_recipe('booking.booking', event__cancellation_fee=1.00, user=self.user, cancellation_fee_incurred=True, _quantity=2)
         # 1 fee already paid
-        baker.make_recipe('booking.booking', user=self.user, cancellation_fee_incurred=True, cancellation_fee_paid=True)
+        baker.make_recipe('booking.booking', event__cancellation_fee=1.00, user=self.user, cancellation_fee_incurred=True, cancellation_fee_paid=True)
         user = baker.make_recipe('booking.user')
         # fees for another user
-        baker.make_recipe('booking.booking', user=user, cancellation_fee_incurred=True, _quantity=4)
+        baker.make_recipe('booking.booking', event__cancellation_fee=1.00, user=user, cancellation_fee_incurred=True, _quantity=4)
 
         resp = self.client.get(self.url)
         soup = BeautifulSoup(resp.content, 'html.parser')
@@ -131,7 +131,7 @@ class UserCancellationFeesAjaxTests(TestPermissionMixin, TestCase):
 
     def setUp(self):
         super().setUp()
-        self.booking = baker.make_recipe("booking.booking", user=self.user, cancellation_fee_incurred=True)
+        self.booking = baker.make_recipe("booking.booking", event__cancellation_fee=1.00, user=self.user, cancellation_fee_incurred=True)
         self.toggle_payment_url = reverse("studioadmin:ajax_toggle_cancellation_fee_payment", args=(self.booking.id,))
         self.toggle_remove_fee_url = reverse("studioadmin:ajax_toggle_remove_cancellation_fee", args=(self.booking.id,))
         self.payment_status_url = reverse("studioadmin:ajax_get_cancellation_fee_payment_status", args=(self.booking.id,))

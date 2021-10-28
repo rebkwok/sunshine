@@ -20,7 +20,7 @@
                 </div>
                 <div class="col-sm-2 filter">{{ form.filtered_session_type }}</div>
                 <div class="col-sm-2 filter">{{ form.filtered_venue }}</div>
-                <div class="col-sm-1"><input class="btn btn-warning table-btn" type="submit" value="Go" /></div>
+                <div class="col-sm-1"><input class="btn btn-warning btn-sm pt-0 pb-0" type="submit" value="Go" /></div>
             </div>
         </form>
         </br>
@@ -30,7 +30,7 @@
                 <div class="table-responsive">
                     <table class="table">
                         <thead>
-                        <tr>
+                        <tr class="table-heading">
                             <th></th>
                             <th>Day</th>
                             <th>Time</th>
@@ -49,7 +49,7 @@
                         <tr>
                             <td class="table-center timetable-row">
                                 <a href="{% url 'booking:classes' %}?name={{session.name}}&level={{session.level}}&venue={{session.venue.abbreviation}}&day={{session.session_day}}&time={{session.start_time|date:'H:i'}}">
-                                <div class="btn btn-warning table-btn booking-btn">View Dates</div></a>
+                                <div class="btn btn-warning btn-sm pt-0 pb-0"><span class="text-dark">View Dates</span></div></a>
                             </td>
                             <td class="timetable-row">{{ session.session_day|format_day }}</td>
                             <td class="timetable-row">{{ session.start_time|time:"H:i" }} - {{ session.end_time|time:"H:i" }}</td>
