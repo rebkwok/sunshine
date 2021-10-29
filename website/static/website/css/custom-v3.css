@@ -10,57 +10,29 @@
 	background-size: cover;
 }
 
-/* body {
-	background-color: transparent;
-}
-
-
-html,
-body {
-	height: 100%;
-}
-
-
-/* Wrapper for page content to push down footer */
-/* .wrap {
-	min-height: 100%;
-	height: auto !important;
-	height: 100%;
-	/* Negative indent footer by it's height */
-	/* margin-bottom: -80px;
-} */ 
-
-/* Set the fixed height of the footer here */
-/* .push,
-.footer {
-	height: 80px;
-}
-
-.footer {
-	background-color: transparent;
-} */
 
 html, body {
     height: 100%;
     width: 100%;
   }
-  body {
-    background-color: transparent;
-    font-family: "Helvetica Neue", Arial, sans-serif;
-  }
-  .wrapper {
-    min-height: 100%;
-    /* top margin to allow for navbar */
-    margin-top: 80px;
-    /* bottom margin to offset footer */
-    margin-bottom: 60px;
-  }
-  
-  .footer {
-    width: 100%;
-    /* fixed height of the footer */
-    height: 60px;
-  }
+body {
+background-color: transparent;
+font-family: "Helvetica Neue", Arial, sans-serif;
+}
+.wrapper {
+min-height: 100%;
+/* bottom margin to offset footer */
+margin-bottom: 60px;
+}
+main {
+    /* top margin to add some spacing under fixed navbar */
+    margin-top: 15px;
+}
+.footer {
+width: 100%;
+/* fixed height of the footer */
+height: 60px;
+}
   
 
 /* Lastly, apply responsive CSS fixes as necessary */

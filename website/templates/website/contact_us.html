@@ -2,33 +2,29 @@
 
 {% block content %}
 
-<div class="container">
-	<div class="row">
-		<div class="page-header col-12">
-			<h1>Contact us</h1>
-        </div>
-		<div class="col-12">
-            <h3>Class Bookings</h3>
-                <p>For details of specific classes and to book, please see the
-                    <a href="{% url 'timetable:timetable' %}">timetable</a>.</p>
-
-            <h3>Other enquiries</h3>
-
-                <p>For enquiries about classes, membership options, private bookings, or any other questions, please use our contact form below:</p>
-                <div class="panel panel-booking">
-                    {% include 'website/contact_form_detail.html' %}
-                </div>
-
-            <h3 class="mt-2">Address</h3>
-                <p>Woodend Business Centre<br/>
-                Cowdenbeath<br/>
-                KY4 8HG</p>
-
-            <h3>Email</h3>
-                <p>You can also contact us by email at <a href="mailto:{{ studio_email }}" target="_blank">
-				{{ studio_email }}</a>.</p>
-        </div>
+    <div class="page-header">
+        <h1>Contact us</h1>
     </div>
-</div>
+    <div>
+        <h3>Class Bookings</h3>
+            <p>For details of specific classes and to book, please see the
+                <a href="{% url 'timetable:timetable' %}">timetable</a>.</p>
+
+        <h3>Other enquiries</h3>
+
+            <p>For enquiries about classes, membership options, private bookings, or any other questions, please use our contact form below:</p>
+            <div class="panel panel-booking">
+                {% include 'website/contact_form_detail.html' %}
+            </div>
+
+        <h3 class="mt-2">Address</h3>
+            <p>Woodend Business Centre<br/>
+            Cowdenbeath<br/>
+            KY4 8HG</p>
+
+        <h3>Email</h3>
+            <p>You can also contact us by email at <a href="mailto:{{ studio_email }}" target="_blank">
+            {{ studio_email }}</a>.</p>
+    </div>
 
 {% endblock %}

@@ -23,13 +23,9 @@
 
         {% if day and time %}
             <h3>
-                Showing classes for {{ name }} - {{ day }} {{ time }} at {{ venue }}<br/>
+                Showing classes for {{ name }} - {{ day }} {{ time }}<br/>
             </h3>
-            {% if event_type == "workshop" %}
-            <a class="btn btn-warning table-btn" href="{% url 'booking:workshops' %}">
-            {% else %}
             <a class="btn btn-warning table-btn" href="{% url 'booking:classes' %}">
-            {% endif %}
             <span class="text-dark">Show all</span></a>
             <br/><br/>
         {% endif %}
@@ -87,6 +83,9 @@
                                 <th class="table-center">Date</th>
                                 <th class="table-center">{{ event_type|title}}</th>
                                 <th class="table-center">Venue</th>
+                                {% if event_type == "workshop" %}
+                                    <th class="table-center">Cost</th>
+                                {% endif %}
                                 <th class="table-center">Spaces</th>
                             </tr>
                             <tbody>
@@ -133,6 +132,9 @@
                                     <td class="table-center">{{ event.date | date:"D d M H:i" }}</td>
                                     <td class="table-center"><a href="{% url 'booking:event_detail' event.slug %}">{{ event.name }}</a></td>
                                     <td class="table-center">{{ event.venue.abbreviation }}</td>
+                                    {% if event_type == "workshop" %}
+                                        <td class="table-center">£{{ event.cost }}</td>
+                                    {% endif %}
                                     <td class="table-center">
                                         {% if event.max_participants %}
                                             <span id="booking_count_{{ event.id }}"
