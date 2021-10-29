@@ -14,6 +14,7 @@ from django.core.management.base import BaseCommand
 from django.db.models import Q
 from booking.models import Booking, Event
 from activitylog.models import ActivityLog
+from sunshine.settings import DOMAIN
 
 
 class Command(BaseCommand):
@@ -41,7 +42,8 @@ class Command(BaseCommand):
                   'event': booking.event,
                   'date': booking.event.date.strftime('%A %d %B'),
                   'time': booking.event.date.strftime('%I:%M %p'),
-                  'ev_type': 'workshop' if booking.event.event_type == 'workshop' else 'class'
+                  'ev_type': 'workshop' if booking.event.event_type == 'workshop' else 'class',
+                  'domain': settings.DOMAIN,
             }
             send_mail(
                 '{} Reminder: your booking for {}'.format(settings.ACCOUNT_EMAIL_SUBJECT_PREFIX, booking.event),
