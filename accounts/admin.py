@@ -147,7 +147,7 @@ class DisclaimerContentAdmin(admin.ModelAdmin):
     add_form_template = "accounts/admin/admin_disclaimer_content_change_form.html"
     change_form_template = "accounts/admin/admin_disclaimer_content_change_form.html"
     actions = []
-
+    
     def has_delete_permission(self, request, obj=None):
         return False
 

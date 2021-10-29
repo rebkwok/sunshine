@@ -185,6 +185,9 @@ class DisclaimerContent(models.Model):
     form = FormField(verbose_name="health questionnaire", null=True, blank=True)
     is_draft = models.BooleanField(default=False)
 
+    class Meta:
+        verbose_name = "Disclaimer Terms & PARQ"
+
     @classmethod
     def current_version(cls):
         current_content = DisclaimerContent.current()
@@ -201,7 +204,7 @@ class DisclaimerContent(models.Model):
         return "draft" if self.is_draft else "published"
 
     def __str__(self):
-        return f'Disclaimer Content - Version {self.version} ({self.status})'
+        return f'Disclaimer Terms & PARQ - Version {self.version} ({self.status})'
 
     def save(self, **kwargs):
         if not self.id:
@@ -218,7 +221,7 @@ class DisclaimerContent(models.Model):
             self.issue_date = timezone.now()
         super().save(**kwargs)
         ActivityLog.objects.create(
-            log='Disclaimer Content version {} created'.format(self.version)
+            log='Disclaimer Terms & PARQ version {} created'.format(self.version)
         )
 
 

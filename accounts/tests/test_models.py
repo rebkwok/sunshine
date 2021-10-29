@@ -175,7 +175,7 @@ class DisclaimerContentModelTests(TestCase):
 
     def test_str(self):
         disclaimer_content = make_disclaimer_content()
-        assert str(disclaimer_content) == f'Disclaimer Content - Version {disclaimer_content.version} (published)'
+        assert str(disclaimer_content) == f'Disclaimer Terms & PARQ - Version {disclaimer_content.version} (published)'
 
     def test_new_version_must_have_new_terms(self):
         make_disclaimer_content(disclaimer_terms="foo", version=None)

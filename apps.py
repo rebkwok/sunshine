@@ -1,4 +1,4 @@
-from suit.apps import DjangoSuitConfig, SUIT_FORM_SIZE_SMALL, SUIT_FORM_SIZE_LARGE, SUIT_FORM_SIZE_X_LARGE
+from suit.apps import DjangoSuitConfig, SUIT_FORM_SIZE_FULL, SUIT_FORM_SIZE_SMALL, SUIT_FORM_SIZE_LARGE, SUIT_FORM_SIZE_X_LARGE
 from suit.menu import ParentItem, ChildItem
 
 
@@ -9,7 +9,13 @@ class SuitConfig(DjangoSuitConfig):
         'default': SUIT_FORM_SIZE_SMALL,
         # 'fields': {}
         'widgets': {
-            'RelatedFieldWidgetWrapper': SUIT_FORM_SIZE_LARGE
+            'RelatedFieldWidgetWrapper': SUIT_FORM_SIZE_LARGE,
+            'AdminTextInputWidget': SUIT_FORM_SIZE_FULL,
+             'CheckboxInput': SUIT_FORM_SIZE_FULL,
+             'AdminTextareaWidget':SUIT_FORM_SIZE_FULL,
+             'Select': SUIT_FORM_SIZE_FULL,
+             'FormBuilderWidget': SUIT_FORM_SIZE_FULL,
+             'NumberInput': SUIT_FORM_SIZE_FULL,
         }
         # 'fieldsets': {}
     }
@@ -27,7 +33,7 @@ class SuitConfig(DjangoSuitConfig):
         ParentItem('Policies', children=[
             ChildItem(model='accounts.cookiepolicy'),
             ChildItem(model='accounts.dataprivacypolicy'),
-            ChildItem("Disclaimer versions", model='accounts.disclaimercontent'),
+            ChildItem(model='accounts.disclaimercontent'),
         ], icon='fa fa-users', permissions=superuser_permissions),
         ParentItem('Timetable', children=[
             ChildItem(model='timetable.sessiontype'),

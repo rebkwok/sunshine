@@ -4,6 +4,7 @@
 {% block extrastyle %}
 {{ block.super }}
 <link href="{% static 'website/css/admin-extra.css' %}" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css" integrity="sha512-aOG0c6nPNzGk+5zjwyJaoRUgCdOrfSDhmMID2u4+OIslr0GjpLKo7Xm0Ao3xmpM4T8AmIouRkqwj1nrdVsLKEQ==" crossorigin="anonymous" />
 {% endblock %}
 
 
@@ -15,6 +16,7 @@
 {{ block.super}}
     {% bootstrap_javascript jquery=True %}
     {% block extra_scripts %}
-    {% comment %} <script src="{% static 'booking/js/collapse-admin-menu.js' %}"></script> {% endcomment %}
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js" integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU=" crossorigin="anonymous"></script>
+    <script src="https://formbuilder.online/assets/js/form-builder.min.js"></script>
     {% endblock %}
 {% endblock %}
