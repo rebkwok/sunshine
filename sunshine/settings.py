@@ -364,7 +364,7 @@ def show_toolbar(request):  # pragma: no cover
     return True
 
 
-if 'test' in sys.argv:  # use local cache for tests
+if 'test' in sys.argv or env('CI'):  # use local cache for tests
     CACHES = {
         'default': {
             'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
