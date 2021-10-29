@@ -4,49 +4,49 @@
 
 {% block subcontent %}
 <div class="container-fluid">
-<div class="row">
-    <div class="col-12">
-    <h2>Scheduled {% if event_type == 'workshop' %}Workshops{% else %}Classes{% endif %}: Registers & Waiting Lists</h2>
-        {% if request.GET.show_all %}
-            Showing registers for all classes.  <a href="{{ event_type|get_register_list_url }}">Show just the next week</a>
-        {% else %}
-            Showing registers for the next week.  <a href="{{ event_type|get_register_list_url:'all' }}">Show all</a>
-        {% endif %}
+    <div class="row">
+        <div class="col-12">
+        <h2>Scheduled {% if event_type == 'workshop' %}Workshops{% else %}Classes{% endif %}: Registers & Waiting Lists</h2>
+            {% if request.GET.show_all %}
+                Showing registers for all classes.  <a href="{{ event_type|get_register_list_url }}">Show just the next week</a>
+            {% else %}
+                Showing registers for the next week.  <a href="{{ event_type|get_register_list_url:'all' }}">Show all</a>
+            {% endif %}
+        </div>
     </div>
-</div>
     <div class="row">
     {% if events %}
-            <table class="table table-responsive table-striped order-column" id="sortedRegisterTable">
-                    <thead class="thead-dark">
-                    <tr>
-                        <th>Date</th>
-                        <th>{% if type == 'workshop' %}Workshop{% else %}Class{% endif %}<br/>
-                            <span class="studioadmin-help">Click for register</span></th>
-                        <th class="table-center no-sort">Bookings</th>
-                        <th class="table-center no-sort">Waiting List</th>
-                    </tr>
-                    </thead>
+        <table class="table table-responsive table-striped order-column" id="sortedRegisterTable">
+                <thead class="thead-dark">
+                <tr>
+                    <th>Date</th>
+                    <th>{% if type == 'workshop' %}Workshop{% else %}Class{% endif %}<br/>
+                        <span class="studioadmin-help">Click for register</span></th>
+                    <th class="table-center no-sort">Bookings</th>
+                    <th class="table-center no-sort">Waiting List</th>
+                </tr>
+                </thead>
 
-                    <tbody>
-                    {% for event in events %}
-                    <tr>
-                        <td>{{ event.date|formatted_uk_date:"%a %d %b, %H:%M" }}</td>
-                        <td class="table-wrap">
-                            <a href="{% url 'studioadmin:event_register' event.slug %}">{{ event.name }}</a>
-                        </td>
-                        <td class="table-center">
-                            <span class="badge badge-pill badge-admin-waiting-list {% if event.spaces_left == 0 %}badge-secondary{% else %}badge-success{% endif %}">
-                            {{ event|bookings_count }}{% if event.max_participants %}/{{ event.max_participants }}{% endif %}</td>
-                            </span>
-                        <td class="table-center">
-                            {% if event.waitinglistusers.count > 0 %}
-                                <a href="{% url 'studioadmin:event_waiting_list' event.slug %}"><i class="fas fa-external-link-alt"></i></a>
-                            {% endif %}
-                        </td>
-                    </tr>
-                    {% endfor %}
-                    </tbody>
-            </table>
+                <tbody>
+                {% for event in events %}
+                <tr>
+                    <td>{{ event.date|formatted_uk_date:"%a %d %b, %H:%M" }}</td>
+                    <td class="table-wrap">
+                        <a href="{% url 'studioadmin:event_register' event.slug %}">{{ event.name }}</a>
+                    </td>
+                    <td class="table-center">
+                        <span class="badge badge-pill badge-admin-waiting-list {% if event.spaces_left == 0 %}badge-secondary{% else %}badge-success{% endif %}">
+                        {{ event|bookings_count }}{% if event.max_participants %}/{{ event.max_participants }}{% endif %}</td>
+                        </span>
+                    <td class="table-center">
+                        {% if event.waitinglistusers.count > 0 %}
+                            <a href="{% url 'studioadmin:event_waiting_list' event.slug %}"><i class="fas fa-external-link-alt"></i></a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+        </table>
     {% else %}
         <p>There are currently no {% if event_type == 'workshop' %}workshops{% else %}classes{% endif %} scheduled.</p>
     {% endif %}
@@ -60,7 +60,7 @@
         $.fn.dataTable.moment( 'ddd DD MMM, HH:mm' );
         $('#sortedRegisterTable').DataTable({
             "pagingType": "full_numbers",
-            "lengthChange":     false,
+            "lengthChange": false,
             "searching": false,
             "responsive": true,
             columnDefs: [{
