@@ -192,7 +192,7 @@ class EventAdmin(DjangoObjectActions, admin.ModelAdmin):
             'fields': ('contact_email', 'email_studio_when_booked')
         }),
         ('Payment Information', {
-            'fields': ('cost', 'paypal_email')
+            'fields': ('cost',)
         }),
         ('Cancellation (refundable)', {
             'fields': ('allow_booking_cancellation', 'cancellation_period',
