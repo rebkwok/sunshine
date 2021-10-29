@@ -17,10 +17,12 @@ root = environ.Path(__file__) - 2  # two folders back (/a/b/ - 3 = /)
 
 env = environ.Env(DEBUG=(bool, False),
                   PAYPAL_TEST=(bool, False),
+                  DEFAULT_PAYPAL_EMAIL=(str, None),
                   USE_MAILCATCHER=(bool, False),
                   SHOW_DEBUG_TOOLBAR=(bool, False),
                   AUTO_BOOK_EMAILS=(list, []),
                   LOCAL=(bool, False),
+                  CI=(bool, False),
                   CACHE_BACKEND=(str, 'django.core.cache.backends.memcached.MemcachedCache'),
                   CACHE_LOCATION=(str, '127.0.0.1:11211')
                   )
@@ -46,7 +48,7 @@ else:  # pragma: no cover
 
 DOMAIN = "sunshinefitness.co.uk"
 ALLOWED_HOSTS = [DOMAIN]
-if env('LOCAL'):  # pragma: no cover
+if env('LOCAL') or env('CI'):  # pragma: no cover
     ALLOWED_HOSTS = ['*']
 
 # Application definition
@@ -191,7 +193,7 @@ TEMPLATES = [
     },
 ]
 
-if env('LOCAL'):
+if env("LOCAL") or env("CI"):
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 else:
     EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
@@ -220,74 +222,127 @@ if env('USE_MAILCATCHER'):  # pragma: no cover
 
 LOG_FOLDER = env('LOG_FOLDER')
 
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'formatters': {
-        'verbose': {
-            'format': '[%(levelname)s] - %(asctime)s - %(name)s - '
-                      '%(message)s',
-            'datefmt': '%Y-%m-%d %H:%M:%S',
-        }
-    },
-    'handlers': {
-        'file_app': {
-            'level': 'INFO',
-            'class': 'logging.handlers.RotatingFileHandler',
-            'filename': os.path.join(LOG_FOLDER, 'sunshine.log'),
-            'maxBytes': 1024*1024*5,  # 5 MB
-            'backupCount': 5,
-            'formatter': 'verbose'
+
+if env("LOCAL") or env("CI"):
+    LOGGING = {
+        'version': 1,
+        'disable_existing_loggers': False,
+        'formatters': {
+            'verbose': {
+                'format': '[%(levelname)s] - %(asctime)s - %(name)s - '
+                        '%(message)s',
+                'datefmt': '%Y-%m-%d %H:%M:%S',
+            }
         },
-        'console': {
-            'level': 'DEBUG',
-            'class': 'logging.StreamHandler',
-            'formatter': 'verbose'
+        'handlers': {
+            'console': {
+                'level': 'DEBUG',
+                'class': 'logging.StreamHandler',
+                'formatter': 'verbose'
+            },
+            'mail_admins': {
+                    'level': 'ERROR',
+                    'class': 'django.utils.log.AdminEmailHandler',
+                    'include_html': True,
+            },
         },
-        'mail_admins': {
-                'level': 'ERROR',
-                'class': 'django.utils.log.AdminEmailHandler',
-                'include_html': True,
+        'loggers': {
+            '': {
+                'handlers': ['console', 'mail_admins'],
+                'level': 'WARNING',
+                'propagate': True,
+            },
+            'accounts': {
+                'handlers': ['console', 'mail_admins'],
+                'level': 'INFO',
+                'propagate': False,
+            },
+            'booking': {
+                'handlers': ['console', 'mail_admins'],
+                'level': 'INFO',
+                'propagate': False,
+            },
+            'payments': {
+                'handlers': ['console', 'mail_admins'],
+                'level': 'INFO',
+                'propagate': False,
+            },
+            'website': {
+                'handlers': ['console', 'mail_admins'],
+                'level': 'INFO',
+                'propagate': False,
+            },
+            'timetable': {
+                'handlers': ['console', 'mail_admins'],
+                'level': 'INFO',
+                'propagate': False,
+            },
         },
-    },
-    'loggers': {
-        '': {
-            'handlers': ['console', 'file_app', 'mail_admins'],
-            'level': 'WARNING',
-            'propagate': True,
+    }
+else:
+    LOGGING = {
+        'version': 1,
+        'disable_existing_loggers': False,
+        'formatters': {
+            'verbose': {
+                'format': '[%(levelname)s] - %(asctime)s - %(name)s - '
+                        '%(message)s',
+                'datefmt': '%Y-%m-%d %H:%M:%S',
+            }
         },
-        'accounts': {
-            'handlers': ['console', 'file_app', 'mail_admins'],
-            'level': 'INFO',
-            'propagate': False,
+        'handlers': {
+            'file_app': {
+                'level': 'INFO',
+                'class': 'logging.handlers.RotatingFileHandler',
+                'filename': os.path.join(LOG_FOLDER, 'sunshine.log'),
+                'maxBytes': 1024*1024*5,  # 5 MB
+                'backupCount': 5,
+                'formatter': 'verbose'
+            },
+            'console': {
+                'level': 'DEBUG',
+                'class': 'logging.StreamHandler',
+                'formatter': 'verbose'
+            },
+            'mail_admins': {
+                    'level': 'ERROR',
+                    'class': 'django.utils.log.AdminEmailHandler',
+                    'include_html': True,
+            },
         },
-        'booking': {
-            'handlers': ['console', 'file_app', 'mail_admins'],
-            'level': 'INFO',
-            'propagate': False,
+        'loggers': {
+            '': {
+                'handlers': ['console', 'file_app', 'mail_admins'],
+                'level': 'WARNING',
+                'propagate': True,
+            },
+            'accounts': {
+                'handlers': ['console', 'file_app', 'mail_admins'],
+                'level': 'INFO',
+                'propagate': False,
+            },
+            'booking': {
+                'handlers': ['console', 'file_app', 'mail_admins'],
+                'level': 'INFO',
+                'propagate': False,
+            },
+            'payments': {
+                'handlers': ['console', 'file_app', 'mail_admins'],
+                'level': 'INFO',
+                'propagate': False,
+            },
+            'website': {
+                'handlers': ['console', 'file_app', 'mail_admins'],
+                'level': 'INFO',
+                'propagate': False,
+            },
+            'timetable': {
+                'handlers': ['console', 'file_app', 'mail_admins'],
+                'level': 'INFO',
+                'propagate': False,
+            },
         },
-        'payments': {
-            'handlers': ['console', 'file_app', 'mail_admins'],
-            'level': 'INFO',
-            'propagate': False,
-        },
-        'website': {
-            'handlers': ['console', 'file_app', 'mail_admins'],
-            'level': 'INFO',
-            'propagate': False,
-        },
-        'timetable': {
-            'handlers': ['console', 'file_app', 'mail_admins'],
-            'level': 'INFO',
-            'propagate': False,
-        },
-        'gallery': {
-            'handlers': ['console', 'file_app', 'mail_admins'],
-            'level': 'INFO',
-            'propagate': False,
-        },
-    },
-}
+    }
 
 ADMINS = [("Becky Smith", SUPPORT_EMAIL)]
 
