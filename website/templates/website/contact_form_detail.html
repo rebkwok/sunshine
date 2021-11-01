@@ -2,7 +2,7 @@
     <form class="form-horizontal" method="post" action="">
         {% csrf_token %}
 
-        <div class="form-group-sm col-xs-12">
+        <div class="form-group-sm col-12">
 
             {% for field in form %}
                 {% if field.name == 'cc' or field.name == 'data_privacy_accepted' %}
