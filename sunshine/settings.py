@@ -133,7 +133,7 @@ AUTHENTICATION_BACKENDS = (
 ACCOUNT_AUTHENTICATION_METHOD = "username_email"
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_EMAIL_VERIFICATION = "optional"
-ACCOUNT_EMAIL_SUBJECT_PREFIX = "[sunshine fitness]"
+ACCOUNT_EMAIL_SUBJECT_PREFIX = "[sunshine fitness] "
 ACCOUNT_SIGNUP_FORM_CLASS = 'accounts.forms.SignupForm'
 ACCOUNT_LOGOUT_REDIRECT_URL ="/"
 
@@ -371,6 +371,7 @@ if 'test' in sys.argv or env('CI'):  # use local cache for tests
             'LOCATION': 'test-cache',
         }
     }
+
 
 if env('SHOW_DEBUG_TOOLBAR') and 'test' not in sys.argv:  # pragma: no cover
     ENABLE_DEBUG_TOOLBAR = True

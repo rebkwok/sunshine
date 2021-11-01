@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.cache import cache
 from django.db.models.signals import post_save, post_delete
@@ -17,14 +18,12 @@ def user_post_save(sender, instance, created, *args, **kwargs):
             )
         )
 
-        # Email info to user (skip if no email address)
-        if instance.email:
-            ctx = {
-                "host": f"https://{{ settings.DOMAIN}}"
-            }
+        # Email info to user (skip if no email address, or if we're running tests)
+        if instance.email and not getattr(settings, "SKIP_NEW_ACCOUNT_EMAIL", False):
             send_email(
-                request=None, ctx=ctx, subject="Studio and class information",
-                template_txt="accounts/email/new_user_info.txt", template_html="accounts/email/new_user_info.html",
+                request=None, ctx={}, subject="Studio and class information",
+                template_txt="accounts/email/new_user_info.txt", 
+                template_html="accounts/email/new_user_info.html",
                 to_list=[instance.email]
             )
 
