@@ -47,7 +47,7 @@ else:  # pragma: no cover
     DEBUG = False
 
 DOMAIN = "sunshinefitness.co.uk"
-ALLOWED_HOSTS = [DOMAIN]
+ALLOWED_HOSTS = [DOMAIN, f"vagrant.{DOMAIN}", f"test.{DOMAIN}"]
 if env('LOCAL') or env('CI'):  # pragma: no cover
     ALLOWED_HOSTS = ['*']
 
