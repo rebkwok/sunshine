@@ -198,8 +198,8 @@ if env("LOCAL") or env("CI"):
 else:
     EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
     EMAIL_USE_TLS = True
-    EMAIL_HOST = 'smtp.gmail.com'
-    EMAIL_HOST_USER = 'coderebk@gmail.com'
+    EMAIL_HOST = 'mail.gandi.net'
+    EMAIL_HOST_USER = 'booking@sunshinefitness.co.uk'
     EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD', None)
     if EMAIL_HOST_PASSWORD is None:  # pragma: no cover
         print("No email host password provided!")
