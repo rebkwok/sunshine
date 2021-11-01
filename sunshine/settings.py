@@ -27,7 +27,7 @@ env = environ.Env(DEBUG=(bool, False),
                   CACHE_LOCATION=(str, '127.0.0.1:11211')
                   )
 
-environ.Env.read_env(root('sunshine/.env'))  # reading .env file
+environ.Env.read_env(root('.env'))  # reading .env file
 BASE_DIR = root()
 
 
@@ -199,12 +199,12 @@ else:
     EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
     EMAIL_USE_TLS = True
     EMAIL_HOST = 'smtp.gmail.com'
-    EMAIL_HOST_USER = 'sunshinefitnessweb@gmail.com'
+    EMAIL_HOST_USER = 'coderebk@gmail.com'
     EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD', None)
     if EMAIL_HOST_PASSWORD is None:  # pragma: no cover
         print("No email host password provided!")
     EMAIL_PORT = 587
-DEFAULT_FROM_EMAIL = 'sunshinefitnessweb@gmail.com'
+DEFAULT_FROM_EMAIL = 'sunshinefitnessfife@gmail.com'
 DEFAULT_STUDIO_EMAIL = 'sunshinefitnessfife@gmail.com'
 
 SUPPORT_EMAIL = 'rebkwok@gmail.com'
