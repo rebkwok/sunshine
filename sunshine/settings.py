@@ -135,7 +135,7 @@ ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_EMAIL_VERIFICATION = "mandatory"
 ACCOUNT_EMAIL_SUBJECT_PREFIX = "[sunshine fitness]"
 ACCOUNT_SIGNUP_FORM_CLASS = 'accounts.forms.SignupForm'
-ACCOUNT_LOGOUT_REDIRECT_URL ="/about"
+ACCOUNT_LOGOUT_REDIRECT_URL ="/"
 
 ABSOLUTE_URL_OVERRIDES = {
     'auth.user': lambda o: "/users/%s/" % o.username,

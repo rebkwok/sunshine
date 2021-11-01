@@ -1,0 +1,44 @@
+Thank you for registering for an account.
+
+Please read the following information carefully and drop us an email or contact us on social media if you have any questions.
+
+How to prepare for a Sunshine pole class
+
+What's best to wear?
+•Bare skin is what allows you to grip the pole, so we recommend fitted shorts and a vest top. (There are alternative options if you do not wish to wear shorts.) Make sure you have something warm to wear until you warm up.
+•Class can be done in socks, barefoot or indoor trainers.
+•Strictly no jewellery, we recommend leaving all jewellery at home to keep it safe.
+
+What to bring?
+•Water bottle.
+•Small hand towel/cloth for wiping the pole.
+•Kneepads for attending "Poledance" classes.
+
+Before paying, please be aware of the following.
+•Memberships are due on the 1st day of the month.
+•Payment can be made via bank transfer or cash (see bank details bellow).
+•All paid classes must be used up by the end of the month and will not be carried over to the following month.
+•No refunds will be given.
+
+Arriving at the facility.
+•Do not park infront of the blue containers or infront of the big black door marked 1A as other businesses need 24 hour access.
+•Our entrance is down the stone walkway and up the stairs.
+•Please arrive 5 minutes before your class is due to start and wait until the instructor invites you into the studio.
+•If you miss the warm up you will not be permitted to take part in the class for safety reasons.
+
+Come as you are.
+We run a come as you are policy. This means you do not need to shave, lose weight, be stronger or fitter or change in any way to attend these classes. Pole is for absolutely everyone and we are a safe and inclusive environment for you to be 100% your authentic self.
+
+Price List
+Single class £8
+4 classes per month £30
+8 classes per month £55
+12 classes per month £70
+
+Payment details.
+Kira Grant
+Bank of Scotland
+80-45-83
+10119869
+
+{% include 'account/email/footer.txt' %}

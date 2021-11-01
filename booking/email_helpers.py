@@ -19,6 +19,7 @@ def send_email(
     to_list = to_list or []
     bcc_list = bcc_list or []
     reply_to_list = reply_to_list or [settings.DEFAULT_STUDIO_EMAIL]
+    ctx.update({"studio_email": settings.DEFAULT_STUDIO_EMAIL})
     if request:
         host = 'http://{}'.format(request.META.get('HTTP_HOST'))
         ctx.update({'host': host})

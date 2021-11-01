@@ -5,7 +5,7 @@ from django.dispatch import receiver
 
 from activitylog.models import ActivityLog
 from accounts.models import active_disclaimer_cache_key, OnlineDisclaimer
-
+from booking.email_helpers import send_email
 
 @receiver(post_save, sender=User)
 def user_post_save(sender, instance, created, *args, **kwargs):
@@ -16,6 +16,17 @@ def user_post_save(sender, instance, created, *args, **kwargs):
                     instance.first_name, instance.last_name, instance.username,
             )
         )
+
+        # Email info to user (skip if no email address)
+        if instance.email:
+            ctx = {
+                "host": f"https://{{ settings.DOMAIN}}"
+            }
+            send_email(
+                request=None, ctx=ctx, subject="Studio and class information",
+                template_txt="accounts/email/new_user_info.txt", template_html="accounts/email/new_user_info.html",
+                to_list=[instance.email]
+            )
 
 
 @receiver(post_delete, sender=OnlineDisclaimer)
