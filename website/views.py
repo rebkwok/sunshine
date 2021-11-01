@@ -16,6 +16,10 @@ def home(request):
     return render(request, 'website/home.html', {'section': 'home', 'class_types': class_types})
 
 
+def faq(request):
+    return render(request, 'website/faq.html')
+
+
 def process_contact_form(request, template_name):
     form = ContactForm(request.POST)
 

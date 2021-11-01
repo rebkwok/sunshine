@@ -156,6 +156,7 @@ class DisclaimerForm(forms.ModelForm):
             "phone",
             "date_of_birth",
             HTML("<h3>Emergency Contact Information</h3>"),
+            HTML("<p>Your emergency contact will be contacted in the case of an accident or emergency.</p>"),
             "emergency_contact_name",
             "emergency_contact_phone",
             "emergency_contact_relationship",

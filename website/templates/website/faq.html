@@ -1,0 +1,60 @@
+{% extends 'website/_base.html' %}
+{% load static %}
+
+{% block bg_class %}plain_bg{%  endblock %}
+
+{% block content %}
+
+        <div class="row">
+			<div class="col-12">
+                <h1 class="page-header">Frequently Asked Questions</h1>
+            </div>
+
+            <div class="col-12">
+
+            <h2>How to prepare for a Sunshine pole class</h2>
+
+            <h4>What's best to wear?</h4>
+
+                <ul>
+                    <li>Bare skin is what allows you to grip the pole, so we recommend fitted shorts and a vest top. (There are alternative options if you do not wish to wear shorts.) Make sure you have something warm to wear until you warm up.</li>
+                    <li>Class can be done in socks, barefoot or indoor trainers.</li>
+                    <li>Strictly no jewellery, we recommend leaving all jewellery at home to keep it safe.</li>
+                </ul>
+
+            <h4>What to bring?</h4>
+                <ul>
+                    <li>Water bottle.</li>
+                    <li>Small hand towel/cloth for wiping the pole.</li>
+                    <li>Kneepads for attending "Poledance" classes.</li>
+                </ul>
+
+            <h2>Prices and Payment Info</h2>
+                {% include 'website/includes/membership.html' %}
+
+                <strong>Before paying, please be aware of the following.</strong>
+                <ul>
+                    <li>Memberships are due on the 1st day of the month.</li>
+                    <li>Payment can be made via bank transfer or cash (see bank details bellow).</li>
+                    <li>All paid classes must be used up by the end of the month and will not be carried over to the following month.</li>
+                    <li>No refunds will be given.</li>
+                </ul>
+
+            <h2>Arriving at the facility.</h2>
+                <ul>
+                    <li>Do not park in front of the blue containers or in front of the big black door marked 1A as other businesses need 24 hour access.</li>
+                    <li>Our entrance is down the stone walkway and up the stairs.</li>
+                    <li>Please arrive 5 minutes before your class is due to start and wait until the instructor invites you into the studio.</li>
+                    <li>If you miss the warm up you will not be permitted to take part in the class for safety reasons.</li>
+                </ul>
+
+            <h2>Come as you are.</h2>
+            <p>We run a come as you are policy. This means you do not need to shave, lose weight, be stronger or fitter or change in any way to attend these classes.
+            Pole is for absolutely everyone and we are a safe and inclusive environment for you to be 100% your authentic self.<p/>
+
+
+		</div>
+
+</div>  <!-- container-fluid -->
+
+{% endblock %}
