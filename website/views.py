@@ -56,6 +56,7 @@ def process_contact_form(request, template_name):
         return_url = request.session.get(
             'return_url', reverse('website:contact')
         )
+        messages.success(request, "Thanks for your enquiry!  Your email has been sent and we'll be in touch soon.")
         return HttpResponseRedirect(return_url)
 
     else:

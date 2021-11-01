@@ -100,7 +100,7 @@ class ContactForm(forms.Form):
         }),
         label=mark_safe(
             "I confirm I have reviewed and accept the terms of the "
-            "<a href='/data-privacy-policy'>data privacy policy</a>"
+            "<a href='/data-privacy-policy' target='_blank'>data privacy policy</a>"
         ),
         required=False
     )
