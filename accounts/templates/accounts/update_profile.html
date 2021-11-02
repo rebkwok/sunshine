@@ -11,7 +11,7 @@
                       {{ form.non_field_errors }}
                             {% for field in form %}
                                 {% if field.name == 'confirmation_key' %}
-                                    <span class="hide">{{ field }}</span>
+                                    <span class="d-none">{{ field }}</span>
                                 {% else %}
                                     <div class="form-group">
                                        <label class="control-label" for="{{ field.name }}_id">{{ field.label }}{% if field.field.required %}*{% endif %}</label><br/>

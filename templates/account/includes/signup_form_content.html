@@ -1,6 +1,6 @@
     {% for field in form %}
         {% if field.name  == 'content' %}
-            <span class="hide">{{ field }}</span>
+            <span class="d-none">{{ field }}</span>
             <div class="dp-box pre-scrollable"><h2>Data Privacy & Cookie Policy</h2>
             <h5>Version: {{ form.data_privacy_policy.version }}.  Issue date: {{ form.data_privacy_policy.issue_date | date:'d M Y' }}.</h5>
                 <h3>Data Privacy</h3>
@@ -14,7 +14,6 @@
                     {% if field.errors %} {{ field.errors }}{% endif %}
                </div>
            </div>
-
         {% else %}
             <div class="form-actions">
             <label class="control-label" for="{{ field.name }}_id">{{ field.label }}{% if field.field.required %}*{% endif %}</label>
