@@ -21,8 +21,11 @@ def send_email(
     reply_to_list = reply_to_list or [settings.DEFAULT_STUDIO_EMAIL]
     ctx.update({"studio_email": settings.DEFAULT_STUDIO_EMAIL})
     if request:
+        domain = request.META.get('HTTP_HOST')
         host = 'http://{}'.format(request.META.get('HTTP_HOST'))
-        ctx.update({'host': host})
+        ctx.update({'domain': domain})
+    else:
+        ctx.update({"domain": settings.DOMAIN})
     try:
         msg = EmailMultiAlternatives(
             '{}{}'.format(
