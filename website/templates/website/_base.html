@@ -51,7 +51,9 @@
                     <li class="nav-item"><a class="account-menu-option" href="{% url 'booking:bookings' %}">Bookings</a></li>
                     <li class="nav-item"><a class="account-menu-option" href="{% url 'booking:booking_history' %}">Past bookings</a></li>
                     <li class="nav-item"><a class="account-menu-option" href="{% url 'account_logout' %}">Log out</a></li>
-                    {% if user.is_staff %}
+
+                    {% if user.is_staff or user.is_superuser %}
+                        <div class="dropdown-divider"></div>
                         <li class="nav-item"><a class="account-menu-option" href="{% url 'studioadmin:regular_session_register_list' %}">Instructor Admin</a></li>
                     {% endif %}
                     {% if user.is_superuser %}
