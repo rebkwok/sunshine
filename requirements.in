@@ -16,7 +16,7 @@ django-braces
 django-migration-testcase
 django-object-actions
 # django-suit v2 branch 15/2/20
-git+git://github.com/darklow/django-suit.git@v2
+git+https://github.com/darklow/django-suit.git@v2
 django-paypal
 dynamic-django-forms
 shortuuid
