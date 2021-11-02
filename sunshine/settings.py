@@ -204,7 +204,7 @@ else:
     if EMAIL_HOST_PASSWORD is None:  # pragma: no cover
         print("No email host password provided!")
     EMAIL_PORT = 587
-DEFAULT_FROM_EMAIL = 'sunshinefitnessfife@gmail.com'
+DEFAULT_FROM_EMAIL = 'booking@sunshinefitness.co.uk'
 DEFAULT_STUDIO_EMAIL = 'sunshinefitnessfife@gmail.com'
 
 SUPPORT_EMAIL = 'rebkwok@gmail.com'

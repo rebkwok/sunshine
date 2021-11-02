@@ -21,7 +21,8 @@ def user_post_save(sender, instance, created, *args, **kwargs):
         # Email info to user (skip if no email address, or if we're running tests)
         if instance.email and not getattr(settings, "SKIP_NEW_ACCOUNT_EMAIL", False):
             send_email(
-                request=None, ctx={}, subject="Studio and class information",
+                request=None, ctx={"user_fullname": f"{instance.first_name} {instance.last_name}"},
+                subject="Studio and class information",
                 template_txt="accounts/email/new_user_info.txt", 
                 template_html="accounts/email/new_user_info.html",
                 to_list=[instance.email]

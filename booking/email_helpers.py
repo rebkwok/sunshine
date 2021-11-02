@@ -99,6 +99,7 @@ def send_waiting_list_email(event, users, host=f"http://{settings.DOMAIN}"):
             get_template('booking/email/autobook_email.txt').render(ctx),
             settings.DEFAULT_FROM_EMAIL,
             to=[auto_book_user.email],
+            reply_to=[settings.DEFAULT_STUDIO_EMAIL],
         )
         msg.attach_alternative(
             get_template('booking/email/autobook_email.html').render(ctx),

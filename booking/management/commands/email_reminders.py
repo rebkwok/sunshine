@@ -8,13 +8,12 @@ Add reminder_sent flag to booking model so we don't keep sending
 from datetime import timedelta
 from django.utils import timezone
 from django.conf import settings
-from django.core.mail import send_mail
 from django.template.loader import get_template
 from django.core.management.base import BaseCommand
 from django.db.models import Q
+from booking.email_helpers import send_email
 from booking.models import Booking, Event
 from activitylog.models import ActivityLog
-from sunshine.settings import DOMAIN
 
 
 class Command(BaseCommand):
@@ -45,13 +44,16 @@ class Command(BaseCommand):
                   'ev_type': 'workshop' if booking.event.event_type == 'workshop' else 'class',
                   'domain': settings.DOMAIN,
             }
-            send_mail(
-                '{} Reminder: your booking for {}'.format(settings.ACCOUNT_EMAIL_SUBJECT_PREFIX, booking.event),
-                get_template('booking/email/booking_reminder.txt').render(ctx),
-                settings.DEFAULT_FROM_EMAIL,
-                [booking.user.email],
-                html_message=get_template('booking/email/booking_reminder.html').render(ctx),
-                fail_silently=False)
+            send_email(
+                None,
+                f'Reminder: your booking for {booking.event}',
+                ctx,
+                template_txt='booking/email/booking_reminder.txt',
+                template_html='booking/email/booking_reminder.html',
+                prefix=settings.ACCOUNT_EMAIL_SUBJECT_PREFIX,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                to_list=[booking.user.email],
+            )
             booking.reminder_sent = True
             booking.save()
 

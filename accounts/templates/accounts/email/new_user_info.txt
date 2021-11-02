@@ -1,3 +1,5 @@
+Dear {{ user_fullname }},
+
 Thank you for registering for an account.
 
 Please read the following information carefully and drop us an email or contact us on social media if you have any questions.
