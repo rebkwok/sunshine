@@ -201,7 +201,7 @@ else:
     EMAIL_HOST = 'email-smtp.eu-west-1.amazonaws.com'
     EMAIL_HOST_USER = env('EMAIL_HOST_USER', None)
     EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD', None)
-    if EMAIL_HOST_PASSWORD is None:  # pragma: no cover
+    if EMAIL_HOST_USER is None:  # pragma: no cover
         print("No email host user provided!")
     if EMAIL_HOST_PASSWORD is None:  # pragma: no cover
         print("No email host password provided!")
