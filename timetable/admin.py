@@ -29,7 +29,7 @@ class CategoryAdmin(admin.ModelAdmin):
     list_display = ('name', 'description')
     fieldsets = (
         (None, {
-            'fields': ('name', 'description'),
+            'fields': ('name', 'description', 'colour'),
             'description': "Categories are used ONLY to (optionally) colour-code groups of classes on the timetable page"
         }),
     )
