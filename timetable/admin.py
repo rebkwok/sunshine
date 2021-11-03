@@ -19,7 +19,7 @@ class SessionTypeAdmin(admin.ModelAdmin):
     fieldsets = (
         (None, {
             'fields': ('index', 'name', 'info', 'regular_session'),
-            'description': "Class type is used to allow users to filter classes on the timetable/booking pages"
+            'description': "Class type is used to allow users to filter classes on the timetable page"
         }),
     )
 
@@ -50,7 +50,7 @@ class TimetableSessionAdmin(admin.ModelAdmin):
         ('Session categorisation', {
             'fields': ['session_type', 'category'],
             'description': (
-                'Group classes for filtering and colour-coding on the timetable; e.g. "Pole dance" and "Pole fitness" could both be assigned to a class type '
+                'Group classes for filtering and colour-coding on the timetable page; e.g. "Pole dance" and "Pole fitness" could both be assigned to a class type '
                 '"Pole" (for filtering on the timetable), and to a category "Pole and aerial" for optional '
                 'colour-coding on the timetable (class types and categories can be identical)')
         }),
