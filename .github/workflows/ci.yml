@@ -58,12 +58,15 @@ jobs:
       - name: Run tests
         env:
           SECRET_KEY: 'dummy_secret'
+          EMAIL_HOST_USER: 'dummy_user'
           EMAIL_HOST_PASSWORD: 'dummy_password'
           DATABASE_URL: postgres://postgres:postgres@localhost/ci_test
           DEFAULT_PAYPAL_EMAIL: dummy-email@hotmail.com
           PAYPAL_TEST: True
           LOG_FOLDER: log_folder
           SEND_ALL_STUDIO_EMAILS: True
+          CACHE_BACKEND: 'django.core.cache.backends.locmem.LocMemCache'
+          CACHE_LOCATION: 'local-cache'
         run: |
           source ${{ github.workspace }}/venv/bin/activate
           pytest --cov-config=.coveragerc --cov=.
