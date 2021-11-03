@@ -9,28 +9,53 @@ from .utils import upload_timetable
 
 @admin.register(Venue)
 class VenueAdmin(admin.ModelAdmin):
-    list_display = ('name', 'address', 'postcode')
+    list_display = ('name', 'address', 'postcode', 'abbreviation')
 
 
 @admin.register(SessionType)
 class SessionTypeAdmin(admin.ModelAdmin):
     list_display = ('index', 'name', 'regular_session')
     ordering = ['index',]
+    fieldsets = (
+        (None, {
+            'fields': ('index', 'name', 'info', 'regular_session'),
+            'description': "Class type is used to allow users to filter classes on the timetable/booking pages"
+        }),
+    )
 
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
     list_display = ('name', 'description')
+    fieldsets = (
+        (None, {
+            'fields': ('name', 'description'),
+            'description': "Categories are used ONLY to (optionally) colour-code groups of classes on the timetable page"
+        }),
+    )
 
 
 @admin.register(TimetableSession)
 class TimetableSessionAdmin(admin.ModelAdmin):
-    list_display = ('name', 'session_type', 'level', 'session_day',
+    list_display = ('name', 'level', 'session_type', 'session_day',
                     'start_time', 'end_time', 'venue', 'max_participants', 'members_only', 'show_on_timetable_page')
     fieldsets = [
-        ('Session information', {
-            'fields': ['name', 'session_type', 'level', 'category',
-                       'venue', 'max_participants', 'cost', 'alt_cost',
+        ('Session name', {
+            'fields': ['name', 'level'],
+            'description': (
+                'Classes generated from timetable sessions will be named with the session name and '
+                'level (e.g. A session named "Pole dance" with level "All levels" will create classes '
+                'named "Pole dance (All levels)".')
+        }),
+        ('Session categorisation', {
+            'fields': ['session_type', 'category'],
+            'description': (
+                'Group classes for filtering and colour-coding on the timetable; e.g. "Pole dance" and "Pole fitness" could both be assigned to a class type '
+                '"Pole" (for filtering on the timetable), and to a category "Pole and aerial" for optional '
+                'colour-coding on the timetable (class types and categories can be identical)')
+        }),
+        ('Session details', {
+            'fields': ['venue', 'max_participants', 'cost', 'alt_cost',
                        'members_only', 'cancellation_fee', 'show_on_timetable_page']
         }),
         ('Date and time', {

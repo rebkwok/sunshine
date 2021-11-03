@@ -1,12 +1,13 @@
+from django.core.exceptions import ValidationError
 from django.db import models
 
 
 class SessionType(models.Model):
     index = models.PositiveIntegerField(null=True, blank=True, help_text="Determines order class types are displayed on homepage")
     name = models.CharField(max_length=255)
-    info = models.TextField('session description',  null=True)
+    info = models.TextField('description',  null=True, blank=True)
     regular_session = models.BooleanField(
-        'display session', default=True,
+        'display class', default=True,
         help_text="Tick this box to list this class type and its description on the homepage")
 
     def __str__(self):
@@ -15,6 +16,15 @@ class SessionType(models.Model):
     class Meta:
         verbose_name = "class type"
         verbose_name_plural = "class types"
+    
+    def clean(self):
+        if self.regular_session and not self.info:
+            raise ValidationError("To display this class type on the home page, you also need to add a description")
+        
+        return super().clean()
+    # def save(self, *args, **kwargs):
+        # return super().save(*args, **kwargs)
+
 
 
 class Venue(models.Model):
