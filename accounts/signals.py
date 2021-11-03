@@ -35,7 +35,7 @@ def user_post_save(sender, instance, created, *args, **kwargs):
             )
 
 
-@receiver(post_delete, sender=OnlineDisclaimer)
+@receiver(post_delete, sender=OnlineDisclaimer, weak=False)
 def archive_disclaimer_and_update_cache(sender, instance, **kwargs):
     expiry = timezone.now() - relativedelta(years=6)
     if instance.date > expiry or (instance.date_updated and instance.date_updated > expiry):
@@ -52,7 +52,7 @@ def archive_disclaimer_and_update_cache(sender, instance, **kwargs):
     cache.set(active_disclaimer_cache_key(instance.user), False, None)
 
 
-@receiver(post_delete, sender=SignedDataPrivacy)
+@receiver(post_delete, sender=SignedDataPrivacy, weak=False)
 def archive_disclaimer_and_update_cache(sender, instance, **kwargs):
     # clear cache if this is the active signed agreement
     if instance.is_active:
