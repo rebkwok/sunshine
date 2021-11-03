@@ -1,11 +1,17 @@
+from dateutil.relativedelta import relativedelta
+
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.cache import cache
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
+from django.utils import timezone
 
 from activitylog.models import ActivityLog
-from accounts.models import active_disclaimer_cache_key, OnlineDisclaimer
+from accounts.models import (
+    ArchivedDisclaimer, active_data_privacy_cache_key, active_disclaimer_cache_key, 
+    OnlineDisclaimer, SignedDataPrivacy
+)
 from booking.email_helpers import send_email
 
 @receiver(post_save, sender=User)
@@ -30,6 +36,24 @@ def user_post_save(sender, instance, created, *args, **kwargs):
 
 
 @receiver(post_delete, sender=OnlineDisclaimer)
-def update_cache(sender, instance, **kwargs):
+def archive_disclaimer_and_update_cache(sender, instance, **kwargs):
+    expiry = timezone.now() - relativedelta(years=6)
+    if instance.date > expiry or (instance.date_updated and instance.date_updated > expiry):
+        ignore_fields = ['id', 'user_id', '_state']
+        fields = {key: value for key, value in instance.__dict__.items() if key not in ignore_fields and not key.endswith('_oldval')}
+        fields["name"] = f"{instance.user.first_name} {instance.user.last_name}"
+        ArchivedDisclaimer.objects.create(**fields)
+        ActivityLog.objects.create(
+            log="Online disclaimer deleted; archive created for user {} {}".format(
+                instance.user.first_name, instance.user.last_name
+            )
+        )  
     # set cache to False
     cache.set(active_disclaimer_cache_key(instance.user), False, None)
+
+
+@receiver(post_delete, sender=SignedDataPrivacy)
+def archive_disclaimer_and_update_cache(sender, instance, **kwargs):
+    # clear cache if this is the active signed agreement
+    if instance.is_active:
+        cache.delete(active_data_privacy_cache_key(instance.user))

@@ -3,8 +3,6 @@ from datetime import timedelta
 import pytz
 from math import floor
 
-from dateutil.relativedelta import relativedelta
-
 from django.db import models
 from django.core.cache import cache
 from django.core.exceptions import ValidationError
@@ -168,12 +166,6 @@ class SignedDataPrivacy(models.Model):
                 active_data_privacy_cache_key(self.user), True, timeout=600
             )
 
-    def delete(self, using=None, keep_parents=False):
-        # clear cache if this is the active signed agreement
-        if self.is_active:
-            cache.delete(active_data_privacy_cache_key(self.user))
-        super(SignedDataPrivacy, self).delete(using, keep_parents)
-
 
 @has_readonly_fields
 class DisclaimerContent(models.Model):
@@ -297,22 +289,6 @@ class OnlineDisclaimer(BaseOnlineDisclaimer):
             cache.set(
                 expired_disclaimer_cache_key(self.user), True, timeout=600
             )
-
-    def delete(self, using=None, keep_parents=False):
-        # clear active cache if there is any
-        cache.delete(active_disclaimer_cache_key(self.user))
-        expiry = timezone.now() - relativedelta(years=6)
-        if self.date > expiry or (self.date_updated and self.date_updated > expiry):
-            ignore_fields = ['id', 'user_id', '_state']
-            fields = {key: value for key, value in self.__dict__.items() if key not in ignore_fields and not key.endswith('_oldval')}
-            fields["name"] = f"{self.user.first_name} {self.user.last_name}"
-            ArchivedDisclaimer.objects.create(**fields)
-            ActivityLog.objects.create(
-                log="Online disclaimer deleted; archive created for user {} {}".format(
-                    self.user.first_name, self.user.last_name
-                )
-            )
-        super().delete(using, keep_parents)
 
 
 class ArchivedDisclaimer(BaseOnlineDisclaimer):
