@@ -51,6 +51,9 @@ ALLOWED_HOSTS = [DOMAIN, f"vagrant.{DOMAIN}", f"test.{DOMAIN}"]
 if env('LOCAL') or env('CI'):  # pragma: no cover
     ALLOWED_HOSTS = ['*']
 
+# https://docs.djangoproject.com/en/4.0/ref/settings/#std:setting-CSRF_TRUSTED_ORIGINS
+CSRF_TRUSTED_ORIGINS = [f'https://{DOMAIN}']
+
 # Application definition
 
 INSTALLED_APPS = (
