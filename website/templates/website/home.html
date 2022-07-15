@@ -34,7 +34,10 @@
                 <hr>
                 <h2>Classes</h2>
                 <p>Check out the <a href="{% url 'timetable:timetable' %}">timetable</a> to book a class or <a href="{% url 'website:contact' %}">contact us</a> for any other enquires.</p>
-
+                {% if future_events.privates %}
+                <p>Private lessons are also available; check available times and book <a href="{% url 'booking:private_list' %}">here</a>.<p>
+                <hr>    
+                {% endif %}
                 {% if class_types %}
                     {% for class_type in class_types %}
                         <h3>{{ class_type.name }}</h3>
@@ -44,11 +47,6 @@
                 {% endif %}
                 <hr>
 
-                {% if future_events.privates %}
-                <h2>Private lessons</h2>
-                <p>Check available times and book <a href="{% url 'booking:private_list' %}">here</a>.<p>
-                <hr>
-                {% endif %}
                 {% include 'website/includes/membership.html' %}
 
 		</div>
