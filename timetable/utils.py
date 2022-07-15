@@ -43,7 +43,7 @@ def upload_timetable(start_date, end_date, session_ids, show_on_site, user=None)
             converted_date = local_date.astimezone(pytz.utc)
             name = '{} ({})'.format(session.name, session.level)
             
-            event_type = "private" if session.session_type.name.lower().strip() == "private" else "regular_session"
+            event_type = "private" if session.session_type.name.lower().strip().startswith("private") else "regular_session"
 
             existing = Event.objects.filter(
                 name=name,

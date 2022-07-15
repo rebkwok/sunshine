@@ -118,6 +118,6 @@ class TimetableSession(models.Model):
     
     def save(self, *args, **kwargs):
         if self.show_on_timetable_page:
-            if self.session_type.name.lower().strip() == "private" :
+            if self.session_type.name.lower().strip().startswith("private"):
                 self.show_on_timetable_page = False
         super().save(*args, **kwargs)
