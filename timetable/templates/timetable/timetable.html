@@ -9,8 +9,9 @@
         </h1>
     </div>
 
+    <span id="costs">
     {% include 'website/includes/membership.html' %}
-
+    </span>
     {% if future_events.privates %}
     <p>
         <strong>Looking for private lessons? <a href="{% url 'booking:private_list' %}">Check available times and book here</a></strong>

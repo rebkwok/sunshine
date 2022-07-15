@@ -22,7 +22,7 @@
             <a class="btn btn-warning" href="{% url 'booking:private_list' %}"><strong class="text-dark">Show Private Lessons</strong></a>        
         {% endif %}
         </h1>
-
+        
         {% if day and time %}
             <h3>
                 Showing options for {{ name }} - {{ day }} {{ time }}<br/>
@@ -69,6 +69,14 @@
     {% endif %}
 
         {% if events %}
+          {% if event_type == "class" %}
+          <div>
+            Costs and memberships <span type="button" class="badge badge-warning" data-toggle="collapse" data-target="#demo"><i class="fas fa-caret-down"></i></span>
+            <div id="demo" class="collapse">
+                {% include 'website/includes/membership.html' %}            
+            </div>
+          </div>
+          {% endif %}
 
         <div class="row">
             <div class="col-sm-12">
@@ -86,7 +94,7 @@
                                 <th class="table-center">Date</th>
                                 <th class="table-center">Name</th>
                                 <th class="table-center">Venue</th>
-                                {% if event_type == "workshop" %}
+                                {% if event_type != "class" %}
                                     <th class="table-center">Cost</th>
                                 {% endif %}
                                 <th class="table-center">Spaces</th>
@@ -135,7 +143,7 @@
                                     <td class="table-center">{{ event.date | date:"D d M H:i" }}</td>
                                     <td class="table-center"><a href="{% url 'booking:event_detail' event.slug %}">{{ event.name }}</a></td>
                                     <td class="table-center">{{ event.venue.abbreviation }}</td>
-                                    {% if event_type == "workshop" %}
+                                    {% if event_type != "class" %}
                                         <td class="table-center">£{{ event.cost }}</td>
                                     {% endif %}
                                     <td class="table-center">
