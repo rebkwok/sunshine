@@ -102,7 +102,11 @@ class TimetableSession(models.Model):
     max_participants = models.PositiveIntegerField(default=12)
     cancellation_fee = models.DecimalField(max_digits=8, decimal_places=2, default=0.00)
     members_only = models.BooleanField(default=False, help_text="Classes are only available to students with memberships")
-    show_on_timetable_page = models.BooleanField(default=True, help_text="Display this session on the website timetable page")
+    show_on_timetable_page = models.BooleanField(
+        default=True, 
+        help_text="Display this session on the website timetable page "\
+            "(note: private lessons are never displayed on the timetable page)"
+    )
 
     def __str__(self):
 
@@ -111,3 +115,9 @@ class TimetableSession(models.Model):
             (dict(self.WEEKDAY_CHOICES))[self.session_day],
             self.start_time.strftime('%H:%M')
         )
+    
+    def save(self, *args, **kwargs):
+        if self.show_on_timetable_page:
+            if self.session_type.name.lower().strip() == "private" :
+                self.show_on_timetable_page = False
+        super().save(*args, **kwargs)

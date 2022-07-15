@@ -9,8 +9,14 @@
         </h1>
     </div>
 
+    <span id="costs">
     {% include 'website/includes/membership.html' %}
-
+    </span>
+    {% if future_events.privates %}
+    <p>
+        <strong>Looking for private lessons? <a href="{% url 'booking:private_list' %}">Check available times and book here</a></strong>
+    </p>
+    {% endif %}
     {% if timetable_sessions %}
 
         <form class="filter-row" action="" method="get">
@@ -48,7 +54,7 @@
                         {% for session in timetable_sessions %}
                         <tr>
                             <td class="table-center timetable-row">
-                                <a href="{% url 'booking:classes' %}?name={{session.name}}&level={{session.level}}&venue={{session.venue.abbreviation}}&day={{session.session_day}}&time={{session.start_time|date:'H:i'}}">
+                                <a href="{% url 'booking:regular_session_list' %}?name={{session.name}}&level={{session.level}}&venue={{session.venue.abbreviation}}&day={{session.session_day}}&time={{session.start_time|date:'H:i'}}">
                                 <div class="btn btn-warning btn-sm pt-0 pb-0"><span class="text-dark">View Dates</span></div></a>
                             </td>
                             <td class="timetable-row">{{ session.session_day|format_day }}</td>

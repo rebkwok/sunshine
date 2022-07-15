@@ -21,7 +21,7 @@ class PayPalFormTests(TestCase):
                         'booking {}'.format(booking.id)
                     )
         )
-        self.assertIn('Pay Now', form.render())
+        self.assertIn('Buy it Now', form.render())
 
     def test_PayPalPaymentsUpdateForm_renders_buy_it_now_button(self):
         booking = baker.make_recipe('booking.booking')
@@ -35,4 +35,4 @@ class PayPalFormTests(TestCase):
                         'booking {}'.format(booking.id)
                     )
         )
-        self.assertIn('Paypal', form.render())
+        self.assertIn('Buy it Now', form.render())

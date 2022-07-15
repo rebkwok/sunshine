@@ -42,17 +42,19 @@ def upload_timetable(start_date, end_date, session_ids, show_on_site, user=None)
                 session.start_time))
             converted_date = local_date.astimezone(pytz.utc)
             name = '{} ({})'.format(session.name, session.level)
+            
+            event_type = "private" if session.session_type.name.lower().strip() == "private" else "regular_session"
 
             existing = Event.objects.filter(
                 name=name,
-                event_type="regular_session",
+                event_type=event_type,
                 date=converted_date,
                 venue=session.venue,
             )
             if not existing:
                 cl = Event.objects.create(
                     name=name,
-                    event_type="regular_session",
+                    event_type=event_type,
                     date=converted_date,
                     venue=session.venue,
                     max_participants=session.max_participants,

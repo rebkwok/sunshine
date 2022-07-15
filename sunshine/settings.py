@@ -363,6 +363,9 @@ APPEND_SLASH = True
 # DJANGO-PAYPAL
 DEFAULT_PAYPAL_EMAIL = env('DEFAULT_PAYPAL_EMAIL')
 PAYPAL_TEST = env('PAYPAL_TEST')
+PAYPAL_BUY_BUTTON_IMAGE = 'https://www.paypalobjects.com/webstatic/en_US/btn/btn_buynow_pp_142x27.png'
+PAYPAL_SUBSCRIPTION_BUTTON_IMAGE = 'https://www.paypalobjects.com/webstatic/en_US/btn/btn_subscribe_113x26.png'
+PAYPAL_DONATION_BUTTON_IMAGE = 'https://www.paypalobjects.com/webstatic/en_US/btn/btn_donate_pp_142x27.png'
 
 
 def show_toolbar(request):  # pragma: no cover

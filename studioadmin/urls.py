@@ -22,6 +22,10 @@ urlpatterns = [
         'registers/workshops/', staff_member_required(EventRegisterListView.as_view()),
         {"event_type": "workshop"}, name="workshop_register_list"
     ),
+    path(
+        'registers/privates/', staff_member_required(EventRegisterListView.as_view()),
+        {"event_type": "private"}, name="private_register_list"
+    ),
     path('registers/<slug:event_slug>/', register_view, name='event_register'),
     path('registers/add-booking/<int:event_id>/', booking_register_add_view, name='bookingregisteradd'),
     path('registers/<int:booking_id>/toggle_attended/', ajax_toggle_attended, name='ajax_toggle_attended'),

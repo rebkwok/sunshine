@@ -5,6 +5,7 @@ from collections import OrderedDict
 
 from django.shortcuts import HttpResponseRedirect, render, get_object_or_404
 from django.views.generic import ListView, DetailView
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django.http import Http404
@@ -30,7 +31,7 @@ DAYS = OrderedDict((
 class BaseEventListView(ListView):
     model = Event
     context_object_name = 'events'    
-    template_name = 'booking/regular_classes.html'
+    template_name = 'booking/events_list.html'
     paginate_by = 20
     
     def get_queryset(self):
@@ -113,22 +114,19 @@ class BaseEventListView(ListView):
                 show_on_site=False
             ).values_list('id', flat=True)
 
-        if self.event_type == 'regular_session':
-            alternative_events = Event.objects.filter(
-                event_type='workshop', date__gte=timezone.now(), cancelled=False
-            )
-        else:
-            alternative_events = Event.objects.filter(
-                event_type='regular_session', date__gte=timezone.now(), cancelled=False
-            )
+        alternative_events = Event.objects.exclude(event_type=self.event_type).filter(
+            date__gte=timezone.now(), cancelled=False
+        )
 
         if not self.request.user.is_staff:
             alternative_events = alternative_events.filter(show_on_site=True)
 
-        context['workshops_available_to_book'] = alternative_events.exists() if self.event_type == 'regular_session' else None
-        context['classes_available_to_book'] = alternative_events.exists() if self.event_type == 'workshop' else None
-        context['event_type'] = "class" if self.event_type == "regular_session" else self.event_type
-        context['event_type_plural'] = "classes" if self.event_type == "regular_session" else "workshops"
+        context['workshops_available_to_book'] = alternative_events.filter(event_type="workshop").exists()
+        context['classes_available_to_book'] = alternative_events.filter(event_type="regular_session").exists()
+        context['privates_available_to_book'] = alternative_events.filter(event_type="private").exists()
+
+        context['event_type'] = self.event_type_hr
+        context['event_type_plural'] = self.event_type_plural
 
         form = EventsFilter(
             event_type=self.event_type,
@@ -140,6 +138,8 @@ class BaseEventListView(ListView):
         context['day'] = DAYS.get(self.event_day, None)
         context['venue'] = self.venue
         context['time'] = self.event_time
+
+        context["all_events_url"] = reverse(f"booking:{self.event_type}_list")
         return context
 
 
@@ -149,13 +149,43 @@ class RegularClassesEventListView(BaseEventListView):
     def event_type(self):
         return "regular_session"
 
+    @property
+    def event_type_hr(self):
+        return "class"
+    
+    @property
+    def event_type_plural(self):
+        return "classes"
+
+
+class PrivateClassesEventListView(RegularClassesEventListView):
+
+    @property
+    def event_type(self):
+        return "private"
+
+    @property
+    def event_type_hr(self):
+        return "private"
+    
+    @property
+    def event_type_plural(self):
+        return "private lessons"
+
 
 class WorkshopEventListView(BaseEventListView):
-    template_name = 'booking/regular_classes.html'
 
     @property
     def event_type(self):
         return "workshop"
+
+    @property
+    def event_type_hr(self):
+        return "workshop"
+    
+    @property
+    def event_type_plural(self):
+        return "workshops"
 
 
 class EventDetailView(DetailView):
