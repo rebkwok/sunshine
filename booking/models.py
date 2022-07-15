@@ -236,6 +236,17 @@ class WorkshopManager(models.Manager):
         return super().get_queryset().filter(event_type='workshop')
 
 
+class RegularSessionManager(models.Manager):
+
+    def get_queryset(self):
+        return super().get_queryset().filter(event_type='regular_session')
+
+
+class PrivateManager(models.Manager):
+
+    def get_queryset(self):
+        return super().get_queryset().filter(event_type='private')
+
 
 class Workshop(Event):
     objects = WorkshopManager()
@@ -246,9 +257,21 @@ class Workshop(Event):
 
 class RegularClass(Event):
 
+    objects = RegularSessionManager()
+
     class Meta:
         proxy = True
         verbose_name_plural = 'regular classes'
+
+
+class Private(Event):
+
+    objects = PrivateManager()
+
+    class Meta:
+        proxy = True
+        verbose_name = 'private lesson'
+        verbose_name_plural = 'private lessons'
 
 
 def user_str_patch(self):

@@ -46,6 +46,7 @@ class SuitConfig(DjangoSuitConfig):
             ChildItem(model='booking.event'),
             ChildItem(model='booking.regularclass'),
             ChildItem(model='booking.workshop'),
+            ChildItem(model='booking.private'),
         ], icon='fa fa-calendar', permissions=superuser_permissions),
         ParentItem('Bookings', children=[
             ChildItem(model='booking.booking'),

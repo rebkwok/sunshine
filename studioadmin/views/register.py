@@ -93,7 +93,7 @@ def booking_register_add_view(request, event_id):
                     )
                 )
         else:
-            ev_type = 'Class' if event.event_type == 'regular_session' else 'Workshop'
+            ev_type = 'Workshop' if event.event_type == 'workshop' else 'Class'
             form.add_error(
                 '__all__',
                 '{} is now full, booking could not be created. '

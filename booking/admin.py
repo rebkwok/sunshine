@@ -9,7 +9,7 @@ from django.utils import timezone
 
 from django_object_actions import DjangoObjectActions, takes_instance_or_queryset
 
-from booking.models import Booking, WaitingListUser, Workshop, RegularClass
+from booking.models import Booking, WaitingListUser, Workshop, RegularClass, Private
 from booking.forms import EventForm
 from booking.email_helpers import send_email
 
@@ -321,6 +321,32 @@ class RegularClassAdmin(EventAdmin):
     def get_queryset(self, request):
         queryset = super().get_queryset(request)
         return queryset.filter(event_type='regular_session')
+
+    def status(self, obj):
+        return super().status(obj)
+    status.short_description = 'Class Status'
+
+    @takes_instance_or_queryset
+    def cancel_event(self, request, queryset):
+        return super().cancel_event(request, queryset)
+    cancel_event.short_description = 'Cancel class; this will cancel all bookings and email notifications to students.'
+    cancel_event.label = 'Cancel class'
+    cancel_event.attrs = {'style': 'font-weight: bold; color: red;'}
+
+
+@admin.register(Private)
+class PrivateAdmin(EventAdmin):
+
+    readonly_fields = ('cancelled', 'paypal_email')
+
+    def get_form(self, request, obj=None, **kwargs):
+        form = super().get_form(request, obj, **kwargs)
+        form.base_fields['event_type'].choices = [('private', "Private lesson"),]
+        return form
+
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request)
+        return queryset.filter(event_type='private')
 
     def status(self, obj):
         return super().status(obj)

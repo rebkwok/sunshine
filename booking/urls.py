@@ -3,7 +3,7 @@ from django.views.generic import RedirectView
 
 
 from booking.views import RegularClassesEventListView, WorkshopEventListView, \
-    EventDetailView, \
+    EventDetailView, PrivateClassesEventListView, \
     BookingListView, BookingHistoryListView, \
     toggle_booking, toggle_waiting_list, booking_details, update_booking_count
 
@@ -14,8 +14,9 @@ urlpatterns = [
     path('my-bookings/', BookingListView.as_view(), name='bookings'),
     path('booking-history/', BookingHistoryListView.as_view(),
         name='booking_history'),
-    path('classes', RegularClassesEventListView.as_view(), name="classes"),
-    path('workshops', WorkshopEventListView.as_view(), name="workshops"),
+    path('classes', RegularClassesEventListView.as_view(), name="regular_session_list"),
+    path('privates', PrivateClassesEventListView.as_view(), name="private_list"),
+    path('workshops', WorkshopEventListView.as_view(), name="workshop_list"),
     path(
         'event/<slug:slug>/', EventDetailView.as_view(),
         name='event_detail'

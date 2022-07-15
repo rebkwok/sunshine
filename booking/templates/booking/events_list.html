@@ -15,18 +15,21 @@
 
         <h1 class="page-header">Book {{ event_type_plural|title }}
         {% if workshops_available_to_book %}</br>
-            <a class="page-header-note" href="{% url 'booking:workshops' %}">Show Workshops</a>
+            <a class="btn btn-warning" href="{% url 'booking:workshop_list' %}"><strong class="text-dark">Show Workshops</strong></a>
         {% elif classes_available_to_book %}</br>
-            <a class="page-header-note" href="{% url 'booking:classes' %}">Show Classes</a>    
+            <a class="btn btn-warning" href="{% url 'booking:regular_session_list' %}"><strong class="text-dark">Show Classes</strong></a> 
+        {% elif privates_available_to_book %}</br>   
+            <a class="btn btn-warning" href="{% url 'booking:private_list' %}"><strong class="text-dark">Show Private Lessons</strong></a>        
         {% endif %}
         </h1>
 
         {% if day and time %}
             <h3>
-                Showing classes for {{ name }} - {{ day }} {{ time }}<br/>
+                Showing options for {{ name }} - {{ day }} {{ time }}<br/>
             </h3>
-            <a class="btn btn-warning table-btn" href="{% url 'booking:classes' %}">
-            <span class="text-dark">Show all</span></a>
+            <a class="btn btn-warning table-btn" href="{{ all_events_url }}">
+                <span class="text-dark">Show all</span>
+            </a>
             <br/><br/>
         {% endif %}
 
@@ -81,7 +84,7 @@
                                     <th class="table-center table-book-btn-col"></th>
                                 {% endif %}
                                 <th class="table-center">Date</th>
-                                <th class="table-center">{{ event_type|title}}</th>
+                                <th class="table-center">Name</th>
                                 <th class="table-center">Venue</th>
                                 {% if event_type == "workshop" %}
                                     <th class="table-center">Cost</th>

@@ -24,8 +24,8 @@ class EventListViewTests(TestSetupMixin, TestCase):
         cls.reg_class1 = baker.make_recipe('booking.future_PC', name='Class 1')
         cls.reg_class2 = baker.make_recipe('booking.future_PC', name='Class 2', venue=venue)
         cls.regular_classes = [cls.reg_class1, cls.reg_class2]
-        cls.classes_url = reverse("booking:classes")
-        cls.workshops_url = reverse("booking:workshops")
+        cls.classes_url = reverse("booking:regular_session_list")
+        cls.workshops_url = reverse("booking:workshop_list")
 
     def setUp(self):
         self.client.login(username=self.user.username, password='test')

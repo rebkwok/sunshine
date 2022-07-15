@@ -6,7 +6,7 @@
 <div class="container-fluid">
     <div class="row">
         <div class="col-12">
-        <h2>Scheduled {% if event_type == 'workshop' %}Workshops{% else %}Classes{% endif %}: Registers & Waiting Lists</h2>
+        <h2>Scheduled {% if event_type == 'workshop' %}Workshops{% elif event_type == "private" %}Privates{% else %}Classes{% endif %}: Registers & Waiting Lists</h2>
             {% if request.GET.show_all %}
                 Showing registers for all classes.  <a href="{{ event_type|get_register_list_url }}">Show just the next week</a>
             {% else %}
