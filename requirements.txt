@@ -8,8 +8,6 @@ asgiref==3.5.2
     # via django
 attrs==21.4.0
     # via pytest
-backports-zoneinfo==0.2.1
-    # via django
 beautifulsoup4==4.11.1
     # via django-bootstrap4
 certifi==2022.6.15
@@ -30,7 +28,7 @@ dj-database-url==0.5.0
     # via -r requirements.in
 dj-static==0.0.6
     # via -r requirements.in
-django==4.0.6
+django==4.0.7
     # via
     #   -r requirements.in
     #   django-allauth
