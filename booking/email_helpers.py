@@ -26,35 +26,30 @@ def send_email(
         ctx.update({'domain': domain})
     else:
         ctx.update({"domain": settings.DOMAIN})
-    try:
-        msg = EmailMultiAlternatives(
-            '{}{}'.format(
-                '{} '.format(prefix) if prefix else '', subject
+
+    msg = EmailMultiAlternatives(
+        '{}{}'.format(
+            '{} '.format(prefix) if prefix else '', subject
+        ),
+        get_template(
+            template_txt).render(
+                ctx
             ),
+        from_email=from_email,
+        to=to_list,
+        bcc=bcc_list,
+        cc=cc_list,
+        reply_to=reply_to_list
+        )
+    if template_html:
+        msg.attach_alternative(
             get_template(
-                template_txt).render(
+                template_html).render(
                     ctx
                 ),
-            from_email=from_email,
-            to=to_list,
-            bcc=bcc_list,
-            cc=cc_list,
-            reply_to=reply_to_list
-            )
-        if template_html:
-            msg.attach_alternative(
-                get_template(
-                    template_html).render(
-                      ctx
-                  ),
-                "text/html"
-            )
-        msg.send(fail_silently=False)
-        return 'OK'
-
-    except Exception as e:
-        # send mail to tech support with Exception
-        send_support_email(e, __name__ + '.send_email')
+            "text/html"
+        )
+    msg.send(fail_silently=False)
 
 
 def send_waiting_list_email(event, users, host=f"http://{settings.DOMAIN}"):
@@ -130,24 +125,6 @@ def send_waiting_list_email(event, users, host=f"http://{settings.DOMAIN}"):
             'event {}'.format(
                 ', '.join([user.username for user in users]),
                 event
-            )
-        )
-
-
-def send_support_email(e, source=""):
-    try:
-        send_mail('{} An error occurred!'.format(
-                settings.ACCOUNT_EMAIL_SUBJECT_PREFIX
-            ),
-            'An error occurred in {}\n\nThe exception '
-            'raised was "{}"'.format(source, e),
-            settings.DEFAULT_FROM_EMAIL,
-            [settings.SUPPORT_EMAIL],
-            fail_silently=True)
-    except Exception as ex:
-        ActivityLog.objects.create(
-            log="Problem sending an email ({}: {})".format(
-                source, ex
             )
         )
 

@@ -49,11 +49,6 @@ class Event(models.Model):
         populate_from=['name', 'date'], max_length=40, unique=True
     )
     allow_booking_cancellation = models.BooleanField(default=True)
-    paypal_email = models.EmailField(
-        default="placeholder@dummy-paypal.email",
-        help_text='Email for the paypal account to be used for payment.  '
-                  'Check this carefully!'
-    )
     cancelled = models.BooleanField(default=False)
     cancellation_fee = models.DecimalField(max_digits=8, decimal_places=2, default=0.00)
     members_only = models.BooleanField(default=False, help_text="Classes are only available to students with memberships")

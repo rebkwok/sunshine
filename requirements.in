@@ -17,7 +17,6 @@ django-migration-testcase
 django-object-actions
 # django-suit v2 branch 15/2/20
 git+https://github.com/rebkwok/django-suit.git@v2
-django-paypal
 dynamic-django-forms
 shortuuid
 django-debug-toolbar

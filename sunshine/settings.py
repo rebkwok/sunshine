@@ -16,8 +16,6 @@ import sys
 root = environ.Path(__file__) - 2  # two folders back (/a/b/ - 3 = /)
 
 env = environ.Env(DEBUG=(bool, False),
-                  PAYPAL_TEST=(bool, False),
-                  DEFAULT_PAYPAL_EMAIL=(str, None),
                   USE_MAILCATCHER=(bool, False),
                   SHOW_DEBUG_TOOLBAR=(bool, False),
                   AUTO_BOOK_EMAILS=(list, []),
@@ -73,11 +71,9 @@ INSTALLED_APPS = (
     'allauth.account',
     'django_extensions',
     'bootstrap4',
-    'paypal.standard.ipn',
     'debug_toolbar',
     'dynamic_forms',
     'django_object_actions',
-    'payments',
     'accounts',
     'timetable',
     'website',
@@ -358,14 +354,6 @@ MESSAGE_TAGS = {
 }
 
 APPEND_SLASH = True
-
-
-# DJANGO-PAYPAL
-DEFAULT_PAYPAL_EMAIL = env('DEFAULT_PAYPAL_EMAIL')
-PAYPAL_TEST = env('PAYPAL_TEST')
-PAYPAL_BUY_BUTTON_IMAGE = 'https://www.paypalobjects.com/webstatic/en_US/btn/btn_buynow_pp_142x27.png'
-PAYPAL_SUBSCRIPTION_BUTTON_IMAGE = 'https://www.paypalobjects.com/webstatic/en_US/btn/btn_subscribe_113x26.png'
-PAYPAL_DONATION_BUTTON_IMAGE = 'https://www.paypalobjects.com/webstatic/en_US/btn/btn_donate_pp_142x27.png'
 
 
 def show_toolbar(request):  # pragma: no cover

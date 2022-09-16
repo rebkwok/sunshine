@@ -14,26 +14,6 @@ from .views_utils import DataPolicyAgreementRequiredMixin
 logger = logging.getLogger(__name__)
 
 
-def get_paypal_dict(
-        host, cost, item_name, invoice_id, custom,
-        paypal_email=settings.DEFAULT_PAYPAL_EMAIL, quantity=1):
-
-    paypal_dict = {
-        "business": paypal_email,
-        "amount": cost,
-        "item_name": item_name,
-        "custom": custom,
-        "invoice": invoice_id,
-        "currency_code": "GBP",
-        "quantity": quantity,
-        "notify_url": host + reverse('paypal-ipn'),
-        "return": host + reverse('payments:paypal_confirm'),
-        "cancel_return": host + reverse('payments:paypal_cancel'),
-
-    }
-    return paypal_dict
-
-
 class BookingListView(DataPolicyAgreementRequiredMixin, LoginRequiredMixin, ListView):
 
     model = Booking
@@ -47,7 +27,6 @@ class BookingListView(DataPolicyAgreementRequiredMixin, LoginRequiredMixin, List
     def get_context_data(self, **kwargs):
         # Call the base implementation first to get a context
         context = super().get_context_data(**kwargs)
-        paypalforms = {}
         on_waiting_list = []
         can_cancel = []
         booking_status_display = {}

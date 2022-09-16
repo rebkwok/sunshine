@@ -310,7 +310,7 @@ class WorkshopAdmin(EventAdmin):
 @admin.register(RegularClass)
 class RegularClassAdmin(EventAdmin):
 
-    readonly_fields = ('cancelled', 'paypal_email')
+    readonly_fields = ('cancelled',)
 
     def get_form(self, request, obj=None, **kwargs):
         form = super(RegularClassAdmin, self).get_form(request, obj, **kwargs)
@@ -337,7 +337,7 @@ class RegularClassAdmin(EventAdmin):
 @admin.register(Private)
 class PrivateAdmin(EventAdmin):
 
-    readonly_fields = ('cancelled', 'paypal_email')
+    readonly_fields = ('cancelled',)
 
     def get_form(self, request, obj=None, **kwargs):
         form = super().get_form(request, obj, **kwargs)
