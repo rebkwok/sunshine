@@ -4,8 +4,9 @@ from django.views.generic import RedirectView
 
 from booking.views import RegularClassesEventListView, WorkshopEventListView, \
     EventDetailView, PrivateClassesEventListView, \
-    BookingListView, BookingHistoryListView, \
-    toggle_booking, toggle_waiting_list, booking_details, update_booking_count
+    BookingListView, BookingHistoryListView, BookingDeleteView, \
+    toggle_booking, toggle_waiting_list, booking_details, update_booking_count, \
+    shopping_basket_view
 
 app_name = 'booking'
 
@@ -22,6 +23,10 @@ urlpatterns = [
         name='event_detail'
     ),
     path(
+        'booking/<int:pk>/delete/',
+        BookingDeleteView.as_view(), name='delete_booking'
+    ),
+    path(
         'toggle-booking/<int:event_id>/',
         toggle_booking, name='toggle_booking'
     ),
@@ -36,6 +41,10 @@ urlpatterns = [
     path(
         'ajax-update-booking-count/<int:event_id>/',
         update_booking_count, name='update_booking_count'
+    ),
+        path(
+        'booking/shopping-basket/',
+        shopping_basket_view, name='shopping_basket'
     ),
     path('', RedirectView.as_view(url='/classes/', permanent=True)),
 ]

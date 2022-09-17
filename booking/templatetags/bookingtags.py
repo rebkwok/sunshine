@@ -90,3 +90,16 @@ def show_warning(event):
 @register.filter
 def show_booking_button(booking):
     return booking.event.bookable or (booking.status == "OPEN" and not booking.no_show)
+
+
+@register.inclusion_tag('booking/includes/payment_button.html')
+def get_payment_button(booking, event_type, name_filter, venue_filter, page=1):
+    return {
+        'unpaid': not booking.paid,
+        'booking': booking,
+        'stripe_pending': booking.stripe_pending,
+        'next': f"{event_type}_list",
+        'name_filter': name_filter,
+        'venue_filter': venue_filter,
+        'page': page
+    }

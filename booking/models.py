@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-
+from calendar import monthrange
+from datetime import datetime, timedelta
 import logging
 import pytz
 import shortuuid
@@ -20,11 +21,11 @@ logger = logging.getLogger(__name__)
 
 
 class Event(models.Model):
-    EVENT_TYPES = (('workshop', 'Workshop'), ('regular_session', 'Regular Timetabled Session'))
+    EVENT_TYPES = (('workshop', 'Workshop'), ('regular_session', 'Regular Timetabled Session'), ('private', "Private Lesson"))
 
     name = models.CharField(max_length=255)
     event_type = models.CharField(
-        choices=EVENT_TYPES, default='workshop', max_length=255
+        choices=EVENT_TYPES, default='regular_session', max_length=255
     )
     description = models.TextField(blank=True, default="")
     date = models.DateTimeField()
@@ -64,7 +65,7 @@ class Event(models.Model):
     @property
     def spaces_left(self):
         booked_number = Booking.objects.select_related('event', 'user').filter(
-            event__id=self.id, status='OPEN', no_show=False
+            event__id=self.id, status='OPEN', no_show=False, paid=True
         ).count()
         return self.max_participants - booked_number
 
@@ -80,6 +81,12 @@ class Event(models.Model):
             time_until_event > self.cancellation_period
         )
 
+    def get_available_user_membership(self, user):
+        if self.event_type != "regular_session":
+            # memberships are only valid for regular classes
+            return None 
+        return None
+
     def __str__(self):
         return '{} - {}'.format(
             str(self.name),
@@ -87,6 +94,39 @@ class Event(models.Model):
                 pytz.timezone('Europe/London')
             ).strftime('%d %b %Y, %H:%M')
         )
+
+
+class Membership(models.Model):
+    name = models.CharField(max_length=255)
+    number_of_classes = models.PositiveIntegerField()
+    cost = models.PositiveIntegerField(default=12)
+
+
+class UserMembership(models.Model):
+    user = models.ForeignKey(User, related_name="memberships", on_delete=models.CASCADE)
+    membership = models.ForeignKey(Membership, related_name="user_memberships", on_delete=models.CASCADE)
+    paid = models.BooleanField(default=False)
+    purchase_date = models.DateTimeField(default=timezone.now)
+    month = models.PositiveIntegerField(choices=[(i, i) for i in range(1,13)])
+    year = models.PositiveIntegerField(choices=[(yr, yr) for yr in range(2022, 2035)])
+    
+    def start_date(self): 
+        return datetime(self.year, self.month, 1)
+
+    def expiry_date(self):
+        _, last_day = monthrange(month=self.month, year=self.year)
+        return datetime(self.year, self.month, last_day)
+
+    def is_current(self):
+        now = timezone.now()
+        return now.year == self.year and now.month == self.month
+
+    def has_expired(self):
+        now = timezone.now()
+        return now > self.expiry_date() + timedelta(days=1)
+
+    def full(self):
+        return self.bookings.count() >= self.membership.number_of_classes
 
 
 class Booking(models.Model):
@@ -125,11 +165,25 @@ class Booking(models.Model):
     cancellation_fee_paid = models.BooleanField(default=False)
     date_cancelled = models.DateTimeField(null=True, blank=True)
 
+    stripe_pending = models.BooleanField(default=False)
+    user_membership = models.ForeignKey(
+        UserMembership, null=True, blank=True, 
+        on_delete=models.SET_NULL,
+        related_name="bookings"
+    )
+
     class Meta:
         unique_together = ('user', 'event')
 
     def __str__(self):
         return "{} - {}".format(str(self.event.name), str(self.user.username))
+
+    def booked_with_membership_within_allowed_time(self):
+        allowed_datetime = timezone.now() - timedelta(minutes=5)
+        if self.user_membership:
+            return (self.date_rebooked and self.date_rebooked > allowed_datetime) \
+                   or (self.date_booked > allowed_datetime)
+        return False
 
     def _old_booking(self):
         if self.pk:

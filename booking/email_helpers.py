@@ -23,7 +23,7 @@ def send_email(
     if request:
         domain = request.META.get('HTTP_HOST')
         host = 'http://{}'.format(request.META.get('HTTP_HOST'))
-        ctx.update({'domain': domain})
+        ctx.update({'domain': domain, 'host': host})
     else:
         ctx.update({"domain": settings.DOMAIN})
 

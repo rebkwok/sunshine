@@ -50,7 +50,7 @@
                                                     data-ref="bookings"
                                                     data-show_warning="{{ booking.event|show_warning }}"
                                                     data-cancellation_fee="{{ booking.event.cancellation_fee }}"
-                                                    class="td_ajax_book_btn">
+                                                    {% if booking.paid %}class="td_ajax_book_btn"{% endif %}>
                                                 {% include "booking/includes/book_button_toggle.html" %}
                                                 </span>
                                             {% else %}

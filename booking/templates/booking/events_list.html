@@ -123,7 +123,7 @@
                                                             data-ref="events"
                                                             data-show_warning="{{ event|show_warning }}"
                                                             data-cancellation_fee={{ event.cancellation_fee }}
-                                                            class="td_ajax_book_btn">
+                                                            {% if event.id not in booked_events %}class="td_ajax_book_btn"{% endif %}>
                                                         {% include "booking/includes/book_button_toggle.html" %}
                                                         </span>
                                                     {% else %}
@@ -133,6 +133,9 @@
                                                             class="td_ajax_waiting_list_btn">
                                                         {% include "booking/includes/waiting_list_toggle.html" %}
                                                         </span>
+                                                    {% endif %}
+                                                    {% if event.id in unpaid_events %}
+                                                        
                                                     {% endif %}
                                                 {% else %}
                                                 <em><a href="{% url 'accounts:disclaimer_form' user.id %}">Complete disclaimer</a></em>
