@@ -8,8 +8,10 @@ import shortuuid
 from django.db import models
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ValidationError
 from django.utils import timezone
+from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 
 from django_extensions.db.fields import AutoSlugField
@@ -17,6 +19,7 @@ from django_extensions.db.fields import AutoSlugField
 from activitylog.models import ActivityLog
 from stripe_payments.models import Invoice
 from timetable.models import Venue
+from booking.utils import start_of_day_in_utc, end_of_day_in_utc
 
 logger = logging.getLogger(__name__)
 
@@ -103,6 +106,93 @@ class MembershipType(models.Model):
     cost = models.PositiveIntegerField(default=12)
 
 
+class BaseVoucher(models.Model):
+    code = models.CharField(max_length=255, unique=True)
+    discount = models.PositiveIntegerField(
+        verbose_name="Percentage discount", help_text="Discount value as a % of the purchased item cost. Enter a number between 1 and 100",
+        null=True, blank=True
+    )
+    discount_amount = models.DecimalField(
+        verbose_name="Exact amount discount", help_text="Discount as an exact amount off the purchased item cost",
+        null=True, blank=True, decimal_places=2, max_digits=6
+    )
+    start_date = models.DateTimeField(default=timezone.now)
+    expiry_date = models.DateTimeField(null=True, blank=True)
+    max_vouchers = models.PositiveIntegerField(
+        null=True, blank=True, verbose_name='Maximum available vouchers',
+        help_text="Maximum uses across all users")
+    max_per_user = models.PositiveIntegerField(
+        null=True, blank=True,
+        verbose_name="Maximum uses per user",
+        help_text="Maximum times this voucher can be used by a single user"
+    )
+
+    # for gift vouchers
+    is_gift_voucher = models.BooleanField(default=False)
+    activated = models.BooleanField(default=True)
+    name = models.CharField(null=True, blank=True, max_length=255, help_text="Name of recipient")
+    message = models.TextField(null=True, blank=True, max_length=500, help_text="Message (max 500 characters)")
+    purchaser_email = models.EmailField(null=True, blank=True)
+
+    @property
+    def has_expired(self):
+        if self.expiry_date and self.expiry_date < timezone.now():
+            return True
+        return False
+
+    @property
+    def has_started(self):
+        return bool(self.start_date < timezone.now() and self.activated)
+
+    def clean(self):
+        if not (self.discount or self.discount_amount):
+            raise ValidationError("One of discount (%) or discount_amount (fixed amount) is required")
+        if self.discount and self.discount_amount:
+            raise ValidationError("Only one of discount (%) or discount_amount (fixed amount) may be specified (not both)")
+
+    def _generate_code(self):
+        return slugify(shortuuid.ShortUUID().random(length=12))
+
+    def save(self, *args, **kwargs):
+        if not self.code:
+            self.code = self._generate_code()
+            while BaseVoucher.objects.filter(code=self.code).exists():
+                self.code = self._generate_code()
+        self.full_clean()
+        # replace start time with very start of day
+        self.start_date = start_of_day_in_utc(self.start_date)
+        if self.expiry_date:
+            self.expiry_date = end_of_day_in_utc(self.expiry_date)
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.code
+
+
+class ItemVoucher(BaseVoucher):
+    membership_types = models.ManyToManyField(MembershipType)
+    event_types = ArrayField(
+        models.CharField(choices=Event.EVENT_TYPES, max_length=20),
+        default=list
+    )
+
+    def check_membership_type(self, membership_type):
+        return membership_type in self.membership_type.all()
+    
+    def check_event_type(self, event_type):
+        return event_type in self.event_types
+
+    def uses(self):
+        return self.memberships.filter(paid=True).count() + self.bookings.filter(paid=True).count()
+
+
+class TotalVoucher(BaseVoucher):
+    """A voucher that applies to the overall checkout total, not linked to any specific membership or event type"""
+
+    def uses(self):
+        return Invoice.objects.filter(paid=True, total_voucher_code=self.code).count()
+
+
 class Membership(models.Model):
     user = models.ForeignKey(User, related_name="memberships", on_delete=models.CASCADE)
     membership_type = models.ForeignKey(MembershipType, related_name="memberships", on_delete=models.CASCADE)
@@ -110,7 +200,8 @@ class Membership(models.Model):
     purchase_date = models.DateTimeField(default=timezone.now)
     month = models.PositiveIntegerField(choices=[(i, i) for i in range(1,13)])
     year = models.PositiveIntegerField(choices=[(yr, yr) for yr in range(2022, 2035)])
-    invoice = models.ForeignKey(Invoice, on_delete=models.SET_NULL, null=True, blank=True, related_name="user_memberships")
+    invoice = models.ForeignKey(Invoice, on_delete=models.SET_NULL, null=True, blank=True, related_name="memberships")
+    voucher = models.ForeignKey(ItemVoucher, on_delete=models.SET_NULL, null=True, blank=True, related_name="memberships")
 
     def start_date(self): 
         return datetime(self.year, self.month, 1)
@@ -174,6 +265,7 @@ class Booking(models.Model):
         related_name="bookings"
     )
     invoice = models.ForeignKey(Invoice, on_delete=models.SET_NULL, null=True, blank=True, related_name="bookings")
+    voucher = models.ForeignKey(ItemVoucher, on_delete=models.SET_NULL, null=True, blank=True, related_name="bookings")
 
     class Meta:
         unique_together = ('user', 'event')
