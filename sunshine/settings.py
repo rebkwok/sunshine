@@ -52,6 +52,9 @@ if env('LOCAL') or env('CI'):  # pragma: no cover
 # https://docs.djangoproject.com/en/4.0/ref/settings/#std:setting-CSRF_TRUSTED_ORIGINS
 CSRF_TRUSTED_ORIGINS = [f'https://{DOMAIN}']
 
+CSRF_FAILURE_VIEW = "booking.views.csrf_failure"
+
+
 # Application definition
 
 INSTALLED_APPS = (
@@ -74,6 +77,7 @@ INSTALLED_APPS = (
     'debug_toolbar',
     'dynamic_forms',
     'django_object_actions',
+    'stripe_payments',
     'accounts',
     'timetable',
     'website',
@@ -186,6 +190,7 @@ TEMPLATES = [
                 "django.contrib.messages.context_processors.messages",
                 "django.template.context_processors.media",
                 "booking.context_processors.future_events",
+                "booking.context_processors.booking",
             ),
             'debug': DEBUG,
         },
@@ -243,8 +248,9 @@ if env("LOCAL") or env("CI"):
             },
             'mail_admins': {
                     'level': 'ERROR',
-                    'class': 'django.utils.log.AdminEmailHandler',
-                    'include_html': True,
+                    # 'class': 'django.utils.log.AdminEmailHandler',
+                    # 'include_html': True,
+                    'class': 'logging.NullHandler'
             },
         },
         'loggers': {
@@ -384,3 +390,11 @@ S3_LOG_BACKUP_ROOT_FILENAME = "sunshine_activity_logs_backup"
 # for dynamic disclaimer form
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
 USE_CRISPY = True
+
+# STRIPE
+STRIPE_PUBLISHABLE_KEY = env("STRIPE_PUBLISHABLE_KEY")
+STRIPE_SECRET_KEY = env("STRIPE_SECRET_KEY")
+STRIPE_CONNECT_CLIENT_ID = env("STRIPE_CONNECT_CLIENT_ID")
+STRIPE_ENDPOINT_SECRET = env("STRIPE_ENDPOINT_SECRET")
+
+CART_TIMEOUT_MINUTES = env("CART_TIMEOUT_MINUTES", default=15)

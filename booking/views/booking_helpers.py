@@ -46,11 +46,12 @@ def cancel_booking_from_view(request, booking):
             # Paid directly; find invoice/payment intent (if it exists), process refund
             # if invoice etc:
             #     process refund
+            #     booking.paid = False
             #     refunded = True
             # else:
             # no associated invoice, it was manually booked by an admin, or it wasn't paid yet
             #     booking.paid = False
-            ...
+            booking.paid = False
         booking.status = 'CANCELLED'
         booking.save()
     
@@ -136,6 +137,14 @@ def cancel_booking_from_view(request, booking):
 
     # WAITING LIST
     # if applicable, email users on waiting list
+    email_waiting_list(request, event)
+
+    return refunded
+
+
+def email_waiting_list(request, event):
+    # WAITING LIST
+    # if applicable, email users on waiting list
     waiting_list_users = WaitingListUser.objects.filter(
         event=event
     )
@@ -155,5 +164,3 @@ def cancel_booking_from_view(request, booking):
                 event
             )
         )
-
-    return refunded

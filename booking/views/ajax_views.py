@@ -4,13 +4,25 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseBadRequest, HttpResponse, JsonResponse
 from django.views.decorators.http import require_http_methods
+from django.urls import reverse
 from django.utils import timezone
 from django.shortcuts import render, get_object_or_404
+from django.template.loader import render_to_string
 
 from activitylog.models import ActivityLog
-from .booking_helpers import cancel_booking_from_view
-from booking.models import Event, Booking, WaitingListUser
+from booking.views.views_utils import get_unpaid_bookings, get_unpaid_memberships, \
+    get_unpaid_gift_vouchers, get_unpaid_gift_vouchers_from_session, total_unpaid_item_count
+from .booking_helpers import cancel_booking_from_view, email_waiting_list
+from booking.models import Event, Booking, Membership, WaitingListUser
 from booking.email_helpers import send_email, send_waiting_list_email
+from booking.utils import calculate_user_cart_total
+
+
+ITEM_TYPE_MODEL_MAPPING = {
+    "membership": Membership,
+    "booking": Booking,
+    # "gift_voucher": GiftVoucher,
+}
 
 
 @login_required
@@ -50,6 +62,11 @@ def toggle_booking(request, event_id):
                 ev_type, 'is now full' if not event.spaces_left else "has been cancelled"
             )
             return HttpResponseBadRequest(message)
+
+    if existing_booking_status == "OPEN" and not booking.paid:
+        # booking already open and unpaid; user clicked on go-to-basket button
+        url = reverse('booking:shopping_basket')
+        return JsonResponse({"redirect": True, "url": url})
 
     if existing_booking_status is None:
         booking = Booking.objects.create(user=request.user, event=event)
@@ -158,10 +175,11 @@ def toggle_booking(request, event_id):
     except WaitingListUser.DoesNotExist:
         pass
     
-    return render(
-        request,
-        "booking/includes/book_button_toggle.html",
-        context
+    html = render_to_string(f"booking/includes/book_button_toggle.html", context, request)
+    return JsonResponse(
+        {
+            "html": html,
+        }
     )
 
 
@@ -176,7 +194,8 @@ def update_booking_count(request, event_id):
         {
             'booking_count': "{}/{}".format(event.spaces_left, event.max_participants),
             'full': event.spaces_left == 0,
-            'booked': booked
+            'booked': booked,
+            "cart_item_menu_count": total_unpaid_item_count(request.user)
         }
     )
 
@@ -219,8 +238,54 @@ def booking_details(request, event_id):
             'display_status': display_status,
             'status': booking.status,
             'no_show': booking.no_show,
-            'display_paid': '<span class="confirmed fas fa-check"></span>' if booking.paid
-            else '<span class="not-confirmed fas fa-times"></span>'
+            'display_paid': '<span class="text-success fas fa-check-circle"></span>' if booking.paid
+            else '<span class="text-danger fas fa-times-circle"></span>',
+            "cart_item_menu_count": total_unpaid_item_count(request.user)
         }
     )
 
+
+@require_http_methods(['POST'])
+def ajax_cart_item_delete(request):
+    item_type = request.POST.get("item_type")
+    item_id = request.POST.get("item_id")
+    item = get_object_or_404(ITEM_TYPE_MODEL_MAPPING[item_type], pk=item_id)
+    if item_type == "booking":
+        event = item.event
+
+    refresh = False
+    if request.user.is_authenticated:
+        # TODO: for vouchers
+        # if isinstance(item, (Membership, Booking)) and item.voucher is not None and item.voucher.item_count > 1:
+        #     refresh = True
+        refresh = False
+        item.delete()
+        if refresh:
+            url = reverse('booking:shopping_basket')
+            return JsonResponse({"redirect": True, "url": url})
+        unpaid_memberships = get_unpaid_memberships(request.user)
+        unpaid_bookings = get_unpaid_bookings(request.user)
+        unpaid_gift_vouchers = get_unpaid_gift_vouchers(request.user)
+        total = calculate_user_cart_total(unpaid_memberships, unpaid_bookings, unpaid_gift_vouchers)
+        unpaid_item_count = total_unpaid_item_count(request.user)
+    else:
+        assert item_type == "gift_voucher"
+        gift_vouchers_on_session = request.session.get("purchases", {}).get("gift_vouchers", [])
+        if int(item_id) in gift_vouchers_on_session:
+            gift_vouchers_on_session.remove(int(item_id))
+            request.session["purchases"]["gift_vouchers"] = gift_vouchers_on_session
+            item.delete()
+        unpaid_gift_vouchers = get_unpaid_gift_vouchers_from_session(request)
+        unpaid_item_count = unpaid_gift_vouchers.count()
+        total = calculate_user_cart_total(unpaid_gift_vouchers=unpaid_gift_vouchers)
+
+    if item_type == "booking":
+        # send waiting list emails if necessary
+        email_waiting_list(request, event)
+
+    return JsonResponse(
+        {
+            "cart_total": total,
+            "cart_item_menu_count": unpaid_item_count,
+        }
+    )

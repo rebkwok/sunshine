@@ -3,8 +3,7 @@
 {% load bookingtags %}
 
 {% block extrahead %}
-<link rel="stylesheet" href="{% static 'booking/vanilla-notify.css' %}">
-<script type='text/javascript' src="{% static 'booking/vanilla-notify.min.js' %}"></script>
+{% include 'booking/includes/ajax_head.html' %}
 {% endblock %}
 
 {% block content %}
@@ -33,6 +32,7 @@
                             <th>Booking</th>
                             <th>Location</th>
                             <th class="table-center">Status</th>
+                            <th class="table-center">Paid</th>
                         </tr>
 
                             {% for booking in bookings %}
@@ -50,7 +50,7 @@
                                                     data-ref="bookings"
                                                     data-show_warning="{{ booking.event|show_warning }}"
                                                     data-cancellation_fee="{{ booking.event.cancellation_fee }}"
-                                                    {% if booking.paid %}class="td_ajax_book_btn"{% endif %}>
+                                                    class="td_ajax_book_btn">
                                                 {% include "booking/includes/book_button_toggle.html" %}
                                                 </span>
                                             {% else %}
@@ -83,7 +83,14 @@
                                     <td>{{ booking.event.name }}</td>
                                     <td>{{ booking.event.venue.abbreviation }}</td>
                                     <td class="table-center"><span id="booked-{{ booking.event.id }}-status">{{ booking_status_display|lookup:booking.id  }}</span></td>
-                                </tr>
+                                    <td class="table-center">
+                                        <span id="booked-{{ booking.event.id }}-paid">
+                                            <span 
+                                                class="{% if booking.paid %}text-success fas fa-check-circle{% else %}text-danger fas fa-times-circle{% endif %}"/>
+                                            </span>
+                                        </span>
+                                    </td>
+                                </tr else>
                             {% endfor %}
 
                     </table>

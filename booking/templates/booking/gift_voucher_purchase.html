@@ -1,0 +1,45 @@
+{% extends "website/_base.html" %}
+{% load crispy_forms_tags %}
+
+{% load static %}
+
+{% block content %}
+    {% if voucher %}
+        <h3 class="mt-1">{% if not voucher.paid %}Purchasing Gift Voucher{% else %}Updating Gift Voucher: {{ voucher.code }}{% endif %}</h3>
+    {% else %}
+        <h3 class="mt-1">Buy a Gift Voucher</h3>
+    {% endif %}
+
+    {% if not voucher %}
+        <div>
+            Gift vouchers are available to purchase for the following:
+            <ul>
+            {% for config in gift_voucher_configs %}
+                <li>{{ config.name }}</li>
+            {% endfor%}
+            </ul>
+        </div>
+        <div>
+            If you provide a recipient name and/or message, these will be displayed on the voucher.  Once your purchase
+            is complete, you will be emailed a link to a printable copy of your voucher, as well as a link to edit
+            the recipient name and message, if you wish.<br>
+            {% if not request.user.is_authenticated %}
+            Please check your email address is correct.  Your voucher will be emailed to this address.
+            {% endif %}
+        </div>
+    {% else %}
+        <div class="small"><em>Note: voucher type cannot be modified after purchase has been completed.</em></div>
+    {% endif %}
+    <hr/>
+
+        {% if form.errors %}
+            <p class="text-danger">Please correct the errors below:</p>
+        {% endif %}
+        <form method="post" action="">
+            {% csrf_token %}
+            {%  crispy form %}
+        </form>
+
+
+
+{% endblock content %}

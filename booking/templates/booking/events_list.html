@@ -3,8 +3,7 @@
 {% load accounttags bookingtags %}
 
 {% block extrahead %}
-<link rel="stylesheet" href="{% static 'booking/vanilla-notify.css' %}">
-<script type='text/javascript' src="{% static 'booking/vanilla-notify.min.js' %}"></script>
+{% include 'booking/includes/ajax_head.html' %}
 {% endblock %}
 
 {% block content %}
@@ -123,7 +122,7 @@
                                                             data-ref="events"
                                                             data-show_warning="{{ event|show_warning }}"
                                                             data-cancellation_fee={{ event.cancellation_fee }}
-                                                            {% if event.id not in booked_events %}class="td_ajax_book_btn"{% endif %}>
+                                                            class="td_ajax_book_btn">
                                                         {% include "booking/includes/book_button_toggle.html" %}
                                                         </span>
                                                     {% else %}

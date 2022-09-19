@@ -103,3 +103,8 @@ def get_payment_button(booking, event_type, name_filter, venue_filter, page=1):
         'venue_filter': venue_filter,
         'page': page
     }
+
+
+@register.filter
+def has_available_membership(event, user):
+    return event.get_available_user_membership(user) is not None

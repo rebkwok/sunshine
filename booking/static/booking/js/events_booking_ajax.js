@@ -70,9 +70,14 @@ var toggleBooking = function()  {
   function doTheAjax() {
     var processResult = function(
        result, status, jqXHR)  {
-      //console.log("sf result='" + result + "', status='" + status + "', jqXHR='" + jqXHR + "', user_id='" + user_id + "'");
-      //  display the result with alerts only on the tab we're on
-      $jq('#book_' + event_id).html(result);
+        if (result.redirect) {
+            window.location = result.url;
+          } 
+        else {  
+        //console.log("sf result='" + result + "', status='" + status + "', jqXHR='" + jqXHR + "', user_id='" + user_id + "'");
+        //  display the result with alerts only on the tab we're on
+        $jq('#book_' + event_id).html(result.html);
+        }
    };
 
     var updateOnComplete  = function() {
@@ -117,13 +122,14 @@ var toggleBooking = function()  {
         else {
             $jq('#table-row-event-' + event_id).removeClass('table-row-booked');
         }
+        $jq('#cart_item_menu_count').text(result.cart_item_menu_count);
    };
 
 
     var processBookingDetails = function(
        result, status, jqXHR)  {
       //console.log("sf result='" + result + "', status='" + status + "', jqXHR='" + jqXHR + "'");
-      //  console.log(result);
+       console.log(result);
         $jq('#booked-' + event_id + '-' + 'status').html(result.display_status);
         $jq('#booked-' + event_id + '-' + 'paid').html(result.display_paid);
         if (result.status === 'OPEN' && result.no_show === false) {
@@ -132,6 +138,7 @@ var toggleBooking = function()  {
         else if (result.display_status === 'CANCELLED') {
             $jq('#booked-' + event_id + '-' + 'row').addClass('expired');
         }
+        $jq('#cart_item_menu_count').text(result.cart_item_menu_count);
    };
 
     var processFailure = function(
@@ -145,7 +152,7 @@ var toggleBooking = function()  {
    $jq.ajax(
        {
           url: '/booking/toggle-booking/' + event_id + '/?ref=' + ref,
-          dataType: 'html',
+          dataType: 'json',
           type: 'POST',
           success: processResult,
           //Should also have a "fail" call as well.

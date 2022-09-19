@@ -15,6 +15,7 @@ from django.utils.translation import gettext_lazy as _
 from django_extensions.db.fields import AutoSlugField
 
 from activitylog.models import ActivityLog
+from stripe_payments.models import Invoice
 from timetable.models import Venue
 
 logger = logging.getLogger(__name__)
@@ -65,7 +66,7 @@ class Event(models.Model):
     @property
     def spaces_left(self):
         booked_number = Booking.objects.select_related('event', 'user').filter(
-            event__id=self.id, status='OPEN', no_show=False, paid=True
+            event__id=self.id, status='OPEN', no_show=False
         ).count()
         return self.max_participants - booked_number
 
@@ -96,20 +97,21 @@ class Event(models.Model):
         )
 
 
-class Membership(models.Model):
+class MembershipType(models.Model):
     name = models.CharField(max_length=255)
     number_of_classes = models.PositiveIntegerField()
     cost = models.PositiveIntegerField(default=12)
 
 
-class UserMembership(models.Model):
+class Membership(models.Model):
     user = models.ForeignKey(User, related_name="memberships", on_delete=models.CASCADE)
-    membership = models.ForeignKey(Membership, related_name="user_memberships", on_delete=models.CASCADE)
+    membership_type = models.ForeignKey(MembershipType, related_name="memberships", on_delete=models.CASCADE)
     paid = models.BooleanField(default=False)
     purchase_date = models.DateTimeField(default=timezone.now)
     month = models.PositiveIntegerField(choices=[(i, i) for i in range(1,13)])
     year = models.PositiveIntegerField(choices=[(yr, yr) for yr in range(2022, 2035)])
-    
+    invoice = models.ForeignKey(Invoice, on_delete=models.SET_NULL, null=True, blank=True, related_name="user_memberships")
+
     def start_date(self): 
         return datetime(self.year, self.month, 1)
 
@@ -166,11 +168,12 @@ class Booking(models.Model):
     date_cancelled = models.DateTimeField(null=True, blank=True)
 
     stripe_pending = models.BooleanField(default=False)
-    user_membership = models.ForeignKey(
-        UserMembership, null=True, blank=True, 
+    membership = models.ForeignKey(
+        Membership, null=True, blank=True, 
         on_delete=models.SET_NULL,
         related_name="bookings"
     )
+    invoice = models.ForeignKey(Invoice, on_delete=models.SET_NULL, null=True, blank=True, related_name="bookings")
 
     class Meta:
         unique_together = ('user', 'event')
@@ -180,10 +183,25 @@ class Booking(models.Model):
 
     def booked_with_membership_within_allowed_time(self):
         allowed_datetime = timezone.now() - timedelta(minutes=5)
-        if self.user_membership:
+        if self.membership:
             return (self.date_rebooked and self.date_rebooked > allowed_datetime) \
                    or (self.date_booked > allowed_datetime)
         return False
+
+    @classmethod
+    def cleanup_expired_purchases(cls, user):
+        bookings = user.bookings.filter(
+            event__date__gt=timezone.now(),
+            status="OPEN", no_show=False,
+            paid=False, stripe_pending=False
+        )
+        created_dates = [
+            (booking, booking.date_rebooked or booking.date_booked) 
+            for booking in bookings
+        ]
+        for booking, created_at in created_dates:
+            if created_at < (timezone.now() - timedelta(settings.CART_TIMEOUT_MINUTES)):
+                booking.delete()
 
     def _old_booking(self):
         if self.pk:

@@ -597,6 +597,15 @@ a>.btn, a.btn, a.btn.btn-success {
     color: #fff !important;
     text-decoration: none;
 }
+a.btn.btn-outline-warning {
+    color: #ffc107 !important;
+    text-decoration: none;
+}
+a.btn.btn-outline-warning:hover {
+    color: #fff !important;
+    text-decoration: none;
+}
+
 a:visited>.btn, a:link>.btn {
     color: #fff !important;
     text-decoration: none;

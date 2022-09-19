@@ -28,3 +28,4 @@ python-dateutil
 pytest
 pytest-django
 pytest-cov
+stripe

@@ -4,9 +4,10 @@ from django.views.generic import RedirectView
 
 from booking.views import RegularClassesEventListView, WorkshopEventListView, \
     EventDetailView, PrivateClassesEventListView, \
-    BookingListView, BookingHistoryListView, BookingDeleteView, \
+    BookingListView, BookingHistoryListView, \
     toggle_booking, toggle_waiting_list, booking_details, update_booking_count, \
-    shopping_basket_view
+    shopping_basket_view, guest_shopping_basket, stripe_checkout, \
+    ajax_cart_item_delete, check_total
 
 app_name = 'booking'
 
@@ -15,16 +16,12 @@ urlpatterns = [
     path('my-bookings/', BookingListView.as_view(), name='bookings'),
     path('booking-history/', BookingHistoryListView.as_view(),
         name='booking_history'),
-    path('classes', RegularClassesEventListView.as_view(), name="regular_session_list"),
-    path('privates', PrivateClassesEventListView.as_view(), name="private_list"),
-    path('workshops', WorkshopEventListView.as_view(), name="workshop_list"),
+    path('classes/', RegularClassesEventListView.as_view(), name="regular_session_list"),
+    path('privates/', PrivateClassesEventListView.as_view(), name="private_list"),
+    path('workshops/', WorkshopEventListView.as_view(), name="workshop_list"),
     path(
         'event/<slug:slug>/', EventDetailView.as_view(),
         name='event_detail'
-    ),
-    path(
-        'booking/<int:pk>/delete/',
-        BookingDeleteView.as_view(), name='delete_booking'
     ),
     path(
         'toggle-booking/<int:event_id>/',
@@ -42,9 +39,11 @@ urlpatterns = [
         'ajax-update-booking-count/<int:event_id>/',
         update_booking_count, name='update_booking_count'
     ),
-        path(
-        'booking/shopping-basket/',
-        shopping_basket_view, name='shopping_basket'
-    ),
+    # SHOPPING BASKET
+    path("shopping-basket/", shopping_basket_view, name="shopping_basket"),
+    path("stripe-checkout/", stripe_checkout, name="stripe_checkout"),
+    path('ajax-cart-item-delete/', ajax_cart_item_delete, name='ajax_cart_item_delete'),
+    path('check-total/', check_total, name="check_total"),
+    path("guest-shopping-cart/", guest_shopping_basket, name="guest_shopping_basket"),
     path('', RedirectView.as_view(url='/classes/', permanent=True)),
 ]
