@@ -28,20 +28,20 @@
                 {% endif %}
                 {% for membership_info in unpaid_membership_info %}
                     <tr id="cart-row-membership-{{ membership_info.membership.id }}" class="cart-row-membership">
-                        <td class="p-1">{{ membership_info.membership.membership }} <span class="badge badge-info">{{ membership_info.membership.user|full_name }}</span></td>
+                        <td class="p-1">{{ membership_info.membership }}</td>
                         <td class="p-1">
-                            <div>Cost: {% if unpaid_membership_info.voucher_applied.discounted_cost is not None %}
-                                    <span class="superceded-cost">£{{ unpaid_membership_info.original_cost }}</span> £{{ unpaid_membership_info.voucher_applied.discounted_cost }}
+                            <div>Cost: {% if membership_info.voucher_applied.discounted_cost is not None %}
+                                    <span class="superceded-cost">£{{ membership_info.original_cost }}</span> £{{ membership_info.voucher_applied.discounted_cost }}
                                 {% else %}
-                                    £{{ unpaid_membership_info.original_cost }}
+                                    £{{ membership_info.original_cost }}
                                 {% endif %}
-                            {% if unpaid_membership_info.voucher_applied.discounted_cost is not None %}
-                            <br><span class="text-secondary"><small><em>Voucher code applied: {{ unpaid_membership_info.voucher_applied.code }}</em></small></span>
+                            {% if membership_info.voucher_applied.discounted_cost is not None %}
+                            <br><span class="text-secondary"><small><em>Voucher code applied: {{ membership_info.voucher_applied.code }}</em></small></span>
                             {% endif %}
                             <span
-                                    id="remove-membership-{{ unpaid_membership_info.membership.id }}"
+                                    id="remove-membership-{{ membership_info.membership.id }}"
                                     class="remove-membership float-right"
-                                    data-membership_id="{{ unpaid_membership_info.user_membership.id }}"
+                                    data-membership_id="{{ membership_info.user_membership.id }}"
                                     >
                                 <a class="btn btn-sm btn-danger" href="#"><i class="fas fa-trash-alt"></i></a>
                             </span>
@@ -146,9 +146,9 @@
     <p>Your cart is empty</p>
     {% if request.user.is_authenticated %}
     <p>
-        {% comment %} <a class="btn btn-xs btn-outline-primary" href="{% url 'booking:memberships' %}">Add membership</a> {% endcomment %}
-        <a class="btn btn-xs btn-outline-primary" href="{% url 'booking:regular_session_list' %}">Add classes</a>
-        {% comment %} <a class="btn btn-xs btn-outline-primary" href="{% url 'booking:buy_gift_voucher' %}">Add gift vouchers</a> {% endcomment %}
+        {% comment %} <a class="btn btn-sm btn-outline-warning" href="{% url 'booking:memberships' %}">Add membership</a> {% endcomment %}
+        <a class="btn btn-sm btn-outline-warning" href="{% url 'booking:regular_session_list' %}">Add classes</a>
+        {% comment %} <a class="btn btn-sm btn-outline-warning" href="{% url 'booking:buy_gift_voucher' %}">Add gift vouchers</a> {% endcomment %}
     </p>
     {% endif %}
     </div>

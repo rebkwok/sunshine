@@ -922,3 +922,15 @@ span.current-page {
   font-weight: bold;
   font-size: 1.3em;
 }
+
+.errorlist {
+    list-style: none;
+    color: red;
+    font-style: italic;
+    font-size: small;
+    padding-left: 0;
+}
+
+.superceded-cost {
+    text-decoration: line-through;
+  }

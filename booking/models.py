@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
-from calendar import monthrange
+from calendar import monthrange, month_name
 from datetime import datetime, timedelta
+from decimal import Decimal
 import logging
 import pytz
 import shortuuid
@@ -89,7 +90,14 @@ class Event(models.Model):
         if self.event_type != "regular_session":
             # memberships are only valid for regular classes
             return None 
-        return None
+        valid_memberships = user.memberships.filter(
+            month=self.date.month, year=self.date.year, paid=True
+        ).order_by("purchase_date")
+        available = next(
+            (membership for membership in valid_memberships if not membership.full()),
+            None
+        )
+        return available
 
     def __str__(self):
         return '{} - {}'.format(
@@ -104,6 +112,9 @@ class MembershipType(models.Model):
     name = models.CharField(max_length=255)
     number_of_classes = models.PositiveIntegerField()
     cost = models.PositiveIntegerField(default=12)
+
+    def __str__(self) -> str:
+        return f"{self.name} - {self.cost}"
 
 
 class BaseVoucher(models.Model):
@@ -170,21 +181,55 @@ class BaseVoucher(models.Model):
 
 
 class ItemVoucher(BaseVoucher):
-    membership_types = models.ManyToManyField(MembershipType)
+    membership_types = models.ManyToManyField(MembershipType, blank=True)
     event_types = ArrayField(
         models.CharField(choices=Event.EVENT_TYPES, max_length=20),
-        default=list
+        default=list,
+        null=True, blank=True
     )
 
     def check_membership_type(self, membership_type):
-        return membership_type in self.membership_type.all()
+        return membership_type in self.membership_types.all()
     
     def check_event_type(self, event_type):
         return event_type in self.event_types
 
-    def uses(self):
-        return self.memberships.filter(paid=True).count() + self.bookings.filter(paid=True).count()
+    def check_item(self, item):
+        if isinstance(item, Membership):
+            return self.check_membership_type(item.membership_type)
+        else:
+            assert isinstance(item, Booking)
+            return self.check_event_type(item.event.event_type)
 
+    def paid_and_unpaid_items(self, user=None):
+        all_items = {
+            "membership": self.memberships.all(),
+            "booking": self.bookings.all()
+        }
+        if user is not None:
+            return {
+                k: v.filter(user=user) for k, v in all_items.items()
+            }
+        return all_items
+    
+    def used_items(self, user=None):
+        used_items = {
+            "membership": self.memberships.filter(paid=True),
+            "booking": self.bookings.filter(paid=True)
+        }
+        if user is not None:
+            return {
+                k: v.filter(user=user) for k, v in used_items.items()
+            }
+        return used_items
+
+    def uses(self, user=None):
+        return sum([qs.count() for qs in self.used_items(user=user).values()])
+
+        # def clean(self):
+        #     if not self.membership_types.exists() or self.event_types:
+        #         raise ValidationError("At least one membership type or event type must be specified") 
+        #     super().clean()
 
 class TotalVoucher(BaseVoucher):
     """A voucher that applies to the overall checkout total, not linked to any specific membership or event type"""
@@ -203,6 +248,10 @@ class Membership(models.Model):
     invoice = models.ForeignKey(Invoice, on_delete=models.SET_NULL, null=True, blank=True, related_name="memberships")
     voucher = models.ForeignKey(ItemVoucher, on_delete=models.SET_NULL, null=True, blank=True, related_name="memberships")
 
+    @property
+    def month_str(self):
+        return month_name[self.month]
+
     def start_date(self): 
         return datetime(self.year, self.month, 1)
 
@@ -220,6 +269,21 @@ class Membership(models.Model):
 
     def full(self):
         return self.bookings.count() >= self.membership.number_of_classes
+
+    @property
+    def cost_with_voucher(self):
+        if not self.voucher:
+            return self.membership_type.cost
+        original_cost = Decimal(float(self.membership_type.cost))
+        if self.voucher.discount_amount:
+            if self.voucher.discount_amount > original_cost:
+                return 0
+            return original_cost - Decimal(self.voucher.discount_amount)
+        percentage_to_pay = Decimal((100 - self.voucher.discount) / 100)
+        return (original_cost * percentage_to_pay).quantize(Decimal('.01'))
+
+    def __str__(self) -> str:
+        return f"{self.membership_type.name} - {self.month_str} {self.year}"
 
 
 class Booking(models.Model):
@@ -292,8 +356,20 @@ class Booking(models.Model):
             for booking in bookings
         ]
         for booking, created_at in created_dates:
-            if created_at < (timezone.now() - timedelta(settings.CART_TIMEOUT_MINUTES)):
+            if created_at < (timezone.now() - timedelta(minutes=settings.CART_TIMEOUT_MINUTES)):
                 booking.delete()
+
+    @property
+    def cost_with_voucher(self):
+        if not self.voucher:
+            return self.event.cost
+        original_cost = Decimal(float(self.event.cost))
+        if self.voucher.discount_amount:
+            if self.voucher.discount_amount > original_cost:
+                return 0
+            return original_cost - Decimal(self.voucher.discount_amount)
+        percentage_to_pay = Decimal((100 - self.voucher.discount) / 100)
+        return (original_cost * percentage_to_pay).quantize(Decimal('.01'))
 
     def _old_booking(self):
         if self.pk:

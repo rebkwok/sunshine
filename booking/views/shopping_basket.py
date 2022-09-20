@@ -16,7 +16,7 @@ import stripe
 
 from stripe_payments.models import Invoice, Seller, StripePaymentIntent
 
-from ..models import Membership
+from ..models import Booking, ItemVoucher, Membership, TotalVoucher
 from ..utils import calculate_user_cart_total
 from .views_utils import (
     data_privacy_required, 
@@ -26,10 +26,18 @@ from .views_utils import (
     redirect_to_voucher_cart,
     get_unpaid_gift_vouchers_from_session
 )
-# from .voucher_basket_utils import validate_voucher_for_user, validate_total_voucher_for_checkout_user, \
-#     validate_voucher_for_unpaid_block, validate_voucher_for_block_configs_in_cart, \
-#     validate_voucher_properties, apply_voucher_to_unpaid_blocks, get_valid_applied_voucher_info, \
-#     _verify_block_vouchers, _get_and_verify_total_vouchers, VoucherValidationError
+from .voucher_utils import (
+    validate_voucher_for_user,
+    validate_total_voucher_for_checkout_user,
+    validate_voucher_for_unpaid_item,
+    validate_voucher_for_items_in_cart,
+    validate_voucher_properties, 
+    apply_voucher_to_unpaid_items, 
+    get_valid_applied_voucher_info,
+    _verify_item_vouchers, 
+    _get_and_verify_total_vouchers, 
+    VoucherValidationError
+)
 
 
 logger = logging.getLogger(__name__)
@@ -82,6 +90,7 @@ def shopping_basket_view(request):
     unpaid_memberships = get_unpaid_memberships(request.user)
     unpaid_membership_ids = unpaid_memberships.values_list("id", flat=True)
     unpaid_bookings = get_unpaid_bookings(request.user)
+    unpaid_booking_ids = unpaid_bookings.values_list("id", flat=True)
     unpaid_gift_vouchers = get_unpaid_gift_vouchers(request.user)
     
     # unpaid_gift_vouchers = get_unpaid_user_gift_vouchers(request.user)
@@ -93,59 +102,97 @@ def shopping_basket_view(request):
 
         if "refresh_voucher_code" in request.POST:
             # reapply code
-            for membership in unpaid_memberships:
-                if membership.voucher and membership.voucher.code == code:
-                    membership.voucher = None
-                    membership.save()
-            for booking in unpaid_bookings:
-                if booking.voucher and booking.voucher.code == code:
-                    booking.voucher = None
-                    booking.save()
+            for item_set in [unpaid_memberships, unpaid_bookings]:
+                for item in item_set:
+                    if item.voucher and item.voucher.code == code:
+                        item.voucher = None
+                        item.save()
 
         if "add_voucher_code" in request.POST or "refresh_voucher_code" in request.POST:
-            # verify voucher is active and available to use (not specific to item)
+            # verify voucher is active and available to use (not specific to blocks)
             # report error if voucher not valid
             # find unpaid blocks that don't have a code yet
             # if valid, apply this code to as many blocks as we can
             # report if not valid for use with any unpaid blocks
             voucher_errors = []
-            ...
-            
-    # voucher_applied_costs = {
-    #     unpaid_membership.id: get_valid_applied_voucher_info(unpaid_block) for unpaid_block in unpaid_blocks
-    # }
+            voucher_type = "item"
+
+            def _add_voucher_error_to_list(error):
+                if str(error) not in voucher_errors:
+                    voucher_errors.append(str(error))
+
+            # Does voucher exist?
+            try:
+                voucher = ItemVoucher.objects.get(code=code)
+            except ItemVoucher.DoesNotExist:
+                try:
+                    voucher = TotalVoucher.objects.get(code=code)
+                    voucher_type = "total"
+                except TotalVoucher.DoesNotExist:
+                    _add_voucher_error_to_list(f'"{code}" is not a valid code')
+            if not voucher_errors:
+                try:
+                    # check overall user validation, not specific to the block user
+                    validate_voucher_properties(voucher)
+                    if voucher_type == "item":
+                        validate_voucher_for_items_in_cart(voucher, unpaid_memberships, unpaid_bookings)
+                        # validate for user
+                        validate_voucher_for_user(voucher, request.user)
+                        try:
+                            items_to_apply = []
+                            for item_type, item_set in [("membership", unpaid_memberships), ("booking", unpaid_bookings)]:
+                                for item in item_set:
+                                    if voucher.check_item(item):
+                                        try:
+                                            validate_voucher_for_unpaid_item(item_type, item, voucher, check_voucher_properties=False)
+                                            items_to_apply.append(item)
+                                        except VoucherValidationError as user_voucher_error:
+                                            _add_voucher_error_to_list(user_voucher_error)
+                            # Passed all validation checks; apply it
+                            apply_voucher_to_unpaid_items(voucher, items_to_apply)
+                        except VoucherValidationError as user_voucher_error:
+                            _add_voucher_error_to_list(user_voucher_error)
+                    else:
+                        try:
+                            validate_total_voucher_for_checkout_user(voucher, request.user)
+                            request.session["total_voucher_code"] = voucher.code
+                        except VoucherValidationError as user_voucher_error:
+                            _add_voucher_error_to_list(user_voucher_error)
+                except VoucherValidationError as voucher_error:
+                    voucher_errors.insert(0, str(voucher_error))
+            context["voucher_add_error"] = voucher_errors
+        elif "remove_voucher_code" in request.POST:
+            try:
+                # is it a total voucher code we're removing?
+                TotalVoucher.objects.get(code=code)
+                if "total_voucher_code" in request.session:
+                    del request.session["total_voucher_code"]
+            except TotalVoucher.DoesNotExist:
+                # It's an item voucher
+                # Delete any used_vouchers for unpaid items
+                for item_set in [unpaid_memberships, unpaid_bookings]:
+                    for item in item_set:
+                        if item.voucher and item.voucher.code == code:
+                            item.voucher = None
+                            item.save()
+    else:
+        _verify_item_vouchers(unpaid_memberships, unpaid_bookings)
 
     # calculate the unpaid membership costs after making any new updates and adding new used_vouchers
     unpaid_membership_info = [
         {
             "membership": membership,
             "original_cost": membership.membership_type.cost,
-            "voucher_applied": {"code": None, "discounted_cost": None},
+            "voucher_applied": get_valid_applied_voucher_info(membership),
         }
         for membership in unpaid_memberships
     ]
-    # We do this AFTER generating the voucher applied costs, as that may have modified some used vouchers if they weren't valid
-    # applied_voucher_codes_and_discount = list(
-    #     Membership.objects.filter(id__in=unpaid_membership_ids, voucher__isnull=False)
-    #         .order_by("voucher__code")
-    #         .distinct("voucher__code")
-    #         .values_list("voucher__code", "voucher__discount", "voucher__discount_amount")
-    # )
-    applied_voucher_codes_and_discount = []
-
-    total_voucher_code = request.session.get("total_voucher_code")
-    if total_voucher_code:
-        # total_voucher = TotalVoucher.objects.get(code=total_voucher_code)
-        # applied_voucher_codes_and_discount.append((total_voucher.code, total_voucher.discount, total_voucher.discount_amount))
-        ...
-    else:
-        total_voucher = None
-    
-    # calculate the unpaid booking costs
+        # calculate the unpaid booking costs
     unpaid_booking_info = [
         {
             "booking": booking,
             "original_cost": booking.event.cost,
+            "voucher_applied": get_valid_applied_voucher_info(booking),
         }
         for booking in unpaid_bookings
     ]
@@ -158,6 +205,29 @@ def shopping_basket_view(request):
     #     for gift_voucher in unpaid_gift_vouchers
     # ]
     unpaid_gift_voucher_info = []
+
+    # We do this AFTER generating the voucher applied costs, as that may have modified some used vouchers if they weren't valid
+    applied_voucher_codes_and_discount = set(
+        list(
+            Membership.objects.filter(id__in=unpaid_membership_ids, voucher__isnull=False)
+                .order_by("voucher__code")
+                .distinct("voucher__code")
+                .values_list("voucher__code", "voucher__discount", "voucher__discount_amount")
+        ) + 
+        list(
+            Booking.objects.filter(id__in=unpaid_booking_ids, voucher__isnull=False)
+                .order_by("voucher__code")
+                .distinct("voucher__code")
+                .values_list("voucher__code", "voucher__discount", "voucher__discount_amount")
+        )
+    )
+
+    total_voucher_code = request.session.get("total_voucher_code")
+    if total_voucher_code:
+        total_voucher = TotalVoucher.objects.get(code=total_voucher_code)
+        applied_voucher_codes_and_discount.add((total_voucher.code, total_voucher.discount, total_voucher.discount_amount))
+    else:
+        total_voucher = None
 
     context.update({
         "unpaid_items": unpaid_booking_info or unpaid_membership_info or unpaid_gift_voucher_info,
@@ -199,8 +269,8 @@ def _check_items_and_get_updated_invoice(request):
             checked.update({"redirect": True, "redirect_url": reverse("booking:shopping_basket")})
             return checked
 
-        # _verify_vouchers(unpaid_blocks)
-        # total_voucher = _get_and_verify_total_vouchers(request)
+        _verify_item_vouchers(unpaid_memberships, unpaid_bookings)
+        total_voucher = _get_and_verify_total_vouchers(request)
         total_voucher = None
 
     else:
@@ -378,8 +448,8 @@ def check_total(request):
         unpaid_memberships = get_unpaid_memberships(request.user)
         unpaid_bookings = get_unpaid_bookings(request.user)
         unpaid_gift_vouchers = get_unpaid_gift_vouchers(request.user)
-        # total_voucher = _get_and_verify_total_vouchers(request)
-        # _verify_block_vouchers(unpaid_blocks)
+        total_voucher = _get_and_verify_total_vouchers(request)
+        _verify_item_vouchers(unpaid_memberships, unpaid_bookings)
     else:
         unpaid_memberships = unpaid_bookings = []
         total_voucher = None

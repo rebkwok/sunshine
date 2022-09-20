@@ -57,7 +57,7 @@ def get_unpaid_memberships(user):
     unpaid = user.memberships.filter(paid=False)
     future_years = unpaid.filter(year__gt=current_year)
     this_year = unpaid.filter(year=current_year, month__gte=current_month)
-    return this_year & future_years
+    return this_year | future_years
 
 
 def get_unpaid_bookings(user):

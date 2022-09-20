@@ -9,7 +9,10 @@ from django.utils import timezone
 
 from django_object_actions import DjangoObjectActions, takes_instance_or_queryset
 
-from booking.models import Booking, WaitingListUser, Workshop, RegularClass, Private
+from booking.models import (
+    Booking, ItemVoucher, Membership, MembershipType, TotalVoucher, 
+    WaitingListUser, Workshop, RegularClass, Private
+)
 from booking.forms import EventForm
 from booking.email_helpers import send_email
 
@@ -413,3 +416,23 @@ class WaitingListUserAdmin(admin.ModelAdmin):
     search_fields = (
         'user__first_name', 'user__last_name', 'user__username', 'event__name'
     )
+
+
+@admin.register(MembershipType)
+class MembershipTypeAdmin(admin.ModelAdmin):
+    list_display = ("name", "cost")
+
+
+@admin.register(Membership)
+class MembershipAdmin(admin.ModelAdmin):
+    ...
+
+
+@admin.register(ItemVoucher)
+class ItemVoucherAdmin(admin.ModelAdmin):
+    ...
+
+
+@admin.register(TotalVoucher)
+class TotalVoucherAdmin(admin.ModelAdmin):
+    ...

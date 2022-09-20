@@ -52,13 +52,29 @@ class SuitConfig(DjangoSuitConfig):
             ChildItem(model='booking.booking'),
             ChildItem(model='booking.waitinglistuser'),
         ], icon='fa fa-heart', permissions=superuser_permissions),
-        # ParentItem('Payments', children=[
-        #     ChildItem(model='payments.paypalbookingtransaction'),
-        #     ChildItem(model='ipn.paypalipn'),
-        #     ChildItem("Test paypal email", url='/site-admin/ipn/paypalipn/test-paypal-email')
-        # ], icon='fa fa-credit-card', permissions=superuser_permissions),
+       ParentItem(
+            'Memberships',
+            children=[
+                ChildItem(model='booking.membershiptype'),
+                ChildItem(model='booking.membership')
+            ],
+            permissions=superuser_permissions
+        ),
+        ParentItem(
+            'Vouchers',
+            children=[
+                ChildItem(model='booking.itemvoucher'),
+                ChildItem(model='booking.totalvoucher')
+            ],
+            permissions=superuser_permissions
+        ),
+        ParentItem('Payments', children=[
+            ChildItem(model='stripe_payments.invoice'),
+            ChildItem(model='stripe_payments.seller'),
+            ChildItem(model='stripe_payments.stripepaymentintent'),
+        ], icon='fa fa-credit-card', permissions=superuser_permissions),
         ParentItem('Activity Log', children=[
-            ChildItem("Activitylog", 'activitylog.activitylog'),
+           ChildItem("Activitylog", 'activitylog.activitylog'),
         ], permissions=superuser_permissions)
     )
 
