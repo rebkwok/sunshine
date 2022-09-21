@@ -9,6 +9,8 @@ from booking.views.shopping_basket import shopping_basket_view, guest_shopping_b
     stripe_checkout, check_total
 from booking.views.misc import csrf_failure
 from booking.views.purchases import ajax_add_membership_to_basket, membership_purchase_view 
+from booking.views.memberships import MembershipListView, MembershipDetailView
+
 
 __all__ = [
     'RegularClassesEventListView', 'WorkshopEventListView', 'EventDetailView', 
@@ -18,7 +20,8 @@ __all__ = [
     'shopping_basket_view', 'guest_shopping_basket', 'stripe_checkout', 'check_total',
     'ajax_cart_item_delete',
     'csrf_failure',
-    "membership_purchase_view", "ajax_add_membership_to_basket"
+    "membership_purchase_view", "ajax_add_membership_to_basket",
+    "MembershipListView", "MembershipDetailView"
 ]
 
 

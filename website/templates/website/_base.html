@@ -57,6 +57,7 @@
                     <li class="nav-item"><a class="account-menu-option" href="{% url 'account_change_password' %}">Change password</a></li>
                     <li class="nav-item"><a class="account-menu-option" href="{% url 'booking:bookings' %}">Bookings</a></li>
                     <li class="nav-item"><a class="account-menu-option" href="{% url 'booking:booking_history' %}">Past bookings</a></li>
+                    <li class="nav-item"><a class="account-menu-option" href="{% url 'booking:user_memberships' %}">Memberships</a></li>
                     <li class="nav-item"><a class="account-menu-option" href="{% url 'account_logout' %}">Log out</a></li>
 
                     {% if user.is_staff or user.is_superuser %}

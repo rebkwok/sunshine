@@ -22,13 +22,13 @@
             <span class="btn btn-danger table-btn">Cancel</a>
         {% endif %}
     {% elif booking.event|has_available_membership:request.user %}
-        <button class="btn table-btn btn-warning book_button">Rebook</button>
+        <button class="btn table-btn btn-success book_button">Rebook</button>
     {% else %}
         <button class="btn table-btn btn-warning book_button {% if event.members_only %}disabled{% endif %}">Add to basket
         {% if event.members_only %}  <span class="label label-primary label-membership">Members only</span>{% endif %}</button>
     {% endif %}
 {% elif event|has_available_membership:request.user %}
-    <button class="btn table-btn btn-warning book_button">{% if booking %}Rebook{% else %}Book{% endif %}
+    <button class="btn table-btn btn-success book_button">{% if booking %}Rebook{% else %}Book{% endif %}
 {% else %}
     <button class="btn table-btn btn-warning book_button {% if event.members_only %}disabled{% endif %}">Add to basket
     {% if event.members_only %}  <span class="label label-primary label-membership">Members only</span>{% endif %}</button>

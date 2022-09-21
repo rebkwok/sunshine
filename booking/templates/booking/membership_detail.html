@@ -1,0 +1,31 @@
+{% extends "website/_base.html" %}
+
+{% load accounttags bookingtags static %}
+
+{% block extrahead %}
+{% include 'booking/includes/ajax_head.html' %}
+{% endblock %}
+
+{% block content %}
+
+        <div class="list-group mb-2">
+            <div class="list-group-item list-group-item-dark pt-1 pb-1">Membership: {{ membership }}</div>
+                <div class="list-group-item">
+                    Purchased: {{ membership.purchase_date | date:"d-M-Y" }}<br/>
+                    Valid for: Classes in </strong>{{ membership.month_str }} {{ membership.year }}<br/>
+                    Bookings: {% if not membership.bookings.exists %}N/A{% else %}{{ membership.times_used }}{% endif %}
+                    <ul>
+                        {% for booking in membership.bookings.all %}
+                            <li>{{ booking.event.name }} | {{ booking.event.date|date:"D d M Y, H:i" }}</li>
+                        {% endfor %}
+                    </ul>
+                    {% if membership.full %}
+                        <strong>Full</strong>
+                    {% elif membership.has_expired %}
+                        <strong>Expired</strong>
+                    {% endif %}
+            </div>
+        </div>
+        <a class="btn btn-outline-dark btn-sm" href="{% url 'booking:user_memberships' %}">Back</a>
+
+{% endblock content %}

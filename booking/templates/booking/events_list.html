@@ -93,9 +93,7 @@
                                 <th class="table-center">Date</th>
                                 <th class="table-center">Name</th>
                                 <th class="table-center">Venue</th>
-                                {% if event_type != "class" %}
-                                    <th class="table-center">Cost</th>
-                                {% endif %}
+                                <th class="table-center">Cost</th>
                                 <th class="table-center">Spaces</th>
                             </tr>
                             <tbody>
@@ -133,9 +131,6 @@
                                                         {% include "booking/includes/waiting_list_toggle.html" %}
                                                         </span>
                                                     {% endif %}
-                                                    {% if event.id in unpaid_events %}
-                                                        
-                                                    {% endif %}
                                                 {% else %}
                                                 <em><a href="{% url 'accounts:disclaimer_form' user.id %}">Complete disclaimer</a></em>
                                                 {% endif %}
@@ -145,9 +140,7 @@
                                     <td class="table-center">{{ event.date | date:"D d M H:i" }}</td>
                                     <td class="table-center"><a href="{% url 'booking:event_detail' event.slug %}">{{ event.name }}</a></td>
                                     <td class="table-center">{{ event.venue.abbreviation }}</td>
-                                    {% if event_type != "class" %}
-                                        <td class="table-center">£{{ event.cost }}</td>
-                                    {% endif %}
+                                    <td class="table-center">£{{ event.cost }}</td>
                                     <td class="table-center">
                                         {% if event.max_participants %}
                                             <span id="booking_count_{{ event.id }}"

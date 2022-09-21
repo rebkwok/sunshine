@@ -258,22 +258,24 @@ class Membership(models.Model):
         return month_name[self.month]
 
     def start_date(self): 
-        return datetime(self.year, self.month, 1)
+        return datetime(self.year, self.month, 1, tzinfo=timezone.utc)
 
     def expiry_date(self):
         _, last_day = monthrange(month=self.month, year=self.year)
-        return datetime(self.year, self.month, last_day)
-
-    def is_current(self):
-        now = timezone.now()
-        return now.year == self.year and now.month == self.month
+        return datetime(self.year, self.month, last_day, tzinfo=timezone.utc)
 
     def has_expired(self):
         now = timezone.now()
         return now > self.expiry_date() + timedelta(days=1)
 
+    def current_or_future(self):
+        return not (self.has_expired() or self.full())
+
+    def times_used(self):
+        return self.bookings.count()
+
     def full(self):
-        return self.bookings.count() >= self.membership_type.number_of_classes
+        return self.times_used() >= self.membership_type.number_of_classes
 
     @property
     def cost_with_voucher(self):

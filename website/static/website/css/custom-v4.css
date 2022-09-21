@@ -597,11 +597,20 @@ a>.btn, a.btn, a.btn.btn-success {
     color: #fff !important;
     text-decoration: none;
 }
-a.btn.btn-outline-warning {
-    color: #ffc107 !important;
+a.btn.btn-outline-warning, a.btn.btn-outline-dark, a.btn.btn-outline-primary {
     text-decoration: none;
 }
-a.btn.btn-outline-warning:hover {
+a.btn.btn-outline-warning {
+    color: #ffc107 !important;
+}
+a.btn.btn-outline-dark {
+    color: #343a40 !important;
+}
+a.btn.btn-outline-primary {
+    color: #ffc107 !important;
+}
+
+a.btn.btn-outline-warning:hover, a.btn.btn-outline-dark:hover, a.btn.btn-outline-primary:hover {
     color: #fff !important;
     text-decoration: none;
 }

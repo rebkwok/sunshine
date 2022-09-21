@@ -8,13 +8,16 @@ from booking.views import RegularClassesEventListView, WorkshopEventListView, \
     toggle_booking, toggle_waiting_list, booking_details, update_booking_count, \
     shopping_basket_view, guest_shopping_basket, stripe_checkout, \
     ajax_cart_item_delete, check_total, \
-    ajax_add_membership_to_basket, membership_purchase_view
+    ajax_add_membership_to_basket, membership_purchase_view, \
+    MembershipListView, MembershipDetailView
 
 app_name = 'booking'
 
 
 urlpatterns = [
     path('my-bookings/', BookingListView.as_view(), name='bookings'),
+    path('my-memberships/', MembershipListView.as_view(), name='user_memberships'),
+    path('membership-detail/<int:pk>/', MembershipDetailView.as_view(), name='membership_detail'),
     path('booking-history/', BookingHistoryListView.as_view(),
         name='booking_history'),
     path('classes/', RegularClassesEventListView.as_view(), name="regular_session_list"),
@@ -40,7 +43,7 @@ urlpatterns = [
         'ajax-update-booking-count/<int:event_id>/',
         update_booking_count, name='update_booking_count'
     ),
-    # PURCHASES
+    # MEMBERSHIPS
     path("memberships/", membership_purchase_view, name="membership_purchase"),
     path("ajax-membership-purchase/", ajax_add_membership_to_basket, name="ajax_add_membership_to_basket"),
     # SHOPPING BASKET
