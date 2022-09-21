@@ -430,7 +430,10 @@ class MembershipAdmin(admin.ModelAdmin):
 
 @admin.register(ItemVoucher)
 class ItemVoucherAdmin(admin.ModelAdmin):
-    ...
+    list_display = ('code', 'valid_for')
+
+    def valid_for(self, obj):
+        return ", ".join(obj.valid_for())
 
 
 @admin.register(TotalVoucher)

@@ -5,7 +5,7 @@ from django.utils import timezone
 
 from model_bakery.recipe import Recipe, foreign_key, seq
 
-from booking.models import Event, Booking, WaitingListUser
+from booking.models import Event, Booking, Membership, WaitingListUser
 from timetable.models import TimetableSession, SessionType, Venue
 
 
@@ -60,3 +60,8 @@ tue_session = Recipe(
 wed_session = Recipe(
     TimetableSession, session_day=TimetableSession.WED
 )
+
+now = timezone.now()
+membership = Recipe(
+    Membership, month=now.month, year=now.year, paid=False
+)   

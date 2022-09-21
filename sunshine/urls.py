@@ -30,6 +30,7 @@ urlpatterns = [
     path('site-admin/', admin.site.urls),
     path('booking/', include('booking.urls')),
     path('timetable/', include('timetable.urls')),
+    path('payments/', include('stripe_payments.urls')),
     path('not-available/', permission_denied, name='permission_denied'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

@@ -32,7 +32,6 @@ from .voucher_utils import (
     validate_voucher_for_unpaid_item,
     validate_voucher_for_items_in_cart,
     validate_voucher_properties, 
-    apply_voucher_to_unpaid_items, 
     get_valid_applied_voucher_info,
     _verify_item_vouchers, 
     _get_and_verify_total_vouchers, 
@@ -139,17 +138,16 @@ def shopping_basket_view(request):
                         # validate for user
                         validate_voucher_for_user(voucher, request.user)
                         try:
-                            items_to_apply = []
                             for item_type, item_set in [("membership", unpaid_memberships), ("booking", unpaid_bookings)]:
                                 for item in item_set:
                                     if voucher.check_item(item):
                                         try:
                                             validate_voucher_for_unpaid_item(item_type, item, voucher, check_voucher_properties=False)
-                                            items_to_apply.append(item)
+                                            # Passed all validation checks; apply it
+                                            item.voucher = voucher
+                                            item.save()
                                         except VoucherValidationError as user_voucher_error:
                                             _add_voucher_error_to_list(user_voucher_error)
-                            # Passed all validation checks; apply it
-                            apply_voucher_to_unpaid_items(voucher, items_to_apply)
                         except VoucherValidationError as user_voucher_error:
                             _add_voucher_error_to_list(user_voucher_error)
                     else:
@@ -261,9 +259,6 @@ def _check_items_and_get_updated_invoice(request):
         unpaid_bookings = get_unpaid_bookings(request.user)
         unpaid_gift_vouchers = get_unpaid_gift_vouchers(request.user)
 
-        # for pp in unpaid_merchandise:
-        #     pp.mark_checked()
-
         if not (unpaid_memberships or unpaid_bookings or unpaid_gift_vouchers):
             messages.warning(request, "Your cart is empty")
             checked.update({"redirect": True, "redirect_url": reverse("booking:shopping_basket")})
@@ -271,8 +266,6 @@ def _check_items_and_get_updated_invoice(request):
 
         _verify_item_vouchers(unpaid_memberships, unpaid_bookings)
         total_voucher = _get_and_verify_total_vouchers(request)
-        total_voucher = None
-
     else:
         # guest checkout
         unpaid_memberships = unpaid_bookings = []
@@ -313,7 +306,7 @@ def _check_items_and_get_updated_invoice(request):
                 return invoice
 
     if request.user.is_authenticated:
-        username = request.user.username
+        username = request.user.email
     else:
         username = ""
     # check for an existing unpaid invoice for this user
@@ -369,7 +362,7 @@ def _check_items_and_get_updated_invoice(request):
             msg.append("Your classes/workshops are now booked.")
 
         messages.success(request, f"Voucher applied successfully. {'; '.join(msg)}")
-        checked.update({"redirect": True, "redirect_url": reverse("booking:schedule")})
+        checked.update({"redirect": True, "redirect_url": reverse("booking:regular_session_list")})
 
     return checked
 

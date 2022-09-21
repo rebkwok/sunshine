@@ -212,6 +212,11 @@ class ItemVoucher(BaseVoucher):
             }
         return all_items
     
+    def valid_for(self):
+        return list(
+            f"{mem.name} (membership)" for mem in self.membership_types.all()
+            ) + list(self.event_types)
+
     def used_items(self, user=None):
         used_items = {
             "membership": self.memberships.filter(paid=True),

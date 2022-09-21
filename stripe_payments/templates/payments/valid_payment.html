@@ -1,0 +1,67 @@
+{% extends "website/_base.html" %}
+
+{% load accounttags bookingtags static %}
+
+
+{% block content %}
+
+<div class="row">
+    <div class="col-12 mt-5">
+    <div class="card">
+        <div class="card-header text-center">
+            <i class="font-weight-lighter text-success far fa-check-circle fa-5x"></i>
+        </div>
+        <div class="card-body">
+            <h4 class="card-title">Payment Processed</h4>
+            <p class="card-text">
+                Thank you for your payment. Your transaction has been completed and you'll receive confirmation by email shortly.
+            </p>
+
+                <table class="table table-bordered">
+                <thead>
+                    <th>Item</th>
+                    <th>Cost</th>
+                </thead>
+                <tbody>
+                    {% for item in cart_items %}
+                        <tr>
+                            <td>{{ item.name }}</td>
+                            <td>{{ item.cost }}</td>
+                        </tr>
+
+                    {% endfor %}
+                    <tr>
+                        <td>TOTAL CHARGED: £{{ total_charged|floatformat:2 }} {% if total_voucher_code %}(code applied: {{ total_voucher_code }}){% endif %}</td>
+                    </tr>
+                </tbody>
+                </table>
+
+        {% if "blocks" in item_types or "subscriptions" in item_types %}
+            <p>
+                <strong><span class="text-danger">Please note</span>: purchasing a credit block or subscription does not automatically book you into
+                    any specific course or class.</strong></p>
+
+            <p>You can now go to the
+                {% if redirect_track %}
+                    <a href="{% url 'booking:events' redirect_track.slug %}">schedule</a>
+                {% else %}
+                    <a href="{% url 'booking:schedule' %}">schedule</a>
+                {% endif %}
+                    to select and book your course/class.
+            </p>
+        {% endif %}
+
+        {% if "merchandise" in item_types %}
+            <p>Merchandise will be available for collection at the studio.</p>
+        {% endif %}
+
+        {% if "gift_vouchers" in item_types %}
+            <p>Gift vouchers will be emailed to you shortly.</p>
+        {% endif %}
+
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+

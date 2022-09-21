@@ -83,7 +83,7 @@
           </em></p>
 
 
-    <form id="payload" class="hidden" action="{% url 'payments:stripe_payment_complete' %}" method="post">
+    <form id="payload" class="hidden" action="{% url 'stripe_payments:stripe_payment_complete' %}" method="post">
       {% csrf_token %}
       <input id ="data-payload" type="hidden" name="payload"/>
     </form>

@@ -18,7 +18,6 @@ from booking.models import Event, Booking, WaitingListUser
 from booking.views import BookingListView, BookingHistoryListView
 from booking.tests.helpers import _create_session, TestSetupMixin
 
-from payments.models import create_paypal_transaction
 
 
 class BookingListViewTests(TestSetupMixin, TestCase):

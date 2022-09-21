@@ -39,7 +39,7 @@ def validate_voucher_max_total_uses(voucher, paid_only=True, user=None, item_to_
         used_voucher_count = sum([item.count() for item in used_items_to_count.values()])
         if used_voucher_count >= voucher.max_vouchers:
             raise VoucherValidationError(
-                f'Voucher code {voucher.code} has limited number of total uses and expired before it could be used for all applicable blocks')
+                f'Voucher code {voucher.code} has limited number of total uses and expired before it could be used for all applicable items')
 
 
 def validate_total_voucher_max_total(voucher):
@@ -80,11 +80,10 @@ def validate_voucher_for_user(voucher, user, check_voucher_properties=True):
     if voucher.max_per_user is not None and voucher.uses(user=user) >= voucher.max_per_user:
         raise VoucherValidationError(f'{full_name(user)} has already used voucher code {voucher.code} the maximum number of times ({voucher.max_per_user})')
 
-
 def validate_total_voucher_for_checkout_user(voucher, user):
     validate_voucher_properties(voucher)
     if voucher.max_per_user is not None \
-            and Invoice.objects.filter(username=user.username, paid=True, total_voucher_code=voucher.code).count() >= voucher.max_per_user:
+            and Invoice.objects.filter(username=user.email, paid=True, total_voucher_code=voucher.code).count() >= voucher.max_per_user:
         raise VoucherValidationError(
             f'You have already used voucher code {voucher.code} the maximum number of times ({voucher.max_per_user})')
 
@@ -114,7 +113,7 @@ def validate_voucher_for_unpaid_item(item_type, item, voucher=None, check_vouche
                 users_used_vouchers_excluding_this_one += voucher_items.exclude(id=item.id).count()
         
         if users_used_vouchers_excluding_this_one >= voucher.max_per_user:
-            raise VoucherValidationError(f'Voucher code {voucher.code} already used max number of times by {full_name(item.user)} (limited to {voucher.max_per_user} per user)')
+            raise VoucherValidationError(f'Voucher code {voucher.code} already used max number of times (limited to {voucher.max_per_user} per user)')
 
 
 def get_valid_applied_voucher_info(item):
@@ -138,15 +137,6 @@ def get_valid_applied_voucher_info(item):
             item.voucher = None
             item.save()
     return {"code": None, "discounted_cost": None}
-
-
-def apply_voucher_to_unpaid_items(voucher, unpaid_items):
-    # We only do this AFTER checking the voucher is generally valid, so we don't
-    # need to do that again    
-    # no need to check counts etc, since the shopping cart view will re-validate all the applied vouchers
-    for item in unpaid_items:
-        item.voucher = voucher
-        item.save()
 
 
 def _verify_item_vouchers(unpaid_memberships, unpaid_bookings):

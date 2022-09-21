@@ -11,7 +11,7 @@ from shortuuid import ShortUUID
 
 
 class Invoice(models.Model):
-    # username rather than FK; in case we delete the user later, we want to keep financial info
+    # username(email address) rather than FK; in case we delete the user later, we want to keep financial info
     username = models.CharField(max_length=255)
     invoice_id = models.CharField(max_length=255)
     amount = models.DecimalField(decimal_places=2, max_digits=8)
@@ -42,25 +42,26 @@ class Invoice(models.Model):
         return sha512((self.invoice_id + environ["INVOICE_KEY"]).encode("utf-8")).hexdigest()
 
     def items_dict(self):
-        def _membership_cost_str(block):
-            if block.voucher:
-                return f"£{block.cost_with_voucher} (voucher applied: {block.voucher.code})"
-            return f"£{block.block_config.cost}"
+        def _cost_str(item, default_cost):
+            if item.voucher:
+                return f"£{item.cost_with_voucher} (voucher applied: {item.voucher.code})"
+            return f"£{default_cost}"
         memberships = {
             f"membership-{item.id}": {
-                "name": item.membership.name, "cost": _membership_cost_str(item), "user": item.user
+                "name": item.membership_type.name, "cost": _cost_str(item, item.membership_type.cost), "user": item.user
             } for item in self.memberships.all()
         }
         bookings = {
-            f"subscription-{item.id}": {
-                "name": item.event, "cost": f"£{item.event.cost}", "user": item.user
+            f"booking-{item.id}": {
+                "name": str(item.event), "cost": _cost_str(item, item.event.cost), "user": item.user
             } for item in self.bookings.all()
         }
-        gift_vouchers = {
-            f"gift_voucher-{gift_voucher.id}": {
-                "name": gift_voucher.name, "cost": f"£{gift_voucher.gift_voucher_config.cost}"
-            } for gift_voucher in self.gift_vouchers.all()
-        }
+        # gift_vouchers = {
+        #     f"gift_voucher-{gift_voucher.id}": {
+        #         "name": gift_voucher.name, "cost": f"£{gift_voucher.gift_voucher_config.cost}"
+        #     } for gift_voucher in self.gift_vouchers.all()
+        # }
+        gift_vouchers = {}
 
         return {**memberships, **bookings, **gift_vouchers}
 
@@ -68,7 +69,8 @@ class Invoice(models.Model):
         return {
             "memberships": self.memberships.count(),
             "bookings": self.bookings.count(),
-            "gift_vouchers": self.gift_vouchers.count(),
+            # "gift_vouchers": self.gift_vouchers.count(),
+            "gift_vouchers": 0,
         }
 
     def item_count(self):
@@ -79,14 +81,14 @@ class Invoice(models.Model):
 
     def items_metadata(self):
         # This is used for the payment intent metadata, which is limited to 40 chars keys and string values
-        items = self.items_dict()
+        all_items = self.items_dict()
         metadata = {}
         if self.total_voucher_code:
             metadata = {"Voucher code used on total invoice": self.total_voucher_code}
-        items = {
-            item["name"][:40]: f"{item['cost']} ({key})" for key, item in items.items()
+        items_summary = {
+            item["name"][:40]: f"{item['cost']} ({key})" for key, item in all_items.items()
         }
-        return {**metadata, **items}
+        return {**metadata, **items_summary}
 
     def save(self, *args, **kwargs):
         if self.paid and not self.date_paid:
