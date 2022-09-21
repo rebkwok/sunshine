@@ -19,6 +19,7 @@ env = environ.Env(DEBUG=(bool, False),
                   USE_MAILCATCHER=(bool, False),
                   SHOW_DEBUG_TOOLBAR=(bool, False),
                   AUTO_BOOK_EMAILS=(list, []),
+                  SEND_ALL_STUDIO_EMAILS=(bool, False),
                   LOCAL=(bool, False),
                   CI=(bool, False),
                   CACHE_BACKEND=(str, 'django.core.cache.backends.memcached.MemcachedCache'),
@@ -215,6 +216,7 @@ DEFAULT_STUDIO_EMAIL = 'sunshinefitnessfife@gmail.com'
 
 SUPPORT_EMAIL = 'rebkwok@gmail.com'
 AUTO_BOOK_EMAILS = env('AUTO_BOOK_EMAILS')
+SEND_ALL_STUDIO_EMAILS = env('SEND_ALL_STUDIO_EMAILS')
 
 # MAILCATCHER
 if env('USE_MAILCATCHER'):  # pragma: no cover

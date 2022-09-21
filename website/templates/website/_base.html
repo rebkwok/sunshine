@@ -37,6 +37,8 @@
           <ul class="nav navbar-nav mr-auto">
             <li class="nav-item"><a class="nav-link{% if section == 'home' %} active{% endif %}" href="{% url 'website:home' %}">Home</a></li>
             <li class="nav-item"><a class="nav-link{% if section == 'timetable' %} active{% endif %}" href="{% url 'timetable:timetable' %}">Timetable</a></li>
+            <li class="nav-item"><a class="nav-link{% if section == 'membership' %} active{% endif %}" href="{% url 'booking:membership_purchase' %}">Memberships</a>
+
             <li class="nav-item"><a class="nav-link{% if section == 'booking' %} active{% endif %}" href="{% url 'booking:regular_session_list' %}">Book</a></li>
             <li class="nav-item"><a class="nav-link{% if section == 'contact' %} active{% endif %}" href="{% url 'website:contact' %}">Contact us</a></li>
           </ul>

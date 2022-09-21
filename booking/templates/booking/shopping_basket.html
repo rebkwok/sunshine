@@ -41,7 +41,7 @@
                             <span
                                     id="remove-membership-{{ membership_info.membership.id }}"
                                     class="remove-membership float-right"
-                                    data-membership_id="{{ membership_info.user_membership.id }}"
+                                    data-membership_id="{{ membership_info.membership.id }}"
                                     >
                                 <a class="btn btn-sm btn-danger" href="#"><i class="fas fa-trash-alt"></i></a>
                             </span>
@@ -97,7 +97,7 @@
                       
                       <form method="post" action="{% url 'booking:stripe_checkout' %}">
                           {% csrf_token %}
-                          <input type="hidden" name="cart_total" value="{{ total_cost }}">
+                          <input type="hidden" name="cart_total" id="cart_total_input" value="{{ total_cost }}">
                           <input
                                   class="btn btn-xs btn-xs-wide btn-warning mb-1"
                                   type="submit"
@@ -107,8 +107,8 @@
 
                       <div>Add additional items:<br/>
                       {% if request.user.is_authenticated %}
-                          {% comment %} <a class="btn btn-xs btn-outline-primary" href="{% url 'booking:memberships' %}">Memberships</a> {% endcomment %}
-                          <a class="btn btn-sm btn-outline-warning" href="{% url 'booking:regular_session_list' %}">Classes</a>
+                      <a class="btn btn-sm btn-outline-warning" href="{% url 'booking:membership_purchase' %}">Add membership</a>
+                      <a class="btn btn-sm btn-outline-warning" href="{% url 'booking:regular_session_list' %}">Classes</a>
                         {% endif %}
                       {% comment %} <a class="btn btn-xs btn-outline-primary" href="{% url 'booking:buy_gift_voucher' %}">Gift vouchers</a> {% endcomment %}
                       </div>
@@ -146,7 +146,7 @@
     <p>Your cart is empty</p>
     {% if request.user.is_authenticated %}
     <p>
-        {% comment %} <a class="btn btn-sm btn-outline-warning" href="{% url 'booking:memberships' %}">Add membership</a> {% endcomment %}
+        <a class="btn btn-sm btn-outline-warning" href="{% url 'booking:membership_purchase' %}">Add membership</a>
         <a class="btn btn-sm btn-outline-warning" href="{% url 'booking:regular_session_list' %}">Add classes</a>
         {% comment %} <a class="btn btn-sm btn-outline-warning" href="{% url 'booking:buy_gift_voucher' %}">Add gift vouchers</a> {% endcomment %}
     </p>

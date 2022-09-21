@@ -11,7 +11,7 @@ from django.utils import timezone
 
 from booking.tests.helpers import make_data_privacy_agreement
 
-from ..models import Event, Booking, WaitingListUser
+from ..models import Event, Booking, Membership, WaitingListUser
 from .helpers import TestSetupMixin
 
 
@@ -37,7 +37,7 @@ class BookingToggleAjaxCreateViewTests(TestSetupMixin, TestCase):
         self.client.login(username=self.user.username, password='test')
         resp = self.client.post(self.url)
         self.assertEqual(Booking.objects.all().count(), 1)
-        self.assertEqual(resp.context['alert_message']['message'], 'Booked.')
+        self.assertEqual(resp.context['alert_message']['message'], 'Added to basket.')
         self.assertFalse(Booking.objects.first().paid)
 
         # email to student and studio
@@ -108,7 +108,7 @@ class BookingToggleAjaxCreateViewTests(TestSetupMixin, TestCase):
 
         self.assertEqual(
             resp.context['alert_message']['message'],
-            'Booked.'
+            'Added to basket.'
         )
 
     def test_rebook_no_show_booking(self):
@@ -164,9 +164,11 @@ class BookingToggleAjaxCreateViewTests(TestSetupMixin, TestCase):
 
     def test_cancel_booking(self):
         """
-        Toggle booking to cancelled
+        Toggle open paid booking to cancelled
         """
-        booking = baker.make_recipe('booking.booking', user=self.user, event=self.event)
+        booking = baker.make_recipe(
+            'booking.booking', user=self.user, event=self.event, paid=True
+        )
         self.client.login(username=self.user.username, password='test')
         resp = self.client.post(self.url)
         self.assertEqual(resp.status_code, 200)
@@ -175,6 +177,18 @@ class BookingToggleAjaxCreateViewTests(TestSetupMixin, TestCase):
         )
         booking.refresh_from_db()
         self.assertEqual(booking.status, 'CANCELLED')
+
+    def test_go_to_basket(self):
+        """
+        Toggle open, unpaid booking - goes to basket
+        """
+        baker.make_recipe('booking.booking', user=self.user, event=self.event)
+        self.client.login(username=self.user.username, password='test')
+        resp = self.client.post(self.url)
+        assert resp.status_code == 200
+        json_resp = resp.json()
+        assert json_resp['redirect']
+        assert json_resp['url'] == reverse("booking:shopping_basket")
 
     @patch('booking.models.timezone.now')
     def test_cancel_booking_within_cancellation_period(self, mock_now):
@@ -187,20 +201,19 @@ class BookingToggleAjaxCreateViewTests(TestSetupMixin, TestCase):
 
         booking = baker.make_recipe(
             'booking.booking', user=self.user, event=event,
-            date_booked=datetime(2018, 1, 1, 8, 44, tzinfo=timezone.utc)  # booked > 15 mins ago
-        )
+            date_booked=datetime(2018, 1, 1, 8, 44, tzinfo=timezone.utc),
+            paid=True
+        )  # booked and paid within cancellation period
         self.client.login(username=self.user.username, password='test')
         resp = self.client.post(url)
-        self.assertEqual(resp.status_code, 200)
-        self.assertEqual(
-            resp.context['alert_message']['message'], 'Cancelled.'
-        )
+        assert resp.status_code == 200
+        assert resp.context['alert_message']['message'] == 'Cancelled.'
         booking.refresh_from_db()
-        self.assertEqual(booking.status, 'OPEN')
-        self.assertTrue(booking.no_show)
+        assert booking.status == 'OPEN'
+        assert booking.no_show
 
     @patch('booking.models.timezone.now')
-    def test_cancel_booking_within_5_mins_during_cancellation_period(self, mock_now):
+    def test_cancel_booking_made_with_membership_within_5_mins_during_cancellation_period(self, mock_now):
         """
         Cancelling within 5 mins allows proper cancelling
         """
@@ -209,9 +222,12 @@ class BookingToggleAjaxCreateViewTests(TestSetupMixin, TestCase):
         url = reverse('booking:toggle_booking', args=[event.id])
         self.client.login(username=self.user.username, password='test')
 
+        membership = baker.make(Membership, user=self.user)
         booking = baker.make_recipe(
             'booking.booking', user=self.user, event=event,
-            date_booked=datetime(2018, 1, 1, 8, 56, tzinfo=timezone.utc)
+            date_booked=datetime(2018, 1, 1, 8, 56, tzinfo=timezone.utc),
+            paid=True,
+            membership=membership
         )
 
         resp = self.client.post(url)
@@ -230,10 +246,13 @@ class BookingToggleAjaxCreateViewTests(TestSetupMixin, TestCase):
         url = reverse('booking:toggle_booking', args=[event.id])
         self.client.login(username=self.user.username, password='test')
 
+        membership = baker.make(Membership, user=self.user)
         booking = baker.make_recipe(
             'booking.booking', user=self.user, event=event,
             date_booked=datetime(2018, 1, 1, 5, 0, tzinfo=timezone.utc),
-            date_rebooked=datetime(2018, 1, 1, 8, 56, tzinfo=timezone.utc)
+            date_rebooked=datetime(2018, 1, 1, 8, 56, tzinfo=timezone.utc),
+            paid=True,
+            membership=membership
         )
         resp = self.client.post(url)
         booking.refresh_from_db()
@@ -245,7 +264,7 @@ class BookingToggleAjaxCreateViewTests(TestSetupMixin, TestCase):
         """
         Toggle booking to cancelled
         """
-        booking = baker.make_recipe('booking.booking', user=self.user, event=self.event)
+        booking = baker.make_recipe('booking.booking', user=self.user, event=self.event, paid=True)
         baker.make_recipe('booking.booking', event=self.event, _quantity=2)
         for i in range(3):
             baker.make(WaitingListUser, event=self.event, user__email='test{}@test.test'.format(i))
@@ -268,7 +287,7 @@ class BookingToggleAjaxCreateViewTests(TestSetupMixin, TestCase):
     @override_settings(AUTO_BOOK_EMAILS=['test1@test.test'])
     def test_cancel_full_booking_emails_auto_book_user_on_waiting_list(self):
         # if autobook user is on waiting list, create booking, email user, DO NOT email rest of waiting list
-        baker.make_recipe('booking.booking', user=self.user, event=self.event)
+        baker.make_recipe('booking.booking', user=self.user, event=self.event, paid=True)
         baker.make_recipe('booking.booking', event=self.event, _quantity=2)
         for i in range(3):
             baker.make(WaitingListUser, event=self.event, user__email='test{}@test.test'.format(i))
@@ -301,7 +320,7 @@ class BookingToggleAjaxCreateViewTests(TestSetupMixin, TestCase):
         # if autobook user is on waiting list, create booking for first autobook user, email user,
         # DO NOT email rest of waiting list
         # if autobook user is on waiting list, create booking, email user, DO NOT email rest of waiting list
-        baker.make_recipe('booking.booking', user=self.user, event=self.event)
+        baker.make_recipe('booking.booking', user=self.user, event=self.event, paid=True)
         baker.make_recipe('booking.booking', event=self.event, _quantity=2)
         for i in range(3):
             baker.make(WaitingListUser, event=self.event, user__email='test{}@test.test'.format(i))
@@ -335,7 +354,7 @@ class BookingToggleAjaxCreateViewTests(TestSetupMixin, TestCase):
     @override_settings(AUTO_BOOK_EMAILS=['test1@test.test'])
     def test_cancel_full_booking_emails_auto_book_user_on_waiting_list_previously_cancelled(self):
         # change existing booking to open, email user, DO NOT email rest of waiting list
-        baker.make_recipe('booking.booking', user=self.user, event=self.event)
+        baker.make_recipe('booking.booking', user=self.user, event=self.event, paid=True)
         cancelled_user = baker.make_recipe('booking.user', email='test1@test.test')
         booking = baker.make_recipe(
             'booking.booking', user=cancelled_user, event=self.event, status='CANCELLED'
@@ -377,7 +396,7 @@ class BookingToggleAjaxCreateViewTests(TestSetupMixin, TestCase):
     @override_settings(AUTO_BOOK_EMAILS=['test1@test.test'])
     def test_cancel_full_booking_emails_auto_book_user_on_waiting_list_previously_no_show(self):
         # change existing booking to open/not no_show, email user, DO NOT email rest of waiting list
-        baker.make_recipe('booking.booking', user=self.user, event=self.event)
+        baker.make_recipe('booking.booking', user=self.user, event=self.event, paid=True)
         no_show_user = baker.make_recipe('booking.user', email='test1@test.test')
         booking = baker.make_recipe(
             'booking.booking', user=no_show_user, event=self.event, status='OPEN', no_show=True
@@ -419,7 +438,7 @@ class BookingToggleAjaxCreateViewTests(TestSetupMixin, TestCase):
     @override_settings(AUTO_BOOK_EMAILS=['test1@test.test'])
     def test_cancel_full_booking_emails_auto_book_user_on_waiting_list_already_booked(self):
         # leave existing booking as is, do not email autobook user, email rest of waiting list
-        baker.make_recipe('booking.booking', user=self.user, event=self.event)
+        baker.make_recipe('booking.booking', user=self.user, event=self.event, paid=True)
         open_user = baker.make_recipe('booking.user', email='test1@test.test')
         baker.make_recipe(
             'booking.booking', user=open_user, event=self.event, status='OPEN'
@@ -460,7 +479,7 @@ class BookingToggleAjaxCreateViewTests(TestSetupMixin, TestCase):
         # First autobook user of multiple is already booked
         # Leave existing booking as is, do not email first user
         # Create second user's booking and email, DO NOT email rest of waiting list
-        baker.make_recipe('booking.booking', user=self.user, event=self.event)
+        baker.make_recipe('booking.booking', user=self.user, event=self.event, paid=True)
         open_user = baker.make_recipe('booking.user', email='test1@test.test')
         booking = baker.make_recipe(
             'booking.booking', user=open_user, event=self.event, status='OPEN'
@@ -498,7 +517,7 @@ class BookingToggleAjaxCreateViewTests(TestSetupMixin, TestCase):
     def test_cancel_full_booking_emails_auto_book_user_not_on_waiting_list(self):
         # Email waiting list as normal
         # leave existing booking as is, do not email autobook user, email rest of waiting list
-        baker.make_recipe('booking.booking', user=self.user, event=self.event)
+        baker.make_recipe('booking.booking', user=self.user, event=self.event, paid=True)
         baker.make_recipe(
             'booking.booking', user__email='test1@test.test', event=self.event, status='OPEN'
         )
@@ -548,13 +567,19 @@ class AjaxTests(TestSetupMixin, TestCase):
     def test_update_bookings_count_spaces(self):
         url = reverse('booking:update_booking_count', args=[self.event.id])
         resp = self.client.get(url)
-        self.assertEqual(resp.json(), {'booking_count': '3/3', 'full': False, 'booked': False})
+        self.assertEqual(
+            resp.json(), 
+            {'booking_count': '3/3', 'full': False, 'booked': False, 'cart_item_menu_count': 0}
+        )
 
     def test_update_bookings_count_full(self):
         url = reverse('booking:update_booking_count', args=[self.event.id])
         baker.make_recipe('booking.booking', event=self.event, _quantity=3)
         resp = self.client.get(url)
-        self.assertEqual(resp.json(), {'booking_count': '0/3', 'full': True, 'booked': False})
+        self.assertEqual(
+            resp.json(), 
+            {'booking_count': '0/3', 'full': True, 'booked': False, 'cart_item_menu_count': 0}
+        )
 
     def test_toggle_waiting_list_on(self):
         url = reverse('booking:toggle_waiting_list', args=[self.event.id])
@@ -595,10 +620,11 @@ class AjaxTests(TestSetupMixin, TestCase):
         self.assertEqual(
             resp.json(),
             {
-                'status': 'OPEN',
-                'display_status': 'OPEN',
-                'no_show': False,
-                'display_paid': '<span class="not-confirmed fas fa-times"></span>',
+                'display_status': 'OPEN', 
+                'status': 'OPEN', 
+                'no_show': False, 
+                'display_paid': '<span class="text-danger fas fa-times-circle"></span>', 
+                'cart_item_menu_count': 1
             }
         )
 
@@ -612,7 +638,8 @@ class AjaxTests(TestSetupMixin, TestCase):
                 'status': 'OPEN',
                 'display_status': 'OPEN',
                 'no_show': False,
-                'display_paid': '<span class="not-confirmed fas fa-times"></span>',
+                'display_paid': '<span class="text-danger fas fa-times-circle"></span>',
+                'cart_item_menu_count': 1,
             }
         )
 
@@ -624,10 +651,11 @@ class AjaxTests(TestSetupMixin, TestCase):
         self.assertEqual(
             resp.json(),
             {
+                'cart_item_menu_count': 0,
                 'status': 'OPEN',
                 'display_status': 'CANCELLED',
                 'no_show': True,
-                'display_paid': '<span class="not-confirmed fas fa-times"></span>',
+                'display_paid': '<span class="text-danger fas fa-times-circle"></span>',
             }
         )
 
@@ -640,9 +668,10 @@ class AjaxTests(TestSetupMixin, TestCase):
         self.assertEqual(
             resp.json(),
             {
+                'cart_item_menu_count': 0,
                 'status': 'OPEN',
                 'display_status': 'OPEN',
                 'no_show': False,
-                'display_paid': '<span class="confirmed fas fa-check"></span>',
+                'display_paid': '<span class="text-success fas fa-check-circle"></span>',
             }
         )

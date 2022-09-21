@@ -27,20 +27,19 @@ def cancel_booking_from_view(request, booking):
     # the cancellation period is not past
     # If not, we let people cancel but leave the booking status OPEN and
     # set to no-show
-    can_cancel_and_refund = booking.event.allow_booking_cancellation and event.can_cancel
+    can_cancel_and_refund = booking.event.allow_booking_cancellation and event.can_cancel()
 
-    # if the booking was made with a membership, allow 15 mins to cancel in case user
+    # if the booking was made with a membership, allow 5 mins to cancel in case user
     # clicked the wrong button by mistake and autobooked with a membership
     # Check here so we can adjust the email message
-    membership_booking_within_15_mins = booking.booked_with_membership_within_allowed_time()
+    membership_booking_within_5_mins = booking.booked_with_membership_within_allowed_time()
+    was_booked_with_membership = booking.membership is not None
 
-    was_booked_with_membership = booking.user_membership is not None
-
+    refunded = False
     if can_cancel_and_refund:
-        refunded = False
-        if booking.user_membership:
+        if booking.membership:
             # booked with membership, remove from membership and set paid to False
-            booking.user_membership = None
+            booking.membership = None
             booking.paid = False
         else:
             # Paid directly; find invoice/payment intent (if it exists), process refund
@@ -61,7 +60,7 @@ def cancel_booking_from_view(request, booking):
         # - it wasn't paid OR
         # - it was just made with a membership: allow 5 mins to cancel in case user
         #   clicked the wrong button by mistake and autobooked with a membership
-        can_cancel = membership_booking_within_15_mins or not booking.paid
+        can_cancel = membership_booking_within_5_mins or not booking.paid
         if can_cancel:
             booking.membership = None
             booking.paid = False
@@ -72,11 +71,15 @@ def cancel_booking_from_view(request, booking):
             booking.save()
 
     # MESSAGES
+    alert_message = {"message_type": "error"}
     # no messages if we're deleting from shopping basket
     if not delete_from_shopping_basket:
         base_msg = f'Booking cancelled for {booking.event}.'
+        base_alert_msg = "Cancelled"
         if booking.status == "CANCELLED":
-            messages.success(request, base_msg)
+            alert_message["message"] = "Cancelled."
+            if refunded: 
+                alert_message["message"] += " Refund processing."
             ActivityLog.objects.create(
                 log='Booking id {} for event {}, user {}, was cancelled by user '
                     '{}'.format(
@@ -86,12 +89,8 @@ def cancel_booking_from_view(request, booking):
                 )                
         elif booking.no_show:
             if not booking.event.allow_booking_cancellation:
-                messages.success(
-                    request,
-                    base_msg +
-                    ' Please note that this booking is not eligible for refunds '
-                    'or transfer credit.'
-                )
+                alert_message["message"] += ' Please note that this booking is not eligible for '\
+                    'refunds or transfer credit.'
                 ActivityLog.objects.create(
                     log='Booking id {} for NON-CANCELLABLE event {}, user {}, '
                         'was cancelled and set to no-show'.format(
@@ -100,9 +99,7 @@ def cancel_booking_from_view(request, booking):
                         )
                 )
             else:
-                messages.success(
-                    request,
-                    base_msg +
+                alert_message["message"] += (
                     ' Please note that this booking is not eligible for '
                     'refunds as the allowed cancellation period has passed.'
                 )
@@ -120,7 +117,7 @@ def cancel_booking_from_view(request, booking):
         'host': f"http://{request.META.get('HTTP_HOST')}",
         'booking': booking,
         'was_booked_with_membership': was_booked_with_membership,
-        'membership_booked_within_allowed_time': membership_booking_within_15_mins,
+        'membership_booked_within_allowed_time': membership_booking_within_5_mins,
         'refunded': refunded,
         'event': booking.event,
         'date': booking.event.date.strftime('%A %d %B'),
@@ -134,12 +131,21 @@ def cancel_booking_from_view(request, booking):
         html_message=get_template(
             'booking/email/booking_cancelled.html').render(ctx),
         fail_silently=False)
+    
+    # EMAIL STUDIO
+    if settings.SEND_ALL_STUDIO_EMAILS:
+        send_mail('{} Booking for {} cancelled'.format(
+            settings.ACCOUNT_EMAIL_SUBJECT_PREFIX, booking.event),
+            get_template('booking/email/to_studio_booking_cancelled.txt').render(ctx),
+            settings.DEFAULT_FROM_EMAIL,
+            [settings.DEFAULT_STUDIO_EMAIL],
+            fail_silently=False)
 
     # WAITING LIST
     # if applicable, email users on waiting list
     email_waiting_list(request, event)
 
-    return refunded
+    return alert_message
 
 
 def email_waiting_list(request, event):

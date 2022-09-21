@@ -111,7 +111,7 @@ class Event(models.Model):
 class MembershipType(models.Model):
     name = models.CharField(max_length=255)
     number_of_classes = models.PositiveIntegerField()
-    cost = models.PositiveIntegerField(default=12)
+    cost = models.DecimalField(max_digits=8, decimal_places=2)
 
     def __str__(self) -> str:
         return f"{self.name} - {self.cost}"
@@ -273,7 +273,7 @@ class Membership(models.Model):
         return now > self.expiry_date() + timedelta(days=1)
 
     def full(self):
-        return self.bookings.count() >= self.membership.number_of_classes
+        return self.bookings.count() >= self.membership_type.number_of_classes
 
     @property
     def cost_with_voucher(self):

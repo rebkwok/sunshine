@@ -525,7 +525,7 @@ class ShoppingBasketViewTests(ShoppingBasketMixin, TestSetupMixin, TestCase):
             {"booking": private_booking, "original_cost": 30, "voucher_applied": {"code": None, "discounted_cost": None}}
 
         ]
-        assert list(resp.context_data["applied_voucher_codes_and_discount"]) == [("foo", 10, None), ("test", 50, None)]
+        assert sorted(resp.context_data["applied_voucher_codes_and_discount"]) == [("foo", 10, None), ("test", 50, None)]
         assert resp.context_data["total_cost"] == 59
 
     def test_stripe_payment_button_when_total_is_zero(self):

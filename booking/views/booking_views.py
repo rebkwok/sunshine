@@ -10,7 +10,6 @@ from django.utils import timezone
 from braces.views import LoginRequiredMixin
 
 from booking.models import Booking, WaitingListUser
-from .booking_helpers import cancel_booking_from_view
 from .views_utils import DataPolicyAgreementRequiredMixin
 
 

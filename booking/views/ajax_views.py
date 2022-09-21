@@ -74,11 +74,11 @@ def toggle_booking(request, event_id):
 
     context['booking'] = booking
 
+    alert_message  = {}
     # CANCELLING
-    refunded = False
     if existing_booking_status == "OPEN":
         # cancel, process refunds etc, email users, email waiting list
-        refunded = cancel_booking_from_view(request, booking)
+        alert_message = cancel_booking_from_view(request, booking)
         action = 'cancelled'
 
     # REOPENING
@@ -97,7 +97,7 @@ def toggle_booking(request, event_id):
         # assign membership if available
         available_user_membership = booking.event.get_available_user_membership(booking.user)
         if available_user_membership:
-            booking.user_membership = available_user_membership
+            booking.membership = available_user_membership
             booking.paid = True
 
     booking.save()
@@ -142,21 +142,13 @@ def toggle_booking(request, event_id):
                 to_list=[settings.DEFAULT_STUDIO_EMAIL]
             )
 
-    alert_message = {}
-
+    # messages for opened/reopened (cancel messages already generated)
     if action in ['created', 'reopened']:
         alert_message['message_type'] = 'success'
         if booking.paid:
             alert_message['message'] = "Booked."
         else:
             alert_message['message'] = "Added to basket."
-    else:
-        alert_message['message_type'] = 'error'
-        msg = "Cancelled."
-        if refunded:
-            msg += " Refund processing."
-        alert_message['message'] = msg
-
     context["alert_message"] = alert_message
 
     # remove from waiting list if necessary

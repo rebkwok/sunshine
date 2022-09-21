@@ -21,7 +21,7 @@ var processRemoveMembership = function()  {
     var $button_just_clicked_on = $jq(this);
 
     //The value of the "data-event_id" attribute.
-    var user_membership_id = $button_just_clicked_on.data('user_membership_id');
+    var membership_id = $button_just_clicked_on.data('membership_id');
 
     var processResult = function(
        result, status, jqXHR)  {
@@ -29,10 +29,10 @@ var processRemoveMembership = function()  {
     if (result.redirect) {
           window.location = result.url;
       } else {
-        $jq('#cart-row-membership-' + user_membership_id).html("");
+        $jq('#cart-row-membership-' + membership_id).html("");
         $jq('#cart_item_menu_count').text(result.cart_item_menu_count);
         $jq('#total').text(result.cart_total);
-        $jq('#checkout-btn').data('total', result.cart_total);
+        $jq('#cart_total_input').val(result.cart_total)
     }
    };
 
@@ -49,7 +49,7 @@ var processRemoveMembership = function()  {
           url: '/booking/ajax-cart-item-delete/',
           dataType: 'json',
           type: 'POST',
-          data: {csrfmiddlewaretoken: window.CSRF_TOKEN, item_type: "membership", item_id: user_membership_id},
+          data: {csrfmiddlewaretoken: window.CSRF_TOKEN, item_type: "membership", item_id: membership_id},
           success: processResult,
           //Should also have a "fail" call as well.
           error: processFailure
@@ -75,7 +75,7 @@ var processRemoveBooking = function()  {
     $jq('#cart-row-booking-' + booking_id).html("");
     $jq('#cart_item_menu_count').text(result.cart_item_menu_count);
     $jq('#total').text(result.cart_total);
-    $jq('#checkout-btn').data('total', result.cart_total);
+    $jq('#cart_total_input').val(result.cart_total)
    };
 
     var processFailure = function(

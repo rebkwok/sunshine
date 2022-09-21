@@ -1,6 +1,6 @@
 from django.conf import settings
 
-from .models import Event
+from .models import Event, MembershipType
 from .views.views_utils import total_unpaid_item_count
 # from .views.views_utils import get_unpaid_gift_vouchers_from_session
 
@@ -34,5 +34,7 @@ def booking(request):
         'cart_item_count': cart_item_count,
         # 'gift_vouchers_available': GiftVoucherConfig.objects.filter(active=True).exists(),
         'cart_timeout_mins': settings.CART_TIMEOUT_MINUTES,
+        'membership_types': MembershipType.objects.all(),
+        'single_class_cost': Event.objects.filter(event_type="regular_session").latest('id').cost,
     }
 

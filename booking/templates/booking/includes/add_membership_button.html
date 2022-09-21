@@ -1,0 +1,6 @@
+<div class="btn btn-warning btn-cart-xs">
+    <i id="loader_{{ option.membership_type.id }}_{{ option.month }}_{{ option.year }}">
+    <span class="pr-1"></i>Add <i class="fas fa-shopping-cart"></i>
+        {% if option.basket_count > 0 %}({{ option.basket_count }}){% endif %}
+     </span>
+</div>
