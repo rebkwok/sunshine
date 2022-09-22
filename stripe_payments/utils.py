@@ -47,27 +47,23 @@ def check_stripe_data(payment_intent, invoice):
 
 
 def process_invoice_items(invoice, payment_method, transaction_id=None):
-    for block in invoice.blocks.all():
-        block.paid = True
-        block.save()
-    for subscription in invoice.subscriptions.all():
-        subscription.paid = True
-        subscription.save()
-    for gift_voucher in invoice.gift_vouchers.all():
-        gift_voucher.paid = True
-        gift_voucher.save()
-        gift_voucher.activate()
-    for product_purchase in invoice.product_purchases.all():
-        product_purchase.paid = True
-        product_purchase.save()
-    if transaction_id:
-        invoice.transaction_id = transaction_id
+    for booking in invoice.bookings.all():
+        booking.paid = True
+        booking.save()
+    for membership in invoice.memberships.all():
+        membership.paid = True
+        membership.save()
+    # for gift_voucher in invoice.gift_vouchers.all():
+    #     gift_voucher.paid = True
+    #     gift_voucher.save()
+    #     gift_voucher.activate()
+
     invoice.paid = True
     invoice.save()
     # SEND EMAILS
     send_processed_payment_emails(invoice)
-    for gift_voucher in invoice.gift_vouchers.all():
-        gift_voucher.send_voucher_email()
+    # for gift_voucher in invoice.gift_vouchers.all():
+    #     gift_voucher.send_voucher_email()
     ActivityLog.objects.create(
         log=f"Invoice {invoice.invoice_id} (user {invoice.username}) paid by {payment_method}"
     )

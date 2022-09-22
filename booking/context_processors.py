@@ -1,3 +1,4 @@
+from decimal import Decimal
 from django.conf import settings
 
 from .models import Event, MembershipType
@@ -27,6 +28,11 @@ def booking(request):
         #     gift_vouchers = get_unpaid_gift_vouchers_from_session(request)
         #     cart_item_count += gift_vouchers.count()
 
+    regular_classes = Event.objects.filter(event_type="regular_session")
+    if regular_classes.exists():
+        single_cost = regular_classes.latest('id').cost
+    else:
+        single_cost = Decimal(8)
 
     return {
         # 'use_cdn': not settings.DEBUG or settings.USE_CDN,
@@ -35,6 +41,5 @@ def booking(request):
         # 'gift_vouchers_available': GiftVoucherConfig.objects.filter(active=True).exists(),
         'cart_timeout_mins': settings.CART_TIMEOUT_MINUTES,
         'membership_types': MembershipType.objects.all(),
-        'single_class_cost': Event.objects.filter(event_type="regular_session").latest('id').cost,
+        'single_class_cost': single_cost
     }
-

@@ -36,23 +36,24 @@
                 </tbody>
                 </table>
 
-        {% if "blocks" in item_types or "subscriptions" in item_types %}
+        {% if "memberships" in item_types %}
             <p>
-                <strong><span class="text-danger">Please note</span>: purchasing a credit block or subscription does not automatically book you into
-                    any specific course or class.</strong></p>
+                Your membership has been processed.
+            </p>
 
             <p>You can now go to the
-                {% if redirect_track %}
-                    <a href="{% url 'booking:events' redirect_track.slug %}">schedule</a>
-                {% else %}
-                    <a href="{% url 'booking:schedule' %}">schedule</a>
-                {% endif %}
-                    to select and book your course/class.
+                <a href="{% url 'booking:regular_session_list' %}">schedule</a>
+                to select and book eligible classes.
+            </p>
+            <p>View 
+                <a href="{% url 'booking:user_memberships' %}">your memberships</a>
             </p>
         {% endif %}
 
-        {% if "merchandise" in item_types %}
-            <p>Merchandise will be available for collection at the studio.</p>
+        {% if "bookings" in item_types %}
+            <p>View 
+                <a href="{% url 'booking:bookings' %}">your bookings</a>
+            </p>
         {% endif %}
 
         {% if "gift_vouchers" in item_types %}

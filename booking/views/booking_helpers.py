@@ -1,8 +1,12 @@
 from django.conf import settings
-from django.contrib import messages
 from django.core.mail import send_mail
+from django.contrib.sites.models import Site
 from django.template.loader import get_template 
+
+import stripe
+
 from activitylog.models import ActivityLog
+from stripe_payments.models import Seller, StripePaymentIntent, StripeRefund
 
 from ..models import WaitingListUser
 from ..email_helpers import send_waiting_list_email
@@ -43,13 +47,46 @@ def cancel_booking_from_view(request, booking):
             booking.paid = False
         else:
             # Paid directly; find invoice/payment intent (if it exists), process refund
-            # if invoice etc:
-            #     process refund
-            #     booking.paid = False
-            #     refunded = True
-            # else:
-            # no associated invoice, it was manually booked by an admin, or it wasn't paid yet
-            #     booking.paid = False
+            if booking.invoice:
+                try:
+                    payment_intent = StripePaymentIntent.objects.get(
+                        payment_intent_id=booking.invoice.stripe_payment_intent_id
+                    )
+                except StripePaymentIntent.DoesNotExist:
+                    # send warning email to tech support
+                    ...
+                else:
+                    # process refund
+                    stripe.api_key = settings.STRIPE_SECRET_KEY
+                    seller = Seller.objects.filter(site=Site.objects.get_current(request)).first()
+                    
+                    # get the amount to refund from the metadata (in) pence)
+                    amount = payment_intent.metadata.get(f"booking_{booking.id}_cost_in_p")
+                    if amount is None:
+                        # send warning email to tech support
+                        ...
+                    else:
+                        try:
+                            refund = stripe.Refund.create(
+                                amount=int(amount),
+                                metadata={"booking_id": booking.id, "cancelled_by": request.user.email},
+                                payment_intent=payment_intent.payment_intent_id,
+                                reason="requested_by_customer",
+                                stripe_account=seller.stripe_user_id,
+                            )
+                            StripeRefund.create_from_refund_obj(refund, payment_intent, booking.id)
+                            refunded = True
+                            ActivityLog.objects.create(
+                                log=f"Refund for booking {booking.id} (user {booking.user.username}) processed"
+                            )
+                        except Exception:
+                            pass
+
+                booking.paid = False
+                
+            # mark unpaid whether refunded or not
+            # if there was no associated invoice, it was manually booked by an admin, or it wasn't paid yet
+            booking.paid = False
             booking.paid = False
         booking.status = 'CANCELLED'
         booking.save()
@@ -74,10 +111,8 @@ def cancel_booking_from_view(request, booking):
     alert_message = {"message_type": "error"}
     # no messages if we're deleting from shopping basket
     if not delete_from_shopping_basket:
-        base_msg = f'Booking cancelled for {booking.event}.'
-        base_alert_msg = "Cancelled"
+        alert_message["message"] = "Cancelled."
         if booking.status == "CANCELLED":
-            alert_message["message"] = "Cancelled."
             if refunded: 
                 alert_message["message"] += " Refund processing."
             ActivityLog.objects.create(

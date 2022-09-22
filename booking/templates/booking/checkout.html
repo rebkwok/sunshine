@@ -2,7 +2,7 @@
 {% load static %}
 {% load accounttags bookingtags %}
 
-{% block extra_head %}
+{% block extrahead %}
   <title>Checkout</title>
     <link rel="stylesheet" href="{% static 'booking/css/stripe.css' %}" />
   <script src="https://js.stripe.com/v3/"></script>
@@ -37,7 +37,7 @@
         <tbody>
             {% for key, item in cart_items.items %}
                 <tr>
-                    <td>{{ item.name }} {% if item.user %}({{ item.user|full_name }}){% endif %}</td>
+                    <td>{{ item.name }}</td>
                     <td>{{ item.cost }}</td>
                 </tr>
             {% endfor %}
@@ -78,7 +78,7 @@
           </form>
 
           <p><em>
-              <img src="{% static 'images/powered_by_stripe.png' %}" style="height: 30px;"/><br/>
+              <img src="{% static 'booking/images/powered_by_stripe.png' %}" style="height: 30px;"/><br/>
               Payments are submitted securely via Stripe.  No card information is retained by this site.
           </em></p>
 
@@ -94,6 +94,6 @@
 {% endblock content %}
 
 
-{% block extra_js %}
+{% block extrascripts %}
     <script type='text/javascript' src="{% static 'booking/js/stripe.js' %}"></script>
 {% endblock %}

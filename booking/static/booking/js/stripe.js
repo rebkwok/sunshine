@@ -1,6 +1,8 @@
 var MILLS_TO_IGNORE = 1000;
 
-$(document).ready(function()  {
+var $jq = jQuery.noConflict();
+
+$jq(document).ready(function()  {
     // Set up Stripe.js and Elements to use in checkout form
     var setupElements = function() {
       var card_button = document.getElementById('card-button');
@@ -57,7 +59,7 @@ $(document).ready(function()  {
     form.addEventListener("submit", function(event) {
       event.preventDefault();
 
-      var response = fetch('/check-total/').then(function(response) {
+      var response = fetch('/booking/check-total/').then(function(response) {
           return response.json();
         }).then(function(check_total) {
             console.log(check_total);

@@ -44,7 +44,7 @@ def stripe_payment_complete(request):
         send_failed_payment_emails(
             payment_intent=None, error=f"POST: {str(request.POST)}"
         )
-        return render(request, 'payments/non_valid_payment.html')
+        return render(request, 'stripe_payments/non_valid_payment.html')
 
     payload = json.loads(payload)
     logger.info("Processing payment intent from payload %s", payload)
@@ -75,25 +75,19 @@ def stripe_payment_complete(request):
     payment_intent.metadata.pop("invoice_id", None)
     payment_intent.metadata.pop("invoice_signature", None)
     if not failed:
-        if invoice.blocks.exists():
-            redirect_track = invoice.blocks.first().block_config.event_type.track
-        else:
-            redirect_track = None
-
         context = {
             "cart_items": invoice.items_dict().values(),
             "item_types": invoice.item_types(),
             "total_charged": invoice.amount,
-            "redirect_track": redirect_track,
         }
         if "total_voucher_code" in request.session:
             del request.session["total_voucher_code"]
         context.update({"total_voucher_code": invoice.total_voucher_code})
 
-        return render(request, 'payments/valid_payment.html', context)
+        return render(request, 'stripe_payments/valid_payment.html', context)
     else:
         send_failed_payment_emails(payment_intent=payment_intent, error=error)
-        return render(request, 'payments/non_valid_payment.html')
+        return render(request, 'stripe_payments/non_valid_payment.html')
 
 
 @csrf_exempt

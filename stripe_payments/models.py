@@ -1,3 +1,4 @@
+from importlib.metadata import metadata
 from os import environ
 
 from django.contrib.auth.models import User
@@ -12,7 +13,7 @@ from shortuuid import ShortUUID
 
 class Invoice(models.Model):
     # username(email address) rather than FK; in case we delete the user later, we want to keep financial info
-    username = models.CharField(max_length=255)
+    username = models.CharField(max_length=255, verbose_name="Purchaser email")
     invoice_id = models.CharField(max_length=255)
     amount = models.DecimalField(decimal_places=2, max_digits=8)
     stripe_payment_intent_id = models.CharField(max_length=255, null=True, blank=True)
@@ -42,23 +43,26 @@ class Invoice(models.Model):
         return sha512((self.invoice_id + environ["INVOICE_KEY"]).encode("utf-8")).hexdigest()
 
     def items_dict(self):
-        def _cost_str(item, default_cost):
-            if item.voucher:
-                return f"£{item.cost_with_voucher} (voucher applied: {item.voucher.code})"
-            return f"£{default_cost}"
         memberships = {
-            f"membership-{item.id}": {
-                "name": item.membership_type.name, "cost": _cost_str(item, item.membership_type.cost), "user": item.user
+            f"membership_{item.id}": {
+                "name": str(item), 
+                "voucher": item.voucher.code if item.voucher else None,
+                "cost_in_p": int(item.cost_with_voucher * 100),
+                "user": item.user
             } for item in self.memberships.all()
         }
         bookings = {
-            f"booking-{item.id}": {
-                "name": str(item.event), "cost": _cost_str(item, item.event.cost), "user": item.user
+            f"booking_{item.id}": {
+                "name": str(item.event), 
+                "voucher": item.voucher.code if item.voucher else None,
+                "cost_in_p": int(item.cost_with_voucher * 100),
+                "user": item.user,
             } for item in self.bookings.all()
         }
         # gift_vouchers = {
-        #     f"gift_voucher-{gift_voucher.id}": {
-        #         "name": gift_voucher.name, "cost": f"£{gift_voucher.gift_voucher_config.cost}"
+        #     f"gift_voucher_{gift_voucher.id}": {
+        #         "name": gift_voucher.name, 
+        #         "cost_in_p": int(gift_voucher.gift_voucher_config.cost * 100)
         #     } for gift_voucher in self.gift_vouchers.all()
         # }
         gift_vouchers = {}
@@ -85,9 +89,14 @@ class Invoice(models.Model):
         metadata = {}
         if self.total_voucher_code:
             metadata = {"Voucher code used on total invoice": self.total_voucher_code}
-        items_summary = {
-            item["name"][:40]: f"{item['cost']} ({key})" for key, item in all_items.items()
-        }
+        items_summary = {}
+        for key, item in all_items.items():
+            summary = {
+                f"{key}_item": item["name"][:40],
+                f"{key}_voucher": item.get('voucher'),
+                f"{key}_cost_in_p": item['cost_in_p'],
+            }
+            items_summary.update(summary)
         return {**metadata, **items_summary}
 
     def save(self, *args, **kwargs):
@@ -112,7 +121,10 @@ class StripePaymentIntent(models.Model):
     amount = models.PositiveIntegerField()
     description = models.CharField(max_length=255)
     status = models.CharField(max_length=255)
-    invoice = models.ForeignKey(Invoice, on_delete=models.SET_NULL, null=True, blank=True)
+    invoice = models.ForeignKey(
+        Invoice, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name="payment_intents"    
+    )
     seller = models.ForeignKey(Seller, on_delete=models.SET_NULL, null=True, blank=True)
     metadata = models.JSONField()
     client_secret = models.CharField(max_length=255)
@@ -135,3 +147,37 @@ class StripePaymentIntent(models.Model):
 
     def __str__(self):
         return f"{self.payment_intent_id} - invoice {self.invoice.invoice_id} - {self.invoice.username}"
+
+
+class StripeRefund(models.Model):
+    payment_intent = models.ForeignKey(
+        StripePaymentIntent, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name="refunds"
+    )
+    refund_id = models.CharField(max_length=255)
+    amount = models.PositiveIntegerField()
+    status = models.CharField(max_length=255)
+    invoice = models.ForeignKey(
+        Invoice, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name="refunds"
+    )
+    seller = models.ForeignKey(Seller, on_delete=models.SET_NULL, null=True, blank=True)
+    metadata = models.JSONField()
+    currency = models.CharField(max_length=3)
+    reason = models.CharField(max_length=255)
+    booking_id = models.PositiveIntegerField()
+
+    @classmethod
+    def create_from_refund_obj(cls, refund, payment_intent, booking_id):
+        return cls.objects.create(
+            refund_id=refund.id,
+            payment_intent=payment_intent,
+            invoice=payment_intent.invoice,
+            amount=refund.amount,
+            status=refund.status,
+            seller=payment_intent.seller,
+            metadata=refund.metadata,
+            currency=refund.currency,
+            reason=refund.reason,
+            booking_id=booking_id,
+        )

@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import pytz
 from datetime import timedelta
-
 from django.contrib import admin
 from django.contrib.auth.models import User
 from django.utils import timezone
@@ -13,7 +12,7 @@ from booking.models import (
     Booking, ItemVoucher, Membership, MembershipType, TotalVoucher, 
     WaitingListUser, Workshop, RegularClass, Private
 )
-from booking.forms import EventForm
+from booking.forms import EventForm, ItemVoucherForm
 from booking.email_helpers import send_email
 
 
@@ -21,6 +20,7 @@ def format_date_in_local_timezone(utc_datetime):
     local_tz = pytz.timezone('Europe/London')
     local_datetime = utc_datetime.astimezone(local_tz)
     return local_datetime.strftime('%a %d %b %Y %H:%M (%Z)')
+
 
 class UserFilter(admin.SimpleListFilter):
 
@@ -430,7 +430,35 @@ class MembershipAdmin(admin.ModelAdmin):
 
 @admin.register(ItemVoucher)
 class ItemVoucherAdmin(admin.ModelAdmin):
-    list_display = ('code', 'valid_for')
+    list_display = ('code', 'valid_for', 'start_date', 'expiry_date')
+    # exclude gift voucher fields
+    exclude = ('is_gift_voucher', 'activated', 'purchaser_email', 'name', 'message')
+    
+    fieldsets = (
+      ('Voucher Properties', {
+          'fields': ('code', 'discount', 'discount_amount')
+      }),
+      ('Valid dates', {
+          'description': (
+              "Start date defaults to the beginning of today; expiry date (if entered) "
+              "will be automatically set to end of day on save."
+            ),
+          'fields': ('start_date', 'expiry_date')
+      }),
+      ('Limits on number of uses', {
+          'description': (
+              "Limit the times the voucher can be used; these are combined "
+              "e.g. to make a voucher than can be used only once by one user, set both options to 1."
+            ),
+          'fields': ("max_vouchers", "max_per_user")
+      }),
+      ('Valid for:', {
+          'fields': ("membership_types", "event_types")
+      }),
+   )
+
+    form = ItemVoucherForm
+    
 
     def valid_for(self, obj):
         return ", ".join(obj.valid_for())

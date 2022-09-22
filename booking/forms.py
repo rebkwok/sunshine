@@ -5,7 +5,7 @@ from django.utils import timezone
 
 from suit.widgets import EnclosedInput
 
-from booking.models import Booking, Event
+from booking.models import Booking, Event, ItemVoucher, MembershipType
 
 
 class BookingCreateForm(forms.ModelForm):
@@ -112,3 +112,44 @@ class EventsFilter(forms.Form):
         if initial:
             self.fields['name'].initial = initial.get('name', 'all')
             self.fields['venue'].initial = initial.get('venue', 'all')
+
+
+
+class ItemVoucherForm(forms.ModelForm):
+
+    class Meta:
+        model = ItemVoucher
+        fields = "__all__"
+        labels = {
+            "start_date": "Start date and time",
+            "expiry_date": "Expiry date and time (optional)",
+            "discount": "Discount %"
+        }
+        help_texts = {
+            "code": "Voucher codes are case sensitive; must not contain spaces",
+            "max_vouchers": "Maximum uses across all users; leave blank for no maximum",
+            "max_per_user": "Maximum uses per users; leave blank for no maximum",
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['event_types'] = forms.MultipleChoiceField(
+            choices=Event.EVENT_TYPES, required=False,
+            widget=forms.CheckboxSelectMultiple
+        )
+        self.fields['membership_types'] = forms.ModelMultipleChoiceField(
+            queryset=MembershipType.objects.all(), required=False,
+            widget=forms.CheckboxSelectMultiple
+        )
+
+    def clean_code(self):
+        code = self.cleaned_data['code']
+        if len(code.split()) > 1:
+            self.add_error("code", "Code cannot contain spaces")
+        return code
+
+    def clean(self):
+        membership_types = self.cleaned_data.get('membership_types')
+        event_types = self.cleaned_data.get('event_types')
+        if not (membership_types or event_types):
+            self.add_error(None, "Specify at least one membership type or event type that this voucher is valid for")

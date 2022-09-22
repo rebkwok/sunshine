@@ -70,8 +70,8 @@ class SuitConfig(DjangoSuitConfig):
         ),
         ParentItem('Payments', children=[
             ChildItem(model='stripe_payments.invoice'),
-            ChildItem(model='stripe_payments.seller'),
             ChildItem(model='stripe_payments.stripepaymentintent'),
+            ChildItem(model='stripe_payments.striperefund'),
         ], icon='fa fa-credit-card', permissions=superuser_permissions),
         ParentItem('Activity Log', children=[
            ChildItem("Activitylog", 'activitylog.activitylog'),

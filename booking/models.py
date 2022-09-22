@@ -20,7 +20,7 @@ from django_extensions.db.fields import AutoSlugField
 from activitylog.models import ActivityLog
 from stripe_payments.models import Invoice
 from timetable.models import Venue
-from booking.utils import start_of_day_in_utc, end_of_day_in_utc
+from booking.utils import start_of_day_in_utc, end_of_day_in_utc, start_of_day_in_local_time
 
 logger = logging.getLogger(__name__)
 
@@ -100,12 +100,9 @@ class Event(models.Model):
         return available
 
     def __str__(self):
-        return '{} - {}'.format(
-            str(self.name),
-            self.date.astimezone(
-                pytz.timezone('Europe/London')
-            ).strftime('%d %b %Y, %H:%M')
-        )
+        local_datestr = self.date.astimezone(pytz.timezone('Europe/London')).strftime('%d %b %Y, %H:%M')
+        return f'{self.name} - {local_datestr}'
+
 
 
 class MembershipType(models.Model):
@@ -117,6 +114,11 @@ class MembershipType(models.Model):
         return f"{self.name} - {self.cost}"
 
 
+def _start_of_today():
+    now = timezone.now()
+    return start_of_day_in_local_time(now)
+
+
 class BaseVoucher(models.Model):
     code = models.CharField(max_length=255, unique=True)
     discount = models.PositiveIntegerField(
@@ -124,10 +126,10 @@ class BaseVoucher(models.Model):
         null=True, blank=True
     )
     discount_amount = models.DecimalField(
-        verbose_name="Exact amount discount", help_text="Discount as an exact amount off the purchased item cost",
+        verbose_name="Exact discount amount (£)", help_text="Discount as an exact amount off the purchased item cost",
         null=True, blank=True, decimal_places=2, max_digits=6
     )
-    start_date = models.DateTimeField(default=timezone.now)
+    start_date = models.DateTimeField(default=_start_of_today)
     expiry_date = models.DateTimeField(null=True, blank=True)
     max_vouchers = models.PositiveIntegerField(
         null=True, blank=True, verbose_name='Maximum available vouchers',
@@ -157,9 +159,9 @@ class BaseVoucher(models.Model):
 
     def clean(self):
         if not (self.discount or self.discount_amount):
-            raise ValidationError("One of discount (%) or discount_amount (fixed amount) is required")
+            raise ValidationError("One of discount (%) or discount amount (fixed £ amount) is required")
         if self.discount and self.discount_amount:
-            raise ValidationError("Only one of discount (%) or discount_amount (fixed amount) may be specified (not both)")
+            raise ValidationError("Only one of discount (%) or discount amount (fixed £ amount) may be specified (not both)")
 
     def _generate_code(self):
         return slugify(shortuuid.ShortUUID().random(length=12))
@@ -231,10 +233,6 @@ class ItemVoucher(BaseVoucher):
     def uses(self, user=None):
         return sum([qs.count() for qs in self.used_items(user=user).values()])
 
-        # def clean(self):
-        #     if not self.membership_types.exists() or self.event_types:
-        #         raise ValidationError("At least one membership type or event type must be specified") 
-        #     super().clean()
 
 class TotalVoucher(BaseVoucher):
     """A voucher that applies to the overall checkout total, not linked to any specific membership or event type"""

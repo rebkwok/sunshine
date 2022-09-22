@@ -207,7 +207,10 @@ class BookingToggleAjaxCreateViewTests(TestSetupMixin, TestCase):
         self.client.login(username=self.user.username, password='test')
         resp = self.client.post(url)
         assert resp.status_code == 200
-        assert resp.context['alert_message']['message'] == 'Cancelled.'
+        assert resp.context['alert_message']['message'] == (
+            'Cancelled. Please note that this booking is not eligible for '
+            'refunds as the allowed cancellation period has passed.'
+        )
         booking.refresh_from_db()
         assert booking.status == 'OPEN'
         assert booking.no_show

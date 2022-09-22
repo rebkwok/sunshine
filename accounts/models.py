@@ -13,6 +13,7 @@ from dynamic_forms.models import FormField, ResponseField
 
 from accounts.utils import active_data_privacy_cache_key
 from activitylog.models import ActivityLog
+from stripe_payments.models import Seller
 
 
 # Decorator for django models that contain readonly fields.
@@ -347,3 +348,10 @@ def has_expired_disclaimer(user):
     else:
         cached_expired_disclaimer = bool(cache.get(key))
     return cached_expired_disclaimer
+
+
+@property
+def is_seller(self):
+    return Seller.objects.filter(user=self).exists()
+
+User.add_to_class("is_seller", is_seller)
