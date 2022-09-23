@@ -237,7 +237,7 @@ def booking_details(request, event_id):
             'display_paid': yes if booking.paid else no,
             'display_membership': (
                 f'<a href={reverse("booking:membership_detail", args=(booking.membership.id,))}>{yes}</a>' 
-                if booking.paid else no
+                if booking.membership else no
             ),
             "cart_item_menu_count": total_unpaid_item_count(request.user)
         }

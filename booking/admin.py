@@ -14,6 +14,7 @@ from booking.models import (
 )
 from booking.forms import EventForm, ItemVoucherForm
 from booking.email_helpers import send_email
+from booking.views.booking_helpers import cancel_booking_from_view, process_refund
 
 
 def format_date_in_local_timezone(utc_datetime):
@@ -263,21 +264,31 @@ class EventAdmin(DjangoObjectActions, admin.ModelAdmin):
 
                     open_bookings = obj.bookings.filter(status='OPEN', no_show=False)
                     open_bookings_count = open_bookings.count()
-                    users_to_email = []
                     for booking in open_bookings:
-                        users_to_email.append(booking.user.email)
+                        refunded = False
+                        was_booked_with_membership = booking.membership is not None
                         if booking.status == 'OPEN' and not booking.no_show:
                             booking.status = 'CANCELLED'
+                            if booking.membership:
+                                booking.membership = None
+                            elif booking.paid and booking.invoice:
+                                # process refund
+                                refunded = process_refund(request, booking)
+                            booking.paid = False
                             booking.save()
 
-                    if open_bookings:
-                        send_email(
-                            request,
-                            subject='{} has been cancelled'.format(obj),
-                            ctx={'event_type': event_type, 'event': obj},
-                            template_txt='booking/email/event_cancelled.txt',
-                            bcc_list=users_to_email
-                        )
+                            send_email(
+                                request,
+                                subject='{} has been cancelled'.format(obj),
+                                ctx={
+                                    'event_type': event_type, 
+                                    'event': obj, 
+                                    'was_booked_with_membership': was_booked_with_membership,
+                                    'refunded': refunded
+                                },
+                                template_txt='booking/email/event_cancelled.txt',
+                                to_list=[booking.user.email]
+                            )
 
                     if open_bookings_count == 0:
                         msg = 'no open bookings'

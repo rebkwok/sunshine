@@ -8,6 +8,7 @@ import pytz
 import shortuuid
 
 from django.db import models
+from django.db.models import Q
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.postgres.fields import ArrayField
@@ -369,25 +370,25 @@ class Booking(models.Model):
         timeout = settings.CART_TIMEOUT_MINUTES
         checkout_buffer_seconds = 60 * 5
 
+        queries = (
+            Q(
+                event__date__gt=timezone.now(),
+                status="OPEN", no_show=False,
+                paid=False
+            ) & (
+                Q(checkout_time__lt=timezone.now() - timedelta(seconds=checkout_buffer_seconds)) | 
+                Q(checkout_time__isnull=True)
+            )
+        )
         if user:
             # If we have a user, we're at the checkout, so get all unpaid bookings for
             # this user only
-            unpaid_bookings = user.bookings.filter(
-                event__date__gt=timezone.now(),
-                status="OPEN", no_show=False,
-                paid=False,
-                checkout_time__lt=timezone.now() - timedelta(seconds=checkout_buffer_seconds)
-            )
+            unpaid_bookings = user.bookings.filter(queries)
         else:
             # no user, doing a general cleanup.  Don't delete anything that was time-checked
             # (done at final checkout stage) within the past 5 mins, in case we delete something
             # that's in the process of being paid
-            unpaid_bookings = cls.objects.filter(
-                event__date__gt=timezone.now(),
-                status="OPEN", no_show=False,
-                paid=False, 
-                checkout_time__lt=timezone.now() - timedelta(seconds=checkout_buffer_seconds)
-            )
+            unpaid_bookings = cls.objects.filter(queries)
         created_dates = [
             (booking, booking.date_rebooked or booking.date_booked) 
             for booking in unpaid_bookings
@@ -397,7 +398,7 @@ class Booking(models.Model):
             if created_at < (timezone.now() - timedelta(minutes=timeout))
         ]
         expired = cls.objects.filter(id__in=expired_ids)
-        event_ids = expired.values_list("event_id", flat=True)
+        event_ids = set(expired.values_list("event_id", flat=True))
 
         if expired:
             if user is not None:

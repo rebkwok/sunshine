@@ -40,6 +40,22 @@ class BookingToggleAjaxCreateViewTests(TestSetupMixin, TestCase):
         self.assertEqual(resp.context['alert_message']['message'], 'Added to basket.')
         self.assertFalse(Booking.objects.first().paid)
 
+        # no emails sent as booking not paid
+        # email to student and studio
+        self.assertEqual(len(mail.outbox), 0)
+
+    def test_create_booking_membership_available(self):
+        # membership available
+        baker.make(
+            Membership, user=self.user, paid=True, month=self.event.date.month, year=self.event.date.year
+        )
+        assert not Booking.objects.all().exists()
+        self.client.login(username=self.user.username, password='test')
+        resp = self.client.post(self.url)
+        assert resp.context['alert_message']['message'] == 'Booked.'
+        assert Booking.objects.first().paid
+
+        # no emails sent as booking not paid
         # email to student and studio
         self.assertEqual(len(mail.outbox), 2)
 
@@ -49,8 +65,12 @@ class BookingToggleAjaxCreateViewTests(TestSetupMixin, TestCase):
         event
         """
         event = baker.make_recipe(
-            'booking.future_EV', cost=5, max_participants=3,
+            'booking.future_PC', cost=5, max_participants=3,
             email_studio_when_booked=False
+        )
+        # membership available
+        baker.make(
+            Membership, user=self.user, paid=True, month=event.date.month, year=event.date.year
         )
         url = reverse('booking:toggle_booking', args=[event.id])
         self.assertEqual(Booking.objects.all().count(), 0)
@@ -158,9 +178,6 @@ class BookingToggleAjaxCreateViewTests(TestSetupMixin, TestCase):
         # the waiting list user for this user and event only has been deleted
         self.assertEqual(WaitingListUser.objects.all().count(), 2)
         self.assertFalse(WaitingListUser.objects.filter(user=self.user, event=self.event).exists())
-
-        # email to student and studio
-        self.assertEqual(len(mail.outbox), 2)
 
     def test_cancel_booking(self):
         """
@@ -627,6 +644,7 @@ class AjaxTests(TestSetupMixin, TestCase):
                 'status': 'OPEN', 
                 'no_show': False, 
                 'display_paid': '<span class="text-danger fas fa-times-circle"></span>', 
+                'display_membership': '<span class="text-danger fas fa-times-circle"></span>', 
                 'cart_item_menu_count': 1
             }
         )
@@ -642,6 +660,7 @@ class AjaxTests(TestSetupMixin, TestCase):
                 'display_status': 'OPEN',
                 'no_show': False,
                 'display_paid': '<span class="text-danger fas fa-times-circle"></span>',
+                'display_membership': '<span class="text-danger fas fa-times-circle"></span>',
                 'cart_item_menu_count': 1,
             }
         )
@@ -659,6 +678,7 @@ class AjaxTests(TestSetupMixin, TestCase):
                 'display_status': 'CANCELLED',
                 'no_show': True,
                 'display_paid': '<span class="text-danger fas fa-times-circle"></span>',
+                'display_membership': '<span class="text-danger fas fa-times-circle"></span>', 
             }
         )
 
@@ -676,5 +696,6 @@ class AjaxTests(TestSetupMixin, TestCase):
                 'display_status': 'OPEN',
                 'no_show': False,
                 'display_paid': '<span class="text-success fas fa-check-circle"></span>',
+                'display_membership': '<span class="text-danger fas fa-times-circle"></span>', 
             }
         )

@@ -1,5 +1,11 @@
 
 We regret to inform you that {{ event_type }} {{ event }} has been cancelled.
 
+{% if was_booked_with_membership %}
+    Credit for this {{ event_type }} has been returned to your membership.
+{% elif refunded %}
+    Your refund for this {{ event_type }} is being processed and will be credited back to your original 
+    payment card; please note this can take  up to 5-10 business days.
+{% endif %}
 
 {% include 'account/email/footer.txt' %}

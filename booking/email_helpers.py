@@ -6,6 +6,7 @@ from django.template.loader import get_template
 from activitylog.models import ActivityLog
 
 from booking.models import Booking, Event, WaitingListUser
+from booking.utils import host_from_request
 
 
 def send_email(
@@ -21,7 +22,7 @@ def send_email(
     ctx.update({"studio_email": settings.DEFAULT_STUDIO_EMAIL})
     if request:
         domain = request.META.get('HTTP_HOST')
-        host = 'http://{}'.format(request.META.get('HTTP_HOST'))
+        host = host_from_request(request)
         ctx.update({'domain': domain, 'host': host})
     else:
         ctx.update({"domain": settings.DOMAIN})
