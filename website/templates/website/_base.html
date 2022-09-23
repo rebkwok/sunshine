@@ -52,12 +52,14 @@
               </li>
             <li class="dropdown dropleft float-right">
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">My account<b class="caret"></b></a>
-                <ul class="dropdown-menu float-right">
+                <ul class="dropdown-menu float-right pl-2">
                     <li class="nav-item"><a class="account-menu-option" href="{% url 'accounts:profile' %}">Profile</a></li>
                     <li class="nav-item"><a class="account-menu-option" href="{% url 'account_change_password' %}">Change password</a></li>
+                    <div class="dropdown-divider"></div>
                     <li class="nav-item"><a class="account-menu-option" href="{% url 'booking:bookings' %}">Bookings</a></li>
-                    <li class="nav-item"><a class="account-menu-option" href="{% url 'booking:booking_history' %}">Past bookings</a></li>
+                    <li class="nav-item"><a class="account-menu-option" href="{% url 'booking:booking_history' %}">Booking history</a></li>
                     <li class="nav-item"><a class="account-menu-option" href="{% url 'booking:user_memberships' %}">Memberships</a></li>
+                    <div class="dropdown-divider"></div>
                     <li class="nav-item"><a class="account-menu-option" href="{% url 'account_logout' %}">Log out</a></li>
 
                     {% if user.is_staff or user.is_superuser %}

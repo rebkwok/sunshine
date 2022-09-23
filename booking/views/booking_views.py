@@ -8,8 +8,10 @@ from django.urls import reverse
 from django.views.generic import ListView, DeleteView
 from django.utils import timezone
 from braces.views import LoginRequiredMixin
+from booking.email_helpers import email_waiting_lists
 
 from booking.models import Booking, WaitingListUser
+from booking.utils import host_from_request
 from .views_utils import DataPolicyAgreementRequiredMixin
 
 
@@ -22,6 +24,12 @@ class BookingListView(DataPolicyAgreementRequiredMixin, LoginRequiredMixin, List
     context_object_name = 'bookings'
     template_name = 'booking/bookings.html'
     paginate_by = 20
+
+    def dispatch(self, request, *args, **kwargs):
+        # Cleanup bookings so user is looking at current availability
+        event_ids_from_expired_bookings = Booking.cleanup_expired_bookings(use_cache=True)
+        email_waiting_lists(event_ids_from_expired_bookings, host=host_from_request(request))
+        return super().dispatch(request, *args, **kwargs)
 
     def get_queryset(self):
         return Booking.objects.filter(event__date__gte=timezone.now(), user=self.request.user).order_by('event__date')

@@ -107,9 +107,15 @@
 
                       <div>Add additional items:<br/>
                       {% if request.user.is_authenticated %}
-                      <a class="btn btn-sm btn-outline-warning" href="{% url 'booking:membership_purchase' %}">Add membership</a>
-                      <a class="btn btn-sm btn-outline-warning" href="{% url 'booking:regular_session_list' %}">Classes</a>
+                        <a class="btn btn-sm btn-outline-warning" href="{% url 'booking:membership_purchase' %}">Membership</a>
+                        <a class="btn btn-sm btn-outline-warning" href="{% url 'booking:regular_session_list' %}">Class</a>
+                        {% if future_events.privates %}
+                            <a class="btn btn-sm btn-outline-warning" href="{% url 'booking:private_list' %}">Private</a>
                         {% endif %}
+                        {% if future_events.workshops %}  
+                            <a class="btn btn-sm btn-outline-warning" href="{% url 'booking:workshop_list' %}">Workshop</a>
+                        {% endif %}
+                      {% endif %}
                       {% comment %} <a class="btn btn-xs btn-outline-primary" href="{% url 'booking:buy_gift_voucher' %}">Gift vouchers</a> {% endcomment %}
                       </div>
                       {% if request.user.is_authenticated %}

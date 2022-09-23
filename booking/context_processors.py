@@ -1,5 +1,6 @@
 from decimal import Decimal
 from django.conf import settings
+from django.utils import timezone
 
 from .models import Event, MembershipType
 from .views.views_utils import total_unpaid_item_count
@@ -7,11 +8,12 @@ from .views.views_utils import total_unpaid_item_count
 
 
 def future_events(request):
+    future_events = Event.objects.filter(date__gt=timezone.now(), cancelled=False)
     return {
         "future_events": {
-            "workshops": Event.objects.filter(event_type="workshop").exists(),
-            "regular_sessions": Event.objects.filter(event_type="regular_session").exists(),
-            "privates": Event.objects.filter(event_type="private").exists(),
+            "workshops": future_events.filter(event_type="workshop").exists(),
+            "regular_sessions": future_events.filter(event_type="regular_session").exists(),
+            "privates": future_events.filter(event_type="private").exists(),
         },
         "studio_email": settings.DEFAULT_STUDIO_EMAIL,
         "domain": settings.DOMAIN,

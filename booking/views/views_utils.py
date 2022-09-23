@@ -4,6 +4,8 @@ from django.shortcuts import HttpResponseRedirect
 
 from accounts.models import DataPrivacyPolicy
 from accounts.utils import has_active_data_privacy_agreement
+from booking.email_helpers import email_waiting_lists
+from booking.utils import host_from_request
 
 from ..models import Booking
 
@@ -60,8 +62,10 @@ def get_unpaid_memberships(user):
     return this_year | future_years
 
 
-def get_unpaid_bookings(user):
-    Booking.cleanup_expired_purchases(user=user)
+def get_unpaid_bookings(user, request=None):
+    event_ids_from_cleanup = Booking.cleanup_expired_bookings(user=user)
+    host = host_from_request(request) if request else None
+    email_waiting_lists(event_ids_from_cleanup, host=host)
     return user.bookings.filter(
         status="OPEN", no_show=False, event__date__gt=timezone.now(), paid=False
     )

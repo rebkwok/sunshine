@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
+from cmath import log
 from decimal import Decimal
+from importlib.metadata import metadata
 import logging
 
 from django.conf import settings
@@ -284,9 +286,14 @@ def _check_items_and_get_updated_invoice(request):
     )
 
     if total != checked_total:
-        messages.error(request, "Some cart items changed; please check and try again")
+        messages.error(request, "Some cart items changed; please refresh the page and try again")
         checked.update({"redirect": True, "redirect_url": reverse("booking:shopping_basket")})
         return checked
+
+    for unpaid_booking in unpaid_bookings:
+        # mark the time we've successfully proceeded to checkout for this booking
+        # so we avoid cleaning it up during payment processing
+        unpaid_booking.mark_checked()
 
     # Even if the total is 0, we still need to retrieve/create the invoice first.  If a total voucher code is applied
     # we can only tell it's uses from paid invoices, so we need to mark the invoice as paid
@@ -408,6 +415,18 @@ def stripe_checkout(request):
             invoice.save()
         else:
             try:
+                payment_intent_obj = StripePaymentIntent.objects.get(
+                    payment_intent_id=invoice.stripe_payment_intent_id
+                )
+                if payment_intent_obj.metadata != payment_intent_data["metadata"]:
+                    logger.info("Resetting metadata")
+                    # unset all metadata so we can reset it to the new values
+                    # otherwise deleted items will not be removed
+                    unset_metadata = {k: "" for k in payment_intent_obj.metadata}
+                    stripe.PaymentIntent.modify(
+                        invoice.stripe_payment_intent_id, metadata=unset_metadata, stripe_account=stripe_account
+                    )
+                logger.info("Updating payment intent")
                 payment_intent = stripe.PaymentIntent.modify(
                     invoice.stripe_payment_intent_id, **payment_intent_data,
                 )

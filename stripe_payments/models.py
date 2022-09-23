@@ -43,10 +43,17 @@ class Invoice(models.Model):
         return sha512((self.invoice_id + environ["INVOICE_KEY"]).encode("utf-8")).hexdigest()
 
     def items_dict(self):
+        def _cost_str(item):
+            cost_str = f"£{item.cost_with_voucher}"
+            if item.voucher:
+                cost_str = f"{cost_str} (voucher applied: {item.voucher.code})"
+            return cost_str
+         
         memberships = {
             f"membership_{item.id}": {
                 "name": str(item), 
                 "voucher": item.voucher.code if item.voucher else None,
+                "cost_str": _cost_str(item),
                 "cost_in_p": int(item.cost_with_voucher * 100),
                 "user": item.user
             } for item in self.memberships.all()
@@ -55,6 +62,7 @@ class Invoice(models.Model):
             f"booking_{item.id}": {
                 "name": str(item.event), 
                 "voucher": item.voucher.code if item.voucher else None,
+                "cost_str": _cost_str(item),
                 "cost_in_p": int(item.cost_with_voucher * 100),
                 "user": item.user,
             } for item in self.bookings.all()
@@ -62,6 +70,7 @@ class Invoice(models.Model):
         # gift_vouchers = {
         #     f"gift_voucher_{gift_voucher.id}": {
         #         "name": gift_voucher.name, 
+        #         "cost_str": f"£{gift_voucher.gift_voucher_config.cost}"  
         #         "cost_in_p": int(gift_voucher.gift_voucher_config.cost * 100)
         #     } for gift_voucher in self.gift_vouchers.all()
         # }
@@ -93,9 +102,10 @@ class Invoice(models.Model):
         for key, item in all_items.items():
             summary = {
                 f"{key}_item": item["name"][:40],
-                f"{key}_voucher": item.get('voucher'),
-                f"{key}_cost_in_p": item['cost_in_p'],
+                f"{key}_cost_in_p": str(item['cost_in_p']),
             }
+            if item['voucher']:
+                summary[f"{key}_voucher"] = item['voucher']
             items_summary.update(summary)
         return {**metadata, **items_summary}
 

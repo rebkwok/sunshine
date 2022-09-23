@@ -61,3 +61,7 @@ def start_of_day_in_local_time(input_datetime, local_timezone="Europe/London"):
     start_of_day_utc = start_of_day_in_utc(input_datetime)
     utc_offset_at_input_datetime = date_in_local_time_as_utc(input_datetime).utcoffset()
     return start_of_day_utc - utc_offset_at_input_datetime
+
+
+def host_from_request(request):
+    return f"http://{request.META.get('HTTP_HOST')}"

@@ -1,7 +1,6 @@
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.core.mail import send_mail
-from django.core.mail.message import EmailMessage, EmailMultiAlternatives
+from django.core.mail.message import EmailMultiAlternatives
 from django.template.loader import get_template
 
 from activitylog.models import ActivityLog
@@ -52,7 +51,8 @@ def send_email(
     msg.send(fail_silently=False)
 
 
-def send_waiting_list_email(event, users, host=f"http://{settings.DOMAIN}"):
+def send_waiting_list_email(event, users, host=None):
+    host = host or f"http://{settings.DOMAIN}"
     auto_book_user = None
     user_emails = [user.email for user in users]
 
@@ -128,3 +128,16 @@ def send_waiting_list_email(event, users, host=f"http://{settings.DOMAIN}"):
             )
         )
 
+
+def event_waiting_list(event_id):
+    return WaitingListUser.objects.filter(event_id=event_id)
+
+
+def email_waiting_lists(event_ids, host=None):
+    for event_id in event_ids:
+        waiting_list_users = event_waiting_list(event_id)
+        if waiting_list_users:
+            event = Event.objects.get(id=event_id)
+            if not event.cancelled:
+                users = [wluser.user for wluser in waiting_list_users]
+                send_waiting_list_email(event, users, host)

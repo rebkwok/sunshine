@@ -9,13 +9,21 @@
 {% block content %}
 
 
-    <h1>{% if not show_all %}Active {% endif %}Memberships</h1>
+<h1>{% if not show_all %}Active {% endif %}Memberships</h1>
 
-    {% if show_all %}
-        <a href="{% url 'booking:user_memberships' %}">Hide expired/full</a>
-    {% else %}
-        <a href="{% url 'booking:user_memberships' %}?include-expired=true">Show all (including expired/full)</a>
-    {% endif %}
+<div class="row">
+    <div class="col-8">
+        {% if show_all %}
+            <a href="{% url 'booking:user_memberships' %}">Hide expired/full</a>
+        {% else %}
+            <a href="{% url 'booking:user_memberships' %}?include-expired=true">Show all (including expired/full)</a>
+        {% endif %}
+    </div>
+    <div class="col-4 mb-2">
+        <a class="btn btn-sm btn-warning"href="{% url 'booking:membership_purchase' %}">Buy a new membership</a>
+    </div>
+
+    <div class="col-12">
     {% if memberships %}
         {% for membership in memberships %}
         <div class="list-group mb-2">
@@ -36,8 +44,8 @@
     {% else %}
         <p>No memberships found.</p>
     {% endif %}
-
+    </div>
     {% include 'booking/includes/pagination.html' %}
-
+</div>
 
 {% endblock content %}

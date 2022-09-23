@@ -9,9 +9,11 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django.http import Http404
+from booking.email_helpers import email_waiting_lists
 
 from booking.forms import EventsFilter
 from booking.models import Booking, Event, WaitingListUser
+from booking.utils import host_from_request
 
 
 logger = logging.getLogger(__name__)
@@ -34,6 +36,12 @@ class BaseEventListView(ListView):
     template_name = 'booking/events_list.html'
     paginate_by = 20
     
+    def dispatch(self, request, *args, **kwargs):
+        # Cleanup bookings so user is looking at current availability
+        event_ids_from_expired_bookings = Booking.cleanup_expired_bookings(use_cache=True)
+        email_waiting_lists(event_ids_from_expired_bookings, host=host_from_request(request))
+        return super().dispatch(request, *args, **kwargs)
+
     def get_queryset(self):
         name = self.request.GET.get('name', 'all').strip()
         level = self.request.GET.get('level')

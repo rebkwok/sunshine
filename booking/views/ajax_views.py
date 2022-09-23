@@ -1,4 +1,5 @@
 from datetime import timedelta
+import re
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
@@ -12,10 +13,10 @@ from django.template.loader import render_to_string
 from activitylog.models import ActivityLog
 from booking.views.views_utils import get_unpaid_bookings, get_unpaid_memberships, \
     get_unpaid_gift_vouchers, get_unpaid_gift_vouchers_from_session, total_unpaid_item_count
-from .booking_helpers import cancel_booking_from_view, email_waiting_list
+from .booking_helpers import cancel_booking_from_view
 from booking.models import Event, Booking, Membership, WaitingListUser
-from booking.email_helpers import send_email, send_waiting_list_email
-from booking.utils import calculate_user_cart_total
+from booking.email_helpers import send_email, email_waiting_lists
+from booking.utils import calculate_user_cart_total, host_from_request
 
 
 ITEM_TYPE_MODEL_MAPPING = {
@@ -102,7 +103,9 @@ def toggle_booking(request, event_id):
 
     booking.save()
 
-    if action != "cancelled":
+    if action != "cancelled" and booking.paid:
+        # ONLY SEND EMAILS IF BOOKING IS PAID (i.e. fully booked with membership)
+        # Otherwise emails are sent after payment made
         ActivityLog.objects.create(
             log=f'Booking {booking.id} {action} for "{booking.event}" by user {booking.user.username}'
         )
@@ -131,14 +134,12 @@ def toggle_booking(request, event_id):
         if booking.event.email_studio_when_booked:
             send_email(
                 request,
-                '{} {} has just {} for {}'.format(
+                '{} {} has just booked for {}'.format(
                     booking.user.first_name, booking.user.last_name,
-                    'cancelled a booking' if action == 'cancelled' else 'booked',
                     booking.event
                 ),
                 ctx,
-                'booking/email/to_studio_booking_cancelled.txt' if action == 'cancelled'
-                else 'booking/email/to_studio_booking.txt',
+                'booking/email/to_studio_booking.txt',
                 to_list=[settings.DEFAULT_STUDIO_EMAIL]
             )
 
@@ -225,13 +226,19 @@ def booking_details(request, event_id):
     display_status = booking.status
     if booking.status == 'OPEN' and booking.no_show:
         display_status = 'CANCELLED'
+    
+    yes = '<span class="text-success fas fa-check-circle"></span>'
+    no = '<span class="text-danger fas fa-times-circle"></span>'
     return JsonResponse(
         {
             'display_status': display_status,
             'status': booking.status,
             'no_show': booking.no_show,
-            'display_paid': '<span class="text-success fas fa-check-circle"></span>' if booking.paid
-            else '<span class="text-danger fas fa-times-circle"></span>',
+            'display_paid': yes if booking.paid else no,
+            'display_membership': (
+                f'<a href={reverse("booking:membership_detail", args=(booking.membership.id,))}>{yes}</a>' 
+                if booking.paid else no
+            ),
             "cart_item_menu_count": total_unpaid_item_count(request.user)
         }
     )
@@ -273,7 +280,7 @@ def ajax_cart_item_delete(request):
 
     if item_type == "booking":
         # send waiting list emails if necessary
-        email_waiting_list(request, event)
+        email_waiting_lists([event.id], host=host_from_request(request))
 
     return JsonResponse(
         {

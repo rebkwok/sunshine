@@ -33,6 +33,7 @@
                             <th>Location</th>
                             <th class="table-center">Status</th>
                             <th class="table-center">Paid</th>
+                            <th class="table-center">Membership</th>
                         </tr>
 
                             {% for booking in bookings %}
@@ -90,7 +91,18 @@
                                             </span>
                                         </span>
                                     </td>
-                                </tr else>
+                                    <td class="table-center">
+                                        <span id="booked-{{ booking.event.id }}-membership">
+                                            {% if booking.membership %}
+                                                <a href={% url "booking:membership_detail" booking.membership.id %}>
+                                                    <span class="text-success fas fa-check-circle"></span>
+                                                </a>
+                                            {% else %}
+                                                <span class="text-danger fas fa-times-circle"></span>
+                                            {% endif %}
+                                        </span>
+                                    </td>
+                                </tr>
                             {% endfor %}
 
                     </table>

@@ -3,6 +3,7 @@ from calendar import monthrange, month_name
 from datetime import datetime, timedelta
 from decimal import Decimal
 import logging
+from sys import _clear_type_cache
 import pytz
 import shortuuid
 
@@ -10,6 +11,7 @@ from django.db import models
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.postgres.fields import ArrayField
+from django.core.cache import cache
 from django.core.exceptions import ValidationError
 from django.utils import timezone
 from django.utils.text import slugify
@@ -102,7 +104,6 @@ class Event(models.Model):
     def __str__(self):
         local_datestr = self.date.astimezone(pytz.timezone('Europe/London')).strftime('%d %b %Y, %H:%M')
         return f'{self.name} - {local_datestr}'
-
 
 
 class MembershipType(models.Model):
@@ -327,7 +328,6 @@ class Booking(models.Model):
     cancellation_fee_paid = models.BooleanField(default=False)
     date_cancelled = models.DateTimeField(null=True, blank=True)
 
-    stripe_pending = models.BooleanField(default=False)
     membership = models.ForeignKey(
         Membership, null=True, blank=True, 
         on_delete=models.SET_NULL,
@@ -335,6 +335,7 @@ class Booking(models.Model):
     )
     invoice = models.ForeignKey(Invoice, on_delete=models.SET_NULL, null=True, blank=True, related_name="bookings")
     voucher = models.ForeignKey(ItemVoucher, on_delete=models.SET_NULL, null=True, blank=True, related_name="bookings")
+    checkout_time = models.DateTimeField(null=True, blank=True)
 
     class Meta:
         unique_together = ('user', 'event')
@@ -349,20 +350,74 @@ class Booking(models.Model):
                    or (self.date_booked > allowed_datetime)
         return False
 
+    def mark_checked(self):
+        self.checkout_time = timezone.now()
+        self.save()
+
     @classmethod
-    def cleanup_expired_purchases(cls, user):
-        bookings = user.bookings.filter(
-            event__date__gt=timezone.now(),
-            status="OPEN", no_show=False,
-            paid=False, stripe_pending=False
-        )
+    def cleanup_expired_bookings(cls, user=None, use_cache=False):
+        """
+        Delete bookings that are unpaid
+        """
+        if use_cache:
+            # check cache to see if we cleaned up recently
+            if cache.get("expired_bookings_cleaned"):
+                logger.info("Expired bookings cleaned up within past 2 mins; no cleanup required")
+                return []
+
+        # timeout defaults to 15 mins
+        timeout = settings.CART_TIMEOUT_MINUTES
+        checkout_buffer_seconds = 60 * 5
+
+        if user:
+            # If we have a user, we're at the checkout, so get all unpaid bookings for
+            # this user only
+            unpaid_bookings = user.bookings.filter(
+                event__date__gt=timezone.now(),
+                status="OPEN", no_show=False,
+                paid=False,
+                checkout_time__lt=timezone.now() - timedelta(seconds=checkout_buffer_seconds)
+            )
+        else:
+            # no user, doing a general cleanup.  Don't delete anything that was time-checked
+            # (done at final checkout stage) within the past 5 mins, in case we delete something
+            # that's in the process of being paid
+            unpaid_bookings = cls.objects.filter(
+                event__date__gt=timezone.now(),
+                status="OPEN", no_show=False,
+                paid=False, 
+                checkout_time__lt=timezone.now() - timedelta(seconds=checkout_buffer_seconds)
+            )
         created_dates = [
             (booking, booking.date_rebooked or booking.date_booked) 
-            for booking in bookings
+            for booking in unpaid_bookings
         ]
-        for booking, created_at in created_dates:
-            if created_at < (timezone.now() - timedelta(minutes=settings.CART_TIMEOUT_MINUTES)):
-                booking.delete()
+        expired_ids = [
+            booking.id for booking, created_at in created_dates
+            if created_at < (timezone.now() - timedelta(minutes=timeout))
+        ]
+        expired = cls.objects.filter(id__in=expired_ids)
+        event_ids = expired.values_list("event_id", flat=True)
+
+        if expired:
+            if user is not None:
+                ActivityLog.objects.create(
+                    log=f"{expired.count()} bookings for user {user} expired and were deleted"
+                )
+            else:
+                ActivityLog.objects.create(
+                    log=f"{expired.count()} booking cart items expired and were deleted"
+                )
+        expired.delete()
+
+        if use_cache:
+            logger.info("Expired bookings cleaned up")
+            # cache for 2 mins
+            cache.set("expired_bookings_cleaned", True, timeout=60*2)
+        
+        # return the event ids for bookings that were deleted, so we can check if 
+        # waiting list emails need to be sent
+        return event_ids
 
     @property
     def cost_with_voucher(self):

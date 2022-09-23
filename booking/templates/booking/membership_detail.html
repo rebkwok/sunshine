@@ -26,6 +26,6 @@
                     {% endif %}
             </div>
         </div>
-        <a class="btn btn-outline-dark btn-sm" href="{% url 'booking:user_memberships' %}">Back</a>
+        <a class="btn btn-outline-dark btn-sm" href="{{ request.META.HTTP_REFERER }}">Back</a>
 
 {% endblock content %}

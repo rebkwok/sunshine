@@ -6,11 +6,9 @@ from django.template.loader import get_template
 import stripe
 
 from activitylog.models import ActivityLog
+from booking.email_helpers import email_waiting_lists
+from booking.utils import host_from_request
 from stripe_payments.models import Seller, StripePaymentIntent, StripeRefund
-
-from ..models import WaitingListUser
-from ..email_helpers import send_waiting_list_email
-
 
 
 def cancel_booking_from_view(request, booking):
@@ -21,7 +19,7 @@ def cancel_booking_from_view(request, booking):
     #    b) Do we need to put it back on a membership?
     # 4) Was it paid? - No
     # 5) Set it to cancelled/no-show/unpaid
-    # 6) Email user
+    # 6) Email user (if previoulsy paid)
     # 7) Email waiting list users if required
 
     event = booking.event
@@ -38,6 +36,7 @@ def cancel_booking_from_view(request, booking):
     # Check here so we can adjust the email message
     membership_booking_within_5_mins = booking.booked_with_membership_within_allowed_time()
     was_booked_with_membership = booking.membership is not None
+    was_paid = booking.paid
 
     refunded = False
     if can_cancel_and_refund:
@@ -148,60 +147,40 @@ def cancel_booking_from_view(request, booking):
                 )
     
     # EMAIL USER
-    ctx = {
-        'host': f"http://{request.META.get('HTTP_HOST')}",
-        'booking': booking,
-        'was_booked_with_membership': was_booked_with_membership,
-        'membership_booked_within_allowed_time': membership_booking_within_5_mins,
-        'refunded': refunded,
-        'event': booking.event,
-        'date': booking.event.date.strftime('%A %d %B'),
-        'time': booking.event.date.strftime('%I:%M %p'),
-    }
-    send_mail('{} Booking for {} cancelled'.format(
-        settings.ACCOUNT_EMAIL_SUBJECT_PREFIX, booking.event),
-        get_template('booking/email/booking_cancelled.txt').render(ctx),
-        settings.DEFAULT_FROM_EMAIL,
-        [booking.user.email],
-        html_message=get_template(
-            'booking/email/booking_cancelled.html').render(ctx),
-        fail_silently=False)
-    
-    # EMAIL STUDIO
-    if settings.SEND_ALL_STUDIO_EMAILS:
+    # Only send emails if booking was previously paid; we don't want to send emails
+    # if just removing from basked
+    if was_paid:
+        host = host_from_request(request)
+        ctx = {
+            'host': host,
+            'booking': booking,
+            'was_booked_with_membership': was_booked_with_membership,
+            'membership_booked_within_allowed_time': membership_booking_within_5_mins,
+            'refunded': refunded,
+            'event': booking.event,
+            'date': booking.event.date.strftime('%A %d %B'),
+            'time': booking.event.date.strftime('%I:%M %p'),
+        }
         send_mail('{} Booking for {} cancelled'.format(
             settings.ACCOUNT_EMAIL_SUBJECT_PREFIX, booking.event),
-            get_template('booking/email/to_studio_booking_cancelled.txt').render(ctx),
+            get_template('booking/email/booking_cancelled.txt').render(ctx),
             settings.DEFAULT_FROM_EMAIL,
-            [settings.DEFAULT_STUDIO_EMAIL],
+            [booking.user.email],
+            html_message=get_template(
+                'booking/email/booking_cancelled.html').render(ctx),
             fail_silently=False)
+        
+        # EMAIL STUDIO
+        if settings.SEND_ALL_STUDIO_EMAILS:
+            send_mail('{} Booking for {} cancelled'.format(
+                settings.ACCOUNT_EMAIL_SUBJECT_PREFIX, booking.event),
+                get_template('booking/email/to_studio_booking_cancelled.txt').render(ctx),
+                settings.DEFAULT_FROM_EMAIL,
+                [settings.DEFAULT_STUDIO_EMAIL],
+                fail_silently=False)
 
     # WAITING LIST
     # if applicable, email users on waiting list
-    email_waiting_list(request, event)
+    email_waiting_lists([event.id], host=host)
 
     return alert_message
-
-
-def email_waiting_list(request, event):
-    # WAITING LIST
-    # if applicable, email users on waiting list
-    waiting_list_users = WaitingListUser.objects.filter(
-        event=event
-    )
-    if waiting_list_users:
-        send_waiting_list_email(
-            event,
-            [wluser.user for wluser in waiting_list_users],
-            host='http://{}'.format(request.META.get('HTTP_HOST'))
-        )
-        ActivityLog.objects.create(
-            log='Waiting list email sent to user(s) {} for '
-            'event {}'.format(
-                ', '.join(
-                    [wluser.user.username for \
-                    wluser in waiting_list_users]
-                ),
-                event
-            )
-        )
