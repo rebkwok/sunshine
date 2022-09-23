@@ -418,6 +418,13 @@ def stripe_checkout(request):
                 payment_intent_obj = StripePaymentIntent.objects.get(
                     payment_intent_id=invoice.stripe_payment_intent_id
                 )
+            except StripePaymentIntent.DoesNotExist:
+                logger.info("Payment intent obj %s not found, retrieving from stripe", invoice.stripe_payment_intent_id)
+                payment_intent_obj = stripe.PaymentIntent.retrieve(
+                    invoice.stripe_payment_intent_id, stripe_account=stripe_account
+                )
+            
+            try:
                 if payment_intent_obj.metadata != payment_intent_data["metadata"]:
                     logger.info("Resetting metadata")
                     # unset all metadata so we can reset it to the new values

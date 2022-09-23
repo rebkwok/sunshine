@@ -154,6 +154,12 @@
     <p>
         <a class="btn btn-sm btn-outline-warning" href="{% url 'booking:membership_purchase' %}">Add membership</a>
         <a class="btn btn-sm btn-outline-warning" href="{% url 'booking:regular_session_list' %}">Add classes</a>
+        {% if future_events.privates %}
+            <a class="btn btn-sm btn-outline-warning" href="{% url 'booking:private_list' %}">Add private lessons</a>
+        {% endif %}
+        {% if future_events.workshops %}  
+            <a class="btn btn-sm btn-outline-warning" href="{% url 'booking:workshop_list' %}">Add workshops</a>
+        {% endif %}
         {% comment %} <a class="btn btn-sm btn-outline-warning" href="{% url 'booking:buy_gift_voucher' %}">Add gift vouchers</a> {% endcomment %}
     </p>
     {% endif %}
