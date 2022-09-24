@@ -27,7 +27,7 @@ def membership_purchase_view(request):
     now = timezone.now()
     month = now.month
     year = now.year
-    membership_types = MembershipType.objects.all()
+    membership_types = MembershipType.objects.filter(active=True)
     unpaid_memberships = get_unpaid_memberships(request.user)
     options = [
         _membership_purchase_option(unpaid_memberships, membership_type, month, year)

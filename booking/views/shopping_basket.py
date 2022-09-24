@@ -19,7 +19,7 @@ import stripe
 from stripe_payments.models import Invoice, Seller, StripePaymentIntent
 
 from ..models import Booking, ItemVoucher, Membership, TotalVoucher
-from ..utils import calculate_user_cart_total
+from ..utils import calculate_user_cart_total, full_name
 from .views_utils import (
     data_privacy_required, 
     get_unpaid_bookings,
@@ -42,10 +42,6 @@ from .voucher_utils import (
 
 
 logger = logging.getLogger(__name__)
-
-
-def full_name(user):
-    return f"{user.first_name} {user.last_name}"
 
 
 def guest_shopping_basket(request):

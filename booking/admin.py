@@ -411,7 +411,8 @@ class WaitingListUserAdmin(admin.ModelAdmin):
 
 @admin.register(MembershipType)
 class MembershipTypeAdmin(admin.ModelAdmin):
-    list_display = ("name", "cost")
+    list_display = ("name", "cost", "active")
+    list_editable = ('active',)
 
 
 @admin.register(Membership)

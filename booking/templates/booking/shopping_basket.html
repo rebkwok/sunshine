@@ -99,7 +99,7 @@
                           {% csrf_token %}
                           <input type="hidden" name="cart_total" id="cart_total_input" value="{{ total_cost }}">
                           <input
-                                  class="btn btn-xs btn-xs-wide btn-warning mb-1"
+                                  class="btn btn-warning mb-1"
                                   type="submit"
                                   value="{% if total_cost > 0 %}Checkout{% else %}Submit{% endif %}"
                           />
@@ -123,7 +123,7 @@
                           <form name="voucher_form" class="form-inline" method="post" action="">
                             {% csrf_token %}
                             <input name="code" type="text" required="required"/>
-                            <input class="btn btn-sm btn-outline-info ml-2" type="submit" name="add_voucher_code" value="Apply voucher code"/>
+                            <input class="btn btn-sm btn-warning ml-2" type="submit" name="add_voucher_code" value="Apply voucher code"/>
                         </form>
                         <span class="errorlist"><ul>{% for error in voucher_add_error %}<li>{{ error }}</li>{% endfor %}</ul></span>
                       {% if applied_voucher_codes_and_discount %}

@@ -32,10 +32,7 @@ def toggle_booking(request, event_id):
     event = get_object_or_404(Event, pk=event_id)
     ref = request.GET.get('ref')
 
-    if event.event_type == 'regular_session':
-        ev_type = 'class'
-    else:
-        ev_type = 'workshop'
+    ev_type = 'class' if event.event_type != "workshop" else event.event_type
 
     context = {
         "event": event, "type": ev_type,
@@ -115,7 +112,7 @@ def toggle_booking(request, event_id):
             'event': booking.event,
             'date': booking.event.date.strftime('%A %d %B'),
             'time': booking.event.date.strftime('%H:%M'),
-            'ev_type': 'workshop'
+            'ev_type': ev_type
         }
 
         text_template, html_template = (
@@ -252,16 +249,8 @@ def ajax_cart_item_delete(request):
     if item_type == "booking":
         event = item.event
 
-    refresh = False
     if request.user.is_authenticated:
-        # TODO: for vouchers
-        # if isinstance(item, (Membership, Booking)) and item.voucher is not None and item.voucher.item_count > 1:
-        #     refresh = True
-        refresh = False
         item.delete()
-        if refresh:
-            url = reverse('booking:shopping_basket')
-            return JsonResponse({"redirect": True, "url": url})
         unpaid_memberships = get_unpaid_memberships(request.user)
         unpaid_bookings = get_unpaid_bookings(request.user)
         unpaid_gift_vouchers = get_unpaid_gift_vouchers(request.user)
@@ -277,7 +266,6 @@ def ajax_cart_item_delete(request):
         unpaid_gift_vouchers = get_unpaid_gift_vouchers_from_session(request)
         unpaid_item_count = unpaid_gift_vouchers.count()
         total = calculate_user_cart_total(unpaid_gift_vouchers=unpaid_gift_vouchers)
-
     if item_type == "booking":
         # send waiting list emails if necessary
         email_waiting_lists([event.id], host=host_from_request(request))

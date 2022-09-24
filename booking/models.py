@@ -111,6 +111,7 @@ class MembershipType(models.Model):
     name = models.CharField(max_length=255)
     number_of_classes = models.PositiveIntegerField()
     cost = models.DecimalField(max_digits=8, decimal_places=2)
+    active = models.BooleanField(default=True, help_text="Visible and available for purchase on site")
 
     def __str__(self) -> str:
         return f"{self.name} - £{self.cost}"

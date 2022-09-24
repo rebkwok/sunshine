@@ -49,13 +49,6 @@ def date_in_local_time_as_utc(input_datetime, local_timezone="Europe/London"):
     return Delorean(input_datetime, timezone="utc").shift(local_timezone).datetime
 
 
-def end_of_day_in_local_time(input_datetime, local_timezone="Europe/London"):
-    # Return localtime end of day in UTC
-    end_of_day_utc = end_of_day_in_utc(input_datetime)
-    utc_offset_at_input_datetime = date_in_local_time_as_utc(input_datetime).utcoffset()
-    return end_of_day_utc - utc_offset_at_input_datetime
-
-
 def start_of_day_in_local_time(input_datetime, local_timezone="Europe/London"):
     # Return localtime end of day in UTC
     start_of_day_utc = start_of_day_in_utc(input_datetime)

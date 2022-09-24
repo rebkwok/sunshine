@@ -113,6 +113,9 @@
                                                     {% elif user.has_outstanding_fees %}
                                                         {% include "booking/includes/outstanding_fee_disabled_buttons.html" %}
                                                     {% elif event.bookable or event.id in booked_events %}
+                                                        {% if event.members_only and not event|has_available_membership:user %}
+                                                            <span class="btn table-btn btn-warning book_button disabled" disabled=disabled>Members only</span>
+                                                        {% else %}
                                                         <span
                                                             id="book_{{ event.id }}"
                                                             data-event_id="{{ event.id }}"
@@ -123,6 +126,7 @@
                                                             class="td_ajax_book_btn">
                                                         {% include "booking/includes/book_button_toggle.html" %}
                                                         </span>
+                                                        {% endif %}
                                                     {% else %}
                                                         <span
                                                             id="waiting_list_button_{{ event.id }}"

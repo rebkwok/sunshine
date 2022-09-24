@@ -92,12 +92,6 @@ class TimetableSession(models.Model):
     )
     cost = models.DecimalField(
         max_digits=8, decimal_places=2, default=8,
-        help_text="Cost for non-members"
-    )
-    alt_cost = models.DecimalField(
-        max_digits=8, decimal_places=2, default=8,
-        verbose_name="Member cost",
-        help_text="Cost for additional session for members"
     )
     max_participants = models.PositiveIntegerField(default=12)
     cancellation_fee = models.DecimalField(max_digits=8, decimal_places=2, default=0.00)
