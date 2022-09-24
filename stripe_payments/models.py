@@ -42,6 +42,13 @@ class Invoice(models.Model):
     def signature(self):
         return sha512((self.invoice_id + environ["INVOICE_KEY"]).encode("utf-8")).hexdigest()
 
+    def items_summary(self):
+        return {
+            "bookings": [str(booking.event) for booking in self.bookings.all()],
+            "memberships": [str(mem) for mem in self.memberships.all()],
+            # "gift_vouchers": [str(gift_voucher) for gift_voucher in self.gift_vouchers.all()]
+        }
+
     def items_dict(self):
         def _cost_str(item):
             cost_str = f"£{item.cost_with_voucher}"

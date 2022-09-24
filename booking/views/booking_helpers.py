@@ -158,17 +158,8 @@ def process_refund(request, booking):
         )
     except StripePaymentIntent.DoesNotExist:
         # send warning email to tech support
-        send_email(
-            request, 
-            subject="Refund failed: payment intent not found",
-            template_txt="booking/email/refund_failed.txt",
-            ctx={
-                "payment_intent": booking.invoice.payment_intent_id,
-                "invoice": booking.invoice.invoice_id,
-                "booking_id": booking.id,
-                "reason": "Payment intent not found"
-            },
-            to_list=[settings.SUPPORT_EMAIL],
+        _send_invalid_request_email(
+            request, booking, "Payment intent not found"
         )
     else:
         stripe.api_key = settings.STRIPE_SECRET_KEY
@@ -178,17 +169,8 @@ def process_refund(request, booking):
         amount = payment_intent.metadata.get(f"booking_{booking.id}_cost_in_p")
         if amount is None:
             # send warning email to tech support
-            send_email(
-                request, 
-                subject="Refund failed: amount could not be calculated",
-                template_txt="booking/email/refund_failed.txt",
-                ctx={
-                    "payment_intent": booking.invoice.payment_intent_id,
-                    "invoice": booking.invoice.invoice_id,
-                    "booking_id": booking.id,
-                    "reason": "Amount could not be parsed from PI metadata"
-                },
-                to_list=[settings.SUPPORT_EMAIL],
+            _send_invalid_request_email(
+                request, booking, "Amount could not be parsed from PI metadata"
             )
         else:
             try:
@@ -204,6 +186,23 @@ def process_refund(request, booking):
                 ActivityLog.objects.create(
                     log=f"Refund for booking {booking.id} (user {booking.user.username}) processed"
                 )
-            except Exception:
-                pass
+            except stripe.error.InvalidRequestError as error:
+                # send warning email to tech support
+                _send_invalid_request_email(request, booking, str(error))
     return refunded
+
+
+def _send_invalid_request_email(request, booking, reason):
+    # send warning email to tech support
+    send_email(
+        request, 
+        subject="Refund failed: amount could not be calculated",
+        template_txt="booking/email/refund_failed.txt",
+        ctx={
+            "payment_intent": booking.invoice.stripe_payment_intent_id,
+            "invoice": booking.invoice.invoice_id,
+            "booking_id": booking.id,
+            "reason": reason
+        },
+        to_list=[settings.SUPPORT_EMAIL],
+    )

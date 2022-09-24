@@ -10,11 +10,12 @@ from django_object_actions import DjangoObjectActions, takes_instance_or_queryse
 
 from booking.models import (
     Booking, ItemVoucher, Membership, MembershipType, TotalVoucher, 
-    WaitingListUser, Workshop, RegularClass, Private
+    WaitingListUser, Workshop, RegularClass, Private, Event
 )
 from booking.forms import EventForm, ItemVoucherForm
 from booking.email_helpers import send_email
 from booking.views.booking_helpers import cancel_booking_from_view, process_refund
+from stripe_payments.models import StripeRefund
 
 
 def format_date_in_local_timezone(utc_datetime):
@@ -250,7 +251,8 @@ class EventAdmin(DjangoObjectActions, admin.ModelAdmin):
     @takes_instance_or_queryset
     def cancel_event(self, request, queryset):
         for obj in queryset:
-            event_type = 'class' if obj.event_type == 'regular_session' else 'workshop'
+            event_names = dict(Event.EVENT_TYPES)
+            event_type = 'class' if obj.event_type == 'regular_session' else event_names[obj.event_type]
 
             if not obj.bookings.exists():
                 obj.delete()
@@ -381,7 +383,7 @@ class BookingAdmin(admin.ModelAdmin):
 
     list_display = (
         'event_name', 'get_date', 'get_user', 'get_cost', 'paid', 'status',
-        'no_show'
+        'no_show', 'refunded'
     )
 
     list_filter = (BookingDateListFilter, UserFilter, 'event')
@@ -418,6 +420,9 @@ class BookingAdmin(admin.ModelAdmin):
         return u"\u00A3{:.2f}".format(obj.event.cost)
     get_cost.short_description = 'Cost'
 
+    def refunded(self, obj):
+        return "Yes" if StripeRefund.objects.filter(booking_id=obj.id).exists() else "-"
+    
 
 @admin.register(WaitingListUser)
 class WaitingListUserAdmin(admin.ModelAdmin):

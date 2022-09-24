@@ -8,7 +8,7 @@ from stripe_payments.models import Invoice, StripeRefund, StripePaymentIntent
 
 @admin.register(Invoice)
 class InvoiceAdmin(admin.ModelAdmin):
-    list_display = ("invoice_id", "pi", "get_username", "display_amount", "paid")
+    list_display = ("invoice_id", "pi", "get_username", "display_amount", "paid", "items")
 
     def get_username(self, obj):
         return obj.username
@@ -31,9 +31,13 @@ class InvoiceAdmin(admin.ModelAdmin):
         return ""
     pi.short_description = "Payment Intent"
 
+    def items(self, obj):
+        return _inv_items(obj)
+
+
 @admin.register(StripePaymentIntent)
 class StripePaymentIntentAdmin(admin.ModelAdmin):
-    list_display = ("payment_intent_id", "inv", "username", "status")
+    list_display = ("payment_intent_id", "inv", "username", "status", "items")
     exclude = ("client_secret",)
 
     def username(self, obj):
@@ -54,6 +58,15 @@ class StripePaymentIntentAdmin(admin.ModelAdmin):
             obj.payment_intent.payment_intent_id
         ))
     pi.short_description = "Payment Intent"
+
+    def items(self, obj):
+        return _inv_items(obj.invoice)
+
+
+def _inv_items(invoice):
+    items = sum(list(invoice.items_summary().values()), [])
+    items = [f"<li>{item}</li>" for item in items]
+    return mark_safe(f"<ul>{''.join(items)}</ul")
 
 
 @admin.register(StripeRefund)
