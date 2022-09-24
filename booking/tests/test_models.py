@@ -397,3 +397,82 @@ def test_total_voucher_uses():
     baker.make(Invoice, _quantity=3, paid=True)
 
     assert voucher.uses() == 3
+
+
+@pytest.fixture
+def membership_type():
+    yield baker.make(MembershipType, name="test", cost=20, number_of_classes=2)
+
+
+@pytest.mark.django_db 
+def test_membership(membership_type):
+    now = timezone.now()
+    future = now + timedelta(days=60)
+    past_membership = baker.make(Membership, membership_type=membership_type, month=2, year=2022)
+    current_membership = baker.make(Membership, membership_type=membership_type, month=now.month, year=now.year)
+    future_membership = baker.make(Membership, membership_type=membership_type, month=future.month, year=future.year)
+    
+    assert str(past_membership) == "test - February 2022"
+    assert past_membership.start_date() == datetime(2022, 2, 1, tzinfo=timezone.utc)
+    assert past_membership.expiry_date() == datetime(2022, 2, 28, tzinfo=timezone.utc)
+    assert past_membership.month_str == "February"
+    assert not past_membership.current_or_future()
+    assert current_membership.current_or_future()
+    assert future_membership.current_or_future()
+    assert past_membership.has_expired()
+    assert not current_membership.has_expired()
+    assert not future_membership.has_expired()
+    assert not past_membership.full()
+
+
+@pytest.mark.django_db 
+def test_membership_uses(membership_type):
+    now = timezone.now()
+    current_membership = baker.make(Membership, membership_type=membership_type, month=now.month, year=now.year)
+    assert not current_membership.full()
+    assert current_membership.current_or_future()
+
+    baker.make(Booking, membership=current_membership, _quantity=2)
+    current_membership.refresh_from_db()
+    assert current_membership.full()
+    assert not current_membership.current_or_future()
+    assert current_membership.times_used() == 2
+
+
+@pytest.mark.django_db 
+def test_membership_with_voucher(membership_type):
+    now = timezone.now()
+    voucher = baker.make(ItemVoucher, discount=50)
+    current_membership = baker.make(
+        Membership, membership_type=membership_type, month=now.month, year=now.year
+    )
+    assert current_membership.cost_with_voucher == 20
+    current_membership.voucher = voucher
+    current_membership.save()
+    assert current_membership.cost_with_voucher == 10
+
+    voucher = baker.make(ItemVoucher, discount_amount=10)
+    current_membership.voucher = voucher
+    current_membership.save()
+    assert current_membership.cost_with_voucher == 10
+    voucher.discount_amount = 50
+    voucher.save()
+    assert current_membership.cost_with_voucher == 0
+
+
+@pytest.mark.django_db 
+def test_booking_with_voucher():
+    voucher = baker.make(ItemVoucher, discount=50)
+    booking = baker.make(Booking, event__cost=10)
+    assert booking.cost_with_voucher == 10
+    booking.voucher = voucher
+    booking.save()
+    assert booking.cost_with_voucher == 5
+
+    voucher = baker.make(ItemVoucher, discount_amount=8)
+    booking.voucher = voucher
+    booking.save()
+    assert booking.cost_with_voucher == 2
+    voucher.discount_amount = 50
+    voucher.save()
+    assert booking.cost_with_voucher == 0

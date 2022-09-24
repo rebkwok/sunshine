@@ -1,15 +1,15 @@
 # -*- coding: utf-8 -*-
-from datetime import datetime
+from datetime import datetime, timedelta
 from unittest.mock import patch
 
 from model_bakery import baker
 
+from django.core.cache import cache
 from django.urls import reverse
 from django.utils import timezone
 from django.test import TestCase
 
-from booking.models import Event, Booking
-from booking.views import RegularClassesEventListView, EventDetailView
+from booking.models import Event, Booking, WaitingListUser, Workshop 
 from booking.tests.helpers import TestSetupMixin, format_content, make_online_disclaimer
 
 
@@ -26,6 +26,7 @@ class EventListViewTests(TestSetupMixin, TestCase):
         cls.regular_classes = [cls.reg_class1, cls.reg_class2]
         cls.classes_url = reverse("booking:regular_session_list")
         cls.workshops_url = reverse("booking:workshop_list")
+        cls.private_url = reverse("booking:private_list")
 
     def setUp(self):
         self.client.login(username=self.user.username, password='test')
@@ -43,6 +44,29 @@ class EventListViewTests(TestSetupMixin, TestCase):
         resp = self.client.get(self.classes_url)
         assert resp.status_code == 200
         assert resp.context['events'].count() == 2
+
+    def test_private_list_with_name(self):
+        url = self.private_url
+        resp = self.client.get(url)
+        assert len(resp.context_data['events']) == 0
+        assert resp.context_data['event_type'] == "private"
+
+    def test_event_list_pagination(self):
+        baker.make_recipe('booking.future_EV', _quantity=20)
+        assert Workshop.objects.count() == 23
+        resp = self.client.get(self.workshops_url)
+        assert resp.context_data["page_obj"].paginator.num_pages == 2
+        assert resp.context_data["page_obj"].number == 1
+        assert len(resp.context_data["events"]) == 20
+
+        resp = self.client.get(self.workshops_url + "?page=2")
+        assert len(resp.context_data["events"]) == 3
+        assert resp.context_data["page_obj"].number == 2
+
+        # bad page, returns first page
+        resp = self.client.get(self.workshops_url  + "?page=3")
+        assert len(resp.context_data["events"]) == 20
+        assert resp.context_data["page_obj"].number == 1
 
     def test_event_list_past_event(self):
         """
@@ -202,7 +226,6 @@ class EventListViewTests(TestSetupMixin, TestCase):
         assert len(resp.context_data['events']) == 2
         assert[ev.id for ev in resp.context_data['events']] == [self.reg_class1.id, reg_class3.id]
 
-
     def test_outstanding_fees_shows_banner(self):
         baker.make_recipe("booking.booking", user=self.user, event=self.reg_class1, status="CANCELLED", cancellation_fee_incurred=True)
         resp = self.client.get(self.classes_url)
@@ -218,6 +241,55 @@ class EventListViewTests(TestSetupMixin, TestCase):
         resp = self.client.get(self.classes_url)
         assert 'id="book_button_disabled"' in resp.rendered_content  # for the cancelled booking
         assert 'id="join_waiting_list_button_disabled"' in resp.rendered_content
+
+    def test_event_list_cleans_up_expired_bookings(self):
+        """
+        Test that all events are listed (workshops and other events)
+        """
+        cache.clear()
+        now = timezone.now()
+        # booked > 15 mins ago
+        baker.make(
+            "booking.booking", event=self.reg_class1, paid=False, 
+            date_booked=now - timedelta(minutes=30)
+        )
+        # booked > 15 mins ago, rebooked < 15 mins ago
+        rebooking = baker.make(
+            "booking.booking", event=self.reg_class1, paid=False, 
+            date_booked=now - timedelta(minutes=30),
+            date_rebooked = now - timedelta(minutes=10)
+        )
+        # booked > 15 mins ago, but checkout_time < 5 mins ago
+        checkedout_booking = baker.make(
+            "booking.booking", event=self.reg_class2, paid=False, 
+            date_booked=now - timedelta(minutes=30),
+            checkout_time=now - timedelta(minutes=2)
+        )
+        self.client.get(self.workshops_url)
+        # uses cache
+        assert cache.get("expired_bookings_cleaned")
+        self.reg_class1.refresh_from_db()
+        self.reg_class2.refresh_from_db()
+        
+        assert self.reg_class1.bookings.count() == 1
+        assert self.reg_class1.bookings.first().id == rebooking.id
+        assert self.reg_class2.bookings.first().id == checkedout_booking.id
+        
+        # make another booking that's expired
+        baker.make(
+            "booking.booking", event=self.reg_class1, paid=False, date_booked=now - timedelta(minutes=30)
+        )
+        assert self.reg_class1.bookings.count() == 2
+        # call events again; doesn't get cleaned up b/c cache hasn't expired yet
+        self.client.get(self.workshops_url)
+        self.reg_class1.refresh_from_db()
+        assert self.reg_class1.bookings.count() == 2
+
+        # delete cache item; now it gets cleaned up
+        cache.delete("expired_bookings_cleaned")
+        self.client.get(self.workshops_url)
+        self.reg_class1.refresh_from_db()
+        assert self.reg_class1.bookings.count() == 1
 
 
 class EventDetailViewTests(TestSetupMixin, TestCase):
@@ -277,6 +349,19 @@ class EventDetailViewTests(TestSetupMixin, TestCase):
         resp = self.client.get(self.url())
         assert resp.status_code == 200
         assert resp.context_data['event_type'] == 'workshop'
+
+    def test_user_on_waiting_list(self):
+        resp = self.client.get(self.url())
+        assert "waiting_list" not in resp.context_data
+        
+        baker.make(WaitingListUser, user=self.user, event=self.event)
+        resp = self.client.get(self.url())
+        assert "waiting_list" in resp.context_data
+
+    def test_event_full(self):
+        baker.make_recipe("booking.booking", event=self.event, _quantity=self.event.max_participants)
+        resp = self.client.get(self.url())
+        assert resp.context_data['booking_info_text'] == "This workshop is now full."
 
     def test_show_on_site(self):
         self.client.logout()

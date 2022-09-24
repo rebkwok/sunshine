@@ -36,14 +36,6 @@ def data_privacy_required(view_func):
     return wrap
 
 
-class FeesDueMixin:
-    def dispatch(self, request, *args, **kwargs):
-        # check if the user has outstanding fees
-        if request.user.has_outstanding_fees():
-            return HttpResponseRedirect(reverse('booking:outstanding_fees'))
-        return super().dispatch(request, *args, **kwargs)
-
-
 def redirect_to_voucher_cart(view_func):
     def wrap(request, *args, **kwargs):
         if not request.user.is_authenticated and request.session.get("purchases", {}).get("gift_vouchers"):

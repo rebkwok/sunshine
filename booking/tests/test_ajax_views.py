@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from datetime import datetime
+from datetime import datetime, timedelta
 from unittest.mock import patch
 from model_bakery import baker
 
@@ -15,7 +15,7 @@ from ..models import Event, Booking, Membership, WaitingListUser
 from .helpers import TestSetupMixin
 
 
-class BookingToggleAjaxCreateViewTests(TestSetupMixin, TestCase):
+class BookingToggleAjaxViewTests(TestSetupMixin, TestCase):
 
     @classmethod
     def setUpTestData(cls):
@@ -179,6 +179,22 @@ class BookingToggleAjaxCreateViewTests(TestSetupMixin, TestCase):
         self.assertEqual(WaitingListUser.objects.all().count(), 2)
         self.assertFalse(WaitingListUser.objects.filter(user=self.user, event=self.event).exists())
 
+    def test_create_booking_with_membership(self):
+        now = timezone.now()
+        event = baker.make_recipe('booking.future_PC')
+        url = reverse('booking:toggle_booking', args=[event.id])
+        self.client.login(username=self.user.username, password='test')
+
+        membership = baker.make(
+            Membership, user=self.user, paid=True, month=now.month, year=now.year
+        )
+        resp = self.client.post(url)
+        assert resp.context['alert_message']['message'] == 'Booked.'
+        booking = Booking.objects.latest('id')
+        assert booking.event == event
+        assert booking.status == 'OPEN'
+        assert booking.membership == membership
+
     def test_cancel_booking(self):
         """
         Toggle open paid booking to cancelled
@@ -231,6 +247,47 @@ class BookingToggleAjaxCreateViewTests(TestSetupMixin, TestCase):
         booking.refresh_from_db()
         assert booking.status == 'OPEN'
         assert booking.no_show
+
+    def test_cancel_booking_cancellation_not_allowed(self):
+        """
+        Toggle booking to no-show
+        """
+        event = baker.make_recipe('booking.future_PC', allow_booking_cancellation=False)
+        url = reverse('booking:toggle_booking', args=[event.id])
+
+        booking = baker.make_recipe(
+            'booking.booking', user=self.user, event=event,
+            date_booked=datetime(2018, 1, 1, 8, 44, tzinfo=timezone.utc),
+            paid=True
+        )
+        self.client.login(username=self.user.username, password='test')
+        resp = self.client.post(url)
+        assert resp.context['alert_message']['message'] == (
+            'Cancelled. Please note that this booking is not eligible for refunds or transfer credit.'
+        )
+        booking.refresh_from_db()
+        assert booking.status == 'OPEN'
+        assert booking.no_show
+
+    def test_cancel_booking_made_with_membership(self):
+        event = baker.make_recipe('booking.future_PC')
+        url = reverse('booking:toggle_booking', args=[event.id])
+        self.client.login(username=self.user.username, password='test')
+
+        membership = baker.make(Membership, user=self.user, paid=True)
+        booking = baker.make_recipe(
+            'booking.booking', user=self.user, event=event,
+            date_booked=datetime(2018, 1, 1, 8, 56, tzinfo=timezone.utc),
+            paid=True,
+            membership=membership
+        )
+
+        resp = self.client.post(url)
+        booking.refresh_from_db()
+        assert resp.context['alert_message']['message'] == 'Cancelled.'
+        assert booking.status == 'CANCELLED'
+        assert not booking.no_show
+        assert booking.membership is None
 
     @patch('booking.models.timezone.now')
     def test_cancel_booking_made_with_membership_within_5_mins_during_cancellation_period(self, mock_now):
@@ -699,3 +756,98 @@ class AjaxTests(TestSetupMixin, TestCase):
                 'display_membership': '<span class="text-danger fas fa-times-circle"></span>', 
             }
         )
+
+
+class AjaxCartItemDeleteView(TestSetupMixin, TestCase):
+
+    def setUp(self):
+        self.client.login(username=self.user.username, password="test")
+
+    def test_delete_booking(self):
+        booking = baker.make_recipe(
+            "booking.booking", event__date=timezone.now() + timedelta(days=1), 
+            user=self.user
+        )
+        url = reverse("booking:ajax_cart_item_delete")
+        resp = self.client.post(url, {"item_type": "booking", "item_id": booking.id}).json()
+        assert not Booking.objects.exists()
+        assert resp["cart_total"] == 0
+        assert resp["cart_item_menu_count"] == 0
+
+    def test_delete_membership(self):
+        membership = baker.make_recipe("booking.membership", user=self.user)
+        url = reverse("booking:ajax_cart_item_delete")
+        resp = self.client.post(url, {"item_type": "membership", "item_id": membership.id}).json()
+        assert not Membership.objects.exists()
+        assert resp["cart_total"] == 0
+        assert resp["cart_item_menu_count"] == 0
+
+    def test_recalculate_total_cart_items(self):
+        # calculate total for all items
+        # the booking to delete
+        booking = baker.make_recipe(
+            "booking.booking", event__cost=10, user=self.user,
+            event__date=timezone.now() + timedelta(days=1)    
+        )
+        # another booking and membership
+        baker.make_recipe(
+            "booking.booking", event__cost=12, user=self.user,
+            event__date=timezone.now() + timedelta(days=1)    
+        )
+        baker.make_recipe("booking.membership", membership_type__cost=20, user=self.user)
+        # some bookings for another user
+        baker.make_recipe("booking.booking", _quantity=2)
+        # paid bookings don't count towards total
+        baker.make_recipe("booking.booking", user=self.user, paid=True)
+
+        url = reverse("booking:ajax_cart_item_delete")
+        resp = self.client.post(url, {"item_type": "booking", "item_id": booking.id}).json()
+
+        # 2 items still in cart - not the deleted one or the paid ones
+        assert resp["cart_total"] == "32.00"
+        assert resp["cart_item_menu_count"] == 2
+
+    def test_delete_booking_event_with_waiting_list(self):
+        event = baker.make_recipe("booking.future_PC")
+        booking = baker.make_recipe(
+            "booking.booking", user=self.user, event=event    
+        )
+        baker.make(
+            WaitingListUser, user__email="waiting@test.com", event=event
+        )
+        url = reverse("booking:ajax_cart_item_delete")
+        self.client.post(url, {"item_type": "booking", "item_id": booking.id}).json()
+
+        assert len(mail.outbox) == 1
+        assert mail.outbox[0].bcc == ["waiting@test.com"]
+
+    # def test_delete_gift_voucher(self):
+    #     gift_voucher = baker.make_recipe(
+    #         "booking.gift_voucher_10",
+    #         total_voucher__purchaser_email="anon@test.com",
+    #     )
+    #     url = reverse("booking:ajax_cart_item_delete")
+    #     resp = self.client.post(url, {"item_type": "gift_voucher", "item_id": gift_voucher.id}).json()
+    #     assert GiftVoucher.objects.exists() is False
+    #     assert resp["cart_total"] == 0
+    #     assert resp["cart_item_menu_count"] == 0
+
+    # def test_delete_gift_voucher_anonymous_user(self):
+    #     self.client.logout()
+    #     gift_voucher = baker.make_recipe(
+    #         "booking.gift_voucher_10",
+    #         total_voucher__purchaser_email="anon@test.com",
+    #     )
+    #     session = self.client.session
+    #     session.update({"purchases": {"gift_vouchers": [gift_voucher.id]}})
+    #     session.save()
+
+    #     url = reverse("booking:ajax_cart_item_delete")
+    #     resp = self.client.post(url, {"item_type": "gift_voucher", "item_id": gift_voucher.id}).json()
+    #     assert GiftVoucher.objects.exists() is False
+    #     assert resp["cart_total"] == 0
+    #     assert resp["cart_item_menu_count"] == 0
+
+    #     # cart items in context have been updated also
+    #     resp = self.client.get(reverse("booking:guest_shopping_basket"))
+    #     assert resp.context_data["unpaid_gift_voucher_info"] == []
