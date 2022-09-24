@@ -46,58 +46,7 @@ class UserFilter(admin.SimpleListFilter):
         return queryset
 
 
-class BookingDateListFilter(admin.SimpleListFilter):
-    # Human-readable title which will be displayed in the
-    # right admin sidebar just above the filter options.
-    title = 'event date'
-
-    # Parameter for the filter that will be used in the URL query.
-    parameter_name = 'event__date'
-
-    def lookups(self, request, model_admin):
-        """
-        Returns a list of tuples. The first element in each
-        tuple is the coded value for the option that will
-        appear in the URL query. The second element is the
-        human-readable name for the option that will appear
-        in the right sidebar.
-        """
-        return (
-            (None, ('Upcoming events only')),
-            ('past', ('Past events only')),
-            ('all', ('All events')),
-        )
-
-    def choices(self, cl):
-        for lookup, title in self.lookup_choices:
-            yield {
-                'selected': self.value() == lookup,
-                'query_string': cl.get_query_string({self.parameter_name: lookup,}, []),
-                'display': title,
-            }
-
-    def queryset(self, request, queryset):
-        """
-        Returns the filtered queryset based on the value
-        provided in the query string and retrievable via
-        `self.value()`.
-        """
-        # Compare the requested value
-        # to decide how to filter the queryset.
-        if self.value() == 'past':
-            return queryset.filter(event__date__lte=timezone.now())
-        if self.value() is None:
-            return queryset.filter(event__date__gte=timezone.now())
-        return queryset
-
-
-class EventDateListFilter(admin.SimpleListFilter):
-    # Human-readable title which will be displayed in the
-    # right admin sidebar just above the filter options.
-    title = 'date'
-
-    # Parameter for the filter that will be used in the URL query.
-    parameter_name = 'date'
+class DateListFilterMixin:
 
     def lookups(self, request, model_admin):
         """
@@ -121,6 +70,38 @@ class EventDateListFilter(admin.SimpleListFilter):
                 'query_string': cl.get_query_string({self.parameter_name: lookup,}, []),
                 'display': title,
             }
+
+
+class BookingDateListFilter(DateListFilterMixin, admin.SimpleListFilter):
+    # Human-readable title which will be displayed in the
+    # right admin sidebar just above the filter options.
+    title = 'event date'
+
+    # Parameter for the filter that will be used in the URL query.
+    parameter_name = 'event__date'
+
+    def queryset(self, request, queryset):
+        """
+        Returns the filtered queryset based on the value
+        provided in the query string and retrievable via
+        `self.value()`.
+        """
+        # Compare the requested value
+        # to decide how to filter the queryset.
+        if self.value() == 'past':
+            return queryset.filter(event__date__lte=timezone.now())
+        if self.value() is None:
+            return queryset.filter(event__date__gte=timezone.now())
+        return queryset
+
+
+class EventDateListFilter(DateListFilterMixin, admin.SimpleListFilter):
+    # Human-readable title which will be displayed in the
+    # right admin sidebar just above the filter options.
+    title = 'date'
+
+    # Parameter for the filter that will be used in the URL query.
+    parameter_name = 'date'
 
     def queryset(self, request, queryset):
         """
@@ -222,12 +203,6 @@ class EventAdmin(DjangoObjectActions, admin.ModelAdmin):
         widget = form.base_fields['venue'].widget
         widget.can_delete_related = False
         return form
-
-    def get_actions(self, request):
-        actions = super().get_actions(request)
-        if 'delete_selected' in actions:
-            del actions['delete_selected']
-        return actions
 
     def get_spaces_left(self, obj):
         return obj.spaces_left

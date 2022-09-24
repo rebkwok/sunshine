@@ -1,15 +1,20 @@
 # -*- coding: utf-8 -*-
-from django.contrib.auth.models import Group, User
+from collections import UserDict
+from datetime import timedelta, datetime
+from unittest.mock import patch
+
+from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 from django.utils import timezone
 from django.urls import reverse
 
-from datetime import timedelta, datetime
-from unittest.mock import patch
+import pytest
+
 from model_bakery import baker
 
-from booking.models import Event, Booking
+from booking.models import Event, Booking, ItemVoucher, Membership, MembershipType, TotalVoucher
+from stripe_payments.models import Invoice
 
 now = timezone.now()
 
@@ -306,3 +311,89 @@ class BookingTests(TestCase):
         booking.save()
         self.assertFalse(booking.cancellation_fee_incurred)
         self.assertFalse(booking.cancellation_fee_paid)
+
+
+@pytest.mark.django_db 
+def test_membership_type_model():
+    membership_type = baker.make(
+        MembershipType, name="test", cost=10, number_of_classes=4
+    )
+    assert str(membership_type) == "test - £10"
+
+
+@pytest.mark.django_db 
+def test_item_voucher_validation():
+    with pytest.raises(ValidationError):
+        # no discount or discount amount
+        baker.make(ItemVoucher, code="test")
+
+    with pytest.raises(ValidationError):
+        # no discount or discount amount
+        baker.make(ItemVoucher, code="test", discount=10, discount_amount=10)
+    
+    voucher = baker.make(ItemVoucher, code="test", discount=10)
+    assert str(voucher) == "test - 10%"
+
+    voucher = baker.make(ItemVoucher, code="test1", discount_amount=10)
+    assert str(voucher) == "test1 - £10"
+
+
+@pytest.mark.django_db 
+def test_item_voucher_generate_code():
+    voucher = baker.make(ItemVoucher, discount=10, code=None)
+    assert len(voucher.code) == 12
+
+
+@pytest.mark.django_db 
+@patch("booking.models.ItemVoucher._generate_code")
+def test_item_voucher_generate_code_duplicates(mock_generate_code):
+    mock_generate_code.side_effect = ["123", "123", "234"]
+    voucher = baker.make(ItemVoucher, discount=10, code=None)
+    assert voucher.code == "123"
+
+    voucher = baker.make(ItemVoucher, discount=10, code=None)
+    assert voucher.code == "234"
+
+
+@pytest.mark.django_db 
+def test_item_voucher_valid_for():
+    membership_type = baker.make(
+        MembershipType, name="test", cost=10, number_of_classes=4
+    )
+    voucher = baker.make(ItemVoucher, discount=10, event_types=["private"])
+    voucher.membership_types.add(membership_type)
+
+    assert voucher.valid_for() == ["test (membership)", "private"]
+
+
+@pytest.mark.django_db 
+def test_item_voucher_uses():
+    membership_type = baker.make(
+        MembershipType, name="test", cost=10, number_of_classes=4
+    )
+    voucher = baker.make(ItemVoucher, discount=10, event_types=["private"])
+    voucher.membership_types.add(membership_type)
+
+    baker.make(Membership, voucher=voucher, paid=True, _quantity=3)
+    baker.make(Booking, voucher=voucher, paid=True, _quantity=3)
+    baker.make(Booking, voucher=voucher, paid=False, _quantity=3)
+    baker.make(Booking, paid=True, _quantity=2)
+
+    assert voucher.uses() == 6
+
+    user = baker.make(User)
+    booking = Booking.objects.first()
+    membership = Membership.objects.first()
+    for item in [booking, membership]:
+        item.user = user
+        item.save()
+    assert voucher.uses(user) == 2
+
+
+@pytest.mark.django_db 
+def test_total_voucher_uses():
+    voucher = baker.make(TotalVoucher, code="test", discount=10)
+    baker.make(Invoice, total_voucher_code="test", _quantity=3, paid=True)
+    baker.make(Invoice, _quantity=3, paid=True)
+
+    assert voucher.uses() == 3

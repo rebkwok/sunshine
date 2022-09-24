@@ -113,7 +113,7 @@ class MembershipType(models.Model):
     cost = models.DecimalField(max_digits=8, decimal_places=2)
 
     def __str__(self) -> str:
-        return f"{self.name} - {self.cost}"
+        return f"{self.name} - £{self.cost}"
 
 
 def _start_of_today():
@@ -181,7 +181,10 @@ class BaseVoucher(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return self.code
+        if self.discount:
+            return f"{self.code} - {self.discount}%"
+        else:
+            return F"{self.code} - £{self.discount_amount}"
 
 
 class ItemVoucher(BaseVoucher):
