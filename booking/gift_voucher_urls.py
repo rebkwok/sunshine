@@ -49,7 +49,7 @@ urlpatterns = [
     path('gift-vouchers/', GiftVoucherPurchaseView.as_view(), name='buy_gift_voucher'),
     path('gift-vouchers/<slug:slug>/update', GiftVoucherUpdateView.as_view(), name='gift_voucher_update'),
     path('gift-vouchers/<slug:slug>', GiftVoucherDetailView.as_view(), name='gift_voucher_details'),
-    path('voucher/<str:voucher_code>', voucher_details, name='voucher_details'),
+    path('vouchers/<str:voucher_code>', voucher_details, name='voucher_details'),
     
     # MEMBERSHIPS
     path("memberships/", membership_purchase_view, name="membership_purchase"),

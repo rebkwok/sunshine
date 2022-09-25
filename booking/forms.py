@@ -4,8 +4,10 @@ from django.utils.safestring import mark_safe
 from django.utils import timezone
 
 from suit.widgets import EnclosedInput
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import Layout, Submit
 
-from booking.models import Booking, Event, ItemVoucher, MembershipType
+from booking.models import Booking, Event, GiftVoucher, GiftVoucherType, ItemVoucher, MembershipType
 
 
 class BookingCreateForm(forms.ModelForm):
@@ -153,3 +155,91 @@ class ItemVoucherForm(forms.ModelForm):
         event_types = self.cleaned_data.get('event_types')
         if not (membership_types or event_types):
             self.add_error(None, "Specify at least one membership type or event type that this voucher is valid for")
+
+
+
+class GiftVoucherForm(forms.ModelForm):
+
+    user_email = forms.EmailField(
+        label="Email address:",
+        widget=forms.TextInput(attrs={"class": "form-control"})
+    )
+    user_email1 = forms.EmailField(
+        label="Confirm email address:",
+        widget=forms.TextInput(attrs={"class": "form-control"})
+    )
+    recipient_name = forms.CharField(
+        label="Recipient name to display on voucher (optional):",
+        widget=forms.TextInput(attrs={"class": "form-control"}),
+        required=False
+    )
+    message = forms.CharField(
+        label="Message to display on voucher (optional):",
+        widget=forms.Textarea(attrs={"class": "form-control", 'rows': 4}),
+        required=False,
+        max_length=500,
+        help_text="Max 500 characters"
+    )
+
+    class Meta:
+        model = GiftVoucher
+        fields = ("gift_voucher_type",)
+
+    def __init__(self, **kwargs):
+        user = kwargs.pop("user", None)
+        super().__init__(**kwargs)
+
+        self.fields["gift_voucher_type"].queryset = GiftVoucherType.objects.filter(active=True)
+        self.fields["gift_voucher_type"].label = "Select gift voucher type:"
+
+        if self.instance.id:
+            voucher = self.instance.voucher
+            self.fields["user_email"].initial = voucher.purchaser_email
+            self.fields["user_email1"].initial = voucher.purchaser_email
+            if voucher.activated:
+                self.fields["gift_voucher_type"].disabled = True
+                self.fields["user_email"].disabled = True
+                self.fields["user_email1"].disabled = True
+            self.fields["recipient_name"].initial = voucher.name
+            self.fields["message"].initial = voucher.message
+        elif user:
+            self.fields["user_email"].initial = user.email
+            self.fields["user_email1"].initial = user.email
+            self.fields["user_email"].disabled = True
+            self.fields["user_email1"].disabled = True
+
+        self.helper = FormHelper()
+        if self.instance.id:
+            submit_button = Submit('submit', 'Update')
+        else:
+            submit_button = Submit('submit', 'Add to cart') if user is not None else Submit('submit', 'Checkout as guest')
+
+        self.helper.layout = Layout(
+            "gift_voucher_type",
+            "user_email",
+            "user_email1",
+            "recipient_name",
+            "message",
+            submit_button
+        )
+
+    def clean_user_email(self):
+        return self.cleaned_data.get('user_email').strip()
+
+    def clean_user_email1(self):
+        return self.cleaned_data.get('user_email1').strip()
+
+    def clean(self):
+        user_email = self.cleaned_data["user_email"]
+        user_email1 = self.cleaned_data["user_email1"]
+        if user_email != user_email1:
+            self.add_error("user_email1", "Email addresses do not match")
+
+    def save(self, commit=True):
+        gift_voucher = super().save(commit=commit)
+        if commit:
+            gift_voucher.voucher.name = self.cleaned_data["recipient_name"]
+            gift_voucher.voucher.message = self.cleaned_data["message"]
+            gift_voucher.voucher.purchaser_email = self.cleaned_data["user_email"]
+            gift_voucher.voucher.save()
+        return gift_voucher

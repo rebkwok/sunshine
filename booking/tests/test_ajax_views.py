@@ -11,7 +11,7 @@ from django.utils import timezone
 
 from booking.tests.helpers import make_data_privacy_agreement
 
-from ..models import Event, Booking, Membership, WaitingListUser
+from ..models import Event, Booking, GiftVoucher, Membership, WaitingListUser
 from .helpers import TestSetupMixin
 
 
@@ -180,13 +180,13 @@ class BookingToggleAjaxViewTests(TestSetupMixin, TestCase):
         self.assertFalse(WaitingListUser.objects.filter(user=self.user, event=self.event).exists())
 
     def test_create_booking_with_membership(self):
-        now = timezone.now()
         event = baker.make_recipe('booking.future_PC')
         url = reverse('booking:toggle_booking', args=[event.id])
         self.client.login(username=self.user.username, password='test')
 
         membership = baker.make(
-            Membership, user=self.user, paid=True, month=now.month, year=now.year
+            Membership, user=self.user, paid=True, 
+            month=event.date.month, year=event.date.year
         )
         resp = self.client.post(url)
         assert resp.context['alert_message']['message'] == 'Booked.'
@@ -768,19 +768,30 @@ class AjaxCartItemDeleteView(TestSetupMixin, TestCase):
             "booking.booking", event__date=timezone.now() + timedelta(days=1), 
             user=self.user
         )
+        booking1 = baker.make_recipe(
+            "booking.booking", event__date=timezone.now() + timedelta(days=1), 
+            user=self.user, event__cost=5
+        )
         url = reverse("booking:ajax_cart_item_delete")
         resp = self.client.post(url, {"item_type": "booking", "item_id": booking.id}).json()
+        assert Booking.objects.count() == 1
+        assert resp["cart_total"] == "5.00"
+        assert resp["cart_item_menu_count"] == 1
+
+        # delete booking1 - no bookings now in cart, redirects to refresh page
+        resp = self.client.post(url, {"item_type": "booking", "item_id": booking1.id}).json()
         assert not Booking.objects.exists()
-        assert resp["cart_total"] == 0
-        assert resp["cart_item_menu_count"] == 0
+        assert resp["redirect"]
 
     def test_delete_membership(self):
         membership = baker.make_recipe("booking.membership", user=self.user)
+        # second membership in cart so we don't redirect
+        baker.make_recipe("booking.membership", membership_type__cost=25, user=self.user)
         url = reverse("booking:ajax_cart_item_delete")
         resp = self.client.post(url, {"item_type": "membership", "item_id": membership.id}).json()
-        assert not Membership.objects.exists()
-        assert resp["cart_total"] == 0
-        assert resp["cart_item_menu_count"] == 0
+        assert Membership.objects.count() == 1
+        assert resp["cart_total"] == "25.00"
+        assert resp["cart_item_menu_count"] == 1
 
     def test_recalculate_total_cart_items(self):
         # calculate total for all items
@@ -821,33 +832,53 @@ class AjaxCartItemDeleteView(TestSetupMixin, TestCase):
         assert len(mail.outbox) == 1
         assert mail.outbox[0].bcc == ["waiting@test.com"]
 
-    # def test_delete_gift_voucher(self):
-    #     gift_voucher = baker.make_recipe(
-    #         "booking.gift_voucher_10",
-    #         total_voucher__purchaser_email="anon@test.com",
-    #     )
-    #     url = reverse("booking:ajax_cart_item_delete")
-    #     resp = self.client.post(url, {"item_type": "gift_voucher", "item_id": gift_voucher.id}).json()
-    #     assert GiftVoucher.objects.exists() is False
-    #     assert resp["cart_total"] == 0
-    #     assert resp["cart_item_menu_count"] == 0
+    def test_delete_gift_voucher(self):
+        gift_voucher = baker.make_recipe(
+            "booking.gift_voucher_10",
+            total_voucher__purchaser_email=self.user.email,
+        )
+        # second gift_voucher in cart so we don't redirect
+        gift_voucher1 = baker.make_recipe(
+            "booking.gift_voucher_11",
+            total_voucher__purchaser_email=self.user.email,
+        )
+        url = reverse("booking:ajax_cart_item_delete")
+        resp = self.client.post(url, {"item_type": "gift_voucher", "item_id": gift_voucher.id}).json()
+        assert GiftVoucher.objects.count() == 1
+        assert resp["cart_total"] == "11.00"
+        assert resp["cart_item_menu_count"] == 1
 
-    # def test_delete_gift_voucher_anonymous_user(self):
-    #     self.client.logout()
-    #     gift_voucher = baker.make_recipe(
-    #         "booking.gift_voucher_10",
-    #         total_voucher__purchaser_email="anon@test.com",
-    #     )
-    #     session = self.client.session
-    #     session.update({"purchases": {"gift_vouchers": [gift_voucher.id]}})
-    #     session.save()
+        # delete the second one
+        resp = self.client.post(url, {"item_type": "gift_voucher", "item_id": gift_voucher1.id}).json()
+        assert not GiftVoucher.objects.exists()
+        assert resp["redirect"]
 
-    #     url = reverse("booking:ajax_cart_item_delete")
-    #     resp = self.client.post(url, {"item_type": "gift_voucher", "item_id": gift_voucher.id}).json()
-    #     assert GiftVoucher.objects.exists() is False
-    #     assert resp["cart_total"] == 0
-    #     assert resp["cart_item_menu_count"] == 0
+    def test_delete_gift_voucher_anonymous_user(self):
+        self.client.logout()
+        gift_voucher = baker.make_recipe(
+            "booking.gift_voucher_10",
+            total_voucher__purchaser_email="anon@test.com",
+        )
+        # second gift_voucher in cart so we don't redirect
+        gift_voucher1 = baker.make_recipe(
+            "booking.gift_voucher_11",
+            total_voucher__purchaser_email="anon@test.com",
+        )
+        session = self.client.session
+        session.update({"purchases": {"gift_vouchers": [gift_voucher.id, gift_voucher1.id]}})
+        session.save()
 
-    #     # cart items in context have been updated also
-    #     resp = self.client.get(reverse("booking:guest_shopping_basket"))
-    #     assert resp.context_data["unpaid_gift_voucher_info"] == []
+        url = reverse("booking:ajax_cart_item_delete")
+        resp = self.client.post(url, {"item_type": "gift_voucher", "item_id": gift_voucher.id}).json()
+        assert GiftVoucher.objects.count() == 1
+        assert resp["cart_total"] == "11.00"
+        assert resp["cart_item_menu_count"] == 1
+
+        # delete the second one
+        resp = self.client.post(url, {"item_type": "gift_voucher", "item_id": gift_voucher1.id}).json()
+        assert not GiftVoucher.objects.exists()
+        assert resp["redirect"]     
+
+        # cart items in context have been updated also
+        resp = self.client.get(reverse("booking:guest_shopping_basket"))
+        assert resp.context_data["unpaid_gift_voucher_info"] == []

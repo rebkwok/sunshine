@@ -1,19 +1,22 @@
 # -*- coding: utf-8 -*-
 from calendar import monthrange, month_name
 from datetime import datetime, timedelta
+from dateutil.relativedelta import relativedelta
 from decimal import Decimal
 import logging
-from sys import _clear_type_cache
 import pytz
 import shortuuid
 
 from django.db import models
 from django.db.models import Q
+from django.db.models.signals import post_delete
+from django.dispatch import receiver
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.postgres.fields import ArrayField
 from django.core.cache import cache
 from django.core.exceptions import ValidationError
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
@@ -28,8 +31,12 @@ from booking.utils import start_of_day_in_utc, end_of_day_in_utc, start_of_day_i
 logger = logging.getLogger(__name__)
 
 
+EVENT_TYPE_CHOICES = (('workshop', 'Workshop'), ('regular_session', 'Regular Timetabled Session'), ('private', "Private Lesson"))
+GIFT_VOUCHER_EVENT_TYPES = (('regular_session', 'Class'), ('private', "Private Lesson"), ('workshop', 'Workshop'))
+
+
 class Event(models.Model):
-    EVENT_TYPES = (('workshop', 'Workshop'), ('regular_session', 'Regular Timetabled Session'), ('private', "Private Lesson"))
+    EVENT_TYPES = EVENT_TYPE_CHOICES
 
     name = models.CharField(max_length=255)
     event_type = models.CharField(
@@ -221,9 +228,10 @@ class ItemVoucher(BaseVoucher):
         return all_items
     
     def valid_for(self):
+        event_type_readable = dict(GIFT_VOUCHER_EVENT_TYPES)
         return list(
-            f"{mem.name} (membership)" for mem in self.membership_types.all()
-            ) + list(self.event_types)
+            f"Membership - {mem.name}" for mem in self.membership_types.all()
+            ) + [f"{event_type_readable[ev_type]} booking" for ev_type in self.event_types]
 
     def used_items(self, user=None):
         used_items = {
@@ -245,6 +253,209 @@ class TotalVoucher(BaseVoucher):
 
     def uses(self):
         return Invoice.objects.filter(paid=True, total_voucher_code=self.code).count()
+
+
+class GiftVoucherType(models.Model):
+    """
+    Defines configuration for gift vouchers that are available for purchase.
+    Each one is associated with EITHER:
+    1) one MembershipType
+    2) one event type
+    3) a fixed amount
+    1 & 2: generate voucher codes for 100%, one-time use Itemvouchers
+    3: generate voucher codes for one-time use vouchers (TotalVoucher) of that discount
+    amount, valid against the user's total checkout amount, irresepctive of items
+    """
+    membership_type = models.OneToOneField(
+        MembershipType, null=True, blank=True, on_delete=models.SET_NULL, 
+        related_name="gift_voucher_types",
+        help_text="Create gift vouchers valid for one membership"
+    )
+    event_type = models.CharField(
+        max_length=255, null=True, blank=True, choices=GIFT_VOUCHER_EVENT_TYPES, 
+        unique=True,
+        help_text="Create gift vouchers valid for one event type (class, workshop, private)"
+    )
+    discount_amount = models.DecimalField(
+        verbose_name="Exact amount (£)",
+        null=True, blank=True, decimal_places=2, max_digits=6, unique=True,
+        help_text="Create gift vouchers for a fixed amount; used as a discount against the total shopping basket value for any purchases."
+    )
+    active = models.BooleanField(default=True, help_text="Display on site; set to False instead of deleting unused gift voucher types")
+    duration = models.PositiveIntegerField(default=6, help_text="How many months will this gift voucher last?")
+    override_cost = models.DecimalField(
+        null=True, blank=True, max_digits=8, decimal_places=2,
+        help_text="Use this to override the default cost to purchase this gift voucher. (Default "
+        "cost is the current cost of the item the voucher is for (i.e. the discount amount, or "
+        "for memberships, the current cost to purchase that membership, and for classes/privates/workshops, "
+        "the cost of the last event of that type that was created."
+    )
+
+    class Meta:
+        ordering = ("event_type", "membership_type", "discount_amount")
+
+    @property
+    def cost(self):
+        if self.override_cost:
+            return self.override_cost
+        if self.membership_type:
+            return self.membership_type.cost
+        if self.discount_amount:
+            return self.discount_amount
+        if self.event_type:
+            latest_event = Event.objects.filter(event_type=self.event_type).latest('id')
+            return latest_event.cost
+
+    def __str__(self):
+        if self.membership_type:
+            return f"Membership - {self.membership_type.name} - £{self.cost}"
+        if self.event_type:
+            if self.event_type == "regular_session":
+                return f"Class - £{self.cost}" 
+            else:
+                return f"{dict(Event.EVENT_TYPES)[self.event_type]} - £{self.cost}"
+        return f"Voucher - £{self.cost}"
+
+    @property
+    def name(self):
+        if self.membership_type:
+            return self.membership_type.name
+        elif self.event_type:
+            if self.event_type == "regular_session":
+                return "Class"
+            else:
+                return dict(Event.EVENT_TYPES)[self.event_type]
+        else:
+            return f"£{self.discount_amount}"
+
+    def clean(self):
+        valid_for_count = sum([
+            1 if item is not None else 0 for item in [self.membership_type, self.event_type, self.discount_amount]
+        ])
+        if valid_for_count == 1:
+            return
+        if valid_for_count == 0:
+            raise ValidationError("One of event type, membership, or a fixed voucher value is required")
+        else:
+            raise ValidationError("Select ONLY ONE of event type, membership or a fixed voucher value")
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super().save(*args, **kwargs)
+
+
+class GiftVoucher(models.Model):
+    """Holds information about a gift voucher purchase"""
+    gift_voucher_type = models.ForeignKey(GiftVoucherType, on_delete=models.CASCADE)
+    item_voucher = models.OneToOneField(
+        ItemVoucher, null=True, blank=True, on_delete=models.SET_NULL, related_name="gift_voucher"
+        )
+    total_voucher = models.OneToOneField(
+        TotalVoucher, null=True, blank=True, on_delete=models.SET_NULL, related_name="gift_voucher"
+        )
+
+    invoice = models.ForeignKey(Invoice, null=True, blank=True, on_delete=models.SET_NULL, related_name="gift_vouchers")
+    paid = models.BooleanField(default=False)
+    slug = models.SlugField(max_length=40, null=True, blank=True)
+
+    @property
+    def voucher(self):
+        if self.item_voucher:
+            return self.item_voucher
+        elif self.total_voucher:
+            return self.total_voucher
+
+    @property
+    def purchaser_email(self):
+        if self.voucher:
+            return self.voucher.purchaser_email
+
+    @property
+    def code(self):
+        if self.voucher:
+            return self.voucher.code
+
+    @property
+    def name(self):
+        return f"Gift Voucher: {self.gift_voucher_type.name}"
+
+    def get_voucher_url(self):
+        return reverse("booking:voucher_details", args=(self.slug,))
+
+    def get_voucher_update_url(self):
+        return reverse("booking:gift_voucher_update", args=(self.slug,))
+
+    def __str__(self):
+        return f"{self.code} - {self.name} - {self.purchaser_email}"
+
+    def activate(self):
+        """Activate a voucher that isn't already activated, and reset start/expiry dates if necessary"""
+        if self.voucher and not self.voucher.activated:
+            self.voucher.activated = True
+            if self.voucher.start_date < timezone.now():
+                self.voucher.start_date = timezone.now()
+            if self.gift_voucher_type.duration:
+                self.voucher.expiry_date = end_of_day_in_utc(
+                    self.voucher.start_date + relativedelta(months=self.gift_voucher_type.duration)
+                )
+            self.voucher.save()
+
+    def save(self, *args, **kwargs):
+        new = not self.id
+        changed = False
+        # check for changes to voucher type (before payment processed)
+        if self.item_voucher is not None:
+            if self.gift_voucher_type.membership_type:
+                changed = list(self.item_voucher.membership_types.all()) != [self.gift_voucher_type.membership_type]
+            else:
+                changed = self.item_voucher.event_types != [self.gift_voucher_type.event_type]
+        if self.total_voucher is not None:
+            changed = self.total_voucher.discount_amount != self.gift_voucher_type.discount_amount
+             
+        if changed:
+            # delete existing vouchers if changed
+            if self.total_voucher:
+                self.total_voucher.delete()
+            if self.item_voucher:
+                self.item_voucher.delete()
+
+        if (new and not self.voucher) or changed:
+            # New or changed gift voucher, create voucher.  Name, message and purchaser will be added by the purchase
+            # view after the GiftVoucher is created.
+            if self.gift_voucher_type.discount_amount:
+                self.total_voucher = TotalVoucher.objects.create(
+                    discount_amount=self.gift_voucher_type.discount_amount,
+                    max_per_user=1,
+                    max_vouchers=1,
+                    activated=False,
+                    is_gift_voucher=True,
+                )
+                self.item_voucher = None
+            else:
+                voucher_kwargs = {
+                    "max_per_user": 1,
+                    "max_vouchers": 1,
+                    "discount": 100,
+                    "activated": False,
+                    "is_gift_voucher": True
+                }
+                if self.gift_voucher_type.membership_type:
+                    self.item_voucher = ItemVoucher.objects.create(**voucher_kwargs)
+                    self.item_voucher.membership_types.add(self.gift_voucher_type.membership_type)
+                else:
+                    assert self.gift_voucher_type.event_type
+                    voucher_kwargs["event_types"] = [self.gift_voucher_type.event_type]
+                    self.item_voucher = ItemVoucher.objects.create(**voucher_kwargs)
+                self.total_voucher = None
+
+        if self.voucher and not self.slug:
+            self.slug = slugify(self.voucher.code[:40])        
+
+        if not self.voucher.is_gift_voucher:
+            self.voucher.is_gift_voucher = True
+            self.voucher.save()
+    
+        super().save(*args, **kwargs)
 
 
 class Membership(models.Model):
@@ -373,7 +584,6 @@ class Booking(models.Model):
         # timeout defaults to 15 mins
         timeout = settings.CART_TIMEOUT_MINUTES
         checkout_buffer_seconds = 60 * 5
-
         queries = (
             Q(
                 event__date__gt=timezone.now(),
@@ -594,3 +804,11 @@ def outstanding_fees_total(self):
 User.add_to_class("has_outstanding_fees", has_outstanding_fees)
 User.add_to_class("outstanding_fees_total", outstanding_fees_total)
 User.__str__ = user_str_patch
+
+
+@receiver(post_delete, sender=GiftVoucher)
+def delete_related_voucher(sender, instance, **kwargs):
+    if instance.voucher:
+        if instance.voucher.basevoucher_ptr_id is None:
+            instance.voucher.basevoucher_ptr_id = instance.voucher.id
+        instance.voucher.delete()

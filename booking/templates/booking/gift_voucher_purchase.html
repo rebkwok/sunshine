@@ -4,6 +4,12 @@
 {% load static %}
 
 {% block content %}
+
+{% if not gift_vouchers_available %}
+<p>
+    Gift vouchers are not currently available.
+</p>
+{% else %}
     {% if voucher %}
         <h3 class="mt-1">{% if not voucher.paid %}Purchasing Gift Voucher{% else %}Updating Gift Voucher: {{ voucher.code }}{% endif %}</h3>
     {% else %}
@@ -14,8 +20,8 @@
         <div>
             Gift vouchers are available to purchase for the following:
             <ul>
-            {% for config in gift_voucher_configs %}
-                <li>{{ config.name }}</li>
+            {% for gift_voucher_type in gift_vouchers_available %}
+                <li>{{ gift_voucher_type }}</li>
             {% endfor%}
             </ul>
         </div>
@@ -28,7 +34,7 @@
             {% endif %}
         </div>
     {% else %}
-        <div class="small"><em>Note: voucher type cannot be modified after purchase has been completed.</em></div>
+        <div><em>Note: voucher type cannot be modified after purchase has been completed.</em></div>
     {% endif %}
     <hr/>
 
@@ -40,6 +46,5 @@
             {%  crispy form %}
         </form>
 
-
-
+{% endif %}
 {% endblock content %}

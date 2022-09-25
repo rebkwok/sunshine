@@ -2,9 +2,8 @@ from decimal import Decimal
 from django.conf import settings
 from django.utils import timezone
 
-from .models import Event, MembershipType
-from .views.views_utils import total_unpaid_item_count
-# from .views.views_utils import get_unpaid_gift_vouchers_from_session
+from .models import Event, GiftVoucherType, MembershipType
+from .views.views_utils import get_unpaid_gift_vouchers_from_session, total_unpaid_item_count
 
 
 def future_events(request):
@@ -25,10 +24,10 @@ def booking(request):
         cart_item_count = total_unpaid_item_count(request.user)
     else:
         cart_item_count = 0
-        # purchases = request.session.get("purchases")
-        # if purchases:
-        #     gift_vouchers = get_unpaid_gift_vouchers_from_session(request)
-        #     cart_item_count += gift_vouchers.count()
+        purchases = request.session.get("purchases")
+        if purchases:
+            gift_vouchers = get_unpaid_gift_vouchers_from_session(request)
+            cart_item_count += gift_vouchers.count()
 
     regular_classes = Event.objects.filter(event_type="regular_session")
     if regular_classes.exists():
@@ -40,8 +39,8 @@ def booking(request):
         # 'use_cdn': not settings.DEBUG or settings.USE_CDN,
         'studio_email': settings.DEFAULT_STUDIO_EMAIL,
         'cart_item_count': cart_item_count,
-        # 'gift_vouchers_available': GiftVoucherConfig.objects.filter(active=True).exists(),
+        'gift_vouchers_available': GiftVoucherType.objects.filter(active=True),
         'cart_timeout_mins': settings.CART_TIMEOUT_MINUTES,
-        'membership_types': MembershipType.objects.all(),
+        'membership_types': MembershipType.objects.filter(active=True),
         'single_class_cost': single_cost
     }

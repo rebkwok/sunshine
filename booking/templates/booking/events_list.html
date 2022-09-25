@@ -113,7 +113,7 @@
                                                     {% elif user.has_outstanding_fees %}
                                                         {% include "booking/includes/outstanding_fee_disabled_buttons.html" %}
                                                     {% elif event.bookable or event.id in booked_events %}
-                                                        {% if event.members_only and not event|has_available_membership:user %}
+                                                        {% if event.members_only and not event|has_available_membership:user and not event.id in booked_events %}
                                                             <span class="btn table-btn btn-warning book_button disabled" disabled=disabled>Members only</span>
                                                         {% else %}
                                                         <span

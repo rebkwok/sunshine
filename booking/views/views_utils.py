@@ -7,7 +7,7 @@ from accounts.utils import has_active_data_privacy_agreement
 from booking.email_helpers import email_waiting_lists
 from booking.utils import host_from_request
 
-from ..models import Booking
+from ..models import Booking, GiftVoucher
 
 
 class DataPolicyAgreementRequiredMixin:
@@ -64,29 +64,27 @@ def get_unpaid_bookings(user, request=None):
 
 
 def get_unpaid_gift_vouchers(user):
-    # voucher_ids = [
-    #     gift_voucher.id for gift_voucher in GiftVoucher.objects.filter(paid=False)
-    #     if gift_voucher.purchaser_email == user.email
-    # ]
-    # return GiftVoucher.objects.filter(id__in=voucher_ids)
-    return []
+    voucher_ids = [
+        gift_voucher.id for gift_voucher in GiftVoucher.objects.filter(paid=False)
+        if gift_voucher.purchaser_email == user.email
+    ]
+    return GiftVoucher.objects.filter(id__in=voucher_ids)
 
 
 def get_unpaid_gift_vouchers_from_session(request):
-    # gift_voucher_ids = request.session.get("purchases", {}).get("gift_vouchers", [])
-    # gift_vouchers = GiftVoucher.objects.filter(id__in=gift_voucher_ids, paid=False)
-    # if gift_vouchers.count() != len(gift_voucher_ids):
-    #     request.session.get("purchases", {})["gift_vouchers"] = list(
-    #         gift_vouchers.values_list("id", flat=True))
-    # return gift_vouchers
-    return []
+    gift_voucher_ids = request.session.get("purchases", {}).get("gift_vouchers", [])
+    gift_vouchers = GiftVoucher.objects.filter(id__in=gift_voucher_ids, paid=False)
+    if gift_vouchers.count() != len(gift_voucher_ids):
+        request.session.get("purchases", {})["gift_vouchers"] = list(
+            gift_vouchers.values_list("id", flat=True))
+    return gift_vouchers
 
 
 def get_unpaid_items(user):
     return {
         "memberships": get_unpaid_memberships(user),
         "bookings": get_unpaid_bookings(user),
-        # "gift_vouchers": get_unpaid_gift_vouchers(user),
+        "gift_vouchers": get_unpaid_gift_vouchers(user),
     }
 
 

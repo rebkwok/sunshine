@@ -4,17 +4,17 @@ from datetime import timedelta
 from django.contrib import admin
 from django.contrib.auth.models import User
 from django.utils import timezone
-
+from django.utils.safestring import mark_safe
 
 from django_object_actions import DjangoObjectActions, takes_instance_or_queryset
 
 from booking.models import (
-    Booking, ItemVoucher, Membership, MembershipType, TotalVoucher, 
+    Booking, GiftVoucher, GiftVoucherType, ItemVoucher, Membership, MembershipType, TotalVoucher, 
     WaitingListUser, Workshop, RegularClass, Private, Event
 )
 from booking.forms import EventForm, ItemVoucherForm
 from booking.email_helpers import send_email
-from booking.views.booking_helpers import cancel_booking_from_view, process_refund
+from booking.views.booking_helpers import process_refund
 from stripe_payments.models import StripeRefund
 
 
@@ -302,6 +302,7 @@ class WorkshopAdmin(EventAdmin):
 class RegularClassAdmin(EventAdmin):
 
     readonly_fields = ('cancelled',)
+    actions = ['cancel_event', 'toggle_members_only']
 
     def get_form(self, request, obj=None, **kwargs):
         form = super(RegularClassAdmin, self).get_form(request, obj, **kwargs)
@@ -324,6 +325,12 @@ class RegularClassAdmin(EventAdmin):
     cancel_event.label = 'Cancel class'
     cancel_event.attrs = {'style': 'font-weight: bold; color: red;'}
 
+    def toggle_members_only(self, request, queryset):
+        for obj in queryset:
+            obj.members_only = not obj.members_only
+            obj.save()
+    toggle_members_only.short_description = 'Toggle "members only" status.'
+    
 
 @admin.register(Private)
 class PrivateAdmin(EventAdmin):
@@ -455,7 +462,36 @@ class ItemVoucherAdmin(admin.ModelAdmin):
     def valid_for(self, obj):
         return ", ".join(obj.valid_for())
 
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request)
+        return queryset.filter(is_gift_voucher=False)
+
 
 @admin.register(TotalVoucher)
 class TotalVoucherAdmin(admin.ModelAdmin):
+
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request)
+        return queryset.filter(is_gift_voucher=False)
+
+
+@admin.register(GiftVoucherType)
+class GiftVoucherTypeAdmin(admin.ModelAdmin):
     ...
+
+
+@admin.register(GiftVoucher)
+class GiftVoucherAdmin(admin.ModelAdmin):
+    
+    list_display = ("purchaser_email", "name", "paid", "activated", "link")
+    exclude = ("slug", "item_voucher")
+    fields = ("gift_voucher_type", "invoice", "paid")
+    readonly_fields = ("invoice",)
+    
+    def activated(self, obj):
+        return obj.voucher.activated
+    
+    def link(self, obj):
+        return mark_safe(
+            f'<a href="{obj.get_voucher_url()}">{obj.voucher.code}</a>'
+        )

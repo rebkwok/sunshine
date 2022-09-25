@@ -72,10 +72,14 @@ var processRemoveBooking = function()  {
     var processResult = function(
        result, status, jqXHR)  {
       //console.log("sf result='" + result + "', status='" + status + "', jqXHR='" + jqXHR + "'");
-    $jq('#cart-row-booking-' + booking_id).html("");
-    $jq('#cart_item_menu_count').text(result.cart_item_menu_count);
-    $jq('#total').text(result.cart_total);
-    $jq('#cart_total_input').val(result.cart_total)
+      if (result.redirect) {
+         window.location = result.url;
+     } else {
+      $jq('#cart-row-booking-' + booking_id).html("");
+      $jq('#cart_item_menu_count').text(result.cart_item_menu_count);
+      $jq('#total').text(result.cart_total);
+      $jq('#cart_total_input').val(result.cart_total)
+   }
    };
 
     var processFailure = function(
@@ -114,10 +118,14 @@ var processRemoveGiftVoucher = function()  {
     var processResult = function(
        result, status, jqXHR)  {
       //console.log("sf result='" + result + "', status='" + status + "', jqXHR='" + jqXHR + "'");
-    $jq('#cart-row-gift-voucher-' + gift_voucher_id).html("");
-    $jq('#cart_item_menu_count').text(result.cart_item_menu_count);
-    $jq('#total').text(result.cart_total);
-    $jq('#checkout-btn').data('total', result.cart_total);
+      if (result.redirect) {
+         window.location = result.url;
+     } else {
+      $jq('#cart-row-gift-voucher-' + gift_voucher_id).html("");
+      $jq('#cart_item_menu_count').text(result.cart_item_menu_count);
+      $jq('#total').text(result.cart_total);
+      $jq('#checkout-btn').data('total', result.cart_total);
+   }
    };
 
     var processFailure = function(

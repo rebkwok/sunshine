@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.contrib.sites.models import Site
 from django.core.mail.message import EmailMultiAlternatives
 from django.template.loader import get_template
 
@@ -25,7 +26,8 @@ def send_email(
         host = host_from_request(request)
         ctx.update({'domain': domain, 'host': host})
     else:
-        ctx.update({"domain": settings.DOMAIN})
+        domain = Site.objects.get_current().domain
+        ctx.update({"domain": domain, "host": f"https://{domain}"})
 
     msg = EmailMultiAlternatives(
         '{}{}'.format(
@@ -142,3 +144,14 @@ def email_waiting_lists(event_ids, host=None):
             if not event.cancelled:
                 users = [wluser.user for wluser in waiting_list_users]
                 send_waiting_list_email(event, users, host)
+
+
+def send_gift_voucher_email(gift_voucher, request=None):
+    send_email(
+        request=request,
+        ctx={"gift_voucher": gift_voucher},
+        subject="Gift Voucher purchased",
+        template_html="booking/email/gift_voucher.html",
+        template_txt="booking/email/gift_voucher.txt",
+        to_list=[gift_voucher.voucher.purchaser_email]
+    )

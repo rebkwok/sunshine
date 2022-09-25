@@ -5,7 +5,7 @@ from django.utils import timezone
 
 from model_bakery.recipe import Recipe, foreign_key, seq
 
-from booking.models import Event, Booking, Membership, WaitingListUser
+from booking.models import Event, Booking, GiftVoucher, Membership, WaitingListUser
 from timetable.models import TimetableSession, SessionType, Venue
 
 
@@ -70,3 +70,14 @@ now = timezone.now()
 membership = Recipe(
     Membership, month=now.month, year=now.year, paid=False
 )   
+
+gift_voucher_10 = Recipe(
+    GiftVoucher,
+    gift_voucher_type__discount_amount=10,
+    total_voucher__discount_amount=10
+)
+gift_voucher_11 = Recipe(
+    GiftVoucher,
+    gift_voucher_type__discount_amount=11,
+    total_voucher__discount_amount=11
+)

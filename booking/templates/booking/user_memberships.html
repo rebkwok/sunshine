@@ -19,9 +19,11 @@
             <a href="{% url 'booking:user_memberships' %}?include-expired=true">Show all (including expired/full)</a>
         {% endif %}
     </div>
+    {% if membership_types %}
     <div class="col-4 mb-2">
         <a class="btn btn-sm btn-warning"href="{% url 'booking:membership_purchase' %}">Buy a new membership</a>
     </div>
+    {% endif %}
 
     <div class="col-12">
     {% if memberships %}

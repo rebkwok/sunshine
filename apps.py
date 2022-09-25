@@ -64,7 +64,9 @@ class SuitConfig(DjangoSuitConfig):
             'Vouchers',
             children=[
                 ChildItem(model='booking.itemvoucher'),
-                ChildItem(model='booking.totalvoucher')
+                ChildItem(model='booking.totalvoucher'),
+                ChildItem(model='booking.giftvouchertype'),
+                ChildItem("Gift Voucher Purchases", model='booking.giftvoucher')
             ],
             permissions=superuser_permissions
         ),
@@ -75,7 +77,10 @@ class SuitConfig(DjangoSuitConfig):
         ], icon='fa fa-credit-card', permissions=superuser_permissions),
         ParentItem('Activity Log', children=[
            ChildItem("Activitylog", 'activitylog.activitylog'),
-        ], permissions=superuser_permissions)
+        ], permissions=superuser_permissions),
+        ParentItem('Site', children=[
+            ChildItem(model='sites.site'),
+        ], icon='fa fa-globe', permissions=superuser_permissions),
     )
 
     def ready(self):

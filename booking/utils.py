@@ -4,12 +4,11 @@ from delorean import Delorean
 
 
 def calculate_user_cart_total(
-        unpaid_memberships=None,
-        unpaid_bookings=None,
-        unpaid_gift_vouchers=None,
-        total_voucher=None
+    unpaid_memberships=(),
+    unpaid_bookings=(),
+    unpaid_gift_vouchers=(),
+    total_voucher=None
 ):
-
     membership_cost = sum(
         [unpaid_membership.cost_with_voucher for unpaid_membership in unpaid_memberships]
     )
@@ -17,7 +16,7 @@ def calculate_user_cart_total(
         [unpaid_booking.cost_with_voucher for unpaid_booking in unpaid_bookings]
     )
     gift_voucher_cost = sum(
-        [gift_voucher.gift_voucher_config.cost for gift_voucher in unpaid_gift_vouchers]
+        [gift_voucher.gift_voucher_type.cost for gift_voucher in unpaid_gift_vouchers]
     )
 
     cart_total = membership_cost + booking_cost + gift_voucher_cost

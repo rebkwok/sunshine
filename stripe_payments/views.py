@@ -22,12 +22,12 @@ from .utils import get_invoice_from_payment_intent, check_stripe_data, process_i
 logger = logging.getLogger(__name__)
 
 
-def _process_completed_stripe_payment(payment_intent, invoice, seller=None):
+def _process_completed_stripe_payment(payment_intent, invoice, seller=None, request=None):
     if not invoice.paid:
         logger.info("Updating items to paid for invoice %s", invoice.invoice_id)
         check_stripe_data(payment_intent, invoice)
         logger.info("Stripe check OK")
-        process_invoice_items(invoice, payment_method="Stripe")
+        process_invoice_items(invoice, payment_method="Stripe", request=request)
         # update/create the django model PaymentIntent - this is just for records
         StripePaymentIntent.update_or_create_payment_intent_instance(payment_intent, invoice, seller)
     else:
@@ -58,7 +58,7 @@ def stripe_payment_complete(request):
         invoice = get_invoice_from_payment_intent(payment_intent, raise_immediately=False)
         if invoice is not None:
             try:
-                _process_completed_stripe_payment(payment_intent, invoice, seller)
+                _process_completed_stripe_payment(payment_intent, invoice, seller, request=request)
             except StripeProcessingError as e:
                 error = f"Error processing Stripe payment: {e}"
                 logger.error(e)
@@ -133,7 +133,7 @@ def stripe_webhook(request):
         invoice = get_invoice_from_payment_intent(payment_intent, raise_immediately=True)
         error = None
         if event.type == "payment_intent.succeeded":
-            _process_completed_stripe_payment(payment_intent, invoice)
+            _process_completed_stripe_payment(payment_intent, invoice, request=request)
         elif event.type == "payment_intent.refunded":
             send_processed_refund_emails(invoice)
         elif event.type == "payment_intent.payment_failed":

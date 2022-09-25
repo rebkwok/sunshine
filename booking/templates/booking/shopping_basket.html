@@ -82,6 +82,28 @@
                     </td>
                 </tr>
                 {% endfor %}
+
+                {% if unpaid_gift_voucher_info %}
+                    <tr><td colspan="2" class="table-secondary"><strong>Gift Vouchers</strong></td></tr>
+                {% endif %}
+                {% for gift_voucher_info in unpaid_gift_voucher_info %}
+                    <tr id="cart-row-gift-voucher-{{ gift_voucher_info.gift_voucher.id }}">
+                        <td class="p-1">{{ gift_voucher_info.gift_voucher.name }}
+                            <a class="text-success" href="{% url 'booking:gift_voucher_update' gift_voucher_info.gift_voucher.slug %}"><span class="fas fa-edit"></span></a>
+                        </td>
+                        <td class="p-1">
+                            <div>Cost: £{{ gift_voucher_info.gift_voucher.gift_voucher_type.cost }}
+                                <span
+                                        id="remove-gift-voucher-{{ gift_voucher_info.gift_voucher.id }}"
+                                        class="remove-gift-voucher float-right"
+                                        data-gift_voucher_id="{{ gift_voucher_info.gift_voucher.id }}"
+                                        >
+                                    <a class="btn btn-sm btn-danger" href="#"><i class="fas fa-trash-alt"></i></a>
+                                </span>
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
             
                 </tbody>
               <tfoot>
@@ -107,7 +129,9 @@
 
                       <div>Add additional items:<br/>
                       {% if request.user.is_authenticated %}
+                        {% if membership_types %}
                         <a class="btn btn-sm btn-outline-warning" href="{% url 'booking:membership_purchase' %}">Membership</a>
+                        {% endif %}
                         <a class="btn btn-sm btn-outline-warning" href="{% url 'booking:regular_session_list' %}">Class</a>
                         {% if future_events.privates %}
                             <a class="btn btn-sm btn-outline-warning" href="{% url 'booking:private_list' %}">Private</a>
@@ -116,8 +140,10 @@
                             <a class="btn btn-sm btn-outline-warning" href="{% url 'booking:workshop_list' %}">Workshop</a>
                         {% endif %}
                       {% endif %}
-                      {% comment %} <a class="btn btn-xs btn-outline-primary" href="{% url 'booking:buy_gift_voucher' %}">Gift vouchers</a> {% endcomment %}
-                      </div>
+                      {% if gift_vouchers_available %}
+                      <a class="btn btn-sm btn-outline-warning" href="{% url 'booking:buy_gift_voucher' %}">Gift vouchers</a>
+                      {% endif %}  
+                    </div>
                       {% if request.user.is_authenticated %}
                       <hr>
                           <form name="voucher_form" class="form-inline" method="post" action="">
@@ -152,7 +178,9 @@
     <p>Your cart is empty</p>
     {% if request.user.is_authenticated %}
     <p>
-        <a class="btn btn-sm btn-outline-warning" href="{% url 'booking:membership_purchase' %}">Add membership</a>
+        {% if membership_types %}
+            <a class="btn btn-sm btn-outline-warning" href="{% url 'booking:membership_purchase' %}">Add membership</a>
+        {% endif %}
         <a class="btn btn-sm btn-outline-warning" href="{% url 'booking:regular_session_list' %}">Add classes</a>
         {% if future_events.privates %}
             <a class="btn btn-sm btn-outline-warning" href="{% url 'booking:private_list' %}">Add private lessons</a>
@@ -160,7 +188,9 @@
         {% if future_events.workshops %}  
             <a class="btn btn-sm btn-outline-warning" href="{% url 'booking:workshop_list' %}">Add workshops</a>
         {% endif %}
-        {% comment %} <a class="btn btn-sm btn-outline-warning" href="{% url 'booking:buy_gift_voucher' %}">Add gift vouchers</a> {% endcomment %}
+        {% if gift_vouchers_available %}
+        <a class="btn btn-sm btn-outline-warning" href="{% url 'booking:buy_gift_voucher' %}">Add gift vouchers</a>
+        {% endif %} 
     </p>
     {% endif %}
     </div>

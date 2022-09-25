@@ -5,5 +5,7 @@
         <li>{{ membership_type.name }}: £{{ membership_type.cost}}/month</li>
         {% endfor %}
     </ul>
+    {% if membership_types %}
     <p><a href="{% url 'booking:membership_purchase' %}">Buy a membership</a></p>
+    {% endif %}
     <p>All classes in monthly blocks must be used up by the last day of the month. No classes will be carried over to the following month.</p>

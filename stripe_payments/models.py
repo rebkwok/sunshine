@@ -46,7 +46,7 @@ class Invoice(models.Model):
         return {
             "bookings": [str(booking.event) for booking in self.bookings.all()],
             "memberships": [str(mem) for mem in self.memberships.all()],
-            # "gift_vouchers": [str(gift_voucher) for gift_voucher in self.gift_vouchers.all()]
+            "gift_vouchers": [str(gift_voucher) for gift_voucher in self.gift_vouchers.all()]
         }
 
     def items_dict(self):
@@ -74,14 +74,13 @@ class Invoice(models.Model):
                 "user": item.user,
             } for item in self.bookings.all()
         }
-        # gift_vouchers = {
-        #     f"gift_voucher_{gift_voucher.id}": {
-        #         "name": gift_voucher.name, 
-        #         "cost_str": f"£{gift_voucher.gift_voucher_config.cost}"  
-        #         "cost_in_p": int(gift_voucher.gift_voucher_config.cost * 100)
-        #     } for gift_voucher in self.gift_vouchers.all()
-        # }
-        gift_vouchers = {}
+        gift_vouchers = {
+            f"gift_voucher_{gift_voucher.id}": {
+                "name": gift_voucher.name, 
+                "cost_str": f"£{gift_voucher.gift_voucher_type.cost}", 
+                "cost_in_p": int(gift_voucher.gift_voucher_type.cost * 100)
+            } for gift_voucher in self.gift_vouchers.all()
+        }
 
         return {**memberships, **bookings, **gift_vouchers}
 
@@ -89,8 +88,7 @@ class Invoice(models.Model):
         return {
             "memberships": self.memberships.count(),
             "bookings": self.bookings.count(),
-            # "gift_vouchers": self.gift_vouchers.count(),
-            "gift_vouchers": 0,
+            "gift_vouchers": self.gift_vouchers.count(),
         }
 
     def item_count(self):
@@ -111,7 +109,7 @@ class Invoice(models.Model):
                 f"{key}_item": item["name"][:40],
                 f"{key}_cost_in_p": str(item['cost_in_p']),
             }
-            if item['voucher']:
+            if item.get('voucher'):
                 summary[f"{key}_voucher"] = item['voucher']
             items_summary.update(summary)
         return {**metadata, **items_summary}

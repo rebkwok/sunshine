@@ -8,12 +8,13 @@ from django.core.exceptions import ValidationError
 from django.test import TestCase
 from django.utils import timezone
 from django.urls import reverse
+from soupsieve import match
 
 import pytest
 
 from model_bakery import baker
 
-from booking.models import Event, Booking, ItemVoucher, Membership, MembershipType, TotalVoucher
+from booking.models import Event, Booking, GiftVoucher, GiftVoucherType, ItemVoucher, Membership, MembershipType, TotalVoucher
 from stripe_payments.models import Invoice
 
 now = timezone.now()
@@ -363,7 +364,7 @@ def test_item_voucher_valid_for():
     voucher = baker.make(ItemVoucher, discount=10, event_types=["private"])
     voucher.membership_types.add(membership_type)
 
-    assert voucher.valid_for() == ["test (membership)", "private"]
+    assert voucher.valid_for() == ["Membership - test", "Private Lesson booking"]
 
 
 @pytest.mark.django_db 
@@ -397,11 +398,6 @@ def test_total_voucher_uses():
     baker.make(Invoice, _quantity=3, paid=True)
 
     assert voucher.uses() == 3
-
-
-@pytest.fixture
-def membership_type():
-    yield baker.make(MembershipType, name="test", cost=20, number_of_classes=2)
 
 
 @pytest.mark.django_db 
@@ -476,3 +472,305 @@ def test_booking_with_voucher():
     voucher.discount_amount = 50
     voucher.save()
     assert booking.cost_with_voucher == 0
+
+
+@pytest.mark.django_db 
+def test_gift_voucher_type_item_type_or_discount_required(membership_type):
+    with pytest.raises(
+        ValidationError, 
+        match="One of event type, membership, or a fixed voucher value is required"
+    ):
+        GiftVoucherType.objects.create()
+
+    with pytest.raises(
+        ValidationError, 
+        match="Select ONLY ONE of event type, membership or a fixed voucher value"
+    ):
+        GiftVoucherType.objects.create(
+            membership_type=membership_type, discount_amount=10
+        )
+
+    with pytest.raises(
+        ValidationError, 
+        match="Select ONLY ONE of event type, membership or a fixed voucher value"
+    ):
+        GiftVoucherType.objects.create(
+            membership_type=membership_type, discount_amount=10, event_type="regular_sessions"
+        )
+    GiftVoucherType.objects.create(membership_type=membership_type)
+    GiftVoucherType.objects.create(event_type="regular_session")
+    GiftVoucherType.objects.create(discount_amount=10)
+
+
+@pytest.mark.django_db 
+def test_gift_voucher_type_unique_validation(membership_type):
+    GiftVoucherType.objects.create(membership_type=membership_type)
+    with pytest.raises(ValidationError, match="already exists"):
+        GiftVoucherType.objects.create(membership_type=membership_type)
+
+    GiftVoucherType.objects.create(event_type="regular_session")
+    with pytest.raises(ValidationError, match="already exists"):
+        GiftVoucherType.objects.create(event_type="regular_session")
+
+    GiftVoucherType.objects.create(discount_amount=10)
+    with pytest.raises(ValidationError, match="already exists"):
+        GiftVoucherType.objects.create(discount_amount=10)
+
+    GiftVoucherType.objects.create(event_type="private")
+    GiftVoucherType.objects.create(discount_amount=5)
+
+
+@pytest.mark.django_db 
+@pytest.mark.parametrize(
+    "kwargs,expected",
+    [
+        ({"membership_type": ""}, 20),
+        ({"event_type": "regular_session"}, 15),
+        ({"event_type": "workshop"}, 15),
+        ({"event_type": "private"}, 15),
+        ({"discount_amount": 25}, 25)
+    ]
+)
+def test_gift_voucher_type_cost(membership_type, kwargs, expected):
+    if "event_type" in kwargs:
+        baker.make(Event, event_type=kwargs["event_type"], cost=15)
+    elif "membership_type" in kwargs:
+        kwargs["membership_type"] = membership_type
+    gift_voucher_type = GiftVoucherType.objects.create(**kwargs)
+    assert gift_voucher_type.cost == expected
+
+
+@pytest.mark.django_db 
+def test_gift_voucher_type_str(gift_voucher_types):
+    baker.make(Event, event_type="private", cost=15)
+    baker.make(Event, event_type="regular_session", cost=10)
+
+    assert str(gift_voucher_types["private"]) == "Private Lesson - £15.00"
+    assert str(gift_voucher_types["regular_session"]) == "Class - £10.00"
+    assert str(gift_voucher_types["total"]) == "Voucher - £10"
+    assert str(gift_voucher_types["membership_2"]) == "Membership - test - £20"
+    assert str(gift_voucher_types["membership_4"]) == "Membership - test4 - £40"
+
+
+@pytest.mark.django_db 
+def test_new_gift_voucher_creates_voucher(gift_voucher_types):
+    gift_voucher = baker.make(GiftVoucher, gift_voucher_type=gift_voucher_types["total"])
+    assert isinstance(gift_voucher.voucher, TotalVoucher)
+    assert gift_voucher.voucher.discount_amount == 10
+
+    gift_voucher = baker.make(GiftVoucher, gift_voucher_type=gift_voucher_types["regular_session"])
+    assert isinstance(gift_voucher.voucher, ItemVoucher)
+    assert gift_voucher.voucher.event_types == ["regular_session"]
+
+    gift_voucher = baker.make(GiftVoucher, gift_voucher_type=gift_voucher_types["membership_2"])
+    assert isinstance(gift_voucher.voucher, ItemVoucher)
+    assert gift_voucher.voucher.membership_types.count() == 1
+
+
+@pytest.mark.django_db 
+def test_change_membership_on_gift_voucher(gift_voucher_types):
+    gift_voucher = baker.make(GiftVoucher, gift_voucher_type=gift_voucher_types["membership_2"])
+    assert gift_voucher.name == "Gift Voucher: test"
+    voucher_id = gift_voucher.voucher.id
+    gift_voucher.gift_voucher_type =gift_voucher_types["membership_4"]
+    gift_voucher.save()
+    assert gift_voucher.name == "Gift Voucher: test4"
+    # new voucher created
+    assert gift_voucher.voucher.id != voucher_id
+    # old one was deleted
+    assert ItemVoucher.objects.count() == 1
+    assert gift_voucher.voucher.membership_types.count() == 1
+    assert gift_voucher.voucher.membership_types.first().number_of_classes == 4
+    
+
+@pytest.mark.django_db 
+def test_change_event_type_on_gift_voucher(gift_voucher_types):
+    gift_voucher = baker.make(GiftVoucher, gift_voucher_type=gift_voucher_types["regular_session"])
+    assert gift_voucher.name == "Gift Voucher: Class"
+    voucher_id = gift_voucher.voucher.id
+    gift_voucher.gift_voucher_type =gift_voucher_types["private"]
+    gift_voucher.save()
+    assert gift_voucher.name == "Gift Voucher: Private Lesson"
+    # new voucher created
+    assert gift_voucher.voucher.id != voucher_id
+    # old one was deleted
+    assert ItemVoucher.objects.count() == 1
+    assert gift_voucher.voucher.event_types == ["private"]
+
+
+@pytest.mark.django_db 
+def test_change_voucher_type(gift_voucher_types):
+    # membership voucher (ItemVoucher)
+    gift_voucher = baker.make(GiftVoucher, gift_voucher_type=gift_voucher_types["membership_2"])
+    assert isinstance(gift_voucher.voucher, ItemVoucher)
+
+    # change to total voucher
+    gift_voucher.gift_voucher_type = gift_voucher_types["total"]
+    gift_voucher.save()
+    assert ItemVoucher.objects.exists() is False
+    assert isinstance(gift_voucher.voucher, TotalVoucher)
+
+    # change to event type voucher (ItemVoucher)
+    gift_voucher.gift_voucher_type = gift_voucher_types["private"]
+    gift_voucher.save()
+    assert TotalVoucher.objects.exists() is False
+    assert isinstance(gift_voucher.voucher, ItemVoucher)
+    assert gift_voucher.voucher.event_types == ["private"]
+
+    # change event type (ItemVoucher)
+    gift_voucher.gift_voucher_type = gift_voucher_types["regular_session"]
+    gift_voucher.save()
+    assert TotalVoucher.objects.exists() is False
+    assert isinstance(gift_voucher.voucher, ItemVoucher)
+    assert ItemVoucher.objects.count() == 1
+    assert gift_voucher.voucher.event_types == ["regular_session"]
+
+    # change to total voucher
+    gift_voucher.gift_voucher_type = gift_voucher_types["total"]
+    gift_voucher.save()
+    assert ItemVoucher.objects.exists() is False
+    assert isinstance(gift_voucher.voucher, TotalVoucher)
+
+   # change to membership voucher (ItemVoucher)
+    gift_voucher.gift_voucher_type = gift_voucher_types["membership_4"]
+    gift_voucher.save()
+    assert TotalVoucher.objects.exists() is False
+    assert isinstance(gift_voucher.voucher, ItemVoucher)
+    assert ItemVoucher.objects.count() == 1
+    assert gift_voucher.voucher.membership_types.count() == 1
+    assert gift_voucher.voucher.membership_types.first().number_of_classes == 4
+
+
+@pytest.mark.django_db 
+def test_create_gift_voucher_from_existing_total_voucher(gift_voucher_types):
+    # voucher matches gift voucher type
+    total_voucher = baker.make(TotalVoucher, discount_amount=10, is_gift_voucher=False)
+    gift_voucher = baker.make(
+        GiftVoucher, gift_voucher_type=gift_voucher_types["total"],
+        total_voucher=total_voucher
+    )
+    assert gift_voucher.voucher.id == total_voucher.id
+    total_voucher.refresh_from_db()
+    assert total_voucher.is_gift_voucher
+    
+    # voucher mismatch
+    total_voucher = baker.make(TotalVoucher, discount_amount=20, is_gift_voucher=False)
+    gift_voucher = baker.make(
+        GiftVoucher, gift_voucher_type=gift_voucher_types["total"],
+        total_voucher=total_voucher
+    )
+    assert gift_voucher.voucher.id != total_voucher.id
+    assert gift_voucher.voucher.discount_amount == 10
+
+
+@pytest.mark.django_db 
+def test_create_gift_voucher_from_existing_event_type_voucher(gift_voucher_types):
+    # voucher matches gift voucher type
+    voucher = baker.make(
+        ItemVoucher, event_types=["private"], is_gift_voucher=False, discount=10
+    )
+    gift_voucher = baker.make(
+        GiftVoucher, gift_voucher_type=gift_voucher_types["private"],
+        item_voucher=voucher
+    )
+    assert gift_voucher.voucher.id == voucher.id
+    voucher.refresh_from_db()
+    assert voucher.is_gift_voucher
+    assert ItemVoucher.objects.count() == 1
+
+    # voucher mismatch
+    voucher = baker.make(
+        ItemVoucher, event_types=["private", "regular_session"], is_gift_voucher=False,
+        discount=10
+    )
+    gift_voucher = baker.make(
+        GiftVoucher, gift_voucher_type=gift_voucher_types["private"],
+        item_voucher=voucher
+    )
+    assert gift_voucher.voucher.id != voucher.id
+    assert ItemVoucher.objects.count() == 2
+
+
+@pytest.mark.django_db 
+def test_create_gift_voucher_from_existing_membership_voucher(gift_voucher_types, membership_type):
+    # voucher matches gift voucher type
+    voucher = baker.make(ItemVoucher, is_gift_voucher=False, discount=10)
+    voucher.membership_types.add(membership_type)
+    gift_voucher = baker.make(
+        GiftVoucher, gift_voucher_type=gift_voucher_types["membership_2"],
+        item_voucher=voucher
+    )
+    assert gift_voucher.voucher.id == voucher.id
+    voucher.refresh_from_db()
+    assert voucher.is_gift_voucher
+    assert ItemVoucher.objects.count() == 1
+
+    # voucher mismatch
+    voucher = baker.make(ItemVoucher, is_gift_voucher=False, discount=10)
+    voucher.membership_types.add(membership_type)
+    gift_voucher = baker.make(
+        GiftVoucher, gift_voucher_type=gift_voucher_types["membership_4"],
+        item_voucher=voucher
+    )
+    assert gift_voucher.voucher.id != voucher.id
+    assert ItemVoucher.objects.count() == 2
+
+
+@pytest.mark.django_db 
+def test_gift_voucher_activate(gift_voucher_types):
+    gift_voucher = baker.make(GiftVoucher, gift_voucher_type=gift_voucher_types["membership_2"])
+    start_date = timezone.now() - timedelta(weeks=6)
+    gift_voucher.voucher.start_date = start_date
+    gift_voucher.voucher.save()
+    assert gift_voucher.voucher.expiry_date is None
+    assert gift_voucher.paid is False
+    assert gift_voucher.voucher.activated is False
+    gift_voucher.activate()
+
+    gift_voucher.refresh_from_db()
+    assert gift_voucher.voucher.activated is True
+    assert gift_voucher.voucher.expiry_date is not None
+    assert gift_voucher.voucher.start_date > start_date
+
+
+@pytest.mark.django_db 
+def test_gift_voucher_name(gift_voucher_types):
+    gift_voucher = baker.make(GiftVoucher, gift_voucher_type=gift_voucher_types["private"])
+    assert gift_voucher.name == "Gift Voucher: Private Lesson"
+
+    gift_voucher = baker.make(GiftVoucher, gift_voucher_type=gift_voucher_types["membership_2"])
+    assert gift_voucher.name == "Gift Voucher: test"
+
+    gift_voucher1 = baker.make(GiftVoucher, gift_voucher_type=gift_voucher_types["total"])
+    assert gift_voucher1.name == "Gift Voucher: £10"
+
+
+@pytest.mark.django_db 
+def test_gift_voucher_str(gift_voucher_types):
+    gift_voucher = baker.make(GiftVoucher, gift_voucher_type=gift_voucher_types["private"])
+    gift_voucher.voucher.purchaser_email = "foo@bar.com"
+    gift_voucher.save()
+    assert str(gift_voucher) == f"{gift_voucher.voucher.code} - Gift Voucher: Private Lesson - foo@bar.com"
+
+    gift_voucher1 = baker.make(GiftVoucher, gift_voucher_type=gift_voucher_types["total"])
+    gift_voucher1.voucher.purchaser_email = "foo@bar.com"
+    gift_voucher1.save()
+    assert str(gift_voucher1) == f"{gift_voucher1.voucher.code} - Gift Voucher: £10 - foo@bar.com"
+
+
+@pytest.mark.django_db 
+def test_delete_gift_voucher(gift_voucher_types):
+    gift_voucher = baker.make(GiftVoucher, gift_voucher_type=gift_voucher_types["private"])
+    assert ItemVoucher.objects.count() == 1
+    gift_voucher.delete()
+    assert ItemVoucher.objects.count() == 0
+
+
+@pytest.mark.django_db 
+def test_delete_gift_voucher(gift_voucher_types):
+    gvt = gift_voucher_type=gift_voucher_types["total"]
+    gvt.override_cost = 40
+    gvt.save()
+    gift_voucher = baker.make(GiftVoucher, gift_voucher_type=gvt)
+    assert gift_voucher.voucher.discount_amount == 10
+    assert gift_voucher.gift_voucher_type.cost == 40

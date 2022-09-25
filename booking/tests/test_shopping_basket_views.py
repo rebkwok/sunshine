@@ -14,7 +14,7 @@ from stripe.error import InvalidRequestError
 
 from accounts.models import DataPrivacyPolicy
 from booking.models import (
-    Booking, Event, TotalVoucher, ItemVoucher, MembershipType, Membership
+    Booking, Event, GiftVoucher, TotalVoucher, ItemVoucher, MembershipType, Membership
 )
 from .helpers import TestSetupMixin, make_disclaimer_content, make_data_privacy_agreement, make_online_disclaimer
 from stripe_payments.models import Invoice, Seller
@@ -49,15 +49,15 @@ class ShoppingBasketViewTests(ShoppingBasketMixin, TestSetupMixin, TestCase):
         assert resp.status_code == 302
         assert resp.url == f"{reverse('account_login')}?next={self.url}"
     
-    # def test_not_logged_in_gift_voucher(self):
-        # self.client.logout()
-        # gift_voucher = baker.make_recipe("booking.gift_voucher_10")
-        # session = self.client.session
-        # session.update({"purchases": {"gift_vouchers": [gift_voucher.id]}})
-        # session.save()
-        # resp = self.client.get(self.url)
-        # assert resp.status_code == 302
-        # assert resp.url == reverse("booking:guest_shopping_basket")
+    def test_not_logged_in_gift_voucher(self):
+        self.client.logout()
+        gift_voucher = baker.make_recipe("booking.gift_voucher_10")
+        session = self.client.session
+        session.update({"purchases": {"gift_vouchers": [gift_voucher.id]}})
+        session.save()
+        resp = self.client.get(self.url)
+        assert resp.status_code == 302
+        assert resp.url == reverse("booking:guest_shopping_basket")
 
     def test_no_unpaid_items(self):
         resp = self.client.get(self.url)
@@ -115,6 +115,40 @@ class ShoppingBasketViewTests(ShoppingBasketMixin, TestSetupMixin, TestCase):
         ]
         assert list(resp.context_data["applied_voucher_codes_and_discount"]) == []
         assert resp.context_data["total_cost"] == 80
+
+    def test_cleans_up_expired_bookings(self):
+        now = timezone.now()
+        event_date = now + timedelta(1)
+        # booked > 15 mins ago
+        baker.make(
+            "booking.booking", 
+            event__date=event_date,
+            paid=False, 
+            date_booked=now - timedelta(minutes=30), user=self.user
+        )
+        # booked > 15 mins ago, rebooked < 15 mins ago
+        rebooking = baker.make(
+            "booking.booking", paid=False, 
+            event__date=event_date,
+            date_booked=now - timedelta(minutes=30),
+            date_rebooked = now - timedelta(minutes=10),
+            user=self.user
+        )
+        # booked > 15 mins ago, but checkout_time < 5 mins ago
+        checkedout_booking = baker.make(
+            "booking.booking", paid=False, 
+            event__date=event_date,
+            date_booked=now - timedelta(minutes=30),
+            checkout_time=now - timedelta(minutes=2),
+            user=self.user
+        )
+        assert self.user.bookings.count() == 3
+        resp = self.client.get(self.url)
+        self.user.refresh_from_db()
+        assert self.user.bookings.count() == 2
+        assert [
+            unpaid["booking"] for unpaid in resp.context_data["unpaid_booking_info"]
+        ] == [rebooking, checkedout_booking]
 
     def test_voucher_application(self):
         voucher = baker.make(ItemVoucher, code="test", discount=50)
@@ -547,71 +581,67 @@ class ShoppingBasketViewTests(ShoppingBasketMixin, TestSetupMixin, TestCase):
         assert "Submit" in resp.rendered_content
 
 
-# class GuestShoppingBasketTests(ShoppingBasketMixin, TestUsersMixin, TestCase):
+class GuestShoppingBasketTests(TestSetupMixin, TestCase):
 
-#     def setUp(self):
-#         super().setUp()
-#         self.create_users()
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.url = reverse("booking:guest_shopping_basket")
 
-#     @classmethod
-#     def setUpTestData(cls):
-#         super().setUpTestData()
-#         cls.url = reverse("booking:guest_shopping_basket")
+    def test_with_logged_in_user_no_purchases(self):
+        self.client.login(username=self.user.username, password="test")
+        resp = self.client.get(self.url)
+        assert resp.status_code == 302
+        assert resp.url == reverse("booking:shopping_basket")
 
-#     def test_with_logged_in_user(self):
-#         self.login(self.student_user)
-#         resp = self.client.get(self.url)
-#         assert resp.status_code == 302
-#         assert resp.url == reverse("booking:shopping_basket")
+        self.client.logout()
+        resp = self.client.get(self.url)
+        assert resp.status_code == 200
 
-#         self.client.logout()
-#         resp = self.client.get(self.url)
-#         assert resp.status_code == 200
+    def test_no_voucher(self):
+        resp = self.client.get(self.url)
+        assert resp.context_data["unpaid_items"] is False
+        assert resp.context_data["unpaid_gift_voucher_info"] == []
+        assert resp.context_data["total_cost"] == 0
 
-#     def test_no_voucher(self):
-#         resp = self.client.get(self.url)
-#         assert resp.context_data["unpaid_items"] is False
-#         assert resp.context_data["unpaid_gift_voucher_info"] == []
-#         assert resp.context_data["total_cost"] == 0
+    def test_with_voucher(self):
+        session = self.client.session
+        gift_voucher = baker.make_recipe("booking.gift_voucher_10")
+        session.update({"purchases": {"gift_vouchers": [gift_voucher.id]}})
+        session.save()
+        resp = self.client.get(self.url)
+        assert resp.context_data["unpaid_items"]
+        assert resp.context_data["unpaid_gift_voucher_info"] == [
+            {"gift_voucher": gift_voucher, "cost": 10}
+        ]
+        assert resp.context_data["total_cost"] == 10
 
-#     def test_with_voucher(self):
-#         session = self.client.session
-#         gift_voucher = baker.make_recipe("booking.gift_voucher_10")
-#         session.update({"purchases": {"gift_vouchers": [gift_voucher.id]}})
-#         session.save()
-#         resp = self.client.get(self.url)
-#         assert resp.context_data["unpaid_items"]
-#         assert resp.context_data["unpaid_gift_voucher_info"] == [
-#             {"gift_voucher": gift_voucher, "cost": 10}
-#         ]
-#         assert resp.context_data["total_cost"] == 10
+    def test_with_multiple_vouchers(self):
+        session = self.client.session
+        gift_voucher1 = baker.make_recipe("booking.gift_voucher_10")
+        gift_voucher2 = baker.make_recipe("booking.gift_voucher_11")
+        session.update({"purchases": {"gift_vouchers": [gift_voucher1.id, gift_voucher2.id]}})
+        session.save()
+        resp = self.client.get(self.url)
+        assert resp.context_data["unpaid_items"]
+        assert resp.context_data["total_cost"] == 21
+        assert resp.context_data["unpaid_gift_voucher_info"] == [
+            {"gift_voucher": gift_voucher1, "cost": 10},
+            {"gift_voucher": gift_voucher2, "cost": 11}
+        ]
 
-#     def test_with_multiple_vouchers(self):
-#         session = self.client.session
-#         gift_voucher1 = baker.make_recipe("booking.gift_voucher_10")
-#         gift_voucher2 = baker.make_recipe("booking.gift_voucher_10")
-#         session.update({"purchases": {"gift_vouchers": [gift_voucher1.id, gift_voucher2.id]}})
-#         session.save()
-#         resp = self.client.get(self.url)
-#         assert resp.context_data["unpaid_items"]
-#         assert resp.context_data["total_cost"] == 20
-#         assert resp.context_data["unpaid_gift_voucher_info"] == [
-#             {"gift_voucher": gift_voucher1, "cost": 10},
-#             {"gift_voucher": gift_voucher2, "cost": 10}
-#         ]
-
-#     def test_with_invalid_vouchers(self):
-#         session = self.client.session
-#         gift_voucher1 = baker.make_recipe("booking.gift_voucher_10", paid=True)
-#         gift_voucher2 = baker.make_recipe("booking.gift_voucher_10")
-#         session.update({"purchases": {"gift_vouchers": [gift_voucher1.id, gift_voucher2.id, 999]}})
-#         session.save()
-#         resp = self.client.get(self.url)
-#         assert resp.context_data["unpaid_items"]
-#         assert resp.context_data["total_cost"] == 10
-#         assert resp.context_data["unpaid_gift_voucher_info"] == [
-#             {"gift_voucher": gift_voucher2, "cost": 10}
-#         ]
+    def test_with_invalid_vouchers(self):
+        session = self.client.session
+        gift_voucher1 = baker.make_recipe("booking.gift_voucher_10", paid=True)
+        gift_voucher2 = baker.make_recipe("booking.gift_voucher_11")
+        session.update({"purchases": {"gift_vouchers": [gift_voucher1.id, gift_voucher2.id, 999]}})
+        session.save()
+        resp = self.client.get(self.url)
+        assert resp.context_data["unpaid_items"]
+        assert resp.context_data["total_cost"] == 11
+        assert resp.context_data["unpaid_gift_voucher_info"] == [
+            {"gift_voucher": gift_voucher2, "cost": 11}
+        ]
 
 
 class StripeCheckoutTests(ShoppingBasketMixin, TestSetupMixin, TestCase):
@@ -638,27 +668,33 @@ class StripeCheckoutTests(ShoppingBasketMixin, TestSetupMixin, TestCase):
         super().setUp()
         baker.make(Seller, site=Site.objects.get_current())
 
-    # def test_anon_user_no_unpaid_items(self):
-    #     self.client.logout()
-    #     # If no unpaid items, ignore any cart total passed and return to shopping basket
-    #     resp = self.client.post(self.url, data={"cart_total": 10})
-    #     assert resp.status_code == 302
-    #     assert resp.url == reverse("booking:guest_shopping_basket")
+    def test_anon_user_no_unpaid_items(self):
+        self.client.logout()
+        # If no unpaid items, ignore any cart total passed and return to shopping basket
+        resp = self.client.post(self.url, data={"cart_total": 10})
+        assert resp.status_code == 302
+        assert resp.url == reverse("booking:guest_shopping_basket")
 
-#     def test_rechecks_total_anon_user(self):
-#         self.client.logout()
-#         session = self.client.session
-#         gift_voucher1 = baker.make_recipe("booking.gift_voucher_10")
-#         gift_voucher2 = baker.make_recipe("booking.gift_voucher_10")
-#         session.update(
-#             {"purchases": {"gift_vouchers": [gift_voucher1.id, gift_voucher2.id]}})
-#         session.save()
+    def test_rechecks_total_anon_user(self):
+        self.client.logout()
+        session = self.client.session
+        gift_voucher1 = baker.make_recipe("booking.gift_voucher_10")
+        gift_voucher2 = baker.make_recipe("booking.gift_voucher_11")
+        session.update(
+            {"purchases": {"gift_vouchers": [gift_voucher1.id, gift_voucher2.id]}})
+        session.save()
 
-#         # total is incorrect, redirect to basket again
-#         resp = self.client.post(self.url, data={"cart_total": 10})
-#         assert resp.status_code == 302
-#         # redirects to basket, which will do the redirect to guest basket
-#         assert resp.url == reverse("booking:shopping_basket")
+        # total is incorrect, redirect to basket again
+        resp = self.client.post(self.url, data={"cart_total": 10})
+        assert resp.status_code == 302
+        # redirects to basket, which will do the redirect to guest basket
+        assert resp.url == reverse("booking:shopping_basket")
+
+    def test_logged_in_user_no_unpaid_items(self):
+        # If no unpaid items, ignore any cart total passed and return to shopping basket
+        resp = self.client.post(self.url, data={"cart_total": 10})
+        assert resp.status_code == 302
+        assert resp.url == reverse("booking:shopping_basket")
 
     @patch("booking.views.shopping_basket.stripe.PaymentIntent")
     def test_creates_invoice_and_applies_to_unpaid_items(self, mock_payment_intent):
@@ -684,35 +720,35 @@ class StripeCheckoutTests(ShoppingBasketMixin, TestSetupMixin, TestCase):
         assert membership.invoice == invoice
         assert booking.invoice == invoice
 
-#     @patch("booking.views.shopping_basket.stripe.PaymentIntent")
-#     def test_creates_invoice_and_applies_to_unpaid_gift_vouchers_anon_user(
-#             self, mock_payment_intent
-#     ):
-#         mock_payment_intent_obj = self.get_mock_payment_intent(id="foo")
-#         mock_payment_intent.create.return_value = mock_payment_intent_obj
-#         self.client.logout()
-#         session = self.client.session
-#         gift_voucher1 = baker.make_recipe("booking.gift_voucher_10")
-#         gift_voucher2 = baker.make_recipe("booking.gift_voucher_10")
-#         session.update(
-#             {"purchases": {"gift_vouchers": [gift_voucher1.id, gift_voucher2.id]}})
-#         session.save()
+    @patch("booking.views.shopping_basket.stripe.PaymentIntent")
+    def test_creates_invoice_and_applies_to_unpaid_gift_vouchers_anon_user(
+            self, mock_payment_intent
+    ):
+        mock_payment_intent_obj = self.get_mock_payment_intent(id="foo")
+        mock_payment_intent.create.return_value = mock_payment_intent_obj
+        self.client.logout()
+        session = self.client.session
+        gift_voucher1 = baker.make_recipe("booking.gift_voucher_10")
+        gift_voucher2 = baker.make_recipe("booking.gift_voucher_11")
+        session.update(
+            {"purchases": {"gift_vouchers": [gift_voucher1.id, gift_voucher2.id]}})
+        session.save()
 
-#         assert Invoice.objects.exists() is False
-#         # total is correct
-#         resp = self.client.post(self.url, data={"cart_total": 20})
-#         assert resp.status_code == 200
-#         assert resp.context_data["cart_total"] == 20.00
+        assert Invoice.objects.exists() is False
+        # total is correct
+        resp = self.client.post(self.url, data={"cart_total": 21})
+        assert resp.status_code == 200
+        assert resp.context_data["cart_total"] == 21.00
 
-#         gift_voucher1.refresh_from_db()
-#         gift_voucher2.refresh_from_db()
+        gift_voucher1.refresh_from_db()
+        gift_voucher2.refresh_from_db()
 
-#         assert Invoice.objects.exists()
-#         invoice = Invoice.objects.first()
-#         assert invoice.username == ""
-#         assert invoice.amount == 20
-#         assert gift_voucher1.invoice == invoice
-#         assert gift_voucher2.invoice == invoice
+        assert Invoice.objects.exists()
+        invoice = Invoice.objects.first()
+        assert invoice.username == ""
+        assert invoice.amount == 21
+        assert gift_voucher1.invoice == invoice
+        assert gift_voucher2.invoice == invoice
 
     @patch("booking.views.shopping_basket.stripe.PaymentIntent")
     def test_creates_invoice_and_applies_to_unpaid_blocks_with_vouchers(self, mock_payment_intent):
@@ -765,12 +801,9 @@ class StripeCheckoutTests(ShoppingBasketMixin, TestSetupMixin, TestCase):
         membership = baker.make_recipe(
             "booking.membership", membership_type=self.membership_type, user=self.user,
         )
-        # gift_voucher = baker.make(
-        #     GiftVoucher,
-        #     gift_voucher_config__discount_amount=10,
-        # )
-        # gift_voucher.voucher.purchaser_email = self.student_user.email
-        # gift_voucher.voucher.save()
+        gift_voucher = baker.make_recipe("booking.gift_voucher_10")
+        gift_voucher.voucher.purchaser_email = self.user.email
+        gift_voucher.voucher.save()
         
         # Call shopping basket view to apply the total voucher code
         self.client.post(reverse('booking:shopping_basket'), data={"add_voucher_code": "add_voucher_code", "code": "test"})
@@ -780,13 +813,13 @@ class StripeCheckoutTests(ShoppingBasketMixin, TestSetupMixin, TestCase):
         for item in [booking, membership]:
             item.refresh_from_db()
             assert item.paid is True
-        # assert gift_voucher.voucher.activated is True
+        assert gift_voucher.voucher.activated is True
         assert resp.status_code == 302
         assert resp.url == reverse("booking:regular_session_list")
 
         invoice = Invoice.objects.latest("id")
         assert membership in invoice.memberships.all()
-        # assert gift_voucher in invoice.gift_vouchers.all()
+        assert gift_voucher in invoice.gift_vouchers.all()
         assert booking in invoice.bookings.all()
         assert invoice.paid is True
 
@@ -867,19 +900,19 @@ class StripeCheckoutTests(ShoppingBasketMixin, TestSetupMixin, TestCase):
         resp = self.client.get(url)
         assert resp.json() == {"total": "18.00"}
 
-#     def test_check_total_anon_user(self):
-#         self.client.logout()
-#         url = reverse("booking:check_total")
-#         resp = self.client.get(url)
-#         assert resp.json() == {"total": 0}
+    def test_check_total_anon_user(self):
+        self.client.logout()
+        url = reverse("booking:check_total")
+        resp = self.client.get(url)
+        assert resp.json() == {"total": 0}
 
-#         session = self.client.session
-#         gift_voucher1 = baker.make_recipe("booking.gift_voucher_10")
-#         gift_voucher2 = baker.make_recipe("booking.gift_voucher_10")
-#         session.update(
-#             {"purchases": {"gift_vouchers": [gift_voucher1.id, gift_voucher2.id]}})
-#         session.save()
+        session = self.client.session
+        gift_voucher1 = baker.make_recipe("booking.gift_voucher_10")
+        gift_voucher2 = baker.make_recipe("booking.gift_voucher_11")
+        session.update(
+            {"purchases": {"gift_vouchers": [gift_voucher1.id, gift_voucher2.id]}})
+        session.save()
 
-#         url = reverse("booking:check_total")
-#         resp = self.client.get(url)
-#         assert resp.json() == {"total": "20.00"}
+        url = reverse("booking:check_total")
+        resp = self.client.get(url)
+        assert resp.json() == {"total": "21.00"}

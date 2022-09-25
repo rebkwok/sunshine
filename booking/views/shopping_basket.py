@@ -15,6 +15,7 @@ from django.http import JsonResponse
 from django.urls import reverse
 
 import stripe
+from booking.email_helpers import send_gift_voucher_email
 
 from stripe_payments.models import Invoice, Seller, StripePaymentIntent
 
@@ -49,26 +50,25 @@ def guest_shopping_basket(request):
         return HttpResponseRedirect(reverse("booking:shopping_basket"))
 
     template_name = 'booking/shopping_basket.html'
-    # gift_vouchers = get_unpaid_gift_vouchers_from_session(request)
-    # unpaid_gift_voucher_info = [
-    #     {
-    #         "gift_voucher": gift_voucher,
-    #         "cost": gift_voucher.gift_voucher_config.cost,
-    #     } for gift_voucher in gift_vouchers
-    # ]
-    # total = calculate_user_cart_total(unpaid_gift_vouchers=gift_vouchers)
+    gift_vouchers = get_unpaid_gift_vouchers_from_session(request)
+    unpaid_gift_voucher_info = [
+        {
+            "gift_voucher": gift_voucher,
+            "cost": gift_voucher.gift_voucher_type.cost,
+        } for gift_voucher in gift_vouchers
+    ]
+    total = calculate_user_cart_total(unpaid_gift_vouchers=gift_vouchers)
 
-    # context = {
-    #     "unpaid_items": bool(unpaid_gift_voucher_info),
-    #     "unpaid_block_info": [],
-    #     "applied_voucher_codes_and_discount": [],
-    #     "unpaid_subscription_info": [],
-    #     "unpaid_gift_voucher_info": unpaid_gift_voucher_info,
-    #     "unpaid_merchandise": [],
-    #     "total_cost_without_total_voucher": total,
-    #     "total_cost": total
-    # }
-    context = {}
+    context = {
+        "unpaid_items": bool(unpaid_gift_voucher_info),
+        "unpaid_block_info": [],
+        "applied_voucher_codes_and_discount": [],
+        "unpaid_subscription_info": [],
+        "unpaid_gift_voucher_info": unpaid_gift_voucher_info,
+        "unpaid_merchandise": [],
+        "total_cost_without_total_voucher": total,
+        "total_cost": total
+    }
 
     return TemplateResponse(
         request,
@@ -89,9 +89,7 @@ def shopping_basket_view(request):
     unpaid_bookings = get_unpaid_bookings(request.user)
     unpaid_booking_ids = unpaid_bookings.values_list("id", flat=True)
     unpaid_gift_vouchers = get_unpaid_gift_vouchers(request.user)
-    
-    # unpaid_gift_vouchers = get_unpaid_user_gift_vouchers(request.user)
-    
+        
     if request.method == "POST":
         code = request.POST.get("code")
         # remove any extraneous whitespace
@@ -193,14 +191,13 @@ def shopping_basket_view(request):
         for booking in unpaid_bookings
     ]
 
-    # unpaid_gift_voucher_info = [
-    #     {
-    #         "gift_voucher": gift_voucher,
-    #         "cost": gift_voucher.gift_voucher_config.cost,
-    #     }
-    #     for gift_voucher in unpaid_gift_vouchers
-    # ]
-    unpaid_gift_voucher_info = []
+    unpaid_gift_voucher_info = [
+        {
+            "gift_voucher": gift_voucher,
+            "cost": gift_voucher.gift_voucher_type.cost,
+        }
+        for gift_voucher in unpaid_gift_vouchers
+    ]
 
     # We do this AFTER generating the voucher applied costs, as that may have modified some used vouchers if they weren't valid
     applied_voucher_codes_and_discount = set(
@@ -304,7 +301,7 @@ def _check_items_and_get_updated_invoice(request):
             if (
                 {membership.id for membership in invoice.memberships.all()} == unpaid_membership_ids \
                 and {booking.id for booking in invoice.bookings.all()} == unpaid_booking_ids \
-                # and {gift_voucher.id for gift_voucher in invoice.gift_vouchers.all()} == unpaid_gift_voucher_ids\
+                and {gift_voucher.id for gift_voucher in invoice.gift_vouchers.all()} == unpaid_gift_voucher_ids\
             ):
                 return invoice
 
@@ -353,7 +350,7 @@ def _check_items_and_get_updated_invoice(request):
             gift_voucher.paid = True
             gift_voucher.save()
             gift_voucher.activate()
-            gift_voucher.send_voucher_email()
+            send_gift_voucher_email(gift_voucher)
         invoice.paid = True
         invoice.save()
         msg = []

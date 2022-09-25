@@ -23,6 +23,7 @@ def _membership_purchase_option(unpaid_memberships, membership_type, month, year
     }
 
 @data_privacy_required
+@login_required
 def membership_purchase_view(request):
     now = timezone.now()
     month = now.month

@@ -2,18 +2,15 @@
 
 {% load static %}
 
-{% block extra_head %}
-    <link href="{% static 'css/vouchers.css' %}" rel="stylesheet">
+{% block extrahead %}
+    <link href="{% static 'booking/css/vouchers.css' %}" rel="stylesheet">
 {% endblock %}
 
 {% block content %}
     <div class="container">
     <div class="voucher-box voucher-outer-box">
             <div class="voucher-box voucher-inner-box">
-                <div class="voucher-title text-center">Gift Voucher</div>
-                {% if voucher.name %}
-                <div class="voucher-name text-center"> For {{ voucher.name }} </div>
-                {% endif %}
+                <div class="voucher-title text-center">Sunshine Fitness Gift Voucher</div>
 
                 <hr class="voucher-divider">
                 <div class="voucher-bg">
@@ -21,10 +18,10 @@
                    <p><span class="voucher-content-label">Voucher code:</span> {{ voucher.code }}</p>
                     <p><span class="voucher-content-label">Valid for:</span>
                     {% if voucher.discount_amount %}£{{ voucher.discount_amount }}{% elif voucher.discount < 100 %}{{ voucher.discount }}% off{% endif %}
-                    {% if voucher.block_configs %}
+                    {% if voucher.membership_types or voucher.event_types %}
                         <ul>
-                            {% for item in voucher.block_configs.all %}
-                                <li>{{ item }}</li>
+                            {% for item in voucher.valid_for %}
+                                <li>{% if voucher.max_per_user %}1 x {% endif %}{{ item }}</li>
                             {% endfor %}
                         </ul>
                     {% endif %}
@@ -36,14 +33,19 @@
                     {% endif %}
                 </div>
 
-
-            {% if voucher.message %}
+            {% if voucher.name or voucher.message %}
                 <hr class="voucher-divider">
+            {% endif %}
+            {% if voucher.name %}
                 <div class="voucher-message">
-                <strong>Message: </strong><br>
+                <strong>For: </strong>{{ voucher.name }}
+                </div>
+            {% endif %}
+            {% if voucher.message %}
+                <div class="voucher-message">
                 {{ voucher.message | linebreaks }}
                 </div><br>
-                {% endif %}
+            {% endif %}
             </div>
             </div>
         </div>
@@ -51,23 +53,26 @@
     <hr>
             <div class="text-muted">
                 <div class="col-12">
-                    <a href="javascript:window.print()" id="print-button" alt="print this page" class="btn btn-outline-primary">Print voucher</a>
+                    <a href="javascript:window.print()" id="print-button" alt="print this page" class="btn btn-outline-warning">Print voucher</a>
                 </div>
 
                 <div class="col-12">
                     <h5>Voucher Instructions</h5>
                     <ol>
-                        <li>Log in to <a href="booking.freedomofflightaerial.com">booking.freedomofflightaerial.com</a></li>
-                        {% if voucher.block_configs.exists %}
-                        <li>Go to Payment Plans and select {% if voucher.block_configs.count > 1 %}a{% else %}the{% endif %} credit block listed above</li>
-                        {% else %}
-                            <li>Go to Shop and add items to shopping basket</li>
+                        <li>Log in to <a href="sunshinefitness.co.uk">sunshinefitness.co.uk</a></li>
+                        {% if voucher.membership_types.exists %}
+                        <li>Go to Memberships and select {% if voucher.membership_types.count > 1 %}a{% else %}the{% endif %} membership type listed above</li>
+                        {% endif %}
+                        {% if voucher.event_types %}
+                        <li>Go to Book and add items to shopping basket</li>
+                        {% endif %}
+                        {% if not voucher.membership_types and not voucher.event_types %}
+                            <li>Go to Memberships or Book to add items to shopping basket</li>
+                            <li>Note that no change is given from vouchers</li>
                         {% endif %}
                         <li>On the Shopping Basket page, enter your voucher code and click Apply</li>
                         <li>If you are only purchasing items covered by the voucher type/amount, the total will now be £0. Click Submit to complete your purchase.</li>
                     </ol>
-                    <span class="helptext">Terms and conditions apply to all purchases, full T&C available <a href="{% url 'booking:terms_and_conditions' %}" target="_blank">here</a></span>
-
                 </div>
 
             </div>

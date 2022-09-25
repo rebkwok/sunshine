@@ -4,7 +4,6 @@
 
 
 <!DOCTYPE html>
-{% comment %} <html lang="en" class="{% block bg_class %}logo_bg{%  endblock %}"> {% endcomment %}
 <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -37,8 +36,12 @@
           <ul class="nav navbar-nav mr-auto">
             <li class="nav-item"><a class="nav-link{% if section == 'home' %} active{% endif %}" href="{% url 'website:home' %}">Home</a></li>
             <li class="nav-item"><a class="nav-link{% if section == 'timetable' %} active{% endif %}" href="{% url 'timetable:timetable' %}">Timetable</a></li>
+            {% if membership_types %}
             <li class="nav-item"><a class="nav-link{% if section == 'membership' %} active{% endif %}" href="{% url 'booking:membership_purchase' %}">Memberships</a>
-
+            {% endif %}
+            {% if gift_vouchers_available %}
+                <li class="nav-item"><a class="nav-link{% if section == 'gift_voucher' %} active{% endif %}" href="{% url 'booking:buy_gift_voucher' %}">Gift Vouchers</a>
+            {% endif %}
             <li class="nav-item"><a class="nav-link{% if section == 'booking' %} active{% endif %}" href="{% url 'booking:regular_session_list' %}">Book</a></li>
             <li class="nav-item"><a class="nav-link{% if section == 'contact' %} active{% endif %}" href="{% url 'website:contact' %}">Contact us</a></li>
           </ul>

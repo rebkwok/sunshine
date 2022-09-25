@@ -14,7 +14,7 @@ from activitylog.models import ActivityLog
 from booking.views.views_utils import get_unpaid_bookings, get_unpaid_memberships, \
     get_unpaid_gift_vouchers, get_unpaid_gift_vouchers_from_session, total_unpaid_item_count
 from .booking_helpers import cancel_booking_from_view
-from booking.models import Event, Booking, Membership, WaitingListUser
+from booking.models import Event, Booking, GiftVoucher, Membership, WaitingListUser
 from booking.email_helpers import send_email, email_waiting_lists
 from booking.utils import calculate_user_cart_total, host_from_request
 
@@ -22,7 +22,7 @@ from booking.utils import calculate_user_cart_total, host_from_request
 ITEM_TYPE_MODEL_MAPPING = {
     "membership": Membership,
     "booking": Booking,
-    # "gift_voucher": GiftVoucher,
+    "gift_voucher": GiftVoucher,
 }
 
 
@@ -249,12 +249,19 @@ def ajax_cart_item_delete(request):
     if item_type == "booking":
         event = item.event
 
+    unpaid_items = {
+        "booking": [],
+        "membership": [],
+        "gift_voucher": []
+    }
     if request.user.is_authenticated:
         item.delete()
-        unpaid_memberships = get_unpaid_memberships(request.user)
-        unpaid_bookings = get_unpaid_bookings(request.user)
-        unpaid_gift_vouchers = get_unpaid_gift_vouchers(request.user)
-        total = calculate_user_cart_total(unpaid_memberships, unpaid_bookings, unpaid_gift_vouchers)
+        unpaid_items["membership"] = get_unpaid_memberships(request.user)
+        unpaid_items["booking"] = get_unpaid_bookings(request.user)
+        unpaid_items["gift_voucher"] = get_unpaid_gift_vouchers(request.user)
+        total = calculate_user_cart_total(
+            unpaid_items["membership"], unpaid_items["booking"], unpaid_items["gift_voucher"]
+        )
         unpaid_item_count = total_unpaid_item_count(request.user)
     else:
         assert item_type == "gift_voucher"
@@ -263,12 +270,20 @@ def ajax_cart_item_delete(request):
             gift_vouchers_on_session.remove(int(item_id))
             request.session["purchases"]["gift_vouchers"] = gift_vouchers_on_session
             item.delete()
-        unpaid_gift_vouchers = get_unpaid_gift_vouchers_from_session(request)
-        unpaid_item_count = unpaid_gift_vouchers.count()
-        total = calculate_user_cart_total(unpaid_gift_vouchers=unpaid_gift_vouchers)
+        unpaid_items["gift_voucher"] = get_unpaid_gift_vouchers_from_session(request)
+        unpaid_item_count = unpaid_items["gift_voucher"].count()
+        total = calculate_user_cart_total(unpaid_gift_vouchers=unpaid_items["gift_voucher"])
     if item_type == "booking":
         # send waiting list emails if necessary
         email_waiting_lists([event.id], host=host_from_request(request))
+
+    if not unpaid_items[item_type]:
+        return JsonResponse(
+            {
+                "redirect": True,
+                "url": reverse("booking:shopping_basket"),
+            }
+        )
 
     return JsonResponse(
         {

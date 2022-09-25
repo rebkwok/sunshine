@@ -2,6 +2,7 @@ import logging
 from django.urls import reverse
 
 from activitylog.models import ActivityLog
+from booking.email_helpers import send_gift_voucher_email
 from .emails import send_processed_payment_emails
 from .exceptions import StripeProcessingError
 from .models import Invoice
@@ -46,24 +47,24 @@ def check_stripe_data(payment_intent, invoice):
         )
 
 
-def process_invoice_items(invoice, payment_method, transaction_id=None):
+def process_invoice_items(invoice, payment_method, transaction_id=None, request=None):
     for booking in invoice.bookings.all():
         booking.paid = True
         booking.save()
     for membership in invoice.memberships.all():
         membership.paid = True
         membership.save()
-    # for gift_voucher in invoice.gift_vouchers.all():
-    #     gift_voucher.paid = True
-    #     gift_voucher.save()
-    #     gift_voucher.activate()
+    for gift_voucher in invoice.gift_vouchers.all():
+        gift_voucher.paid = True
+        gift_voucher.save()
+        gift_voucher.activate()
 
     invoice.paid = True
     invoice.save()
     # SEND EMAILS
     send_processed_payment_emails(invoice)
-    # for gift_voucher in invoice.gift_vouchers.all():
-    #     gift_voucher.send_voucher_email()
+    for gift_voucher in invoice.gift_vouchers.all():
+        send_gift_voucher_email(gift_voucher, request=request)
     ActivityLog.objects.create(
         log=f"Invoice {invoice.invoice_id} (user {invoice.username}) paid by {payment_method}"
     )
