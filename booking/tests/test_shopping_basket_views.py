@@ -282,6 +282,19 @@ class ShoppingBasketViewTests(ShoppingBasketMixin, TestSetupMixin, TestCase):
         membership.refresh_from_db()
         assert membership.voucher is None
 
+    def test_existing_voucher_removed_from_booking_if_invalid(self):
+        voucher = baker.make(ItemVoucher, code="test", discount=50, event_types=["regular_session"])
+        # booking for different event type
+        event = baker.make_recipe("booking.future_PV", cost=15)
+        booking = baker.make_recipe(
+            "booking.booking", event=event, user=self.user,
+            voucher=voucher
+        ) 
+        resp = self.client.get(self.url)
+        assert resp.context_data["total_cost"] == 15  # discount not applied
+        booking.refresh_from_db()
+        assert booking.voucher is None
+
     def test_refresh_voucher(self):
         voucher = baker.make(ItemVoucher, code="test", discount=50)
         voucher.membership_types.add(self.membership_type)
@@ -357,6 +370,14 @@ class ShoppingBasketViewTests(ShoppingBasketMixin, TestSetupMixin, TestCase):
         assert resp.context_data["voucher_add_error"] == [
             f"Voucher code {voucher.code} already used max number of times (limited to 1 per user)"
         ]
+
+        # voucher already applied to a paid booking
+        paid = baker.make(Booking, user=self.user, event__event_type="regular_session", paid=True, voucher=voucher)
+        resp = self.client.post(self.url, data={"add_voucher_code": "add_voucher_code", "code": voucher.code})
+        assert resp.context_data["voucher_add_error"] == [
+            f"You have already used voucher code {voucher.code} the maximum number of times (1)"
+        ]
+        paid.delete()
 
         # voucher existing unpaid item voucher already applied
         voucher.expiry_date = None
@@ -690,6 +711,26 @@ class StripeCheckoutTests(ShoppingBasketMixin, TestSetupMixin, TestCase):
         # redirects to basket, which will do the redirect to guest basket
         assert resp.url == reverse("booking:shopping_basket")
 
+    def test_validates_total_voucher(self):
+        session = self.client.session
+        gift_voucher = baker.make_recipe("booking.gift_voucher_10")
+        gift_voucher.voucher.purchaser_email = self.user.email
+        gift_voucher.voucher.save()
+        total_voucher = baker.make(TotalVoucher, discount_amount=5, code="test")
+        session["total_voucher_code"] = "test"
+        session.save()
+        # total correct
+        resp = self.client.post(self.url, data={"cart_total": 5})
+        assert resp.status_code == 200
+
+        # voucher invalid
+        assert "total_voucher_code" in self.client.session
+        total_voucher.activated = False
+        total_voucher.save()
+        resp = self.client.post(self.url, data={"cart_total": 5})
+        assert resp.status_code == 302
+        assert "total_voucher_code" not in self.client.session
+
     def test_logged_in_user_no_unpaid_items(self):
         # If no unpaid items, ignore any cart total passed and return to shopping basket
         resp = self.client.post(self.url, data={"cart_total": 10})
@@ -916,3 +957,4 @@ class StripeCheckoutTests(ShoppingBasketMixin, TestSetupMixin, TestCase):
         url = reverse("booking:check_total")
         resp = self.client.get(url)
         assert resp.json() == {"total": "21.00"}
+

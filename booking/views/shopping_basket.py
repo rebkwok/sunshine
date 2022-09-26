@@ -133,19 +133,16 @@ def shopping_basket_view(request):
                         validate_voucher_for_items_in_cart(voucher, unpaid_memberships, unpaid_bookings)
                         # validate for user
                         validate_voucher_for_user(voucher, request.user)
-                        try:
-                            for item_type, item_set in [("membership", unpaid_memberships), ("booking", unpaid_bookings)]:
-                                for item in item_set:
-                                    if voucher.check_item(item):
-                                        try:
-                                            validate_voucher_for_unpaid_item(item_type, item, voucher, check_voucher_properties=False)
-                                            # Passed all validation checks; apply it
-                                            item.voucher = voucher
-                                            item.save()
-                                        except VoucherValidationError as user_voucher_error:
-                                            _add_voucher_error_to_list(user_voucher_error)
-                        except VoucherValidationError as user_voucher_error:
-                            _add_voucher_error_to_list(user_voucher_error)
+                        for item_type, item_set in [("membership", unpaid_memberships), ("booking", unpaid_bookings)]:
+                            for item in item_set:
+                                if voucher.check_item(item):
+                                    try:
+                                        validate_voucher_for_unpaid_item(item_type, item, voucher, check_voucher_properties=False)
+                                        # Passed all validation checks; apply it
+                                        item.voucher = voucher
+                                        item.save()
+                                    except VoucherValidationError as user_voucher_error:
+                                        _add_voucher_error_to_list(user_voucher_error)
                     else:
                         try:
                             validate_total_voucher_for_checkout_user(voucher, request.user)

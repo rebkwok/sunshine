@@ -78,7 +78,7 @@ def validate_voucher_for_user(voucher, user, check_voucher_properties=True):
     if check_voucher_properties:
         validate_voucher_properties(voucher)
     if voucher.max_per_user is not None and voucher.uses(user=user) >= voucher.max_per_user:
-        raise VoucherValidationError(f'{full_name(user)} has already used voucher code {voucher.code} the maximum number of times ({voucher.max_per_user})')
+        raise VoucherValidationError(f'You have already used voucher code {voucher.code} the maximum number of times ({voucher.max_per_user})')
 
 def validate_total_voucher_for_checkout_user(voucher, user):
     validate_voucher_properties(voucher)

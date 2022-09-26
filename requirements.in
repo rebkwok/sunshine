@@ -29,4 +29,5 @@ python-dateutil
 pytest
 pytest-django
 pytest-cov
+pytest-freezegun
 stripe

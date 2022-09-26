@@ -114,6 +114,23 @@ class EventListViewTests(TestSetupMixin, TestCase):
         assert 'booked_events' in resp.context_data
         assert resp.context_data['booked_events'][0] == [booking.event.id][0]
 
+    def test_event_list_show_warning(self):
+        """
+        Test that all events are listed (workshops and other events)
+        """
+        event = baker.make_recipe(
+            'booking.future_EV', allow_booking_cancellation=False, cancellation_fee=0
+        )
+        resp = self.client.get(self.workshops_url)
+        assert resp.status_code == 200
+        assert resp.context['events'].count() == 4
+        assert 'data-show_warning="1"' not in resp.rendered_content
+
+        event.cancellation_fee = 1
+        event.save()
+        resp = self.client.get(self.workshops_url)
+        assert 'data-show_warning="1"' in resp.rendered_content
+
     def test_event_list_with_booked_events(self):
         """
         test that booked events are shown on listing

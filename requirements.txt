@@ -82,6 +82,8 @@ dynamic-django-forms==0.1.11
     # via -r requirements.in
 envdir==1.0.1
     # via -r requirements.in
+freezegun==1.2.2
+    # via pytest-freezegun
 gunicorn==20.1.0
     # via -r requirements.in
 humanize==4.3.0
@@ -115,14 +117,18 @@ pytest==7.1.2
     #   -r requirements.in
     #   pytest-cov
     #   pytest-django
+    #   pytest-freezegun
 pytest-cov==3.0.0
     # via -r requirements.in
 pytest-django==4.5.2
+    # via -r requirements.in
+pytest-freezegun==0.4.2
     # via -r requirements.in
 python-dateutil==2.8.2
     # via
     #   -r requirements.in
     #   delorean
+    #   freezegun
 python-memcached==1.59
     # via -r requirements.in
 python3-openid==3.2.0
