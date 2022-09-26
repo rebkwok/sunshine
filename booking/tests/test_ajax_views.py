@@ -10,6 +10,8 @@ from django.test import override_settings, TestCase
 from django.utils import timezone
 
 from booking.tests.helpers import make_data_privacy_agreement
+from stripe_payments.models import Invoice
+from stripe_payments.utils import process_refund
 
 from ..models import Event, Booking, GiftVoucher, Membership, WaitingListUser
 from .helpers import TestSetupMixin
@@ -336,6 +338,32 @@ class BookingToggleAjaxViewTests(TestSetupMixin, TestCase):
         self.assertEqual(resp.context['alert_message']['message'], 'Cancelled.')
         self.assertEqual(booking.status, 'CANCELLED')
         self.assertFalse(booking.no_show)
+
+    @patch("booking.views.booking_helpers.process_refund")
+    def test_cancel_booking_paid_with_stripe(self, mock_process_refund):
+        mock_process_refund.return_value = True
+        event = baker.make_recipe('booking.future_PC')
+        url = reverse('booking:toggle_booking', args=[event.id])
+        self.client.login(username=self.user.username, password='test')
+
+        invoice = baker.make(
+            Invoice, paid=True, username=self.user.email,
+            invoice_id="inv123",
+            stripe_payment_intent_id="pi_123"
+        )
+        booking = baker.make_recipe(
+            'booking.booking', user=self.user, event=event,
+            date_booked=datetime(2018, 1, 1, 8, 56, tzinfo=timezone.utc),
+            paid=True,
+            invoice=invoice
+        )
+
+        resp = self.client.post(url)
+        booking.refresh_from_db()
+        assert resp.context['alert_message']['message'] == 'Cancelled. Refund processing.'
+        assert booking.status == 'CANCELLED'
+        assert not booking.no_show
+        assert not booking.paid
 
     def test_cancel_full_booking_emails_waiting_list(self):
         """

@@ -1,11 +1,14 @@
 import logging
+from django.conf import settings
+from django.contrib.sites.models import Site
 from django.urls import reverse
+import stripe
 
 from activitylog.models import ActivityLog
 from booking.email_helpers import send_gift_voucher_email
-from .emails import send_processed_payment_emails
+from .emails import send_processed_payment_emails, send_invalid_request_email
 from .exceptions import StripeProcessingError
-from .models import Invoice
+from .models import Invoice, StripeRefund, StripePaymentIntent, Seller
 
 
 logger = logging.getLogger(__name__)
@@ -68,3 +71,46 @@ def process_invoice_items(invoice, payment_method, transaction_id=None, request=
     ActivityLog.objects.create(
         log=f"Invoice {invoice.invoice_id} (user {invoice.username}) paid by {payment_method}"
     )
+
+
+def process_refund(request, booking):
+    # process refund
+    refunded = False
+    try:
+        payment_intent = StripePaymentIntent.objects.get(
+            payment_intent_id=booking.invoice.stripe_payment_intent_id
+        )
+    except StripePaymentIntent.DoesNotExist:
+        # send warning email to tech support
+        send_invalid_request_email(
+            request, booking, "Payment intent not found"
+        )
+    else:
+        stripe.api_key = settings.STRIPE_SECRET_KEY
+        seller = Seller.objects.filter(site=Site.objects.get_current(request)).first()
+        
+        # get the amount to refund from the metadata (in) pence)
+        amount = payment_intent.metadata.get(f"booking_{booking.id}_cost_in_p")
+        if amount is None:
+            # send warning email to tech support
+            send_invalid_request_email(
+                request, booking, "Amount could not be parsed from PI metadata"
+            )
+        else:
+            try:
+                refund = stripe.Refund.create(
+                    amount=int(amount),
+                    metadata={"booking_id": booking.id, "cancelled_by": request.user.email},
+                    payment_intent=payment_intent.payment_intent_id,
+                    reason="requested_by_customer",
+                    stripe_account=seller.stripe_user_id,
+                )
+                StripeRefund.create_from_refund_obj(refund, payment_intent, booking.id)
+                refunded = True
+                ActivityLog.objects.create(
+                    log=f"Refund for booking {booking.id} (user {booking.user.username}) processed"
+                )
+            except stripe.error.InvalidRequestError as error:
+                # send warning email to tech support
+                send_invalid_request_email(request, booking, str(error))
+    return refunded

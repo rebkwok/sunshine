@@ -3,12 +3,10 @@ from django.core.mail import send_mail
 from django.contrib.sites.models import Site
 from django.template.loader import get_template 
 
-import stripe
-
 from activitylog.models import ActivityLog
-from booking.email_helpers import email_waiting_lists, send_email
+from booking.email_helpers import email_waiting_lists
 from booking.utils import host_from_request
-from stripe_payments.models import Seller, StripePaymentIntent, StripeRefund
+from stripe_payments.utils import process_refund
 
 
 def cancel_booking_from_view(request, booking):
@@ -147,62 +145,3 @@ def cancel_booking_from_view(request, booking):
     email_waiting_lists([event.id], host=host)
 
     return alert_message
-
-
-def process_refund(request, booking):
-    # process refund
-    refunded = False
-    try:
-        payment_intent = StripePaymentIntent.objects.get(
-            payment_intent_id=booking.invoice.stripe_payment_intent_id
-        )
-    except StripePaymentIntent.DoesNotExist:
-        # send warning email to tech support
-        _send_invalid_request_email(
-            request, booking, "Payment intent not found"
-        )
-    else:
-        stripe.api_key = settings.STRIPE_SECRET_KEY
-        seller = Seller.objects.filter(site=Site.objects.get_current(request)).first()
-        
-        # get the amount to refund from the metadata (in) pence)
-        amount = payment_intent.metadata.get(f"booking_{booking.id}_cost_in_p")
-        if amount is None:
-            # send warning email to tech support
-            _send_invalid_request_email(
-                request, booking, "Amount could not be parsed from PI metadata"
-            )
-        else:
-            try:
-                refund = stripe.Refund.create(
-                    amount=int(amount),
-                    metadata={"booking_id": booking.id, "cancelled_by": request.user.email},
-                    payment_intent=payment_intent.payment_intent_id,
-                    reason="requested_by_customer",
-                    stripe_account=seller.stripe_user_id,
-                )
-                StripeRefund.create_from_refund_obj(refund, payment_intent, booking.id)
-                refunded = True
-                ActivityLog.objects.create(
-                    log=f"Refund for booking {booking.id} (user {booking.user.username}) processed"
-                )
-            except stripe.error.InvalidRequestError as error:
-                # send warning email to tech support
-                _send_invalid_request_email(request, booking, str(error))
-    return refunded
-
-
-def _send_invalid_request_email(request, booking, reason):
-    # send warning email to tech support
-    send_email(
-        request, 
-        subject="Refund failed: amount could not be calculated",
-        template_txt="booking/email/refund_failed.txt",
-        ctx={
-            "payment_intent": booking.invoice.stripe_payment_intent_id,
-            "invoice": booking.invoice.invoice_id,
-            "booking_id": booking.id,
-            "reason": reason
-        },
-        to_list=[settings.SUPPORT_EMAIL],
-    )

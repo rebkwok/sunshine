@@ -1,6 +1,7 @@
 from datetime import timedelta, datetime
 from unittest.mock import Mock, patch
 
+import pytest
 from model_bakery import baker
 
 from django.core import mail
@@ -12,7 +13,7 @@ from django.utils import timezone
 
 import booking.admin as admin
 from booking.email_helpers import email_waiting_lists
-from booking.models import Event, Booking, ItemVoucher, MembershipType, Private, Workshop, RegularClass
+from booking.models import Event, Booking, GiftVoucher, ItemVoucher, MembershipType, Private, TotalVoucher, Workshop, RegularClass
 from stripe_payments.models import Invoice, StripeRefund
 
 
@@ -372,6 +373,30 @@ class EventProxyAdminTests(TestCase):
         # emails sent to 3 open bookings
         assert len(mail.outbox) == 3
 
+    def test_regular_class_actions(self):
+        # only cancel_event action, no delete option
+        ev_admin = admin.RegularClassAdmin(RegularClass, AdminSite())
+        request = Mock(GET=[])
+        actions = ev_admin.get_actions(request)
+        assert list(actions.keys()) == ['cancel_event', "toggle_members_only"]
+
+    def test_toggle_members_only_action(self):
+        event = baker.make_recipe('booking.future_PC', max_participants=5, members_only=False)
+        event1 = baker.make_recipe('booking.future_PC', max_participants=5, members_only=True)
+        event2 = baker.make_recipe('booking.future_PC', max_participants=5, members_only=True)
+
+        ev_admin = admin.RegularClassAdmin(RegularClass, AdminSite())
+        request = Mock()
+        ev_admin.toggle_members_only(request, RegularClass.objects.filter(id__in=[event.id, event1.id]))
+        for ev in [event, event1, event2]:
+            ev.refresh_from_db()
+
+        # event and event1 have been toggle
+        assert event.members_only
+        assert not event1.members_only
+        # event2 has not been toggled
+        assert event2.members_only
+
 
 class BookingAdminTests(TestCase):
 
@@ -416,7 +441,8 @@ class BookingAdminTests(TestCase):
 
         booking_admin = admin.BookingAdmin(Booking, AdminSite())
         booking_query = booking_admin.get_queryset(None)[0]
-
+        
+        assert booking_admin.event_name(booking_query) == booking.event.name
         assert booking_admin.get_date(booking_query) == booking.event.date
         assert booking_admin.get_user(booking_query) == 'Test User (testuser)'
         assert booking_admin.get_cost(booking_query) == u"\u00A3{}.00".format(event.cost)
@@ -469,5 +495,31 @@ class ItemVoucherAdminTests(TestCase):
         voucher.membership_types.add(membership_type)
         voucher_admin = admin.ItemVoucherAdmin(ItemVoucher, AdminSite())
         voucher_query = voucher_admin.get_queryset(None)[0]
-        assert voucher_admin.valid_for(voucher_query) == 'test membership (membership), workshop, private'
+        assert voucher_admin.valid_for(voucher_query) == 'Membership - test membership, Workshop booking, Private Lesson booking'
     
+
+class TotalVoucherAdminTests(TestCase):
+
+    def test_get_queryset(self):
+        voucher = baker.make(TotalVoucher, discount=10, is_gift_voucher=False)
+        baker.make(TotalVoucher, discount=10, is_gift_voucher=True)
+        voucher_admin = admin.TotalVoucherAdmin(TotalVoucher, AdminSite())
+        assert [
+            v.id for v in voucher_admin.get_queryset(None)
+        ] == [voucher.id]
+
+
+@pytest.mark.django_db
+def test_get_gift_voucher_display(membership_gift_voucher, total_gift_voucher):
+    total_gift_voucher.activate()
+
+    gift_voucher_admin = admin.GiftVoucherAdmin(GiftVoucher, AdminSite())
+    membership_gift_voucher_query = gift_voucher_admin.get_queryset(None).filter(id=membership_gift_voucher.id)[0]
+    assert gift_voucher_admin.activated(membership_gift_voucher_query) is False
+
+    total_gift_voucher_query = gift_voucher_admin.get_queryset(None).filter(id=total_gift_voucher.id)[0]
+    assert gift_voucher_admin.activated(total_gift_voucher_query) is True
+    
+    assert gift_voucher_admin.link(total_gift_voucher_query) == (
+        f'<a href="{total_gift_voucher.get_voucher_url()}">{total_gift_voucher.slug}</a>'
+    )

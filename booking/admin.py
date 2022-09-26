@@ -14,7 +14,7 @@ from booking.models import (
 )
 from booking.forms import EventForm, ItemVoucherForm
 from booking.email_helpers import send_email
-from booking.views.booking_helpers import process_refund
+from stripe_payments.utils import process_refund
 from stripe_payments.models import StripeRefund
 
 
