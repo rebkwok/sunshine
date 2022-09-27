@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import (
-    stripe_payment_complete, stripe_webhook, UserInvoiceListView
+    stripe_payment_complete, stripe_webhook
 )
 from .connection_views import connect_stripe_view, StripeAuthorizeView, StripeAuthorizeCallbackView
 
@@ -15,5 +15,4 @@ urlpatterns = [
     # transactions
     path('stripe-payment-complete/', stripe_payment_complete, name="stripe_payment_complete"),
     path('stripe/webhook/', stripe_webhook, name="stripe_webhook"),
-    path('account-transactions/', UserInvoiceListView.as_view(), name="user_invoices")
 ]

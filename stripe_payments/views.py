@@ -2,21 +2,18 @@ from decimal import Decimal
 import json
 import logging
 
+import stripe
+
 from django.conf import settings
 from django.contrib.sites.models import Site
 from django.views.decorators.csrf import csrf_exempt
-from django.views.decorators.http import require_GET, require_POST
-from django.views.generic import ListView
+from django.views.decorators.http import require_POST
 from django.shortcuts import render, HttpResponse
-
-from braces.views import LoginRequiredMixin
-
-import stripe
 
 from activitylog.models import ActivityLog
 from .emails import send_failed_payment_emails, send_processed_refund_emails
 from .exceptions import StripeProcessingError
-from .models import Invoice, Seller, StripePaymentIntent
+from .models import Seller, StripePaymentIntent
 from .utils import get_invoice_from_payment_intent, check_stripe_data, process_invoice_items
 
 logger = logging.getLogger(__name__)
@@ -150,13 +147,3 @@ def stripe_webhook(request):
         send_failed_payment_emails(error=e)
         return HttpResponse(str(e), status=200)
     return HttpResponse(status=200)
-
-
-class UserInvoiceListView(LoginRequiredMixin, ListView):
-    paginate_by = 20
-    model = Invoice
-    context_object_name = "invoices"
-    template_name = "stripe_payments/invoices.html"
-
-    def get_queryset(self):
-        return Invoice.objects.filter(paid=True, username=self.request.user.email)

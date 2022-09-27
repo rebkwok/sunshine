@@ -51,22 +51,16 @@ class StripePaymentIntentAdmin(admin.ModelAdmin):
         ))
     inv.short_description = "Invoice"
 
-    def pi(self, obj):
-        return mark_safe(
-            '<a href="{}">{}</a>'.format(
-            reverse("admin:stripe_payments_stripepaymentintent_change", args=(obj.payment_intent.pk,)),
-            obj.payment_intent.payment_intent_id
-        ))
-    pi.short_description = "Payment Intent"
-
     def items(self, obj):
         return _inv_items(obj.invoice)
 
 
 def _inv_items(invoice):
     items = sum(list(invoice.items_summary().values()), [])
-    items = [f"<li>{item}</li>" for item in items]
-    return mark_safe(f"<ul>{''.join(items)}</ul")
+    if items:
+        items = [f"<li>{item}</li>" for item in items]
+        return mark_safe(f"<ul>{''.join(items)}</ul>")
+    return ""
 
 
 @admin.register(StripeRefund)
@@ -93,8 +87,13 @@ class StripeRefundAdmin(admin.ModelAdmin):
     pi.short_description = "Payment Intent"
 
     def booking(self, obj):
-        return mark_safe(
-            '<a href="{}">{}</a>'.format(
-            reverse("admin:booking_booking_change", args=(obj.booking_id,)),
-            Booking.objects.get(id=obj.booking_id).event
-        ))
+        try:
+            booking = Booking.objects.get(id=obj.booking_id)
+            if booking:
+                return mark_safe(
+                    '<a href="{}">{}</a>'.format(
+                    reverse("admin:booking_booking_change", args=(obj.booking_id,)),
+                    booking.event
+                ))
+        except Booking.DoesNotExist:
+            return f"{obj.booking_id} (deleted)"

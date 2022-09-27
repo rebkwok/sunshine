@@ -21,7 +21,8 @@ logger = logging.getLogger(__name__)
 
 @staff_member_required
 def connect_stripe_view(request):
-    site_seller = Seller.objects.filter(site=Site.objects.get_current(request)).first()
+    site_sellers = Seller.objects.filter(site=Site.objects.get_current(request))
+    site_seller = site_sellers.first() if site_sellers else None
     return render(request, "stripe_payments/connect_stripe.html", {"site_seller": site_seller})
 
 

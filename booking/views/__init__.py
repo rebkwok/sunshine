@@ -13,6 +13,7 @@ from booking.views.memberships import MembershipListView, MembershipDetailView
 from booking.views.gift_vouchers import (
     GiftVoucherDetailView, GiftVoucherPurchaseView, GiftVoucherUpdateView, voucher_details
 )
+from booking.views.user_invoices_views import UserInvoiceListView
 
 __all__ = [
     'RegularClassesEventListView', 'WorkshopEventListView', 'EventDetailView', 
@@ -24,7 +25,8 @@ __all__ = [
     'csrf_failure',
     "membership_purchase_view", "ajax_add_membership_to_basket",
     "MembershipListView", "MembershipDetailView",
-    "GiftVoucherDetailView", "GiftVoucherPurchaseView", "GiftVoucherUpdateView"
+    "GiftVoucherDetailView", "GiftVoucherPurchaseView", "GiftVoucherUpdateView",
+    "UserInvoiceListView"
 ]
 
 

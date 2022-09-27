@@ -2,7 +2,6 @@
 from model_bakery import baker
 import pytest
 from django.urls import reverse
-from django.test import TestCase
 
 from booking.models import GiftVoucherType, GiftVoucher, MembershipType, ItemVoucher, TotalVoucher
 

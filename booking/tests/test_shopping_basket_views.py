@@ -711,7 +711,10 @@ class StripeCheckoutTests(ShoppingBasketMixin, TestSetupMixin, TestCase):
         # redirects to basket, which will do the redirect to guest basket
         assert resp.url == reverse("booking:shopping_basket")
 
-    def test_validates_total_voucher(self):
+    @patch("booking.views.shopping_basket.stripe.PaymentIntent")        
+    def test_validates_total_voucher(self, mock_payment_intent):
+        mock_payment_intent_obj = self.get_mock_payment_intent(id="foo")
+        mock_payment_intent.create.return_value = mock_payment_intent_obj
         session = self.client.session
         gift_voucher = baker.make_recipe("booking.gift_voucher_10")
         gift_voucher.voucher.purchaser_email = self.user.email
@@ -760,6 +763,30 @@ class StripeCheckoutTests(ShoppingBasketMixin, TestSetupMixin, TestCase):
         assert invoice.amount == 30
         assert membership.invoice == invoice
         assert booking.invoice == invoice
+
+    @patch("booking.views.shopping_basket.stripe.PaymentIntent")
+    def test_creates_invoice_for_gift_voucher_with_override_cost(self, mock_payment_intent):
+        mock_payment_intent_obj = self.get_mock_payment_intent(id="foo")
+        mock_payment_intent.create.return_value = mock_payment_intent_obj
+        
+        gift_voucher = baker.make_recipe(
+            "booking.gift_voucher_10", gift_voucher_type__override_cost=57
+        )
+        gift_voucher.voucher.purchaser_email = self.user.email
+        gift_voucher.voucher.save()
+
+        assert Invoice.objects.exists() is False
+        # total is correct
+        resp = self.client.post(self.url, data={"cart_total": 57})
+        assert resp.status_code == 200
+        assert resp.context_data["cart_total"] == 57.00
+        gift_voucher.refresh_from_db()
+
+        assert Invoice.objects.exists()
+        invoice = Invoice.objects.first()
+        assert invoice.username == self.user.email
+        assert invoice.amount == 57
+        assert gift_voucher.invoice == invoice
 
     @patch("booking.views.shopping_basket.stripe.PaymentIntent")
     def test_creates_invoice_and_applies_to_unpaid_gift_vouchers_anon_user(

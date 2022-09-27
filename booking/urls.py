@@ -11,6 +11,8 @@ from booking.views import RegularClassesEventListView, WorkshopEventListView, \
     ajax_add_membership_to_basket, membership_purchase_view, \
     MembershipListView, MembershipDetailView, \
     GiftVoucherUpdateView, GiftVoucherPurchaseView, GiftVoucherDetailView, voucher_details
+from booking.views.user_invoices_views import UserInvoiceListView
+
 
 app_name = 'booking'
 
@@ -61,6 +63,9 @@ urlpatterns = [
     path('ajax-cart-item-delete/', ajax_cart_item_delete, name='ajax_cart_item_delete'),
     path('check-total/', check_total, name="check_total"),
     path("guest-shopping-basket/", guest_shopping_basket, name="guest_shopping_basket"),
+
+    # transactions
+    path("payment-history/", UserInvoiceListView.as_view(), name="transactions"),
     
     path('', RedirectView.as_view(url='/classes/', permanent=True)),
 ]

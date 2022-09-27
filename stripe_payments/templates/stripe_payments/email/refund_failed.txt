@@ -1,0 +1,13 @@
+{% extends 'website/email/email_base.txt' %}
+
+{% block messagecontent %}
+
+ACTION REQUIRED: REFUND FAILED
+Error while processing refund
+-----------------------------
+Stripe payment intent id: {{ payment_intent }}
+invoice: {{ invoice }}
+booking_id: {{ booking }}
+Error: {{ reason }}
+
+{% endblock %}

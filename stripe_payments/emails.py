@@ -77,14 +77,16 @@ def send_failed_payment_emails(payment_intent=None, error=None):
 
 def send_invalid_request_email(request, booking, reason):
     # send warning email to tech support
+    pi = booking.invoice.stripe_payment_intent_id if booking.invoice else None
+    inv = booking.invoice.invoice_id if booking.invoice else None
     ctx={
-        "payment_intent": booking.invoice.stripe_payment_intent_id,
-        "invoice": booking.invoice.invoice_id,
+        "payment_intent": pi,
+        "invoice": inv,
         "booking_id": booking.id,
         "reason": reason
     }
     send_mail(
-        'WARNING: Refund failed: amount could not be calculated',
+        'WARNING: Refund failed',
         get_template('stripe_payments/email/refund_failed.txt').render(ctx),
         settings.DEFAULT_FROM_EMAIL,
         [settings.SUPPORT_EMAIL],

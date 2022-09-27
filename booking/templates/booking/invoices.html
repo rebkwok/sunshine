@@ -1,0 +1,41 @@
+{% extends 'website/_base.html' %}
+
+{% load static %}
+
+{% block content %}
+    <h1>Payment History</h1>
+
+    {% if invoices %}
+        <table class="table table-responsive table-striped">
+            <thead>
+                <th>Invoice</th>
+                <th>Amount</th>
+                <th>Date Paid</th>
+                <th>Items</th>
+            </thead>
+            <tbody>
+                {% for invoice in invoices %}
+                    <tr>
+                        <td>{{ invoice.invoice_id }}</td>
+                        <td>£{{ invoice.amount }}</td>
+                        <td>{{ invoice.date_paid|date:"d-M-y H:i" }}</td>
+                        <td>
+                            <ul>
+                                {% for item in invoice.items_dict.values %}
+                                <li>{{ item.name }} - {{ item.cost_str }}</li>
+                                {% endfor %}
+                            </ul>    
+                            {% if invoice.total_voucher_code %}<span class="helptext">Voucher applied - {{ invoice.total_voucher_code }}</span>{% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No payment transactions to display.</p>
+    {% endif %}
+    {% include 'booking/includes/pagination.html' %}
+
+{% endblock content %}
+{% block extrascripts %}
+{% endblock %}

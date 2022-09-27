@@ -200,7 +200,7 @@ TEMPLATES = [
 
 if env("LOCAL") or env("CI"):
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-else:
+else:  # pragma: no cover
     EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
     EMAIL_USE_TLS = True
     EMAIL_HOST = 'email-smtp.eu-west-1.amazonaws.com'
@@ -288,7 +288,7 @@ if env("LOCAL") or env("CI"):
             },
         },
     }
-else:
+else:  # pragma: no cover
     LOGGING = {
         'version': 1,
         'disable_existing_loggers': False,

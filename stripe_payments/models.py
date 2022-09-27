@@ -183,14 +183,14 @@ class StripeRefund(models.Model):
     booking_id = models.PositiveIntegerField()
 
     @classmethod
-    def create_from_refund_obj(cls, refund, payment_intent, booking_id):
+    def create_from_refund_obj(cls, refund, payment_intent_model_instance, booking_id):
         return cls.objects.create(
             refund_id=refund.id,
-            payment_intent=payment_intent,
-            invoice=payment_intent.invoice,
+            payment_intent=payment_intent_model_instance,
+            invoice=payment_intent_model_instance.invoice,
             amount=refund.amount,
             status=refund.status,
-            seller=payment_intent.seller,
+            seller=payment_intent_model_instance.seller,
             metadata=refund.metadata,
             currency=refund.currency,
             reason=refund.reason,
