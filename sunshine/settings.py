@@ -392,6 +392,7 @@ S3_LOG_BACKUP_ROOT_FILENAME = "sunshine_activity_logs_backup"
 # for dynamic disclaimer form
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
 USE_CRISPY = True
+DYNAMIC_FORMS_CUSTOM_JS = ""
 
 # STRIPE
 STRIPE_PUBLISHABLE_KEY = env("STRIPE_PUBLISHABLE_KEY")
