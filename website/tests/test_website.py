@@ -12,6 +12,14 @@ class WebsitePagesTests(TestCase):
         resp = self.client.get(reverse('website:home'))
         assert resp.status_code == 200
 
+    def test_get_faq_page(self):
+        resp = self.client.get(reverse('website:faq'))
+        assert resp.status_code == 200
+
+    def test_get_contact_page(self):
+        resp = self.client.get(reverse('website:contact'))
+        assert resp.status_code == 200
+
 
 class ContactFormTests(TestCase):
 
@@ -28,7 +36,7 @@ class ContactFormTests(TestCase):
 
         # no data on session
         self.assertEqual(
-            resp.context['form'].initial['subject'], 'General Enquiry'
+            resp.context['form'].initial['subject'], 'Website Enquiry'
         )
         self.assertEqual(
             resp.context['form'].initial['first_name'], ''
@@ -55,7 +63,7 @@ class ContactFormTests(TestCase):
 
         # data on session
         self.assertEqual(
-            resp.context['form'].initial['subject'], 'Membership Enquiry'
+            resp.context['form'].initial['subject'], 'Website Enquiry'
         )
         self.assertEqual(
             resp.context['form'].initial['first_name'], 'Donald'
@@ -76,7 +84,7 @@ class ContactFormTests(TestCase):
 
         # no data on session
         self.assertEqual(
-            resp.context['form'].initial['subject'], 'General Enquiry'
+            resp.context['form'].initial['subject'], 'Website Enquiry'
         )
         self.assertEqual(
             resp.context['form'].initial['first_name'], ''

@@ -3,7 +3,7 @@ from model_bakery import baker
 from django.core import management
 from django.test import TestCase
 
-from .models import SessionType, TimetableSession, Venue
+from ..models import SessionType, TimetableSession, Venue
 
 
 
@@ -15,7 +15,7 @@ class ModelTests(TestCase):
 
     def test_venue_str(self):
         venue = baker.make(
-            Venue, venue="Sunshine Studio",
+            Venue, name="Sunshine Studio",
             address="1 Street",
             abbreviation="Sunshine"
         )
@@ -32,13 +32,13 @@ class ManagementCommands(TestCase):
 
         management.call_command('populatedb')
 
-        self.assertEqual(Venue.objects.count(), 5)
-        self.assertEqual(SessionType.objects.count(), 7)
+        self.assertEqual(Venue.objects.count(), 2)
+        self.assertEqual(SessionType.objects.count(), 3)
         self.assertEqual(TimetableSession.objects.count(), 3)
 
         # rerunning doesn't create additional items
         management.call_command('populatedb')
 
-        self.assertEqual(Venue.objects.count(), 5)
-        self.assertEqual(SessionType.objects.count(), 7)
+        self.assertEqual(Venue.objects.count(), 2)
+        self.assertEqual(SessionType.objects.count(), 3)
         self.assertEqual(TimetableSession.objects.count(), 3)
