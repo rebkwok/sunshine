@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from calendar import monthrange, month_name
+from calendar import monthrange, month_name, month_abbr
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 from decimal import Decimal
@@ -506,6 +506,9 @@ class Membership(models.Model):
 
     def __str__(self) -> str:
         return f"{self.membership_type.name} - {self.month_str} {self.year}"
+
+    def str_with_abbreviated_month(self) -> str:
+        return f"{self.membership_type.name} - {month_abbr[self.month]} {self.year}"
 
 
 class Booking(models.Model):

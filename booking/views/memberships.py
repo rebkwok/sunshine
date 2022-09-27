@@ -22,7 +22,7 @@ class MembershipListView(DataPolicyAgreementRequiredMixin, LoginRequiredMixin, L
 
     def get_queryset(self):
         queryset = super().get_queryset()
-        user_memberships = queryset.filter(user=self.request.user, paid=True).order_by("year", "month", "-purchase_date")
+        user_memberships = queryset.filter(user=self.request.user, paid=True).order_by("year", "month", "purchase_date")
         if not self.request.GET.get("include-expired"):
             user_memberships = [
                 membership for membership in user_memberships if membership.current_or_future()

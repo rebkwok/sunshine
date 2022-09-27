@@ -1,0 +1,7 @@
+{% if current_memberships %}
+    <ul>
+        {% for membership in current_memberships %}
+            <li>{{ membership.str_with_abbreviated_month }} (used {{ membership.times_used }}/{{ membership.membership_type.number_of_classes }})</li>
+        {% endfor %}
+    </ul>    
+{% endif %}
