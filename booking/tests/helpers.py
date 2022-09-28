@@ -1,4 +1,6 @@
 from datetime import datetime
+from datetime import timezone as dt_timezone
+
 from importlib import import_module
 import random
 
@@ -58,7 +60,7 @@ def make_online_disclaimer(**kwargs):
     defaults = {
         "health_questionnaire_responses": [],
         "terms_accepted": True,
-        "date_of_birth": datetime(2000, 1, 1, tzinfo=timezone.utc),
+        "date_of_birth": datetime(2000, 1, 1, tzinfo=dt_timezone.utc),
         "phone": 123,
         "emergency_contact_name": "test",
         "emergency_contact_relationship": "test",
@@ -73,7 +75,7 @@ def make_archived_disclaimer(**kwargs):
         kwargs["version"] = DisclaimerContent.current_version()
     defaults = {
         "name": "Test User",
-        "date_of_birth": datetime(1990, 6, 7, tzinfo=timezone.utc),
+        "date_of_birth": datetime(1990, 6, 7, tzinfo=dt_timezone.utc),
         "date_archived": timezone.now(),
         "phone": "123455",
         "health_questionnaire_responses": [],

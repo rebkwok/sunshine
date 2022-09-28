@@ -1,4 +1,6 @@
-from datetime import timedelta, datetime
+from datetime import datetime
+from datetime import timezone as dt_timezone
+
 from unittest.mock import Mock, patch
 
 import pytest
@@ -9,7 +11,6 @@ from django.contrib.auth.models import User
 from django.contrib.admin.sites import AdminSite
 from django.test import TestCase
 from django.urls import reverse
-from django.utils import timezone
 
 import booking.admin as admin
 from booking.email_helpers import email_waiting_lists
@@ -70,7 +71,7 @@ class EventAdminTests(TestCase):
         assert ev_admin.get_spaces_left(ev_query) == 2
 
     def test_event_date_display(self):
-        event = baker.make_recipe('booking.future_EV', date=datetime(2019, 1, 23, 18, 0, tzinfo=timezone.utc))
+        event = baker.make_recipe('booking.future_EV', date=datetime(2019, 1, 23, 18, 0, tzinfo=dt_timezone.utc))
         baker.make_recipe('booking.booking', event=event, _quantity=3)
 
         ev_admin = admin.EventAdmin(Event, AdminSite())
@@ -78,7 +79,7 @@ class EventAdminTests(TestCase):
         assert ev_admin.get_date(ev_query) == 'Wed 23 Jan 2019 18:00 (GMT)'
 
         # BST datetime
-        event.date = datetime(2019, 7, 23, 17, 0, tzinfo=timezone.utc)
+        event.date = datetime(2019, 7, 23, 17, 0, tzinfo=dt_timezone.utc)
         event.save()
         ev_query = ev_admin.get_queryset(None)[0]
         assert ev_admin.get_date(ev_query) == 'Tue 23 Jul 2019 18:00 (BST)'

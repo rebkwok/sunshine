@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from calendar import monthrange, month_name, month_abbr
 from datetime import datetime, timedelta
+from datetime import timezone as dt_timezone
+
 from dateutil.relativedelta import relativedelta
 from decimal import Decimal
 import logging
@@ -473,11 +475,11 @@ class Membership(models.Model):
         return month_name[self.month]
 
     def start_date(self): 
-        return datetime(self.year, self.month, 1, tzinfo=timezone.utc)
+        return datetime(self.year, self.month, 1, tzinfo=dt_timezone.utc)
 
     def expiry_date(self):
         _, last_day = monthrange(month=self.month, year=self.year)
-        return datetime(self.year, self.month, last_day, tzinfo=timezone.utc)
+        return datetime(self.year, self.month, last_day, tzinfo=dt_timezone.utc)
 
     def has_expired(self):
         now = timezone.now()

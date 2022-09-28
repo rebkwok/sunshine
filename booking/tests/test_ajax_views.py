@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime, timedelta
+from datetime import timezone as dt_timezone
+
 from unittest.mock import patch
 from model_bakery import baker
 
@@ -11,7 +13,6 @@ from django.utils import timezone
 
 from booking.tests.helpers import make_data_privacy_agreement
 from stripe_payments.models import Invoice
-from stripe_payments.utils import process_refund
 
 from ..models import Event, Booking, GiftVoucher, Membership, WaitingListUser
 from .helpers import TestSetupMixin
@@ -230,13 +231,13 @@ class BookingToggleAjaxViewTests(TestSetupMixin, TestCase):
         """
         Toggle booking to no-show
         """
-        mock_now.return_value = datetime(2018, 1, 1, 9, tzinfo=timezone.utc)
-        event = baker.make_recipe('booking.future_PC', date=datetime(2018, 1, 1, 10, tzinfo=timezone.utc))
+        mock_now.return_value = datetime(2018, 1, 1, 9, tzinfo=dt_timezone.utc)
+        event = baker.make_recipe('booking.future_PC', date=datetime(2018, 1, 1, 10, tzinfo=dt_timezone.utc))
         url = reverse('booking:toggle_booking', args=[event.id])
 
         booking = baker.make_recipe(
             'booking.booking', user=self.user, event=event,
-            date_booked=datetime(2018, 1, 1, 8, 44, tzinfo=timezone.utc),
+            date_booked=datetime(2018, 1, 1, 8, 44, tzinfo=dt_timezone.utc),
             paid=True
         )  # booked and paid within cancellation period
         self.client.login(username=self.user.username, password='test')
@@ -259,7 +260,7 @@ class BookingToggleAjaxViewTests(TestSetupMixin, TestCase):
 
         booking = baker.make_recipe(
             'booking.booking', user=self.user, event=event,
-            date_booked=datetime(2018, 1, 1, 8, 44, tzinfo=timezone.utc),
+            date_booked=datetime(2018, 1, 1, 8, 44, tzinfo=dt_timezone.utc),
             paid=True
         )
         self.client.login(username=self.user.username, password='test')
@@ -279,7 +280,7 @@ class BookingToggleAjaxViewTests(TestSetupMixin, TestCase):
         membership = baker.make(Membership, user=self.user, paid=True)
         booking = baker.make_recipe(
             'booking.booking', user=self.user, event=event,
-            date_booked=datetime(2018, 1, 1, 8, 56, tzinfo=timezone.utc),
+            date_booked=datetime(2018, 1, 1, 8, 56, tzinfo=dt_timezone.utc),
             paid=True,
             membership=membership
         )
@@ -296,15 +297,15 @@ class BookingToggleAjaxViewTests(TestSetupMixin, TestCase):
         """
         Cancelling within 5 mins allows proper cancelling
         """
-        mock_now.return_value = datetime(2018, 1, 1, 9, tzinfo=timezone.utc)
-        event = baker.make_recipe('booking.future_PC', date=datetime(2018, 1, 1, 10, tzinfo=timezone.utc))
+        mock_now.return_value = datetime(2018, 1, 1, 9, tzinfo=dt_timezone.utc)
+        event = baker.make_recipe('booking.future_PC', date=datetime(2018, 1, 1, 10, tzinfo=dt_timezone.utc))
         url = reverse('booking:toggle_booking', args=[event.id])
         self.client.login(username=self.user.username, password='test')
 
         membership = baker.make(Membership, user=self.user)
         booking = baker.make_recipe(
             'booking.booking', user=self.user, event=event,
-            date_booked=datetime(2018, 1, 1, 8, 56, tzinfo=timezone.utc),
+            date_booked=datetime(2018, 1, 1, 8, 56, tzinfo=dt_timezone.utc),
             paid=True,
             membership=membership
         )
@@ -320,16 +321,16 @@ class BookingToggleAjaxViewTests(TestSetupMixin, TestCase):
         """
         Cancelling within 5 mins of rebooking allows proper cancelling
         """
-        mock_now.return_value = datetime(2018, 1, 1, 9, tzinfo=timezone.utc)
-        event = baker.make_recipe('booking.future_PC', date=datetime(2018, 1, 1, 10, tzinfo=timezone.utc))
+        mock_now.return_value = datetime(2018, 1, 1, 9, tzinfo=dt_timezone.utc)
+        event = baker.make_recipe('booking.future_PC', date=datetime(2018, 1, 1, 10, tzinfo=dt_timezone.utc))
         url = reverse('booking:toggle_booking', args=[event.id])
         self.client.login(username=self.user.username, password='test')
 
         membership = baker.make(Membership, user=self.user)
         booking = baker.make_recipe(
             'booking.booking', user=self.user, event=event,
-            date_booked=datetime(2018, 1, 1, 5, 0, tzinfo=timezone.utc),
-            date_rebooked=datetime(2018, 1, 1, 8, 56, tzinfo=timezone.utc),
+            date_booked=datetime(2018, 1, 1, 5, 0, tzinfo=dt_timezone.utc),
+            date_rebooked=datetime(2018, 1, 1, 8, 56, tzinfo=dt_timezone.utc),
             paid=True,
             membership=membership
         )
@@ -353,7 +354,7 @@ class BookingToggleAjaxViewTests(TestSetupMixin, TestCase):
         )
         booking = baker.make_recipe(
             'booking.booking', user=self.user, event=event,
-            date_booked=datetime(2018, 1, 1, 8, 56, tzinfo=timezone.utc),
+            date_booked=datetime(2018, 1, 1, 8, 56, tzinfo=dt_timezone.utc),
             paid=True,
             invoice=invoice
         )

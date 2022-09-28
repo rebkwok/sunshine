@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
-from collections import UserDict
 from datetime import timedelta, datetime
+from datetime import timezone as dt_timezone
+
 from unittest.mock import patch
 
 from django.contrib.auth.models import User
@@ -39,7 +40,7 @@ class EventTests(TestCase):
         event = baker.make_recipe(
             'booking.past_event',
             name='Test event',
-            date=datetime(2015, 1, 1, tzinfo=timezone.utc)
+            date=datetime(2015, 1, 1, tzinfo=dt_timezone.utc)
         )
         self.assertEqual(str(event), 'Test event - 01 Jan 2015, 00:00')
 
@@ -50,7 +51,7 @@ class BookingTests(TestCase):
     def setUpTestData(cls):
         cls.event = baker.make_recipe('booking.future_EV', max_participants=20)
         cls.event_no_cost = baker.make_recipe(
-            'booking.future_PC', cost=0, date=datetime(2020, 2, 10, 18, 0, tzinfo=timezone.utc)
+            'booking.future_PC', cost=0, date=datetime(2020, 2, 10, 18, 0, tzinfo=dt_timezone.utc)
         )
 
     def setUp(self):
@@ -163,7 +164,7 @@ class BookingTests(TestCase):
         Test that reopening a cancelled booking for an event with spaces sets
         the rebooking date
         """
-        mock_now = datetime(2015, 1, 1, tzinfo=timezone.utc)
+        mock_now = datetime(2015, 1, 1, tzinfo=dt_timezone.utc)
         mock_tz.now.return_value = mock_now
         user = self.users[0]
         booking = baker.make_recipe(
@@ -183,16 +184,16 @@ class BookingTests(TestCase):
         """
         Test that reopening a second time resets the rebooking date
         """
-        mock_now = datetime(2015, 3, 1, tzinfo=timezone.utc)
+        mock_now = datetime(2015, 3, 1, tzinfo=dt_timezone.utc)
         mock_tz.now.return_value = mock_now
         user = self.users[0]
         booking = baker.make_recipe(
             'booking.booking', event=self.event_with_cost, user=user,
             status='CANCELLED',
-            date_rebooked=datetime(2015, 1, 1, tzinfo=timezone.utc)
+            date_rebooked=datetime(2015, 1, 1, tzinfo=dt_timezone.utc)
         )
         self.assertEqual(
-            booking.date_rebooked, datetime(2015, 1, 1, tzinfo=timezone.utc)
+            booking.date_rebooked, datetime(2015, 1, 1, tzinfo=dt_timezone.utc)
         )
         booking.status = 'OPEN'
         booking.save()
@@ -232,7 +233,7 @@ class BookingTests(TestCase):
     def test_cancel_booking_within_cancellation_period(self, mock_tz):
         # event_no_cost date 2020-2-10 18:00
         # < 24hrs before event date
-        mock_tz.now.return_value = datetime(2020, 2, 9, 20, 0, tzinfo=timezone.utc)
+        mock_tz.now.return_value = datetime(2020, 2, 9, 20, 0, tzinfo=dt_timezone.utc)
         booking = baker.make_recipe('booking.booking', event=self.event_no_cost, status="OPEN", paid=False)
         self.assertFalse(booking.cancellation_fee_incurred)
         self.assertFalse(booking.cancellation_fee_paid)
@@ -245,7 +246,7 @@ class BookingTests(TestCase):
     def test_set_to_no_show_within_cancellation_period(self, mock_tz):
         # event_no_cost date 2020-2-10 18:00
         # < 24hrs before event date
-        mock_tz.now.return_value = datetime(2020, 2, 9, 20, 0, tzinfo=timezone.utc)
+        mock_tz.now.return_value = datetime(2020, 2, 9, 20, 0, tzinfo=dt_timezone.utc)
         booking = baker.make_recipe('booking.booking', event=self.event_no_cost, status="OPEN", paid=False)
         self.assertFalse(booking.cancellation_fee_incurred)
         self.assertFalse(booking.cancellation_fee_paid)
@@ -258,10 +259,10 @@ class BookingTests(TestCase):
     @patch('booking.models.timezone')
     def test_no_cancellation_fees_if_event_cancelled(self, mock_tz):
         cancelled_event = baker.make_recipe(
-            'booking.future_PC', cost=0, date=datetime(2020, 2, 10, 18, 0, tzinfo=timezone.utc)
+            'booking.future_PC', cost=0, date=datetime(2020, 2, 10, 18, 0, tzinfo=dt_timezone.utc)
         )
         # < 24hrs before event date
-        mock_tz.now.return_value = datetime(2020, 2, 9, 20, 0, tzinfo=timezone.utc)
+        mock_tz.now.return_value = datetime(2020, 2, 9, 20, 0, tzinfo=dt_timezone.utc)
         booking = baker.make_recipe('booking.booking', event=cancelled_event, status="OPEN", paid=False)
         cancelled_event.cancelled = True
         cancelled_event.save()
@@ -276,11 +277,11 @@ class BookingTests(TestCase):
     @patch('booking.models.timezone')
     def test_no_cancellation_fee_incurred_if_event_cancellation_fee_is_0(self, mock_tz):
         cancelled_event = baker.make_recipe(
-            'booking.future_PC', cost=0, date=datetime(2020, 2, 10, 18, 0, tzinfo=timezone.utc),
+            'booking.future_PC', cost=0, date=datetime(2020, 2, 10, 18, 0, tzinfo=dt_timezone.utc),
             cancellation_fee=0
         )
         # < 24hrs before event date
-        mock_tz.now.return_value = datetime(2020, 2, 9, 20, 0, tzinfo=timezone.utc)
+        mock_tz.now.return_value = datetime(2020, 2, 9, 20, 0, tzinfo=dt_timezone.utc)
         booking = baker.make_recipe('booking.booking', event=cancelled_event, status="OPEN", paid=False)
 
         self.assertFalse(booking.cancellation_fee_incurred)
@@ -409,8 +410,8 @@ def test_membership(membership_type):
     future_membership = baker.make(Membership, membership_type=membership_type, month=future.month, year=future.year)
     
     assert str(past_membership) == "test - February 2022"
-    assert past_membership.start_date() == datetime(2022, 2, 1, tzinfo=timezone.utc)
-    assert past_membership.expiry_date() == datetime(2022, 2, 28, tzinfo=timezone.utc)
+    assert past_membership.start_date() == datetime(2022, 2, 1, tzinfo=dt_timezone.utc)
+    assert past_membership.expiry_date() == datetime(2022, 2, 28, tzinfo=dt_timezone.utc)
     assert past_membership.month_str == "February"
     assert not past_membership.current_or_future()
     assert current_membership.current_or_future()

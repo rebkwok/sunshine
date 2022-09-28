@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime, timedelta
+from datetime import timezone as dt_timezone
+
 from unittest.mock import patch
 
 from model_bakery import baker
@@ -196,13 +198,13 @@ class EventListViewTests(TestSetupMixin, TestCase):
 
     @patch('booking.views.event_views.timezone.now')
     def test_event_list_with_name_day_and_time(self, mock_now):
-        mock_now.return_value = datetime(2019, 1, 1, 18, 0, tzinfo=timezone.utc)
-        self.reg_class1.date = datetime(2019, 1, 23, 18, 0, tzinfo=timezone.utc)  # Wed
+        mock_now.return_value = datetime(2019, 1, 1, 18, 0, tzinfo=dt_timezone.utc)
+        self.reg_class1.date = datetime(2019, 1, 23, 18, 0, tzinfo=dt_timezone.utc)  # Wed
         self.reg_class1.save()
-        self.reg_class2.date = datetime(2019, 1, 24, 18, 0, tzinfo=timezone.utc)  # Thurs
+        self.reg_class2.date = datetime(2019, 1, 24, 18, 0, tzinfo=dt_timezone.utc)  # Thurs
         self.reg_class2.save()
         reg_class3 = baker.make_recipe(
-            'booking.future_PC', name='Class 1', date=datetime(2019, 1, 30, 18, 0, tzinfo=timezone.utc)
+            'booking.future_PC', name='Class 1', date=datetime(2019, 1, 30, 18, 0, tzinfo=dt_timezone.utc)
         )  # Wed
 
         url = self.classes_url + '?name=Class 1&day=03WE&time=18:00'
@@ -212,13 +214,13 @@ class EventListViewTests(TestSetupMixin, TestCase):
 
     @patch('booking.views.event_views.timezone.now')
     def test_event_list_with_day_and_time_errors(self, mock_now):
-        mock_now.return_value = datetime(2019, 1, 1, 18, 0, tzinfo=timezone.utc)
-        self.reg_class1.date = datetime(2019, 1, 23, 18, 0, tzinfo=timezone.utc)  # Wed
+        mock_now.return_value = datetime(2019, 1, 1, 18, 0, tzinfo=dt_timezone.utc)
+        self.reg_class1.date = datetime(2019, 1, 23, 18, 0, tzinfo=dt_timezone.utc)  # Wed
         self.reg_class1.save()
-        self.reg_class2.date = datetime(2019, 1, 24, 18, 0, tzinfo=timezone.utc)  # Thurs
+        self.reg_class2.date = datetime(2019, 1, 24, 18, 0, tzinfo=dt_timezone.utc)  # Thurs
         self.reg_class2.save()
         reg_class3 = baker.make_recipe(
-            'booking.future_PC', name='Class 1', date=datetime(2019, 1, 31, 20, 0, tzinfo=timezone.utc)
+            'booking.future_PC', name='Class 1', date=datetime(2019, 1, 31, 20, 0, tzinfo=dt_timezone.utc)
         )  # Wed, diff day/time, same name
 
         # misformatted time is ignored, just returns by name
@@ -229,13 +231,13 @@ class EventListViewTests(TestSetupMixin, TestCase):
 
     @patch('booking.views.event_views.timezone.now')
     def test_event_list_with_day_and_time_including_daylight_savings(self, mock_now):
-        mock_now.return_value = datetime(2019, 1, 1, 18, 0, tzinfo=timezone.utc)
-        self.reg_class1.date = datetime(2019, 1, 23, 18, 0, tzinfo=timezone.utc)  # Wed
+        mock_now.return_value = datetime(2019, 1, 1, 18, 0, tzinfo=dt_timezone.utc)
+        self.reg_class1.date = datetime(2019, 1, 23, 18, 0, tzinfo=dt_timezone.utc)  # Wed
         self.reg_class1.save()
-        self.reg_class2.date = datetime(2019, 1, 24, 18, 0, tzinfo=timezone.utc)  # Thurs
+        self.reg_class2.date = datetime(2019, 1, 24, 18, 0, tzinfo=dt_timezone.utc)  # Thurs
         self.reg_class2.save()
         reg_class3 = baker.make_recipe(
-            'booking.future_PC', name='Class 1', date=datetime(2019, 8, 14, 19, 0, tzinfo=timezone.utc)
+            'booking.future_PC', name='Class 1', date=datetime(2019, 8, 14, 19, 0, tzinfo=dt_timezone.utc)
         )  # Wed during DST, same time as self.reg_class1
 
         url = self.classes_url + '?name=Class 1&day=03WE&time=1800'
