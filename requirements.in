@@ -21,7 +21,6 @@ git+https://github.com/rebkwok/django-suit.git@v2
 dynamic-django-forms
 shortuuid
 django-debug-toolbar
-python-memcached
 model-bakery
 coverage
 gunicorn

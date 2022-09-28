@@ -130,8 +130,6 @@ python-dateutil==2.8.2
     #   -r requirements.in
     #   delorean
     #   freezegun
-python-memcached==1.59
-    # via -r requirements.in
 python3-openid==3.2.0
     # via django-allauth
 pytz==2022.2.1
@@ -150,9 +148,7 @@ requests-oauthlib==1.3.1
 shortuuid==1.0.9
     # via -r requirements.in
 six==1.16.0
-    # via
-    #   python-dateutil
-    #   python-memcached
+    # via python-dateutil
 soupsieve==2.3.2.post1
     # via beautifulsoup4
 sqlparse==0.4.3

@@ -22,11 +22,12 @@ env = environ.Env(DEBUG=(bool, False),
                   SEND_ALL_STUDIO_EMAILS=(bool, False),
                   LOCAL=(bool, False),
                   CI=(bool, False),
-                  CACHE_BACKEND=(str, 'django.core.cache.backends.memcached.MemcachedCache'),
-                  CACHE_LOCATION=(str, '127.0.0.1:11211')
                   )
 
 environ.Env.read_env(root('.env'))  # reading .env file
+
+TESTING = any([test_str in arg for arg in sys.argv for test_str in ["test", "pytest"]])
+
 BASE_DIR = root()
 
 
@@ -100,12 +101,20 @@ MIDDLEWARE = [
 ]
 
 
-CACHES = {
-    'default': {
-        'BACKEND': env("CACHE_BACKEND"),
-        'LOCATION': env("CACHE_LOCATION"),
+if TESTING or env('LOCAL') or env('CI'):  # use local cache for tests
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+            'LOCATION': 'test-sunshine',
+        }
     }
-}
+else:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+            'LOCATION': 'sunshine',
+        }
+    }
 
 
 SITE_ID = 1
