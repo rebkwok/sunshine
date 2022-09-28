@@ -17,14 +17,6 @@ def has_expired_disclaimer(user):
 
 
 @register.filter
-def latest_disclaimer(user):
-    # return latest disclaimer, regardless of whether it's expired or not
-    # (for emergency contact details)
-    if user.online_disclaimer.exists():
-        return user.online_disclaimer.latest("id")
-
-
-@register.filter
 def full_name(user):
     return f"{user.first_name} {user.last_name}"
 

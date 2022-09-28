@@ -22,9 +22,6 @@ class SessionType(models.Model):
             raise ValidationError("To display this class type on the home page, you also need to add a description")
         
         return super().clean()
-    # def save(self, *args, **kwargs):
-        # return super().save(*args, **kwargs)
-
 
 
 class Venue(models.Model):
