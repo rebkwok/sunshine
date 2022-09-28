@@ -319,7 +319,7 @@ def test_membership_type_model():
     membership_type = baker.make(
         MembershipType, name="test", cost=10, number_of_classes=4
     )
-    assert str(membership_type) == "test - £10"
+    assert str(membership_type) == "test - £10.00"
 
 
 @pytest.mark.django_db 
@@ -336,7 +336,7 @@ def test_item_voucher_validation():
     assert str(voucher) == "test - 10%"
 
     voucher = baker.make(ItemVoucher, code="test1", discount_amount=10)
-    assert str(voucher) == "test1 - £10"
+    assert str(voucher) == "test1 - £10.00"
 
 
 @pytest.mark.django_db 
@@ -547,9 +547,9 @@ def test_gift_voucher_type_str(gift_voucher_types):
 
     assert str(gift_voucher_types["private"]) == "Private Lesson - £15.00"
     assert str(gift_voucher_types["regular_session"]) == "Class - £10.00"
-    assert str(gift_voucher_types["total"]) == "Voucher - £10"
-    assert str(gift_voucher_types["membership_2"]) == "Membership - test - £20"
-    assert str(gift_voucher_types["membership_4"]) == "Membership - test4 - £40"
+    assert str(gift_voucher_types["total"]) == "Voucher - £10.00"
+    assert str(gift_voucher_types["membership_2"]) == "Membership - test - £20.00"
+    assert str(gift_voucher_types["membership_4"]) == "Membership - test4 - £40.00"
 
 
 @pytest.mark.django_db 

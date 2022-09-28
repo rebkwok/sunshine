@@ -1,7 +1,7 @@
-from datetime import timedelta
+from datetime import datetime, timedelta
 from django.urls import reverse
 from django.utils import timezone
-from booking.models import Membership, MembershipType
+from booking.models import Membership, MembershipType, RegularClass
 
 import pytest
 from model_bakery import baker
@@ -95,14 +95,44 @@ def test_membership_purchase_options(freezer, client, configured_user, membershi
     options = resp.context_data["options"]
     assert len(options) == 1
 
+    # time is end of month, there are no classes scheduled for the current
+    # month, only shows next month as an option
     freezer.move_to('2020-10-27')
     client.force_login(configured_user)
     # time is beginning of month, shows next months options as well
     resp = client.get(buy_url)
     options = resp.context_data["options"]
-    assert len(options) == 2
+    assert len(options) == 1
 
     assert options == [
+        {
+            "membership_type": membership_type, 
+            "month": 11, 
+            "month_str": "November",
+            "year": 2020,
+            "basket_count": 0
+        }
+    ]
+
+    # make a past class and a future class for next month; still only shows next month
+    baker.make(RegularClass, date=datetime(2020, 10, 25, 10, 0, tzinfo=timezone.utc))
+    baker.make(RegularClass, date=datetime(2020, 11, 1, 10, 0, tzinfo=timezone.utc))
+    resp = client.get(buy_url)
+    assert resp.context_data["options"] == [
+        {
+            "membership_type": membership_type, 
+            "month": 11, 
+            "month_str": "November",
+            "year": 2020,
+            "basket_count": 0
+        }
+    ]
+
+    # make a future class for this month
+    future_class = baker.make(RegularClass, date=datetime(2020, 10, 30, 10, 0, tzinfo=timezone.utc))
+    resp = client.get(buy_url)
+
+    assert resp.context_data["options"] == [
         {
             "membership_type": membership_type, 
             "month": 10, 
@@ -118,8 +148,12 @@ def test_membership_purchase_options(freezer, client, configured_user, membershi
             "basket_count": 0
         }
     ]
+
     # end of year correctly assigns next month
     freezer.move_to('2020-12-27')
+    # make sure we have a future class
+    future_class.date=datetime(2020, 12, 30, 10, 0, tzinfo=timezone.utc)
+    future_class.save()
     client.force_login(configured_user)
     # time is beginning of month, shows next months options as well
     resp = client.get(buy_url)
@@ -148,6 +182,8 @@ def test_membership_purchase_options_with_unpaid_items(
     ):
     client.force_login(configured_user)
     # time is end of month, shows this month and next
+    # make a future class for this month
+    baker.make(RegularClass, date=datetime(2020, 10, 30, 10, 0, tzinfo=timezone.utc))
     resp = client.get(buy_url)
     assert resp.context_data["options"] == [
         {

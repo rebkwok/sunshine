@@ -1,4 +1,5 @@
 from calendar import month_name, monthrange
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
@@ -7,11 +8,20 @@ from django.template.loader import render_to_string
 from django.utils import timezone
 from django.views.decorators.http import require_http_methods
 
-from booking.models import Membership, MembershipType
+from booking.models import Membership, MembershipType, RegularClass
 from booking.views.views_utils import data_privacy_required, total_unpaid_item_count, get_unpaid_memberships
 
 
-def _membership_purchase_option(unpaid_memberships, membership_type, month, year):
+def _membership_purchase_option(
+    unpaid_memberships, membership_type, month, year, days_to_end_of_month, is_current=False
+):
+    if is_current and days_to_end_of_month <= settings.MEMBERSHIP_AVAILABLE_EARLY_DAYS:
+        # This membership is for the current month; don't make it available for purchase near the 
+        # end of the month if there are no more events in this month
+        if not RegularClass.objects.filter(
+            date__gte=timezone.now(), date__month=month
+        ).exists():
+            return
     return {
         "membership_type": membership_type, 
         "month": month, 
@@ -22,27 +32,44 @@ def _membership_purchase_option(unpaid_memberships, membership_type, month, year
             ).count()
     }
 
+
 @data_privacy_required
 @login_required
 def membership_purchase_view(request):
     now = timezone.now()
     month = now.month
     year = now.year
-    membership_types = MembershipType.objects.filter(active=True)
-    unpaid_memberships = get_unpaid_memberships(request.user)
-    options = [
-        _membership_purchase_option(unpaid_memberships, membership_type, month, year)
-         for membership_type in membership_types
-    ]
     _, end_of_month = monthrange(year, month)
     days_to_end_of_month = end_of_month - now.day
-    if days_to_end_of_month <= 10:
+
+    membership_types = MembershipType.objects.filter(active=True)
+    unpaid_memberships = get_unpaid_memberships(request.user)
+    options = []
+    for membership_type in membership_types:
+        purchase_option = _membership_purchase_option(
+            unpaid_memberships, 
+            membership_type, 
+            month, 
+            year, 
+            days_to_end_of_month, 
+            is_current=True
+        )
+        if purchase_option:
+            options.append(purchase_option)
+
+    if days_to_end_of_month <= settings.MEMBERSHIP_AVAILABLE_EARLY_DAYS:
         next_month = month + 1 if month < 12 else 1
         next_year = year if month < 12 else year + 1
         for membership_type in membership_types:
             options.append(
-                _membership_purchase_option(unpaid_memberships, membership_type, next_month, next_year)
-            )
+                _membership_purchase_option(
+                    unpaid_memberships, 
+                    membership_type, 
+                    next_month, 
+                    next_year, 
+                    days_to_end_of_month
+                    )
+                )
 
     context = {"options" : options, "section": "membership"} 
     return TemplateResponse(
