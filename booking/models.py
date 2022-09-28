@@ -121,7 +121,7 @@ class MembershipType(models.Model):
     active = models.BooleanField(default=True, help_text="Visible and available for purchase on site")
 
     def __str__(self) -> str:
-        return f"{self.name} - £{self.cost}"
+        return f"{self.name} - £{self.cost:.2f}"
 
 
 def _start_of_today():
@@ -192,7 +192,7 @@ class BaseVoucher(models.Model):
         if self.discount:
             return f"{self.code} - {self.discount}%"
         else:
-            return F"{self.code} - £{self.discount_amount}"
+            return F"{self.code} - £{self.discount_amount:.2f}"
 
 
 class ItemVoucher(BaseVoucher):
@@ -308,13 +308,13 @@ class GiftVoucherType(models.Model):
 
     def __str__(self):
         if self.membership_type:
-            return f"Membership - {self.membership_type.name} - £{self.cost}"
+            return f"Membership - {self.membership_type.name} - £{self.cost:.2f}"
         if self.event_type:
             if self.event_type == "regular_session":
-                return f"Class - £{self.cost}" 
+                return f"Class - £{self.cost:.2f}" 
             else:
-                return f"{dict(Event.EVENT_TYPES)[self.event_type]} - £{self.cost}"
-        return f"Voucher - £{self.cost}"
+                return f"{dict(Event.EVENT_TYPES)[self.event_type]} - £{self.cost:.2f}"
+        return f"Voucher - £{self.cost:.2f}"
 
     @property
     def name(self):

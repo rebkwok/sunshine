@@ -51,7 +51,7 @@ class Invoice(models.Model):
 
     def items_dict(self):
         def _cost_str(item):
-            cost_str = f"£{item.cost_with_voucher}"
+            cost_str = f"£{item.cost_with_voucher:.2f}"
             if item.voucher:
                 cost_str = f"{cost_str} (voucher applied: {item.voucher.code})"
             return cost_str
@@ -77,7 +77,7 @@ class Invoice(models.Model):
         gift_vouchers = {
             f"gift_voucher_{gift_voucher.id}": {
                 "name": gift_voucher.name, 
-                "cost_str": f"£{gift_voucher.gift_voucher_type.cost}", 
+                "cost_str": f"£{gift_voucher.gift_voucher_type.cost:.2f}", 
                 "cost_in_p": int(gift_voucher.gift_voucher_type.cost * 100)
             } for gift_voucher in self.gift_vouchers.all()
         }
