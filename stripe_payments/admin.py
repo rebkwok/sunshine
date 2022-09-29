@@ -2,13 +2,48 @@ from django.contrib import admin
 from django.urls import reverse
 from django.utils.safestring import mark_safe 
 
-from booking.models import Booking
+from booking.models import Booking, Membership, GiftVoucher
 from stripe_payments.models import Invoice, StripeRefund, StripePaymentIntent
+
+
+class BookingInline(admin.TabularInline):
+    fields = ("id", "booking_reference", "user", "event", "status")
+    readonly_fields = ("booking_reference", "user", "event", "status")
+    model = Booking
+    extra = 0
+    can_delete = False
+    
+    def has_add_permission(self, request, obj):
+        return False
+
+
+class MembershipInline(admin.TabularInline):
+    fields = ("user", "membership_type")
+    readonly_fields = ("user", "membership_type")
+    model = Membership
+    extra = 0
+    can_delete = False
+    
+    def has_add_permission(self, request, obj):
+        return False
+
+
+class GiftVoucherInline(admin.TabularInline):
+    fields = ("purchaser_email", "voucher")
+    readonly_fields = ("purchaser_email", "voucher")
+    model = GiftVoucher
+    extra = 0
+    can_delete = False
+    
+    def has_add_permission(self, request, obj):
+        return False
 
 
 @admin.register(Invoice)
 class InvoiceAdmin(admin.ModelAdmin):
     list_display = ("invoice_id", "pi", "get_username", "display_amount", "paid", "items")
+
+    inlines = (BookingInline, MembershipInline, GiftVoucherInline)
 
     def get_username(self, obj):
         return obj.username

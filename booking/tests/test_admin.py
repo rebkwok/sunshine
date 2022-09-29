@@ -524,3 +524,14 @@ def test_get_gift_voucher_display(membership_gift_voucher, total_gift_voucher):
     assert gift_voucher_admin.link(total_gift_voucher_query) == (
         f'<a href="{total_gift_voucher.get_voucher_url()}">{total_gift_voucher.slug}</a>'
     )
+
+
+@pytest.mark.django_db
+def test_activate_gift_voucher(membership_gift_voucher):
+    assert membership_gift_voucher.voucher.activated is False
+    gift_voucher_admin = admin.GiftVoucherAdmin(GiftVoucher, AdminSite())
+    assert gift_voucher_admin.activated(membership_gift_voucher) is False
+
+    gift_voucher_admin.activate(None, membership_gift_voucher)
+    membership_gift_voucher.refresh_from_db()
+    assert membership_gift_voucher.voucher.activated

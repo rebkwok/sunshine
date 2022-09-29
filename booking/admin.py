@@ -434,8 +434,17 @@ class ItemVoucherAdmin(admin.ModelAdmin):
     exclude = ('is_gift_voucher', 'activated', 'purchaser_email', 'name', 'message')
     
     fieldsets = (
-      ('Voucher Properties', {
-          'fields': ('code', 'discount', 'discount_amount')
+      ("Voucher codes for discounts on the SPECIFIC ITEMS", 
+        {
+            'fields': (), 
+            'description': 'Note the discount will apply to EACH applicable item in a basket, unless limits are specified.'}),
+      ('Voucher code', {
+          'fields': ('code',),
+          'description': 'The code users will enter at checkout'
+      }),
+      ('Voucher discount', {
+          'fields': ('discount', 'discount_amount'),
+          'description': 'Enter one of discount £ or %'
       }),
       ('Valid dates', {
           'description': (
@@ -452,7 +461,8 @@ class ItemVoucherAdmin(admin.ModelAdmin):
           'fields': ("max_vouchers", "max_per_user")
       }),
       ('Valid for:', {
-          'fields': ("membership_types", "event_types")
+          'fields': ("membership_types", "event_types"),
+          'description': "Tick at least one (can apply to as many as you like)"
       }),
    )
 
@@ -470,6 +480,32 @@ class ItemVoucherAdmin(admin.ModelAdmin):
 @admin.register(TotalVoucher)
 class TotalVoucherAdmin(admin.ModelAdmin):
 
+    fieldsets = (
+      ("Voucher codes for discounts on the TOTAL BASKET VALUE", {'fields': ()}),  
+      ('Voucher code', {
+          'fields': ('code',),
+          'description': 'The code users will enter at checkout'
+      }),
+      ('Voucher discount', {
+          'fields': ('discount', 'discount_amount'),
+          'description': 'Enter one of discount £ or %'
+      }),
+      ('Valid dates', {
+          'description': (
+              "Start date defaults to the beginning of today; expiry date (if entered) "
+              "will be automatically set to end of day on save."
+            ),
+          'fields': ('start_date', 'expiry_date')
+      }),
+      ('Limits on number of uses', {
+          'description': (
+              "Limit the times the voucher can be used; these are combined "
+              "e.g. to make a voucher than can be used only once by one user, set both options to 1."
+            ),
+          'fields': ("max_vouchers", "max_per_user")
+      }),
+   )
+
     def get_queryset(self, request):
         queryset = super().get_queryset(request)
         return queryset.filter(is_gift_voucher=False)
@@ -477,17 +513,41 @@ class TotalVoucherAdmin(admin.ModelAdmin):
 
 @admin.register(GiftVoucherType)
 class GiftVoucherTypeAdmin(admin.ModelAdmin):
-    ...
+    fieldsets = [
+        ('Voucher type', {
+            'fields': (
+                'membership_type', 'event_type', 'discount_amount'
+                ),
+            'description': 'What is the gift voucher valid for? (enter one field only)'
+        }),
+        ('Purchasable on site?', {
+            'fields': ('active',),
+            'description':'Make the gift voucher active and purchasable on the site.'
+        }),
+        ('Expiry (in months)', {
+            'fields': ('duration',),
+        }),
+        ('Override cost', {
+            'fields': ('override_cost',),
+            'description': (
+                "Override the default cost for this gift voucher; usually you'll want to "
+                "leave it as the default to ensure gift voucher prices change if the price of "
+                "the item they're valid for changes.  Note that classes/privates/workshops default "
+                "to the cost of the LAST one created; this may not be what you want if they vary in price."
+            )
+        }),
+    ]
 
 
 @admin.register(GiftVoucher)
-class GiftVoucherAdmin(admin.ModelAdmin):
+class GiftVoucherAdmin(DjangoObjectActions, admin.ModelAdmin):
     
     list_display = ("purchaser_email", "name", "paid", "activated", "link")
     exclude = ("slug", "item_voucher")
-    fields = ("gift_voucher_type", "invoice", "paid")
-    readonly_fields = ("invoice",)
-    
+    fields = ("gift_voucher_type", "invoice", "paid", "activated", "start_date", "expiry_date", "purchaser_email", "recipient_name", "message")
+    readonly_fields = ("invoice", "activated", "start_date", "expiry_date", "purchaser_email", "recipient_name", "message")
+    change_actions = ['activate']
+
     def activated(self, obj):
         return obj.voucher.activated
     
@@ -495,3 +555,8 @@ class GiftVoucherAdmin(admin.ModelAdmin):
         return mark_safe(
             f'<a href="{obj.get_voucher_url()}">{obj.voucher.code}</a>'
         )
+    
+    @takes_instance_or_queryset
+    def activate(self, request, queryset):
+        for obj in queryset:
+            obj.activate()

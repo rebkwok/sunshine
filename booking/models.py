@@ -373,6 +373,26 @@ class GiftVoucher(models.Model):
             return self.voucher.purchaser_email
 
     @property
+    def recipient_name(self):
+        if self.voucher:
+            return self.voucher.name
+    
+    @property
+    def message(self):
+        if self.voucher:
+            return self.voucher.message
+    
+    @property
+    def start_date(self):
+        if self.voucher:
+            return self.voucher.start_date.strftime("%d-%b-%Y")
+
+    @property
+    def expiry_date(self):
+        if self.voucher:
+            return self.voucher.expiry_date.strftime("%d-%b-%Y")
+    
+    @property
     def code(self):
         if self.voucher:
             return self.voucher.code
