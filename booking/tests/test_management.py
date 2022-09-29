@@ -40,8 +40,8 @@ class CancelUnpaidBookingsTests(TestCase):
             )
         )
 
-    @patch('booking.management.commands.cancel_unpaid_bookings.timezone')
-    def test_cancel_unpaid_bookings(self, mock_tz):
+    @patch('booking.models.timezone')
+    def test_delete_unpaid_bookings(self, mock_tz):
         """
         test unpaid bookings are deleted
         """
@@ -51,7 +51,7 @@ class CancelUnpaidBookingsTests(TestCase):
         assert self.unpaid.status == 'OPEN', self.unpaid.status
         assert self.paid.status == 'OPEN', self.unpaid.status
         assert Booking.objects.count() == 2
-        management.call_command('cancel_unpaid_bookings')
+        management.call_command('delete_unpaid_bookings')
         assert Booking.objects.count() == 1
         assert Booking.objects.first().id == self.paid.id
 
@@ -64,11 +64,11 @@ class CancelUnpaidBookingsTests(TestCase):
         assert self.unpaid.status == 'OPEN', self.unpaid.status
         assert self.paid.status == 'OPEN', self.unpaid.status
         assert Booking.objects.count() == 2
-        management.call_command('cancel_unpaid_bookings')
+        management.call_command('delete_unpaid_bookings')
         
         assert Booking.objects.count() == 2
 
-    @patch('booking.management.commands.cancel_unpaid_bookings.timezone')
+    @patch('booking.models.timezone')
     def test_dont_cancel_for_already_cancelled(self, mock_tz):
         """
         ignore already cancelled bookings
@@ -79,7 +79,7 @@ class CancelUnpaidBookingsTests(TestCase):
         self.unpaid.status = 'CANCELLED'
         self.unpaid.save()
         assert Booking.objects.count() == 2
-        management.call_command('cancel_unpaid_bookings')
+        management.call_command('delete_unpaid_bookings')
         assert Booking.objects.count() == 2
 
     def test_dont_cancel_bookings_created_within_past_15_mins(self):
@@ -103,7 +103,7 @@ class CancelUnpaidBookingsTests(TestCase):
         )
         unpaid_more_than_15_mins_id = unpaid_more_than_15_mins.id
 
-        management.call_command('cancel_unpaid_bookings')
+        management.call_command('delete_unpaid_bookings')
         unpaid_within_15_mins.refresh_from_db()
         assert unpaid_within_15_mins.status == 'OPEN'
         assert not Booking.objects.filter(id=unpaid_more_than_15_mins_id).exists()
@@ -125,7 +125,7 @@ class CancelUnpaidBookingsTests(TestCase):
                 user__email='test{}@test.com'.format(i)
             )
 
-        management.call_command('cancel_unpaid_bookings')
+        management.call_command('delete_unpaid_bookings')
         # one email sent with bcc to waiting list
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual(
@@ -160,7 +160,7 @@ class CancelUnpaidBookingsTests(TestCase):
                 user__email='test{}@test.com'.format(i)
             )
 
-        management.call_command('cancel_unpaid_bookings')
+        management.call_command('delete_unpaid_bookings')
         assert Booking.objects.count() == 1
         # one email with bcc to waiting list 
         # waiting list email sent after the first cancelled booking
@@ -182,7 +182,7 @@ class CancelUnpaidBookingsTests(TestCase):
                 user__email='test{}@test.com'.format(i)
             )
 
-        management.call_command('cancel_unpaid_bookings')
+        management.call_command('delete_unpaid_bookings')
         assert Booking.objects.count() == 1
         self.assertEqual(len(mail.outbox), 1)
 
@@ -191,13 +191,13 @@ class CancelUnpaidBookingsTests(TestCase):
         self.unpaid.save()
         assert Booking.objects.count() == 2
 
-        management.call_command('cancel_unpaid_bookings')
+        management.call_command('delete_unpaid_bookings')
         assert Booking.objects.count() == 2
 
         self.unpaid.date_rebooked = timezone.now() - timedelta(minutes=17)
         self.unpaid.save()
 
-        management.call_command('cancel_unpaid_bookings')
+        management.call_command('delete_unpaid_bookings')
         # self.unpaid was rebooked > 15 mins ago
         assert Booking.objects.count() == 1
 

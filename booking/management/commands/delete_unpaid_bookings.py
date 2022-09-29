@@ -1,21 +1,24 @@
 # -*- coding: utf-8 -*-
 
 """
-Check for unpaid bookings and cancel where:
+Check for unpaid bookings and delete where:
 booking.status = OPEN
+no_show = False
 paid = False
-Booking date booked OR booking date rebooked > 6 hrs ago)
-Email user that their booking has been cancelled
+
+date_booked OR date_rebooked (whichever is later) is > settings.CART_TIMEOUT_MINUTES
+ago (15 mins by default)
+BUT excluding bookings with a checkout_time in the past 5 mins
+(checkout_time is set when user clicks button to pay with stripe)
+
+If any bookings for events are cancelled, and the event has a waiting list, send emails
 """
 
 import logging
-from datetime import timedelta
-
-from django.utils import timezone
 from django.core.management.base import BaseCommand
 
-from booking.models import Booking, WaitingListUser
-from booking.email_helpers import email_waiting_lists, send_email, send_waiting_list_email
+from booking.models import Booking
+from booking.email_helpers import email_waiting_lists
 from activitylog.models import ActivityLog
 
 
