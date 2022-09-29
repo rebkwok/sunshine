@@ -21,7 +21,7 @@
             Gift vouchers are available to purchase for the following:
             <ul>
             {% for gift_voucher_type in gift_vouchers_available %}
-                <li>{{ gift_voucher_type }}</li>
+                <li>{{ gift_voucher_type }} (valid for {{ gift_voucher_type.duration}} month{{ gift_voucher_type.duration|pluralize }})</li>
             {% endfor%}
             </ul>
         </div>
