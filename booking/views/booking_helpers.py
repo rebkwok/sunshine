@@ -111,7 +111,7 @@ def cancel_booking_from_view(request, booking):
     
     # EMAIL USER
     # Only send emails if booking was previously paid; we don't want to send emails
-    # if just removing from basked
+    # if just removing from basket
     if was_paid:
         host = host_from_request(request)
         ctx = {
@@ -121,6 +121,8 @@ def cancel_booking_from_view(request, booking):
             'membership_booked_within_allowed_time': membership_booking_within_5_mins,
             'refunded': refunded,
             'event': booking.event,
+            'domain': settings.DOMAIN,
+            "studio_email": settings.DEFAULT_STUDIO_EMAIL
         }
         send_mail('{} Booking for {} cancelled'.format(
             settings.ACCOUNT_EMAIL_SUBJECT_PREFIX, booking.event),

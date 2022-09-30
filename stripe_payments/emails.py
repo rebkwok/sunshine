@@ -18,6 +18,7 @@ def send_processed_payment_emails(invoice):
         'host': f"https://{Site.objects.get_current().domain}",
         'user': user,
         'invoice': invoice,
+        'domain': settings.DOMAIN,
         "studio_email": settings.DEFAULT_STUDIO_EMAIL
     }
 
@@ -49,6 +50,7 @@ def send_processed_refund_emails(invoice):
         'host': f"https://{Site.objects.get_current().domain}",
         'user': user,
         'invoice': invoice,
+        'domain': settings.DOMAIN,
         "studio_email": settings.DEFAULT_STUDIO_EMAIL
     }
 

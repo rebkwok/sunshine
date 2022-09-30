@@ -92,6 +92,8 @@ def send_waiting_list_email(event, users, host=None):
     ctx = {
         'event': event,
         'host': host,
+        'domain': settings.DOMAIN,
+        "studio_email": settings.DEFAULT_STUDIO_EMAIL
     }
     if auto_book_user:
         # send email to auto_book_users
