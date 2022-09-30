@@ -2,11 +2,12 @@
 from datetime import datetime, timedelta
 from datetime import timezone as dt_timezone
 
-from unittest.mock import patch
+from unittest.mock import mock_open, patch
 from model_bakery import baker
 
 from django.conf import settings
 from django.core import mail
+from django.core.handlers.wsgi import WSGIRequest
 from django.urls import reverse
 from django.test import override_settings, TestCase
 from django.utils import timezone
@@ -365,6 +366,13 @@ class BookingToggleAjaxViewTests(TestSetupMixin, TestCase):
         assert booking.status == 'CANCELLED'
         assert not booking.no_show
         assert not booking.paid
+
+        # test that the process_refund function was called as expected
+        mock_process_refund.assert_called_once()
+        assert len(mock_process_refund.call_args[0]) == 2
+        call_args = mock_process_refund.call_args[0]
+        assert isinstance(call_args[0], WSGIRequest)
+        assert call_args[1] == booking
 
     def test_cancel_full_booking_emails_waiting_list(self):
         """

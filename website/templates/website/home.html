@@ -33,7 +33,7 @@
 
                 <hr>
                 <h2>Classes</h2>
-                <p>Check out the <a href="{% url 'timetable:timetable' %}">timetable</a> to book a class or <a href="{% url 'website:contact' %}">contact us</a> for any other enquires.</p>
+                <p>Check out the <a href="{% url 'timetable:timetable' %}">timetable</a>, <a href={% url 'booking:regular_session_list' %}>book a class</a> or <a href="{% url 'website:contact' %}">contact us</a> for any other enquires.</p>
                 {% if future_events.privates %}
                 <p>Private lessons are also available; check available times and book <a href="{% url 'booking:private_list' %}">here</a>.<p>
                 <hr>    

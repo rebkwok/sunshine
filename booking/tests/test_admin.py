@@ -159,6 +159,10 @@ class EventAdminTests(TestCase):
         assert not booking.paid
         assert booking.membership is None
 
+        # test that the process_refund function was called as expected
+        mock_process_refund.assert_called_once()
+        mock_process_refund.assert_called_with(request, booking)
+
     def test_cancel_event_action_cancelled_bookings(self):
         event = baker.make_recipe('booking.future_EV', max_participants=5)
         for i in range(3):
