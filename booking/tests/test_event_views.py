@@ -439,12 +439,12 @@ class EventDetailViewTests(TestSetupMixin, TestCase):
         self.event.save()
 
         assert self.event.allow_booking_cancellation
-        assert self.event.cancellation_period == 24
+        assert self.event.cancellation_period == 12
 
         resp = self.client.get(self.url())
 
         # show cancellation period and due date text
-        assert 'Cancellation is allowed up to 24 hours prior to the workshop' in format_content(resp.rendered_content)
+        assert 'Cancellation is allowed up to 12 hours prior to the workshop' in format_content(resp.rendered_content)
 
     def test_cancellation_information_displayed_cancellation_not_allowed(self):
         """
@@ -459,12 +459,12 @@ class EventDetailViewTests(TestSetupMixin, TestCase):
         self.event.allow_booking_cancellation = False
         self.event.save()
 
-        assert self.event.cancellation_period == 24
+        assert self.event.cancellation_period == 12
 
         resp = self.client.get(self.url())
 
         # don't show cancellation period and due date text
-        assert 'Cancellation is allowed up to 24 hours prior to the workshop ' \
+        assert 'Cancellation is allowed up to 12 hours prior to the workshop ' \
             not in format_content(resp.rendered_content)
         booking_info = "Bookings are final and non-refundable; if you cancel your " \
                         "booking you will not be eligible for any refund or credit."

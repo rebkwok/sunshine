@@ -397,8 +397,8 @@ class RegisterAjaxDisplayUpdateTests(TestPermissionMixin, TestCase):
     @patch('booking.models.timezone')
     def test_ajax_toggle_no_show_inside_cancellation_period(self, mock_tz):
         mock_tz.now.return_value = datetime(2020, 3, 4, 18, 30, tzinfo=dt_timezone.utc)
-        # event < 24hrs in future
-        self.booking.event.date = datetime(2020, 3, 5, 17, 30, tzinfo=dt_timezone.utc)
+        # event < 12hrs in future
+        self.booking.event.date = datetime(2020, 3, 4, 8, 30, tzinfo=dt_timezone.utc)
         self.booking.event.save()
         self.client.post(self.toggle_attended_url, {'attendance': 'no-show'})
         self.booking.refresh_from_db()

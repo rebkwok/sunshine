@@ -232,8 +232,8 @@ class BookingTests(TestCase):
     @patch('booking.models.timezone')
     def test_cancel_booking_within_cancellation_period(self, mock_tz):
         # event_no_cost date 2020-2-10 18:00
-        # < 24hrs before event date
-        mock_tz.now.return_value = datetime(2020, 2, 9, 20, 0, tzinfo=dt_timezone.utc)
+        # < 12hrs before event date
+        mock_tz.now.return_value = datetime(2020, 2, 10, 7, 0, tzinfo=dt_timezone.utc)
         booking = baker.make_recipe('booking.booking', event=self.event_no_cost, status="OPEN", paid=False)
         self.assertFalse(booking.cancellation_fee_incurred)
         self.assertFalse(booking.cancellation_fee_paid)
@@ -246,7 +246,7 @@ class BookingTests(TestCase):
     def test_set_to_no_show_within_cancellation_period(self, mock_tz):
         # event_no_cost date 2020-2-10 18:00
         # < 24hrs before event date
-        mock_tz.now.return_value = datetime(2020, 2, 9, 20, 0, tzinfo=dt_timezone.utc)
+        mock_tz.now.return_value = datetime(2020, 2, 10, 7, 0, tzinfo=dt_timezone.utc)
         booking = baker.make_recipe('booking.booking', event=self.event_no_cost, status="OPEN", paid=False)
         self.assertFalse(booking.cancellation_fee_incurred)
         self.assertFalse(booking.cancellation_fee_paid)
