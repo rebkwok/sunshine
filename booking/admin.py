@@ -424,7 +424,11 @@ class MembershipTypeAdmin(admin.ModelAdmin):
 
 @admin.register(Membership)
 class MembershipAdmin(admin.ModelAdmin):
-    ...
+    list_display = ("user", "membership_type", "paid",)
+    search_fields = (
+        'user__first_name', 'user__last_name', 'user__username'
+    )
+    list_filter = ("month", "year")
 
 
 @admin.register(ItemVoucher)
@@ -513,6 +517,8 @@ class TotalVoucherAdmin(admin.ModelAdmin):
 
 @admin.register(GiftVoucherType)
 class GiftVoucherTypeAdmin(admin.ModelAdmin):
+    list_display = ("name", "cost", "active",)
+    list_editable = ("active",)
     fieldsets = [
         ('Voucher type', {
             'fields': (
@@ -550,12 +556,13 @@ class GiftVoucherAdmin(DjangoObjectActions, admin.ModelAdmin):
 
     def activated(self, obj):
         return obj.voucher.activated
-    
+    activated.boolean = True
+
     def link(self, obj):
         return mark_safe(
             f'<a href="{obj.get_voucher_url()}">{obj.voucher.code}</a>'
         )
-    
+
     @takes_instance_or_queryset
     def activate(self, request, queryset):
         for obj in queryset:
