@@ -424,11 +424,16 @@ class MembershipTypeAdmin(admin.ModelAdmin):
 
 @admin.register(Membership)
 class MembershipAdmin(admin.ModelAdmin):
-    list_display = ("user", "membership_type", "paid",)
+    list_display = ("user", "membership_type", "get_month", "year", "paid")
     search_fields = (
         'user__first_name', 'user__last_name', 'user__username'
     )
     list_filter = ("month", "year")
+
+    def get_month(self, obj):
+        return obj.month_str
+    get_month.short_description = "month"
+    get_month.admin_order_field = "month"
 
 
 @admin.register(ItemVoucher)
