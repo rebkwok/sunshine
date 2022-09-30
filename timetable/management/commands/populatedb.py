@@ -61,12 +61,12 @@ class Command(BaseCommand):
 
         # create timetable:
         sessions = [
-            (TimetableSession.MON, (10, 0), (11, 0), "Pole Fitness", polefit, studio, cat, 8, 8),
-            (TimetableSession.TUE, (18, 0), (19, 0), "Stretch", stretch, studio, cat, 8, 8),
-            (TimetableSession.WED, (20, 0), (21, 0), "Kettle Bells", general_fitness, studio, cat, 8, 8)
+            (TimetableSession.MON, (10, 0), (11, 0), "Pole Fitness", polefit, studio, 8),
+            (TimetableSession.TUE, (18, 0), (19, 0), "Stretch", stretch, studio, 8),
+            (TimetableSession.WED, (20, 0), (21, 0), "Kettle Bells", general_fitness, studio, 8)
         ]
 
-        for (day, start, end, name, session_type, venue, membership_category, cost, alt_cost, "All levels") in sessions:
+        for (day, start, end, name, session_type, venue, cost) in sessions:
             TimetableSession.objects.get_or_create(
                 session_day=day,
                 start_time=datetime.time(hour=start[0], minute=start[1]),
@@ -74,8 +74,6 @@ class Command(BaseCommand):
                 name=name,
                 session_type=session_type,
                 venue=venue,
-                membership_category=membership_category,
                 cost=cost,
-                alt_cost=alt_cost,
-                level=level,
+                level= "All levels",
             )

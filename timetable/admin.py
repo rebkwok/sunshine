@@ -55,7 +55,7 @@ class TimetableSessionAdmin(admin.ModelAdmin):
                 'colour-coding on the timetable (class types and categories can be identical)')
         }),
         ('Session details', {
-            'fields': ['venue', 'max_participants', 'cost', 'alt_cost',
+            'fields': ['venue', 'max_participants', 'cost',
                        'members_only', 'cancellation_fee', 'show_on_timetable_page']
         }),
         ('Date and time', {

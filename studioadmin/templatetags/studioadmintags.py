@@ -1,6 +1,8 @@
+from os import stat
 import pytz
 
 from django import template
+from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django.urls import reverse
 
@@ -57,3 +59,14 @@ def get_register_list_url(event_type, show_all=None):
     if show_all:
         url += "?show_all=true"
     return url
+
+
+@register.inclusion_tag("studioadmin/includes/membership_status.html")
+def membership_status(user):
+    now = timezone.now()
+    current_year = now.year
+    current_month = now.month
+    paid = user.memberships.filter(paid=True, year__gte=current_year).order_by("year", "month", "purchase_date")
+    future_years = paid.filter(year__gt=current_year)
+    this_year = paid.filter(year=current_year, month__gte=current_month)
+    return {"current_memberships": this_year | future_years}

@@ -1,0 +1,206 @@
+{% extends "website/_base.html" %}
+{% load static %}
+{% load accounttags bookingtags %}
+
+{% block extrahead %}
+{% include 'booking/includes/ajax_head.html' %}
+{% endblock %}
+
+{% block content %}
+
+
+<div class="container-fluid">
+    <div class="row">
+        <h3 class="mt-1">Shopping Basket</h3>
+    
+        {% if unpaid_items %}
+
+            <table class="table table-bordered">
+              <thead class="thead-dark">
+                <tr>
+                  <th>Item</th>
+                  <th>Cost</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% if unpaid_membership_info %}
+                    <tr><td colspan="2" class="table-secondary"><strong>Memberships</strong></td></tr>
+                {% endif %}
+                {% for membership_info in unpaid_membership_info %}
+                    <tr id="cart-row-membership-{{ membership_info.membership.id }}" class="cart-row-membership">
+                        <td class="p-1">{{ membership_info.membership }}</td>
+                        <td class="p-1">
+                            <div>Cost: {% if membership_info.voucher_applied.discounted_cost is not None %}
+                                    <span class="superceded-cost">£{{ membership_info.original_cost }}</span> £{{ membership_info.voucher_applied.discounted_cost }}
+                                {% else %}
+                                    £{{ membership_info.original_cost }}
+                                {% endif %}
+                            {% if membership_info.voucher_applied.discounted_cost is not None %}
+                            <br><span class="text-secondary"><small><em>Voucher code applied: {{ membership_info.voucher_applied.code }}</em></small></span>
+                            {% endif %}
+                            <span
+                                    id="remove-membership-{{ membership_info.membership.id }}"
+                                    class="remove-membership float-right"
+                                    data-membership_id="{{ membership_info.membership.id }}"
+                                    >
+                                <a class="btn btn-sm btn-danger" href="#"><i class="fas fa-trash-alt"></i></a>
+                            </span>
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+                
+                {% if unpaid_booking_info %}
+                    <tr><td colspan="2" class="table-secondary">
+                        <strong>Classes and Workshops</strong><br/>
+                        <span class="text-danger">
+                            NOTE: classes and workshop items will be removed after {{ cart_timeout_mins }} minutes
+                        </span>
+                    </td></tr>
+                    
+                {% endif %}
+                {% for booking_info in unpaid_booking_info %}
+                <tr id="cart-row-booking-{{ booking_info.booking.id }}" class="cart-row-booking">
+                    <td class="p-1">{{ booking_info.booking.event }}</td>
+                    <td class="p-1">
+                        <div>Cost: {% if booking_info.voucher_applied.discounted_cost is not None %}
+                                <span class="superceded-cost">£{{ booking_info.original_cost }}</span> £{{ booking_info.voucher_applied.discounted_cost }}
+                            {% else %}
+                                £{{ booking_info.original_cost }}
+                            {% endif %}
+                        {% if booking_info.voucher_applied.discounted_cost is not None %}
+                        <br><span class="text-secondary"><small><em>Voucher code applied: {{ booking_info.voucher_applied.code }}</em></small></span>
+                        {% endif %}
+                        <span
+                                id="remove-booking-{{ booking_info.booking.id }}"
+                                class="remove-booking float-right"
+                                data-booking_id="{{ booking_info.booking.id }}"
+                                >
+                            <a class="btn btn-sm btn-danger" href="#"><i class="fas fa-trash-alt"></i></a>
+                        </span>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+
+                {% if unpaid_gift_voucher_info %}
+                    <tr><td colspan="2" class="table-secondary"><strong>Gift Vouchers</strong></td></tr>
+                {% endif %}
+                {% for gift_voucher_info in unpaid_gift_voucher_info %}
+                    <tr id="cart-row-gift-voucher-{{ gift_voucher_info.gift_voucher.id }}">
+                        <td class="p-1">{{ gift_voucher_info.gift_voucher.name }}
+                            <a class="text-success" href="{% url 'booking:gift_voucher_update' gift_voucher_info.gift_voucher.slug %}"><span class="fas fa-edit"></span></a>
+                        </td>
+                        <td class="p-1">
+                            <div>Cost: £{{ gift_voucher_info.gift_voucher.gift_voucher_type.cost }}
+                                <span
+                                        id="remove-gift-voucher-{{ gift_voucher_info.gift_voucher.id }}"
+                                        class="remove-gift-voucher float-right"
+                                        data-gift_voucher_id="{{ gift_voucher_info.gift_voucher.id }}"
+                                        >
+                                    <a class="btn btn-sm btn-danger" href="#"><i class="fas fa-trash-alt"></i></a>
+                                </span>
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+            
+                </tbody>
+              <tfoot>
+              <tr>
+                  <td colspan="2">
+                      <strong>TOTAL:
+                          {% if total_cost_without_total_voucher != total_cost %}
+                                <span class="superceded-cost">£{{ total_cost_without_total_voucher }}</span>
+                          {% endif %}
+                          £ <span id="total">{{ total_cost }}</span></strong>
+                    {% if total_cost_without_total_voucher != total_cost %}
+                        <span class="text-secondary"><small><em> (voucher code applied: {{ request.session.total_voucher_code }})</em></small></span>{% endif %}
+                      
+                      <form method="post" action="{% url 'booking:stripe_checkout' %}">
+                          {% csrf_token %}
+                          <input type="hidden" name="cart_total" id="cart_total_input" value="{{ total_cost }}">
+                          <input
+                                  class="btn btn-warning mb-1"
+                                  type="submit"
+                                  value="{% if total_cost > 0 %}Checkout{% else %}Submit{% endif %}"
+                          />
+                      </form>
+
+                      <div>Add additional items:<br/>
+                      {% if request.user.is_authenticated %}
+                        {% if membership_types %}
+                        <a class="btn btn-sm btn-outline-warning" href="{% url 'booking:membership_purchase' %}">Membership</a>
+                        {% endif %}
+                        <a class="btn btn-sm btn-outline-warning" href="{% url 'booking:regular_session_list' %}">Class</a>
+                        {% if future_events.privates %}
+                            <a class="btn btn-sm btn-outline-warning" href="{% url 'booking:private_list' %}">Private</a>
+                        {% endif %}
+                        {% if future_events.workshops %}  
+                            <a class="btn btn-sm btn-outline-warning" href="{% url 'booking:workshop_list' %}">Workshop</a>
+                        {% endif %}
+                      {% endif %}
+                      {% if gift_vouchers_available %}
+                      <a class="btn btn-sm btn-outline-warning" href="{% url 'booking:buy_gift_voucher' %}">Gift vouchers</a>
+                      {% endif %}  
+                    </div>
+                      {% if request.user.is_authenticated %}
+                      <hr>
+                          <form name="voucher_form" class="form-inline" method="post" action="">
+                            {% csrf_token %}
+                            <input name="code" type="text" required="required"/>
+                            <input class="btn btn-sm btn-warning ml-2" type="submit" name="add_voucher_code" value="Apply voucher code"/>
+                        </form>
+                        <span class="errorlist"><ul>{% for error in voucher_add_error %}<li>{{ error }}</li>{% endfor %}</ul></span>
+                      {% if applied_voucher_codes_and_discount %}
+                      <hr class="mb-2">
+                      <div><small><strong>Codes applied:</strong></small>
+                          {% for applied_voucher_code, applied_voucher_discount, applied_voucher_discount_amount in applied_voucher_codes_and_discount %}
+                                <form class="form-inline mt-0 mb-1" method="post" action="">
+                                    {% csrf_token %}
+                                    <input name="code" type="hidden" value="{{ applied_voucher_code }}"/>
+                                    <span class="mr-1 m-0 pb-1 pl-1 pr-1 pt-0 alert alert-info"><small><strong>{{ applied_voucher_code }}</strong> ({% if applied_voucher_discount %}{{ applied_voucher_discount }}%{% else %}£{{ applied_voucher_discount_amount }}{%  endif %} off)</small></span>
+                                    <button type="submit" name="remove_voucher_code" class="btn btn-sm btn-danger pb-1 pl-2 pr-2 pt-0"><small><i class="fas fa-trash-alt"></i></small></button>
+                                    <button type="submit" name="refresh_voucher_code" class="btn btn-sm btn-info pb-1 pl-2 pr-2 pt-0 ml-1"><small><i class="fas fa-sync-alt"></i></small></button>
+                                </form>
+                            {% endfor %}
+                     </div>
+                      {% endif %}
+                    {% endif %}
+                  </td>
+              </tr>
+              </tfoot>
+            </table>
+    </div>
+
+{% else %}
+    <div class="col-12">
+    <p>Your cart is empty</p>
+    {% if request.user.is_authenticated %}
+    <p>
+        {% if membership_types %}
+            <a class="btn btn-sm btn-outline-warning" href="{% url 'booking:membership_purchase' %}">Add membership</a>
+        {% endif %}
+        <a class="btn btn-sm btn-outline-warning" href="{% url 'booking:regular_session_list' %}">Add classes</a>
+        {% if future_events.privates %}
+            <a class="btn btn-sm btn-outline-warning" href="{% url 'booking:private_list' %}">Add private lessons</a>
+        {% endif %}
+        {% if future_events.workshops %}  
+            <a class="btn btn-sm btn-outline-warning" href="{% url 'booking:workshop_list' %}">Add workshops</a>
+        {% endif %}
+        {% if gift_vouchers_available %}
+        <a class="btn btn-sm btn-outline-warning" href="{% url 'booking:buy_gift_voucher' %}">Add gift vouchers</a>
+        {% endif %} 
+    </p>
+    {% endif %}
+    </div>
+{% endif %}
+</div>
+
+{% endblock content %}
+
+
+{% block extrascripts %}
+<script type='text/javascript' src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
+<script type='text/javascript' src="{% static 'booking/js/shopping_basket_ajax.js' %}"></script>
+{% endblock %}

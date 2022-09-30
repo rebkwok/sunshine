@@ -1,0 +1,8 @@
+{% extends 'website/email/email_base.txt' %}
+{% block messagecontent %}
+Thank you for purchasing a gift voucher.  Your voucher code is {{ gift_voucher.code }}.
+
+To view and print your gift voucher, please go to {{ host }}{{ gift_voucher.get_voucher_url }}
+
+To update the recipient name or message on your gift voucher, please go to {{ host }}{{ gift_voucher.get_voucher_update_url }}
+{% endblock %}

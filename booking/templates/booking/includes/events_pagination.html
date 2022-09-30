@@ -1,5 +1,6 @@
 {% load bookingtags %}
 
+{% if page_obj.paginator.num_pages > 1 %}
 <div class="pagination">
     <span class="page-links">
         {% if page_obj.has_previous %}
@@ -9,7 +10,7 @@
             <a class="disabled" disabled=disabled href="#">Previous</a>
         {% endif %}
         --
-        {% for i in paginator.num_pages|get_range:1 %}
+        {% for i in page_obj.paginator.num_pages|get_range:1 %}
             {% if i != page_obj.number %}
                 <a href="?page={{ i }}{% if request.GET.name %}&name={{ request.GET.name }}{% endif %}{% if request.GET.venue %}&venue={{ request.GET.venue }}{% endif %}{% if request.GET.type %}&type={{ request.GET.type }}{% endif %}">
                     {{ i }}</a>
@@ -25,3 +26,4 @@
         {% endif %}
     </span>
 </div>
+{% endif %}

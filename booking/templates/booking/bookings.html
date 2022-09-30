@@ -3,8 +3,7 @@
 {% load bookingtags %}
 
 {% block extrahead %}
-<link rel="stylesheet" href="{% static 'booking/vanilla-notify.css' %}">
-<script type='text/javascript' src="{% static 'booking/vanilla-notify.min.js' %}"></script>
+{% include 'booking/includes/ajax_head.html' %}
 {% endblock %}
 
 {% block content %}
@@ -33,6 +32,8 @@
                             <th>Booking</th>
                             <th>Location</th>
                             <th class="table-center">Status</th>
+                            <th class="table-center">Paid</th>
+                            <th class="table-center">Membership</th>
                         </tr>
 
                             {% for booking in bookings %}
@@ -83,6 +84,24 @@
                                     <td>{{ booking.event.name }}</td>
                                     <td>{{ booking.event.venue.abbreviation }}</td>
                                     <td class="table-center"><span id="booked-{{ booking.event.id }}-status">{{ booking_status_display|lookup:booking.id  }}</span></td>
+                                    <td class="table-center">
+                                        <span id="booked-{{ booking.event.id }}-paid">
+                                            <span 
+                                                class="{% if booking.paid %}text-success fas fa-check-circle{% else %}text-danger fas fa-times-circle{% endif %}"/>
+                                            </span>
+                                        </span>
+                                    </td>
+                                    <td class="table-center">
+                                        <span id="booked-{{ booking.event.id }}-membership">
+                                            {% if booking.membership %}
+                                                <a href={% url "booking:membership_detail" booking.membership.id %}>
+                                                    <span class="text-success fas fa-check-circle"></span>
+                                                </a>
+                                            {% else %}
+                                                <span class="text-danger fas fa-times-circle"></span>
+                                            {% endif %}
+                                        </span>
+                                    </td>
                                 </tr>
                             {% endfor %}
 

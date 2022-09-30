@@ -69,7 +69,7 @@
                                 {% if session.members_only %}
                                 Membership only
                                 {% else %}
-                                £ {{ session.cost | format_cost }}{% if session.alt_cost %} / £ {{ session.alt_cost | format_cost }}{% endif %}
+                                £ {{ session.cost | format_cost }}
                                 {% endif %}
                             </td> {% endcomment %}
                             <td class="timetable-row session-level-td">{{ session.level }}</td>

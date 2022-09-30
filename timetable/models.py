@@ -22,9 +22,6 @@ class SessionType(models.Model):
             raise ValidationError("To display this class type on the home page, you also need to add a description")
         
         return super().clean()
-    # def save(self, *args, **kwargs):
-        # return super().save(*args, **kwargs)
-
 
 
 class Venue(models.Model):
@@ -92,12 +89,6 @@ class TimetableSession(models.Model):
     )
     cost = models.DecimalField(
         max_digits=8, decimal_places=2, default=8,
-        help_text="Cost for non-members"
-    )
-    alt_cost = models.DecimalField(
-        max_digits=8, decimal_places=2, default=8,
-        verbose_name="Member cost",
-        help_text="Cost for additional session for members"
     )
     max_participants = models.PositiveIntegerField(default=12)
     cancellation_fee = models.DecimalField(max_digits=8, decimal_places=2, default=0.00)

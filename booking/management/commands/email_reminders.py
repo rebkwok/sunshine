@@ -2,7 +2,7 @@
 Email reminders for upcoming events
 Check for events with date within 48 hrs, but not ones booked/rebooked within the last 6 hrs
 Assume that if you just booked, you don't need a reminder immediately
-Email all users on event.bookings where booking.status == 'OPEN'
+Email all users on event.bookings where booking.status == 'OPEN' and paid=True
 Add reminder_sent flag to booking model so we don't keep sending
 '''
 from datetime import timedelta
@@ -17,7 +17,7 @@ from activitylog.models import ActivityLog
 
 
 class Command(BaseCommand):
-    help = 'email reminders for upcoming bookings'
+    help = 'email reminders for upcoming (paid) bookings'
 
     def handle(self, *args, **options):
         target_time = timezone.now() + timedelta(hours=48)
@@ -28,6 +28,7 @@ class Command(BaseCommand):
             status='OPEN',
             no_show=False,
             reminder_sent=False,
+            paid=True,
             date_booked__lt=timezone.now() - timedelta(hours=6)
         )
 

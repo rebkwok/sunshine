@@ -3,8 +3,7 @@
 {% load accounttags bookingtags %}
 
 {% block extrahead %}
-<link rel="stylesheet" href="{% static 'booking/vanilla-notify.css' %}">
-<script type='text/javascript' src="{% static 'booking/vanilla-notify.min.js' %}"></script>
+{% include 'booking/includes/ajax_head.html' %}
 {% endblock %}
 
 {% block content %}
@@ -71,7 +70,7 @@
         {% if events %}
           {% if event_type == "class" %}
           <div>
-            Costs and memberships <span type="button" class="badge badge-warning" data-toggle="collapse" data-target="#demo"><i class="fas fa-caret-down"></i></span>
+            Costs and membership options <span type="button" class="badge badge-warning" data-toggle="collapse" data-target="#demo"><i class="fas fa-caret-down"></i></span>
             <div id="demo" class="collapse">
                 {% include 'website/includes/membership.html' %}            
             </div>
@@ -94,9 +93,7 @@
                                 <th class="table-center">Date</th>
                                 <th class="table-center">Name</th>
                                 <th class="table-center">Venue</th>
-                                {% if event_type != "class" %}
-                                    <th class="table-center">Cost</th>
-                                {% endif %}
+                                <th class="table-center">Cost</th>
                                 <th class="table-center">Spaces</th>
                             </tr>
                             <tbody>
@@ -116,6 +113,9 @@
                                                     {% elif user.has_outstanding_fees %}
                                                         {% include "booking/includes/outstanding_fee_disabled_buttons.html" %}
                                                     {% elif event.bookable or event.id in booked_events %}
+                                                        {% if event.members_only and not event|has_available_membership:user and not event.id in booked_events %}
+                                                            <span class="btn table-btn btn-warning book_button disabled" disabled=disabled>Members only</span>
+                                                        {% else %}
                                                         <span
                                                             id="book_{{ event.id }}"
                                                             data-event_id="{{ event.id }}"
@@ -126,6 +126,7 @@
                                                             class="td_ajax_book_btn">
                                                         {% include "booking/includes/book_button_toggle.html" %}
                                                         </span>
+                                                        {% endif %}
                                                     {% else %}
                                                         <span
                                                             id="waiting_list_button_{{ event.id }}"
@@ -143,9 +144,7 @@
                                     <td class="table-center">{{ event.date | date:"D d M H:i" }}</td>
                                     <td class="table-center"><a href="{% url 'booking:event_detail' event.slug %}">{{ event.name }}</a></td>
                                     <td class="table-center">{{ event.venue.abbreviation }}</td>
-                                    {% if event_type != "class" %}
-                                        <td class="table-center">£{{ event.cost }}</td>
-                                    {% endif %}
+                                    <td class="table-center">£{{ event.cost }}</td>
                                     <td class="table-center">
                                         {% if event.max_participants %}
                                             <span id="booking_count_{{ event.id }}"

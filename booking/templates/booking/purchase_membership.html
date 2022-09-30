@@ -1,0 +1,77 @@
+{% extends "website/_base.html" %}
+
+{% load static %}
+{% load accounttags bookingtags %}
+
+{% block extrahead %}
+{% include 'booking/includes/ajax_head.html' %}
+{% endblock %}
+
+{% block content %}
+    <h2 class="mt-1">Memberships</h2>
+          <div class="mb-2">
+        {%  if request.user.is_authenticated %}
+              <a class="btn btn-outline-warning btn-xs" href="{% url 'booking:shopping_basket' %}"><span>View cart <i class="fas fa-shopping-cart"></i></span></a>
+              <a class="btn btn-warning btn-xs" href="{% url 'booking:regular_session_list' %}">View classes</a>
+        {% endif %} 
+          </div>
+
+        <p>
+            Memberships run for one calendar month.
+            All classes in monthly memberships must be used up by the last day of the month. 
+            No classes will be carried over to the following month.
+        </p>    
+
+        {% if options %}
+            <table class="table table-sm">
+              <thead>
+                <th style="width: 60%">Membership option</th>
+                <th style="width: 20%">Cost</th>
+                <th style="width: 20%"></th>
+              </thead>
+              <tbody>
+
+                {% for option in options %}
+                    <tr class="table-border-bold">
+                        <td class="pl-2 pb-0">
+                            <p>
+                                <strong>{{ option.membership_type.name }} </strong><br/>
+                                Valid for classes in <strong>{{ option.month_str }} {{ option.year }}</strong>
+                            </p>
+                        </td>    
+                        <td>
+                        <p class="mb-1">
+                                £{{ option.membership_type.cost }}
+                        </p>
+                        </td>
+                    {%  if request.user.is_authenticated %}
+                        <td class="table-purchase-td">
+                            <span
+                                id="membership_type_{{ option.membership_type.id }}_{{ option.month }}_{{ option.year }}"
+                                data-membership_type_id="{{ option.membership_type.id }}"
+                                data-month="{{ option.month }}"
+                                data-year="{{ option.year }}"
+                                class="float-right ajax_membership_purchase_btn">
+                                {% include "booking/includes/add_membership_button.html" %}
+                            </span>
+                        </td>
+                    {% else %}
+                        <td colspan="2">
+                            <span class="helptext float-right"><a href="{% url 'account_login' %}?next={{request.get_full_path}}">Log in</a> or <a href="{% url 'account_signup' %}">register</a> to purchase</span>
+                        </td>
+                    {% endif %}
+                    </tr>
+                {% endfor %}
+              </tbody>
+         </table>
+        {% else %}
+            <p>No memberships are available for purchase</p>
+        {% endif %}
+
+{% endblock content %}
+
+
+{% block extrascripts %}
+<script type='text/javascript' src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
+<script type='text/javascript' src="{% static 'booking/js/membership_purchase_ajax.js' %}"></script>
+{% endblock %}

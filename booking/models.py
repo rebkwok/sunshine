@@ -1,30 +1,48 @@
 # -*- coding: utf-8 -*-
+from calendar import monthrange, month_name, month_abbr
+from datetime import datetime, timedelta
+from datetime import timezone as dt_timezone
 
+from dateutil.relativedelta import relativedelta
+from decimal import Decimal
 import logging
 import pytz
 import shortuuid
 
 from django.db import models
+from django.db.models import Q
+from django.db.models.signals import post_delete
+from django.dispatch import receiver
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.contrib.postgres.fields import ArrayField
+from django.core.cache import cache
 from django.core.exceptions import ValidationError
+from django.urls import reverse
 from django.utils import timezone
+from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 
 from django_extensions.db.fields import AutoSlugField
 
 from activitylog.models import ActivityLog
+from stripe_payments.models import Invoice
 from timetable.models import Venue
+from booking.utils import start_of_day_in_utc, end_of_day_in_utc, start_of_day_in_local_time
 
 logger = logging.getLogger(__name__)
 
 
+EVENT_TYPE_CHOICES = (('workshop', 'Workshop'), ('regular_session', 'Regular Timetabled Session'), ('private', "Private Lesson"))
+GIFT_VOUCHER_EVENT_TYPES = (('regular_session', 'Class'), ('private', "Private Lesson"), ('workshop', 'Workshop'))
+
+
 class Event(models.Model):
-    EVENT_TYPES = (('workshop', 'Workshop'), ('regular_session', 'Regular Timetabled Session'))
+    EVENT_TYPES = EVENT_TYPE_CHOICES
 
     name = models.CharField(max_length=255)
     event_type = models.CharField(
-        choices=EVENT_TYPES, default='workshop', max_length=255
+        choices=EVENT_TYPES, default='regular_session', max_length=255
     )
     description = models.TextField(blank=True, default="")
     date = models.DateTimeField()
@@ -49,11 +67,6 @@ class Event(models.Model):
         populate_from=['name', 'date'], max_length=40, unique=True
     )
     allow_booking_cancellation = models.BooleanField(default=True)
-    paypal_email = models.EmailField(
-        default="placeholder@dummy-paypal.email",
-        help_text='Email for the paypal account to be used for payment.  '
-                  'Check this carefully!'
-    )
     cancelled = models.BooleanField(default=False)
     cancellation_fee = models.DecimalField(max_digits=8, decimal_places=2, default=0.00)
     members_only = models.BooleanField(default=False, help_text="Classes are only available to students with memberships")
@@ -85,13 +98,439 @@ class Event(models.Model):
             time_until_event > self.cancellation_period
         )
 
-    def __str__(self):
-        return '{} - {}'.format(
-            str(self.name),
-            self.date.astimezone(
-                pytz.timezone('Europe/London')
-            ).strftime('%d %b %Y, %H:%M')
+    def get_available_user_membership(self, user):
+        if self.event_type != "regular_session":
+            # memberships are only valid for regular classes
+            return None 
+        valid_memberships = user.memberships.filter(
+            month=self.date.month, year=self.date.year, paid=True
+        ).order_by("purchase_date")
+        available = next(
+            (membership for membership in valid_memberships if not membership.full()),
+            None
         )
+        return available
+
+    def __str__(self):
+        local_datestr = self.date.astimezone(pytz.timezone('Europe/London')).strftime('%d %b %Y, %H:%M')
+        return f'{self.name} - {local_datestr}'
+
+
+class MembershipType(models.Model):
+    name = models.CharField(max_length=255)
+    number_of_classes = models.PositiveIntegerField()
+    cost = models.DecimalField(max_digits=8, decimal_places=2)
+    active = models.BooleanField(default=True, help_text="Visible and available for purchase on site")
+
+    def __str__(self) -> str:
+        return f"{self.name} - £{self.cost:.2f}"
+
+
+def _start_of_today():
+    now = timezone.now()
+    return start_of_day_in_local_time(now)
+
+
+class BaseVoucher(models.Model):
+    code = models.CharField(max_length=255, unique=True)
+    discount = models.PositiveIntegerField(
+        verbose_name="Percentage discount", help_text="Discount value as a % of the purchased item cost. Enter a number between 1 and 100",
+        null=True, blank=True
+    )
+    discount_amount = models.DecimalField(
+        verbose_name="Exact discount amount (£)", help_text="Discount as an exact amount off the purchased item cost",
+        null=True, blank=True, decimal_places=2, max_digits=6
+    )
+    start_date = models.DateTimeField(default=_start_of_today)
+    expiry_date = models.DateTimeField(null=True, blank=True)
+    max_vouchers = models.PositiveIntegerField(
+        null=True, blank=True, verbose_name='Maximum available vouchers',
+        help_text="Maximum uses across all users")
+    max_per_user = models.PositiveIntegerField(
+        null=True, blank=True,
+        verbose_name="Maximum uses per user",
+        help_text="Maximum times this voucher can be used by a single user"
+    )
+
+    # for gift vouchers
+    is_gift_voucher = models.BooleanField(default=False)
+    activated = models.BooleanField(default=True)
+    name = models.CharField(null=True, blank=True, max_length=255, help_text="Name of recipient")
+    message = models.TextField(null=True, blank=True, max_length=500, help_text="Message (max 500 characters)")
+    purchaser_email = models.EmailField(null=True, blank=True)
+
+    @property
+    def has_expired(self):
+        if self.expiry_date and self.expiry_date < timezone.now():
+            return True
+        return False
+
+    @property
+    def has_started(self):
+        return bool(self.start_date < timezone.now() and self.activated)
+
+    def clean(self):
+        if not (self.discount or self.discount_amount):
+            raise ValidationError("One of discount (%) or discount amount (fixed £ amount) is required")
+        if self.discount and self.discount_amount:
+            raise ValidationError("Only one of discount (%) or discount amount (fixed £ amount) may be specified (not both)")
+
+    def _generate_code(self):
+        return slugify(shortuuid.ShortUUID().random(length=12))
+
+    def save(self, *args, **kwargs):
+        if not self.code:
+            self.code = self._generate_code()
+            while BaseVoucher.objects.filter(code=self.code).exists():
+                self.code = self._generate_code()
+        self.full_clean()
+        # replace start time with very start of day
+        self.start_date = start_of_day_in_utc(self.start_date)
+        if self.expiry_date:
+            self.expiry_date = end_of_day_in_utc(self.expiry_date)
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        if self.discount:
+            return f"{self.code} - {self.discount}%"
+        else:
+            return F"{self.code} - £{self.discount_amount:.2f}"
+
+
+class ItemVoucher(BaseVoucher):
+    membership_types = models.ManyToManyField(MembershipType, blank=True)
+    event_types = ArrayField(
+        models.CharField(choices=Event.EVENT_TYPES, max_length=20),
+        default=list,
+        null=True, blank=True
+    )
+
+    def check_membership_type(self, membership_type):
+        return membership_type in self.membership_types.all()
+    
+    def check_event_type(self, event_type):
+        return event_type in self.event_types
+
+    def check_item(self, item):
+        if isinstance(item, Membership):
+            return self.check_membership_type(item.membership_type)
+        else:
+            assert isinstance(item, Booking)
+            return self.check_event_type(item.event.event_type)
+
+    def paid_and_unpaid_items(self, user=None):
+        all_items = {
+            "membership": self.memberships.all(),
+            "booking": self.bookings.all()
+        }
+        if user is not None:
+            return {
+                k: v.filter(user=user) for k, v in all_items.items()
+            }
+        return all_items
+    
+    def valid_for(self):
+        event_type_readable = dict(GIFT_VOUCHER_EVENT_TYPES)
+        return list(
+            f"Membership - {mem.name}" for mem in self.membership_types.all()
+            ) + [f"{event_type_readable[ev_type]} booking" for ev_type in self.event_types]
+
+    def used_items(self, user=None):
+        used_items = {
+            "membership": self.memberships.filter(paid=True),
+            "booking": self.bookings.filter(paid=True)
+        }
+        if user is not None:
+            return {
+                k: v.filter(user=user) for k, v in used_items.items()
+            }
+        return used_items
+
+    def uses(self, user=None):
+        return sum([qs.count() for qs in self.used_items(user=user).values()])
+
+
+class TotalVoucher(BaseVoucher):
+    """A voucher that applies to the overall checkout total, not linked to any specific membership or event type"""
+
+    def uses(self):
+        return Invoice.objects.filter(paid=True, total_voucher_code=self.code).count()
+
+
+class GiftVoucherType(models.Model):
+    """
+    Defines configuration for gift vouchers that are available for purchase.
+    Each one is associated with EITHER:
+    1) one MembershipType
+    2) one event type
+    3) a fixed amount
+    1 & 2: generate voucher codes for 100%, one-time use Itemvouchers
+    3: generate voucher codes for one-time use vouchers (TotalVoucher) of that discount
+    amount, valid against the user's total checkout amount, irresepctive of items
+    """
+    membership_type = models.OneToOneField(
+        MembershipType, null=True, blank=True, on_delete=models.SET_NULL, 
+        related_name="gift_voucher_types",
+        help_text="Create gift vouchers valid for one membership"
+    )
+    event_type = models.CharField(
+        max_length=255, null=True, blank=True, choices=GIFT_VOUCHER_EVENT_TYPES, 
+        unique=True,
+        help_text="Create gift vouchers valid for one event type (class, workshop, private)"
+    )
+    discount_amount = models.DecimalField(
+        verbose_name="Exact amount (£)",
+        null=True, blank=True, decimal_places=2, max_digits=6, unique=True,
+        help_text="Create gift vouchers for a fixed amount; used as a discount against the total shopping basket value for any purchases."
+    )
+    active = models.BooleanField(default=True, help_text="Display on site; set to False instead of deleting unused gift voucher types")
+    duration = models.PositiveIntegerField(default=6, help_text="How many months will this gift voucher last?")
+    override_cost = models.DecimalField(
+        null=True, blank=True, max_digits=8, decimal_places=2,
+        help_text="Use this to override the default cost to purchase this gift voucher. (Default "
+        "cost is the current cost of the item the voucher is for (i.e. the discount amount, or "
+        "for memberships, the current cost to purchase that membership, and for classes/privates/workshops, "
+        "the cost of the last event of that type that was created."
+    )
+
+    class Meta:
+        ordering = ("event_type", "membership_type", "discount_amount")
+
+    @property
+    def cost(self):
+        if self.override_cost:
+            return self.override_cost
+        if self.membership_type:
+            return self.membership_type.cost
+        if self.discount_amount:
+            return self.discount_amount
+        if self.event_type:
+            latest_event = Event.objects.filter(event_type=self.event_type).latest('id')
+            return latest_event.cost
+
+    def __str__(self):
+        if self.membership_type:
+            return f"Membership - {self.membership_type.name} - £{self.cost:.2f}"
+        if self.event_type:
+            if self.event_type == "regular_session":
+                return f"Class - £{self.cost:.2f}" 
+            else:
+                return f"{dict(Event.EVENT_TYPES)[self.event_type]} - £{self.cost:.2f}"
+        return f"Voucher - £{self.cost:.2f}"
+
+    @property
+    def name(self):
+        if self.membership_type:
+            return self.membership_type.name
+        elif self.event_type:
+            if self.event_type == "regular_session":
+                return "Class"
+            else:
+                return dict(Event.EVENT_TYPES)[self.event_type]
+        else:
+            return f"£{self.discount_amount}"
+
+    def clean(self):
+        valid_for_count = sum([
+            1 if item is not None else 0 for item in [self.membership_type, self.event_type, self.discount_amount]
+        ])
+        if valid_for_count == 1:
+            return
+        if valid_for_count == 0:
+            raise ValidationError("One of event type, membership, or a fixed voucher value is required")
+        else:
+            raise ValidationError("Select ONLY ONE of event type, membership or a fixed voucher value")
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super().save(*args, **kwargs)
+
+
+class GiftVoucher(models.Model):
+    """Holds information about a gift voucher purchase"""
+    gift_voucher_type = models.ForeignKey(GiftVoucherType, on_delete=models.CASCADE)
+    item_voucher = models.OneToOneField(
+        ItemVoucher, null=True, blank=True, on_delete=models.SET_NULL, related_name="gift_voucher"
+        )
+    total_voucher = models.OneToOneField(
+        TotalVoucher, null=True, blank=True, on_delete=models.SET_NULL, related_name="gift_voucher"
+        )
+
+    invoice = models.ForeignKey(Invoice, null=True, blank=True, on_delete=models.SET_NULL, related_name="gift_vouchers")
+    paid = models.BooleanField(default=False)
+    slug = models.SlugField(max_length=40, null=True, blank=True)
+
+    @property
+    def voucher(self):
+        if self.item_voucher:
+            return self.item_voucher
+        elif self.total_voucher:
+            return self.total_voucher
+
+    @property
+    def purchaser_email(self):
+        if self.voucher:
+            return self.voucher.purchaser_email
+
+    @property
+    def recipient_name(self):
+        if self.voucher:
+            return self.voucher.name
+    
+    @property
+    def message(self):
+        if self.voucher:
+            return self.voucher.message
+    
+    @property
+    def start_date(self):
+        if self.voucher:
+            return self.voucher.start_date.strftime("%d-%b-%Y")
+
+    @property
+    def expiry_date(self):
+        if self.voucher:
+            return self.voucher.expiry_date.strftime("%d-%b-%Y")
+    
+    @property
+    def code(self):
+        if self.voucher:
+            return self.voucher.code
+
+    @property
+    def name(self):
+        return f"Gift Voucher: {self.gift_voucher_type.name}"
+
+    def get_voucher_url(self):
+        return reverse("booking:voucher_details", args=(self.slug,))
+
+    def get_voucher_update_url(self):
+        return reverse("booking:gift_voucher_update", args=(self.slug,))
+
+    def __str__(self):
+        return f"{self.code} - {self.name} - {self.purchaser_email}"
+
+    def activate(self):
+        """Activate a voucher that isn't already activated, and reset start/expiry dates if necessary"""
+        if self.voucher and not self.voucher.activated:
+            self.voucher.activated = True
+            if self.voucher.start_date < timezone.now():
+                self.voucher.start_date = timezone.now()
+            if self.gift_voucher_type.duration:
+                self.voucher.expiry_date = end_of_day_in_utc(
+                    self.voucher.start_date + relativedelta(months=self.gift_voucher_type.duration)
+                )
+            self.voucher.save()
+
+    def save(self, *args, **kwargs):
+        new = not self.id
+        changed = False
+        # check for changes to voucher type (before payment processed)
+        if self.item_voucher is not None:
+            if self.gift_voucher_type.membership_type:
+                changed = list(self.item_voucher.membership_types.all()) != [self.gift_voucher_type.membership_type]
+            else:
+                changed = self.item_voucher.event_types != [self.gift_voucher_type.event_type]
+        if self.total_voucher is not None:
+            changed = self.total_voucher.discount_amount != self.gift_voucher_type.discount_amount
+             
+        if changed:
+            # delete existing vouchers if changed
+            if self.total_voucher:
+                self.total_voucher.delete()
+            if self.item_voucher:
+                self.item_voucher.delete()
+
+        if (new and not self.voucher) or changed:
+            # New or changed gift voucher, create voucher.  Name, message and purchaser will be added by the purchase
+            # view after the GiftVoucher is created.
+            if self.gift_voucher_type.discount_amount:
+                self.total_voucher = TotalVoucher.objects.create(
+                    discount_amount=self.gift_voucher_type.discount_amount,
+                    max_per_user=1,
+                    max_vouchers=1,
+                    activated=False,
+                    is_gift_voucher=True,
+                )
+                self.item_voucher = None
+            else:
+                voucher_kwargs = {
+                    "max_per_user": 1,
+                    "max_vouchers": 1,
+                    "discount": 100,
+                    "activated": False,
+                    "is_gift_voucher": True
+                }
+                if self.gift_voucher_type.membership_type:
+                    self.item_voucher = ItemVoucher.objects.create(**voucher_kwargs)
+                    self.item_voucher.membership_types.add(self.gift_voucher_type.membership_type)
+                else:
+                    assert self.gift_voucher_type.event_type
+                    voucher_kwargs["event_types"] = [self.gift_voucher_type.event_type]
+                    self.item_voucher = ItemVoucher.objects.create(**voucher_kwargs)
+                self.total_voucher = None
+
+        if self.voucher and not self.slug:
+            self.slug = slugify(self.voucher.code[:40])        
+
+        if not self.voucher.is_gift_voucher:
+            self.voucher.is_gift_voucher = True
+            self.voucher.save()
+    
+        super().save(*args, **kwargs)
+
+
+class Membership(models.Model):
+    user = models.ForeignKey(User, related_name="memberships", on_delete=models.CASCADE)
+    membership_type = models.ForeignKey(MembershipType, related_name="memberships", on_delete=models.CASCADE)
+    paid = models.BooleanField(default=False)
+    purchase_date = models.DateTimeField(default=timezone.now)
+    month = models.PositiveIntegerField(choices=[(i, i) for i in range(1,13)])
+    year = models.PositiveIntegerField(choices=[(yr, yr) for yr in range(2022, 2035)])
+    invoice = models.ForeignKey(Invoice, on_delete=models.SET_NULL, null=True, blank=True, related_name="memberships")
+    voucher = models.ForeignKey(ItemVoucher, on_delete=models.SET_NULL, null=True, blank=True, related_name="memberships")
+
+    @property
+    def month_str(self):
+        return month_name[self.month]
+
+    def start_date(self): 
+        return datetime(self.year, self.month, 1, tzinfo=dt_timezone.utc)
+
+    def expiry_date(self):
+        _, last_day = monthrange(month=self.month, year=self.year)
+        return datetime(self.year, self.month, last_day, tzinfo=dt_timezone.utc)
+
+    def has_expired(self):
+        now = timezone.now()
+        return now > self.expiry_date() + timedelta(days=1)
+
+    def current_or_future(self):
+        return not (self.has_expired() or self.full())
+
+    def times_used(self):
+        return self.bookings.count()
+
+    def full(self):
+        return self.times_used() >= self.membership_type.number_of_classes
+
+    @property
+    def cost_with_voucher(self):
+        if not self.voucher:
+            return self.membership_type.cost
+        original_cost = Decimal(float(self.membership_type.cost))
+        if self.voucher.discount_amount:
+            if self.voucher.discount_amount > original_cost:
+                return 0
+            return original_cost - Decimal(self.voucher.discount_amount)
+        percentage_to_pay = Decimal((100 - self.voucher.discount) / 100)
+        return (original_cost * percentage_to_pay).quantize(Decimal('.01'))
+
+    def __str__(self) -> str:
+        return f"{self.membership_type.name} - {self.month_str} {self.year}"
+
+    def str_with_abbreviated_month(self) -> str:
+        return f"{self.membership_type.name} - {month_abbr[self.month]} {self.year}"
 
 
 class Booking(models.Model):
@@ -130,11 +569,107 @@ class Booking(models.Model):
     cancellation_fee_paid = models.BooleanField(default=False)
     date_cancelled = models.DateTimeField(null=True, blank=True)
 
+    membership = models.ForeignKey(
+        Membership, null=True, blank=True, 
+        on_delete=models.SET_NULL,
+        related_name="bookings"
+    )
+    invoice = models.ForeignKey(Invoice, on_delete=models.SET_NULL, null=True, blank=True, related_name="bookings")
+    voucher = models.ForeignKey(ItemVoucher, on_delete=models.SET_NULL, null=True, blank=True, related_name="bookings")
+    checkout_time = models.DateTimeField(null=True, blank=True)
+
     class Meta:
         unique_together = ('user', 'event')
 
     def __str__(self):
         return "{} - {}".format(str(self.event.name), str(self.user.username))
+
+    def booked_with_membership_within_allowed_time(self):
+        allowed_datetime = timezone.now() - timedelta(minutes=5)
+        if self.membership:
+            return (self.date_rebooked and self.date_rebooked > allowed_datetime) \
+                   or (self.date_booked > allowed_datetime)
+        return False
+
+    def mark_checked(self):
+        self.checkout_time = timezone.now()
+        self.save()
+
+    @classmethod
+    def cleanup_expired_bookings(cls, user=None, use_cache=False):
+        """
+        Delete bookings that are unpaid
+        """
+        if use_cache:
+            # check cache to see if we cleaned up recently
+            if cache.get("expired_bookings_cleaned"):
+                logger.info("Expired bookings cleaned up within past 2 mins; no cleanup required")
+                return []
+
+        # timeout defaults to 15 mins
+        timeout = settings.CART_TIMEOUT_MINUTES
+        checkout_buffer_seconds = 60 * 5
+        queries = (
+            Q(
+                event__date__gt=timezone.now(),
+                status="OPEN", no_show=False,
+                paid=False
+            ) & (
+                Q(checkout_time__lt=timezone.now() - timedelta(seconds=checkout_buffer_seconds)) | 
+                Q(checkout_time__isnull=True)
+            )
+        )
+        if user:
+            # If we have a user, we're at the checkout, so get all unpaid bookings for
+            # this user only
+            unpaid_bookings = user.bookings.filter(queries)
+        else:
+            # no user, doing a general cleanup.  Don't delete anything that was time-checked
+            # (done at final checkout stage) within the past 5 mins, in case we delete something
+            # that's in the process of being paid
+            unpaid_bookings = cls.objects.filter(queries)
+        created_dates = [
+            (booking, booking.date_rebooked or booking.date_booked) 
+            for booking in unpaid_bookings
+        ]
+        expired_ids = [
+            booking.id for booking, created_at in created_dates
+            if created_at < (timezone.now() - timedelta(minutes=timeout))
+        ]
+        expired = cls.objects.filter(id__in=expired_ids)
+        event_ids = set(expired.values_list("event_id", flat=True))
+
+        if expired:
+            if user is not None:
+                ActivityLog.objects.create(
+                    log=f"{expired.count()} bookings for user {user} expired and were deleted"
+                )
+            else:
+                ActivityLog.objects.create(
+                    log=f"{expired.count()} booking cart items expired and were deleted"
+                )
+        expired.delete()
+
+        if use_cache:
+            logger.info("Expired bookings cleaned up")
+            # cache for 2 mins
+            cache.set("expired_bookings_cleaned", True, timeout=60*2)
+        
+        # return the event ids for bookings that were deleted, so we can check if 
+        # waiting list emails need to be sent
+        return event_ids
+
+    @property
+    def cost_with_voucher(self):
+        if not self.voucher:
+            return self.event.cost
+        original_cost = Decimal(float(self.event.cost))
+        if self.voucher.discount_amount:
+            if self.voucher.discount_amount > original_cost:
+                return 0
+            return original_cost - Decimal(self.voucher.discount_amount)
+        percentage_to_pay = Decimal((100 - self.voucher.discount) / 100)
+        return (original_cost * percentage_to_pay).quantize(Decimal('.01'))
 
     def _old_booking(self):
         if self.pk:
@@ -294,3 +829,11 @@ def outstanding_fees_total(self):
 User.add_to_class("has_outstanding_fees", has_outstanding_fees)
 User.add_to_class("outstanding_fees_total", outstanding_fees_total)
 User.__str__ = user_str_patch
+
+
+@receiver(post_delete, sender=GiftVoucher)
+def delete_related_voucher(sender, instance, **kwargs):
+    if instance.voucher:
+        if instance.voucher.basevoucher_ptr_id is None:
+            instance.voucher.basevoucher_ptr_id = instance.voucher.id
+        instance.voucher.delete()

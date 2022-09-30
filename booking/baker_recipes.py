@@ -5,7 +5,7 @@ from django.utils import timezone
 
 from model_bakery.recipe import Recipe, foreign_key, seq
 
-from booking.models import Event, Booking, WaitingListUser
+from booking.models import Event, Booking, GiftVoucher, Membership, WaitingListUser
 from timetable.models import TimetableSession, SessionType, Venue
 
 
@@ -38,6 +38,11 @@ future_PC = Recipe(
     cancellation_fee=1.00
 )
 
+future_PV = Recipe(
+    Event, date=future, event_type='private', show_on_site=True, cost=10, email_studio_when_booked=True,
+    cancellation_fee=1.00
+)
+
 past_class = Recipe(
     Event, date=past, event_type='regular_session', show_on_site=True, cost=10, email_studio_when_booked=True,
     cancellation_fee=1.00
@@ -59,4 +64,20 @@ tue_session = Recipe(
 )
 wed_session = Recipe(
     TimetableSession, session_day=TimetableSession.WED
+)
+
+now = timezone.now()
+membership = Recipe(
+    Membership, month=now.month, year=now.year, paid=False
+)   
+
+gift_voucher_10 = Recipe(
+    GiftVoucher,
+    gift_voucher_type__discount_amount=10,
+    total_voucher__discount_amount=10
+)
+gift_voucher_11 = Recipe(
+    GiftVoucher,
+    gift_voucher_type__discount_amount=11,
+    total_voucher__discount_amount=11
 )

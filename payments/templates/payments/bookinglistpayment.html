@@ -1,9 +1,0 @@
-{% load bookingtags %}
-{% if bookingform %}
-<!-- writes out the form tag automatically -->
-{{ bookingform.paypalform.render }}
-
-{% else %}
-    {{ paypalforms|renderpaypalform:booking.id }}
-
-{% endif %}

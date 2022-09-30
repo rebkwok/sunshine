@@ -1,12 +1,13 @@
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.core.mail import send_mail
-from django.core.mail.message import EmailMessage, EmailMultiAlternatives
+from django.contrib.sites.models import Site
+from django.core.mail.message import EmailMultiAlternatives
 from django.template.loader import get_template
 
 from activitylog.models import ActivityLog
 
 from booking.models import Booking, Event, WaitingListUser
+from booking.utils import host_from_request
 
 
 def send_email(
@@ -22,42 +23,39 @@ def send_email(
     ctx.update({"studio_email": settings.DEFAULT_STUDIO_EMAIL})
     if request:
         domain = request.META.get('HTTP_HOST')
-        host = 'http://{}'.format(request.META.get('HTTP_HOST'))
-        ctx.update({'domain': domain})
+        host = host_from_request(request)
+        ctx.update({'domain': domain, 'host': host})
     else:
-        ctx.update({"domain": settings.DOMAIN})
-    try:
-        msg = EmailMultiAlternatives(
-            '{}{}'.format(
-                '{} '.format(prefix) if prefix else '', subject
+        domain = Site.objects.get_current().domain
+        ctx.update({"domain": domain, "host": f"https://{domain}"})
+
+    msg = EmailMultiAlternatives(
+        '{}{}'.format(
+            '{} '.format(prefix) if prefix else '', subject
+        ),
+        get_template(
+            template_txt).render(
+                ctx
             ),
+        from_email=from_email,
+        to=to_list,
+        bcc=bcc_list,
+        cc=cc_list,
+        reply_to=reply_to_list
+        )
+    if template_html:
+        msg.attach_alternative(
             get_template(
-                template_txt).render(
+                template_html).render(
                     ctx
                 ),
-            from_email=from_email,
-            to=to_list,
-            bcc=bcc_list,
-            cc=cc_list,
-            reply_to=reply_to_list
-            )
-        if template_html:
-            msg.attach_alternative(
-                get_template(
-                    template_html).render(
-                      ctx
-                  ),
-                "text/html"
-            )
-        msg.send(fail_silently=False)
-        return 'OK'
-
-    except Exception as e:
-        # send mail to tech support with Exception
-        send_support_email(e, __name__ + '.send_email')
+            "text/html"
+        )
+    msg.send(fail_silently=False)
 
 
-def send_waiting_list_email(event, users, host=f"http://{settings.DOMAIN}"):
+def send_waiting_list_email(event, users, host=None):
+    host = host or f"http://{settings.DOMAIN}"
     auto_book_user = None
     user_emails = [user.email for user in users]
 
@@ -134,20 +132,26 @@ def send_waiting_list_email(event, users, host=f"http://{settings.DOMAIN}"):
         )
 
 
-def send_support_email(e, source=""):
-    try:
-        send_mail('{} An error occurred!'.format(
-                settings.ACCOUNT_EMAIL_SUBJECT_PREFIX
-            ),
-            'An error occurred in {}\n\nThe exception '
-            'raised was "{}"'.format(source, e),
-            settings.DEFAULT_FROM_EMAIL,
-            [settings.SUPPORT_EMAIL],
-            fail_silently=True)
-    except Exception as ex:
-        ActivityLog.objects.create(
-            log="Problem sending an email ({}: {})".format(
-                source, ex
-            )
-        )
+def event_waiting_list(event_id):
+    return WaitingListUser.objects.filter(event_id=event_id)
 
+
+def email_waiting_lists(event_ids, host=None):
+    for event_id in event_ids:
+        waiting_list_users = event_waiting_list(event_id)
+        if waiting_list_users:
+            event = Event.objects.get(id=event_id)
+            if not event.cancelled:
+                users = [wluser.user for wluser in waiting_list_users]
+                send_waiting_list_email(event, users, host)
+
+
+def send_gift_voucher_email(gift_voucher, request=None):
+    send_email(
+        request=request,
+        ctx={"gift_voucher": gift_voucher},
+        subject="Gift Voucher purchased",
+        template_html="booking/email/gift_voucher.html",
+        template_txt="booking/email/gift_voucher.txt",
+        to_list=[gift_voucher.voucher.purchaser_email]
+    )

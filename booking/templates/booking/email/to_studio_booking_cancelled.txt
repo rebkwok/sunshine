@@ -1,10 +1,9 @@
 {{ booking.user.first_name }} {{ booking.user.last_name }} ({{ booking.user.username }}) has cancelled a booking for {{ event }}.
 
-{% if booking.paid %}
-Please review and refund payment for this booking.
-
-When the payment has been refunded, use the link below to confirm and update payment status in the system:
-{{ host }}/pf_admin/ipn/paypalipn/confirm-refunded/{{ booking.id }}
+{% if refunded %}
+A refund is in progress.
+{% elif was_booked_with_membership %}
+Booking was made with a membership and has been credited bac.
 {% endif %}
 
 {% include 'account/email/footer.txt' %}

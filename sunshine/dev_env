@@ -1,10 +1,8 @@
 DEBUG=True
 LOCAL=True
-PAYPAL_TEST=True
 USE_MAILCATCHER=False
 SHOW_DEBUG_TOOLBAR=False
 
-SECRET_KEY=sdfjhkjs2897jksdhfka323rlk
 DATABASE_URL=sqlite:///db.sqlite3
 EMAIL_HOST_PASSWORD=dummy_password
 DEFAULT_PAYPAL_EMAIL=dummy-paypal-email@test.com
@@ -12,3 +10,14 @@ DEFAULT_PAYPAL_EMAIL=dummy-paypal-email@test.com
 CACHE_BACKEND=django.core.cache.backends.locmem.LocMemCache
 CACHE_LOCATION=local-cache
 LOG_FOLDER=.
+
+SECRET_KEY='dummy_secret'
+
+CI=True
+DEBUG=True
+
+STRIPE_PUBLISHABLE_KEY=changeme
+STRIPE_CONNECT_CLIENT_ID=changeme
+STRIPE_SECRET_KEY=changeme
+STRIPE_ENDPOINT_SECRET=changeme
+INVOICE_KEY=changeme

@@ -16,18 +16,18 @@ import sys
 root = environ.Path(__file__) - 2  # two folders back (/a/b/ - 3 = /)
 
 env = environ.Env(DEBUG=(bool, False),
-                  PAYPAL_TEST=(bool, False),
-                  DEFAULT_PAYPAL_EMAIL=(str, None),
                   USE_MAILCATCHER=(bool, False),
                   SHOW_DEBUG_TOOLBAR=(bool, False),
                   AUTO_BOOK_EMAILS=(list, []),
+                  SEND_ALL_STUDIO_EMAILS=(bool, False),
                   LOCAL=(bool, False),
                   CI=(bool, False),
-                  CACHE_BACKEND=(str, 'django.core.cache.backends.memcached.MemcachedCache'),
-                  CACHE_LOCATION=(str, '127.0.0.1:11211')
                   )
 
 environ.Env.read_env(root('.env'))  # reading .env file
+
+TESTING = any([test_str in arg for arg in sys.argv for test_str in ["test", "pytest"]])
+
 BASE_DIR = root()
 
 
@@ -54,6 +54,9 @@ if env('LOCAL') or env('CI'):  # pragma: no cover
 # https://docs.djangoproject.com/en/4.0/ref/settings/#std:setting-CSRF_TRUSTED_ORIGINS
 CSRF_TRUSTED_ORIGINS = [f'https://{DOMAIN}']
 
+CSRF_FAILURE_VIEW = "booking.views.csrf_failure"
+
+
 # Application definition
 
 INSTALLED_APPS = (
@@ -73,11 +76,10 @@ INSTALLED_APPS = (
     'allauth.account',
     'django_extensions',
     'bootstrap4',
-    'paypal.standard.ipn',
     'debug_toolbar',
     'dynamic_forms',
     'django_object_actions',
-    'payments',
+    'stripe_payments',
     'accounts',
     'timetable',
     'website',
@@ -99,12 +101,20 @@ MIDDLEWARE = [
 ]
 
 
-CACHES = {
-    'default': {
-        'BACKEND': env("CACHE_BACKEND"),
-        'LOCATION': env("CACHE_LOCATION"),
+if TESTING or env('LOCAL') or env('CI'):  # use local cache for tests
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+            'LOCATION': 'test-sunshine',
+        }
     }
-}
+else:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+            'LOCATION': 'sunshine',
+        }
+    }
 
 
 SITE_ID = 1
@@ -120,7 +130,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 LANGUAGE_CODE = 'en-GB'
 TIME_ZONE = 'Europe/London'
 USE_I18N = True
-USE_L10N = True
 USE_TZ = True
 
 
@@ -190,6 +199,7 @@ TEMPLATES = [
                 "django.contrib.messages.context_processors.messages",
                 "django.template.context_processors.media",
                 "booking.context_processors.future_events",
+                "booking.context_processors.booking",
             ),
             'debug': DEBUG,
         },
@@ -198,7 +208,7 @@ TEMPLATES = [
 
 if env("LOCAL") or env("CI"):
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-else:
+else:  # pragma: no cover
     EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
     EMAIL_USE_TLS = True
     EMAIL_HOST = 'email-smtp.eu-west-1.amazonaws.com'
@@ -214,6 +224,7 @@ DEFAULT_STUDIO_EMAIL = 'sunshinefitnessfife@gmail.com'
 
 SUPPORT_EMAIL = 'rebkwok@gmail.com'
 AUTO_BOOK_EMAILS = env('AUTO_BOOK_EMAILS')
+SEND_ALL_STUDIO_EMAILS = env('SEND_ALL_STUDIO_EMAILS')
 
 # MAILCATCHER
 if env('USE_MAILCATCHER'):  # pragma: no cover
@@ -247,8 +258,9 @@ if env("LOCAL") or env("CI"):
             },
             'mail_admins': {
                     'level': 'ERROR',
-                    'class': 'django.utils.log.AdminEmailHandler',
-                    'include_html': True,
+                    # 'class': 'django.utils.log.AdminEmailHandler',
+                    # 'include_html': True,
+                    'class': 'logging.NullHandler'
             },
         },
         'loggers': {
@@ -284,7 +296,7 @@ if env("LOCAL") or env("CI"):
             },
         },
     }
-else:
+else:  # pragma: no cover
     LOGGING = {
         'version': 1,
         'disable_existing_loggers': False,
@@ -360,14 +372,6 @@ MESSAGE_TAGS = {
 APPEND_SLASH = True
 
 
-# DJANGO-PAYPAL
-DEFAULT_PAYPAL_EMAIL = env('DEFAULT_PAYPAL_EMAIL')
-PAYPAL_TEST = env('PAYPAL_TEST')
-PAYPAL_BUY_BUTTON_IMAGE = 'https://www.paypalobjects.com/webstatic/en_US/btn/btn_buynow_pp_142x27.png'
-PAYPAL_SUBSCRIPTION_BUTTON_IMAGE = 'https://www.paypalobjects.com/webstatic/en_US/btn/btn_subscribe_113x26.png'
-PAYPAL_DONATION_BUTTON_IMAGE = 'https://www.paypalobjects.com/webstatic/en_US/btn/btn_donate_pp_142x27.png'
-
-
 def show_toolbar(request):  # pragma: no cover
     return True
 
@@ -396,3 +400,14 @@ S3_LOG_BACKUP_ROOT_FILENAME = "sunshine_activity_logs_backup"
 # for dynamic disclaimer form
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
 USE_CRISPY = True
+DYNAMIC_FORMS_CUSTOM_JS = ""
+
+# STRIPE
+STRIPE_PUBLISHABLE_KEY = env("STRIPE_PUBLISHABLE_KEY")
+STRIPE_SECRET_KEY = env("STRIPE_SECRET_KEY")
+STRIPE_CONNECT_CLIENT_ID = env("STRIPE_CONNECT_CLIENT_ID")
+STRIPE_ENDPOINT_SECRET = env("STRIPE_ENDPOINT_SECRET")
+INVOICE_KEY=env("INVOICE_KEY")
+
+CART_TIMEOUT_MINUTES = env("CART_TIMEOUT_MINUTES", default=15)
+MEMBERSHIP_AVAILABLE_EARLY_DAYS = 10

@@ -1,0 +1,5 @@
+REFUND FAILED
+
+Reason: {{ reason }}
+
+{% include 'account/email/footer.txt' %}

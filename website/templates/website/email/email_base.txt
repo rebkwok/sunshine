@@ -1,0 +1,3 @@
+{% block messagecontent %}{% endblock %}
+
+{{ studio_email }}

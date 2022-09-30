@@ -49,14 +49,6 @@ def plural_format(value):
         return ""
 
 
-@register.filter
-def format_paid_status(booking):
-    if booking.paid:
-        return mark_safe('<span class="confirmed fas fa-check"></span>')
-    else:
-        return mark_safe('<span class="not-confirmed fas fa-times"></span>')
-
-
 @register.simple_tag
 def get_booking(event, user):
     if user.is_authenticated:
@@ -75,10 +67,6 @@ def lookup(dictionary, key):
     if dictionary:
         return dictionary.get(key)
 
-@register.filter
-def renderpaypalform(paypalforms_dict, key):
-    return paypalforms_dict[key].render()
-
 
 @register.filter
 def show_warning(event):
@@ -90,3 +78,8 @@ def show_warning(event):
 @register.filter
 def show_booking_button(booking):
     return booking.event.bookable or (booking.status == "OPEN" and not booking.no_show)
+
+
+@register.filter
+def has_available_membership(event, user):
+    return event.get_available_user_membership(user) is not None

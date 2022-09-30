@@ -32,6 +32,7 @@
                 <th class="table-center">Name</th>
                 <th class="table-center">Email</th>
                 <th class="table-center">Disclaimer</th>
+                <th class="table-center">Membership</th>
                 <th class="table-center">Cancellation Fees</th>
             </tr>
             </thead>
@@ -49,6 +50,9 @@
                         {% else %}
                             <span id="disclaimer" class="fas fa-times"></span>
                         {% endif %}
+                </td>
+                <td class="studioadmin-tbl">
+                    {% membership_status user %}
                 </td>
                 <td class="table-center">
                     <span class="fees">

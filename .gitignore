@@ -9,8 +9,8 @@ db.sqlite3
 envdir
 id_rsa*
 inventory.ini
-venv
-.venv
+venv*
+.venv*
 media/
 .coverage
 htmlcov/

@@ -59,12 +59,15 @@ jobs:
           EMAIL_HOST_USER: 'dummy_user'
           EMAIL_HOST_PASSWORD: 'dummy_password'
           DATABASE_URL: postgres://postgres:postgres@localhost/ci_test
-          DEFAULT_PAYPAL_EMAIL: dummy-email@hotmail.com
-          PAYPAL_TEST: True
           LOG_FOLDER: log_folder
           SEND_ALL_STUDIO_EMAILS: True
           CACHE_BACKEND: 'django.core.cache.backends.locmem.LocMemCache'
           CACHE_LOCATION: 'local-cache'
+          STRIPE_PUBLISHABLE_KEY: 'dummy'
+          STRIPE_CONNECT_CLIENT_ID: 'dummy'
+          STRIPE_SECRET_KEY: 'dummy'
+          STRIPE_ENDPOINT_SECRET: 'dummy'
+          INVOICE_KEY: 'dummy'
         run: |
           source ${{ github.workspace }}/venv/bin/activate
           pytest --cov-config=.coveragerc --cov=.

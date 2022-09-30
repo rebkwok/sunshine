@@ -4,7 +4,6 @@
 
 
 <!DOCTYPE html>
-{% comment %} <html lang="en" class="{% block bg_class %}logo_bg{%  endblock %}"> {% endcomment %}
 <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -16,7 +15,7 @@
         <!-- Bootstrap core CSS -->
         {% bootstrap_css %}
 
-        <link href="{% static 'website/css/custom-v3.css' %}" rel="stylesheet">
+        <link href="{% static 'website/css/custom-v4.css' %}" rel="stylesheet">
           <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
          <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css" integrity="sha512-aOG0c6nPNzGk+5zjwyJaoRUgCdOrfSDhmMID2u4+OIslr0GjpLKo7Xm0Ao3xmpM4T8AmIouRkqwj1nrdVsLKEQ==" crossorigin="anonymous" />
 
@@ -37,19 +36,34 @@
           <ul class="nav navbar-nav mr-auto">
             <li class="nav-item"><a class="nav-link{% if section == 'home' %} active{% endif %}" href="{% url 'website:home' %}">Home</a></li>
             <li class="nav-item"><a class="nav-link{% if section == 'timetable' %} active{% endif %}" href="{% url 'timetable:timetable' %}">Timetable</a></li>
+            {% if membership_types %}
+            <li class="nav-item"><a class="nav-link{% if section == 'membership' %} active{% endif %}" href="{% url 'booking:membership_purchase' %}">Memberships</a>
+            {% endif %}
+            {% if gift_vouchers_available %}
+                <li class="nav-item"><a class="nav-link{% if section == 'gift_voucher' %} active{% endif %}" href="{% url 'booking:buy_gift_voucher' %}">Gift Vouchers</a>
+            {% endif %}
             <li class="nav-item"><a class="nav-link{% if section == 'booking' %} active{% endif %}" href="{% url 'booking:regular_session_list' %}">Book</a></li>
             <li class="nav-item"><a class="nav-link{% if section == 'contact' %} active{% endif %}" href="{% url 'website:contact' %}">Contact us</a></li>
           </ul>
 
          <ul class="nav navbar-nav pull-right">
             {% if user.is_authenticated %}
+            <li>
+                <a class="btn btn-warning btn-sm mt-1 mr-2" href="{% url 'booking:shopping_basket' %}">
+                  <span><i class="fas fa-shopping-cart"></i> <span class="badge badge-light" id="cart_item_menu_count">{{ cart_item_count }}</span></span>
+                </a>
+              </li>
             <li class="dropdown dropleft float-right">
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">My account<b class="caret"></b></a>
-                <ul class="dropdown-menu float-right">
+                <ul class="dropdown-menu float-right pl-2">
                     <li class="nav-item"><a class="account-menu-option" href="{% url 'accounts:profile' %}">Profile</a></li>
                     <li class="nav-item"><a class="account-menu-option" href="{% url 'account_change_password' %}">Change password</a></li>
+                    <div class="dropdown-divider"></div>
                     <li class="nav-item"><a class="account-menu-option" href="{% url 'booking:bookings' %}">Bookings</a></li>
-                    <li class="nav-item"><a class="account-menu-option" href="{% url 'booking:booking_history' %}">Past bookings</a></li>
+                    <li class="nav-item"><a class="account-menu-option" href="{% url 'booking:booking_history' %}">Booking history</a></li>
+                    <li class="nav-item"><a class="account-menu-option" href="{% url 'booking:user_memberships' %}">Memberships</a></li>
+                    <li class="nav-item"><a class="account-menu-option" href="{% url 'booking:transactions' %}">Payment history</a></li>
+                    <div class="dropdown-divider"></div>
                     <li class="nav-item"><a class="account-menu-option" href="{% url 'account_logout' %}">Log out</a></li>
 
                     {% if user.is_staff or user.is_superuser %}
@@ -75,7 +89,7 @@
 <div class="wrapper">
     <main role="main" class="container-fluid">
 
-        {% cookielaw_banner %}
+        {% CookielawBanner %}
 
         {% if messages %}
             <div class="extra-top-margin col-12">
@@ -140,7 +154,7 @@
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js" integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU=" crossorigin="anonymous"></script>
     <script src="{% static 'website/js/custom-v3.js' %}"></script>
     <script src="{% static 'website/js/ajax_csrf.js' %}"></script>
-    <script src="{% static 'cookielaw/js/cookielaw.js' %}"></script>
+    <script type="text/javascript" src="{% static 'cookielaw/js/cookielaw.js' %}"></script>
 
     {% block extrascripts %}{% endblock %}
 

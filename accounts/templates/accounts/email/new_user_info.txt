@@ -17,9 +17,9 @@ What to bring?
 •Kneepads for attending "Poledance" classes.
 
 Before paying, please be aware of the following.
-•Memberships are due on the 1st day of the month.
-•Payment can be made via bank transfer or cash (see bank details bellow).
-•All paid classes must be used up by the end of the month and will not be carried over to the following month.
+•Memberships and drop in classes must be booked and paid for online at sunshinefitness.co.uk
+•Memberships run for a CALENDAR MONTH.  They can be purchased at any time, but will expire at the end of the month.
+•All membership classes must be used up by the end of the month and will not be carried over to the following month.
 •No refunds will be given.
 
 Arriving at the facility.
@@ -32,15 +32,8 @@ Come as you are.
 We run a come as you are policy. This means you do not need to shave, lose weight, be stronger or fitter or change in any way to attend these classes. Pole is for absolutely everyone and we are a safe and inclusive environment for you to be 100% your authentic self.
 
 Price List
-Single class £8
-4 classes per month £30
-8 classes per month £55
-12 classes per month £70
-
-Payment details.
-Kira Grant
-Bank of Scotland
-80-45-83
-10119869
+See website for prices and booking:
+•Memberships: sunshinefitness.co.uk/booking/memberships
+•Class bookings: sunshinefitness.co.uk/booking/classes
 
 {% include 'account/email/footer.txt' %}

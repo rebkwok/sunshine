@@ -1,37 +1,21 @@
 # -*- coding: utf-8 -*-
 import logging
+from urllib.parse import urlencode
 
-from django.conf import settings
+from django.http import HttpResponse
+from django.shortcuts import HttpResponseRedirect
 from django.urls import reverse
-from django.views.generic import ListView
+from django.views.generic import ListView, DeleteView
 from django.utils import timezone
 from braces.views import LoginRequiredMixin
+from booking.email_helpers import email_waiting_lists
 
 from booking.models import Booking, WaitingListUser
+from booking.utils import host_from_request
 from .views_utils import DataPolicyAgreementRequiredMixin
 
 
 logger = logging.getLogger(__name__)
-
-
-def get_paypal_dict(
-        host, cost, item_name, invoice_id, custom,
-        paypal_email=settings.DEFAULT_PAYPAL_EMAIL, quantity=1):
-
-    paypal_dict = {
-        "business": paypal_email,
-        "amount": cost,
-        "item_name": item_name,
-        "custom": custom,
-        "invoice": invoice_id,
-        "currency_code": "GBP",
-        "quantity": quantity,
-        "notify_url": host + reverse('paypal-ipn'),
-        "return": host + reverse('payments:paypal_confirm'),
-        "cancel_return": host + reverse('payments:paypal_cancel'),
-
-    }
-    return paypal_dict
 
 
 class BookingListView(DataPolicyAgreementRequiredMixin, LoginRequiredMixin, ListView):
@@ -41,13 +25,18 @@ class BookingListView(DataPolicyAgreementRequiredMixin, LoginRequiredMixin, List
     template_name = 'booking/bookings.html'
     paginate_by = 20
 
+    def dispatch(self, request, *args, **kwargs):
+        # Cleanup bookings so user is looking at current availability
+        event_ids_from_expired_bookings = Booking.cleanup_expired_bookings(use_cache=True)
+        email_waiting_lists(event_ids_from_expired_bookings, host=host_from_request(request))
+        return super().dispatch(request, *args, **kwargs)
+
     def get_queryset(self):
         return Booking.objects.filter(event__date__gte=timezone.now(), user=self.request.user).order_by('event__date')
 
     def get_context_data(self, **kwargs):
         # Call the base implementation first to get a context
         context = super().get_context_data(**kwargs)
-        paypalforms = {}
         on_waiting_list = []
         can_cancel = []
         booking_status_display = {}

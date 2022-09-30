@@ -1,23 +1,28 @@
 # -*- coding: utf-8 -*-
 import pytz
 from datetime import timedelta
-
 from django.contrib import admin
 from django.contrib.auth.models import User
 from django.utils import timezone
-
+from django.utils.safestring import mark_safe
 
 from django_object_actions import DjangoObjectActions, takes_instance_or_queryset
 
-from booking.models import Booking, WaitingListUser, Workshop, RegularClass, Private
-from booking.forms import EventForm
+from booking.models import (
+    Booking, GiftVoucher, GiftVoucherType, ItemVoucher, Membership, MembershipType, TotalVoucher, 
+    WaitingListUser, Workshop, RegularClass, Private, Event
+)
+from booking.forms import EventForm, ItemVoucherForm
 from booking.email_helpers import send_email
+from stripe_payments.utils import process_refund
+from stripe_payments.models import StripeRefund
 
 
 def format_date_in_local_timezone(utc_datetime):
     local_tz = pytz.timezone('Europe/London')
     local_datetime = utc_datetime.astimezone(local_tz)
     return local_datetime.strftime('%a %d %b %Y %H:%M (%Z)')
+
 
 class UserFilter(admin.SimpleListFilter):
 
@@ -41,58 +46,7 @@ class UserFilter(admin.SimpleListFilter):
         return queryset
 
 
-class BookingDateListFilter(admin.SimpleListFilter):
-    # Human-readable title which will be displayed in the
-    # right admin sidebar just above the filter options.
-    title = 'event date'
-
-    # Parameter for the filter that will be used in the URL query.
-    parameter_name = 'event__date'
-
-    def lookups(self, request, model_admin):
-        """
-        Returns a list of tuples. The first element in each
-        tuple is the coded value for the option that will
-        appear in the URL query. The second element is the
-        human-readable name for the option that will appear
-        in the right sidebar.
-        """
-        return (
-            (None, ('Upcoming events only')),
-            ('past', ('Past events only')),
-            ('all', ('All events')),
-        )
-
-    def choices(self, cl):
-        for lookup, title in self.lookup_choices:
-            yield {
-                'selected': self.value() == lookup,
-                'query_string': cl.get_query_string({self.parameter_name: lookup,}, []),
-                'display': title,
-            }
-
-    def queryset(self, request, queryset):
-        """
-        Returns the filtered queryset based on the value
-        provided in the query string and retrievable via
-        `self.value()`.
-        """
-        # Compare the requested value
-        # to decide how to filter the queryset.
-        if self.value() == 'past':
-            return queryset.filter(event__date__lte=timezone.now())
-        if self.value() is None:
-            return queryset.filter(event__date__gte=timezone.now())
-        return queryset
-
-
-class EventDateListFilter(admin.SimpleListFilter):
-    # Human-readable title which will be displayed in the
-    # right admin sidebar just above the filter options.
-    title = 'date'
-
-    # Parameter for the filter that will be used in the URL query.
-    parameter_name = 'date'
+class DateListFilterMixin:
 
     def lookups(self, request, model_admin):
         """
@@ -116,6 +70,38 @@ class EventDateListFilter(admin.SimpleListFilter):
                 'query_string': cl.get_query_string({self.parameter_name: lookup,}, []),
                 'display': title,
             }
+
+
+class BookingDateListFilter(DateListFilterMixin, admin.SimpleListFilter):
+    # Human-readable title which will be displayed in the
+    # right admin sidebar just above the filter options.
+    title = 'event date'
+
+    # Parameter for the filter that will be used in the URL query.
+    parameter_name = 'event__date'
+
+    def queryset(self, request, queryset):
+        """
+        Returns the filtered queryset based on the value
+        provided in the query string and retrievable via
+        `self.value()`.
+        """
+        # Compare the requested value
+        # to decide how to filter the queryset.
+        if self.value() == 'past':
+            return queryset.filter(event__date__lte=timezone.now())
+        if self.value() is None:
+            return queryset.filter(event__date__gte=timezone.now())
+        return queryset
+
+
+class EventDateListFilter(DateListFilterMixin, admin.SimpleListFilter):
+    # Human-readable title which will be displayed in the
+    # right admin sidebar just above the filter options.
+    title = 'date'
+
+    # Parameter for the filter that will be used in the URL query.
+    parameter_name = 'date'
 
     def queryset(self, request, queryset):
         """
@@ -218,12 +204,6 @@ class EventAdmin(DjangoObjectActions, admin.ModelAdmin):
         widget.can_delete_related = False
         return form
 
-    def get_actions(self, request):
-        actions = super().get_actions(request)
-        if 'delete_selected' in actions:
-            del actions['delete_selected']
-        return actions
-
     def get_spaces_left(self, obj):
         return obj.spaces_left
     get_spaces_left.short_description = 'Spaces left'
@@ -246,7 +226,8 @@ class EventAdmin(DjangoObjectActions, admin.ModelAdmin):
     @takes_instance_or_queryset
     def cancel_event(self, request, queryset):
         for obj in queryset:
-            event_type = 'class' if obj.event_type == 'regular_session' else 'workshop'
+            event_names = dict(Event.EVENT_TYPES)
+            event_type = 'class' if obj.event_type == 'regular_session' else event_names[obj.event_type]
 
             if not obj.bookings.exists():
                 obj.delete()
@@ -260,21 +241,31 @@ class EventAdmin(DjangoObjectActions, admin.ModelAdmin):
 
                     open_bookings = obj.bookings.filter(status='OPEN', no_show=False)
                     open_bookings_count = open_bookings.count()
-                    users_to_email = []
                     for booking in open_bookings:
-                        users_to_email.append(booking.user.email)
+                        refunded = False
+                        was_booked_with_membership = booking.membership is not None
                         if booking.status == 'OPEN' and not booking.no_show:
                             booking.status = 'CANCELLED'
+                            if booking.membership:
+                                booking.membership = None
+                            elif booking.paid and booking.invoice:
+                                # process refund
+                                refunded = process_refund(request, booking)
+                            booking.paid = False
                             booking.save()
 
-                    if open_bookings:
-                        send_email(
-                            request,
-                            subject='{} has been cancelled'.format(obj),
-                            ctx={'event_type': event_type, 'event': obj},
-                            template_txt='booking/email/event_cancelled.txt',
-                            bcc_list=users_to_email
-                        )
+                            send_email(
+                                request,
+                                subject='{} has been cancelled'.format(obj),
+                                ctx={
+                                    'event_type': event_type, 
+                                    'event': obj, 
+                                    'was_booked_with_membership': was_booked_with_membership,
+                                    'refunded': refunded
+                                },
+                                template_txt='booking/email/event_cancelled.txt',
+                                to_list=[booking.user.email]
+                            )
 
                     if open_bookings_count == 0:
                         msg = 'no open bookings'
@@ -310,7 +301,8 @@ class WorkshopAdmin(EventAdmin):
 @admin.register(RegularClass)
 class RegularClassAdmin(EventAdmin):
 
-    readonly_fields = ('cancelled', 'paypal_email')
+    readonly_fields = ('cancelled',)
+    actions = ['cancel_event', 'toggle_members_only']
 
     def get_form(self, request, obj=None, **kwargs):
         form = super(RegularClassAdmin, self).get_form(request, obj, **kwargs)
@@ -333,11 +325,17 @@ class RegularClassAdmin(EventAdmin):
     cancel_event.label = 'Cancel class'
     cancel_event.attrs = {'style': 'font-weight: bold; color: red;'}
 
+    def toggle_members_only(self, request, queryset):
+        for obj in queryset:
+            obj.members_only = not obj.members_only
+            obj.save()
+    toggle_members_only.short_description = 'Toggle "members only" status.'
+    
 
 @admin.register(Private)
 class PrivateAdmin(EventAdmin):
 
-    readonly_fields = ('cancelled', 'paypal_email')
+    readonly_fields = ('cancelled',)
 
     def get_form(self, request, obj=None, **kwargs):
         form = super().get_form(request, obj, **kwargs)
@@ -367,7 +365,7 @@ class BookingAdmin(admin.ModelAdmin):
 
     list_display = (
         'event_name', 'get_date', 'get_user', 'get_cost', 'paid', 'status',
-        'no_show'
+        'no_show', 'refunded'
     )
 
     list_filter = (BookingDateListFilter, UserFilter, 'event')
@@ -404,6 +402,9 @@ class BookingAdmin(admin.ModelAdmin):
         return u"\u00A3{:.2f}".format(obj.event.cost)
     get_cost.short_description = 'Cost'
 
+    def refunded(self, obj):
+        return "Yes" if StripeRefund.objects.filter(booking_id=obj.id).exists() else "-"
+    
 
 @admin.register(WaitingListUser)
 class WaitingListUserAdmin(admin.ModelAdmin):
@@ -413,3 +414,149 @@ class WaitingListUserAdmin(admin.ModelAdmin):
     search_fields = (
         'user__first_name', 'user__last_name', 'user__username', 'event__name'
     )
+
+
+@admin.register(MembershipType)
+class MembershipTypeAdmin(admin.ModelAdmin):
+    list_display = ("name", "cost", "active")
+    list_editable = ('active',)
+
+
+@admin.register(Membership)
+class MembershipAdmin(admin.ModelAdmin):
+    ...
+
+
+@admin.register(ItemVoucher)
+class ItemVoucherAdmin(admin.ModelAdmin):
+    list_display = ('code', 'valid_for', 'start_date', 'expiry_date')
+    # exclude gift voucher fields
+    exclude = ('is_gift_voucher', 'activated', 'purchaser_email', 'name', 'message')
+    
+    fieldsets = (
+      ("Voucher codes for discounts on the SPECIFIC ITEMS", 
+        {
+            'fields': (), 
+            'description': 'Note the discount will apply to EACH applicable item in a basket, unless limits are specified.'}),
+      ('Voucher code', {
+          'fields': ('code',),
+          'description': 'The code users will enter at checkout'
+      }),
+      ('Voucher discount', {
+          'fields': ('discount', 'discount_amount'),
+          'description': 'Enter one of discount £ or %'
+      }),
+      ('Valid dates', {
+          'description': (
+              "Start date defaults to the beginning of today; expiry date (if entered) "
+              "will be automatically set to end of day on save."
+            ),
+          'fields': ('start_date', 'expiry_date')
+      }),
+      ('Limits on number of uses', {
+          'description': (
+              "Limit the times the voucher can be used; these are combined "
+              "e.g. to make a voucher than can be used only once by one user, set both options to 1."
+            ),
+          'fields': ("max_vouchers", "max_per_user")
+      }),
+      ('Valid for:', {
+          'fields': ("membership_types", "event_types"),
+          'description': "Tick at least one (can apply to as many as you like)"
+      }),
+   )
+
+    form = ItemVoucherForm
+    
+
+    def valid_for(self, obj):
+        return ", ".join(obj.valid_for())
+
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request)
+        return queryset.filter(is_gift_voucher=False)
+
+
+@admin.register(TotalVoucher)
+class TotalVoucherAdmin(admin.ModelAdmin):
+
+    fieldsets = (
+      ("Voucher codes for discounts on the TOTAL BASKET VALUE", {'fields': ()}),  
+      ('Voucher code', {
+          'fields': ('code',),
+          'description': 'The code users will enter at checkout'
+      }),
+      ('Voucher discount', {
+          'fields': ('discount', 'discount_amount'),
+          'description': 'Enter one of discount £ or %'
+      }),
+      ('Valid dates', {
+          'description': (
+              "Start date defaults to the beginning of today; expiry date (if entered) "
+              "will be automatically set to end of day on save."
+            ),
+          'fields': ('start_date', 'expiry_date')
+      }),
+      ('Limits on number of uses', {
+          'description': (
+              "Limit the times the voucher can be used; these are combined "
+              "e.g. to make a voucher than can be used only once by one user, set both options to 1."
+            ),
+          'fields': ("max_vouchers", "max_per_user")
+      }),
+   )
+
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request)
+        return queryset.filter(is_gift_voucher=False)
+
+
+@admin.register(GiftVoucherType)
+class GiftVoucherTypeAdmin(admin.ModelAdmin):
+    fieldsets = [
+        ('Voucher type', {
+            'fields': (
+                'membership_type', 'event_type', 'discount_amount'
+                ),
+            'description': 'What is the gift voucher valid for? (enter one field only)'
+        }),
+        ('Purchasable on site?', {
+            'fields': ('active',),
+            'description':'Make the gift voucher active and purchasable on the site.'
+        }),
+        ('Expiry (in months)', {
+            'fields': ('duration',),
+        }),
+        ('Override cost', {
+            'fields': ('override_cost',),
+            'description': (
+                "Override the default cost for this gift voucher; usually you'll want to "
+                "leave it as the default to ensure gift voucher prices change if the price of "
+                "the item they're valid for changes.  Note that classes/privates/workshops default "
+                "to the cost of the LAST one created; this may not be what you want if they vary in price."
+            )
+        }),
+    ]
+
+
+@admin.register(GiftVoucher)
+class GiftVoucherAdmin(DjangoObjectActions, admin.ModelAdmin):
+    
+    list_display = ("purchaser_email", "name", "paid", "activated", "link")
+    exclude = ("slug", "item_voucher")
+    fields = ("gift_voucher_type", "invoice", "paid", "activated", "start_date", "expiry_date", "purchaser_email", "recipient_name", "message")
+    readonly_fields = ("invoice", "activated", "start_date", "expiry_date", "purchaser_email", "recipient_name", "message")
+    change_actions = ['activate']
+
+    def activated(self, obj):
+        return obj.voucher.activated
+    
+    def link(self, obj):
+        return mark_safe(
+            f'<a href="{obj.get_voucher_url()}">{obj.voucher.code}</a>'
+        )
+    
+    @takes_instance_or_queryset
+    def activate(self, request, queryset):
+        for obj in queryset:
+            obj.activate()

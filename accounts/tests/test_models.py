@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime, timedelta
+from datetime import timezone as dt_timezone
 from decimal import Decimal
 import pytz
 
@@ -199,9 +200,9 @@ class UserDisclaimerModelTests(TestSetupMixin, TestCase):
         # date in BST to check timezones
         data = {
             "name": 'Test User',
-            "date": datetime(2019, 7, 1, 18, 0, tzinfo=timezone.utc),
-            "date_archived": datetime(2020, 1, 20, 18, 0, tzinfo=timezone.utc),
-            "date_of_birth": datetime(1990, 1, 20, tzinfo=timezone.utc),
+            "date": datetime(2019, 7, 1, 18, 0, tzinfo=dt_timezone.utc),
+            "date_archived": datetime(2020, 1, 20, 18, 0, tzinfo=dt_timezone.utc),
+            "date_of_birth": datetime(1990, 1, 20, tzinfo=dt_timezone.utc),
             "phone": "1234",
             "health_questionnaire_responses": [],
             "terms_accepted": True,
@@ -223,7 +224,7 @@ class UserDisclaimerModelTests(TestSetupMixin, TestCase):
     def test_cannot_create_new_active_disclaimer(self):
         # disclaimer is out of date, so inactive
         disclaimer = make_online_disclaimer(user=self.user,
-            date=datetime(2015, 2, 10, 19, 0, tzinfo=timezone.utc), version=self.content.version
+            date=datetime(2015, 2, 10, 19, 0, tzinfo=dt_timezone.utc), version=self.content.version
         )
         assert disclaimer.is_active is False
         # can make a new disclaimer
