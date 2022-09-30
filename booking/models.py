@@ -60,7 +60,7 @@ class Event(models.Model):
     )
 
     cancellation_period = models.PositiveIntegerField(
-        default=24
+        default=12
     )
     email_studio_when_booked = models.BooleanField(default=False)
     slug = AutoSlugField(
