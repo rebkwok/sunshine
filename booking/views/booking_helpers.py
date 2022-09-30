@@ -45,7 +45,7 @@ def cancel_booking_from_view(request, booking):
         else:
             # Paid directly; find invoice/payment intent (if it exists), process refund
             if booking.invoice:
-                refunded = process_refund()
+                refunded = process_refund(request, booking)
                 
             # mark unpaid whether refunded or not
             # if there was no associated invoice, it was manually booked by an admin, or it wasn't paid yet
