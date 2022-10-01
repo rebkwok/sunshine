@@ -37,11 +37,18 @@ class GiftVoucherInline(admin.TabularInline):
     
     def has_add_permission(self, request, obj):
         return False
-
+    
 
 @admin.register(Invoice)
 class InvoiceAdmin(admin.ModelAdmin):
     list_display = ("invoice_id", "pi", "get_username", "display_amount", "paid", "items")
+
+    fields = (
+        "invoice_id", "username", 
+        "amount", "date_created", "paid", "date_paid",
+        "total_voucher_code", "payment_intent_ids"
+    )
+    readonly_fields = fields
 
     inlines = (BookingInline, MembershipInline, GiftVoucherInline)
 
@@ -73,7 +80,12 @@ class InvoiceAdmin(admin.ModelAdmin):
 @admin.register(StripePaymentIntent)
 class StripePaymentIntentAdmin(admin.ModelAdmin):
     list_display = ("payment_intent_id", "inv", "username", "status", "items")
-    exclude = ("client_secret",)
+    exclude = ("client_secret","seller")
+    fields = (
+        "payment_intent_id", "amount", "description", "status", "invoice",
+        "metadata", "currency" 
+    )
+    readonly_fields = fields
 
     def username(self, obj):
         return obj.invoice.username
@@ -101,6 +113,13 @@ def _inv_items(invoice):
 @admin.register(StripeRefund)
 class StripeRefundAdmin(admin.ModelAdmin):
     list_display = ("refund_id", "pi", "inv", "username", "status", "booking")
+
+    fields = (
+        "refund_id", "payment_intent", "invoice", "booking_id", "amount", "status", 
+        "reason", "metadata", "currency" 
+    )
+    readonly_fields = fields
+    exclude = ("seller",)
 
     def username(self, obj):
         return obj.invoice.username

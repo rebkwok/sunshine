@@ -42,6 +42,10 @@ class Invoice(models.Model):
     def signature(self):
         return sha512((self.invoice_id + environ["INVOICE_KEY"]).encode("utf-8")).hexdigest()
 
+    @property
+    def payment_intent_ids(self):
+        return ", ".join(self.payment_intents.values_list("payment_intent_id", flat=True))
+
     def items_summary(self):
         return {
             "bookings": [str(booking.event) for booking in self.bookings.all()],

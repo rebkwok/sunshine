@@ -567,6 +567,7 @@ class GiftVoucherAdmin(DjangoObjectActions, admin.ModelAdmin):
         return mark_safe(
             f'<a href="{obj.get_voucher_url()}">{obj.voucher.code}</a>'
         )
+    link.short_description = "Printable voucher"
 
     @takes_instance_or_queryset
     def activate(self, request, queryset):
