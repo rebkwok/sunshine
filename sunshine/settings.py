@@ -279,7 +279,12 @@ if env("LOCAL") or env("CI"):
                 'level': 'INFO',
                 'propagate': False,
             },
-            'payments': {
+            'stripe_payments': {
+                'handlers': ['console', 'mail_admins'],
+                'level': 'INFO',
+                'propagate': False,
+            },
+            'studioadmin': {
                 'handlers': ['console', 'mail_admins'],
                 'level': 'INFO',
                 'propagate': False,
@@ -343,11 +348,16 @@ else:  # pragma: no cover
                 'level': 'INFO',
                 'propagate': False,
             },
-            'payments': {
+            'stripe_payments': {
                 'handlers': ['console', 'file_app', 'mail_admins'],
                 'level': 'INFO',
                 'propagate': False,
             },
+            'studioadmin': {
+                'handlers': ['console', 'file_app', 'mail_admins'],
+                'level': 'INFO',
+                'propagate': False,
+            }, 
             'website': {
                 'handlers': ['console', 'file_app', 'mail_admins'],
                 'level': 'INFO',
