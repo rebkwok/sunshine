@@ -665,12 +665,9 @@ def test_webhook_authorized_account_no_seller(
 @patch("stripe_payments.views.stripe.Webhook")
 @patch("stripe_payments.views.stripe.Account")
 def test_webhook_deauthorized_account(
-    mock_account, mock_webhook, get_mock_webhook_event, client
+    mock_account, mock_webhook, get_mock_webhook_event, seller, client
 ):
-    # mock the seller that should have been created in the StripeAuthorizeCallbackView
-    seller = baker.make(
-        Seller, stripe_user_id="stripe-account-1", site=Site.objects.get_current()
-    )
+    assert seller.site == Site.objects.get_current()
     mock_webhook.construct_event.return_value = get_mock_webhook_event(
         webhook_event_type="account.application.deauthorized"
     )
