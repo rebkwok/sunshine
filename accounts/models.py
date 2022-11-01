@@ -156,16 +156,13 @@ class SignedDataPrivacy(models.Model):
         return self.version == DataPrivacyPolicy.current_version()
 
     def save(self, **kwargs):
+        # delete the cache keys to force re-cache
+        cache.delete(active_data_privacy_cache_key(self.user))
         if not self.id:
             ActivityLog.objects.create(
                 log="Signed data privacy policy agreement created: {}".format(self.__str__())
             )
         super(SignedDataPrivacy, self).save()
-        # cache agreement
-        if self.is_active:
-            cache.set(
-                active_data_privacy_cache_key(self.user), True, timeout=600
-            )
 
 
 @has_readonly_fields
@@ -268,6 +265,9 @@ class OnlineDisclaimer(BaseOnlineDisclaimer):
         return self.version == DisclaimerContent.current_version() and (date_signed + timedelta(days=365)) > timezone.now()
 
     def save(self, **kwargs):
+        # delete the cache keys to force re-cache
+        cache.delete(active_disclaimer_cache_key(self.user))
+        cache.delete(expired_disclaimer_cache_key(self.user))
         if not self.id:
             existing_disclaimers = OnlineDisclaimer.objects.filter(
                 user=self.user
@@ -281,15 +281,6 @@ class OnlineDisclaimer(BaseOnlineDisclaimer):
                 log="Online disclaimer created: {}".format(self.__str__())
             )
         super().save()
-        # cache disclaimer
-        if self.is_active:
-            cache.set(
-                active_disclaimer_cache_key(self.user), True, timeout=600
-            )
-        else:
-            cache.set(
-                expired_disclaimer_cache_key(self.user), True, timeout=600
-            )
 
 
 class ArchivedDisclaimer(BaseOnlineDisclaimer):
