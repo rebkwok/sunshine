@@ -222,6 +222,35 @@ class EventAdminTests(TestCase):
         # no emails sent
         assert len(mail.outbox) == 0
 
+    def test_uncancel_event_action(self):
+        event = baker.make_recipe('booking.future_EV', max_participants=5)
+        for i in range(3):
+            baker.make_recipe(
+                'booking.booking', event=event, user__email='test{}@test.test'.format(i), paid=False, status="CANCELLED"
+            )
+        event.cancelled = True
+        event.save()
+        assert event.bookings.filter(status='CANCELLED').count() == 3
+
+        ev_admin = admin.EventAdmin(Event, AdminSite())
+        request = Mock()
+        ev_admin.uncancel_event(request, Event.objects.filter(id=event.id))
+        event.refresh_from_db()
+        assert not event.cancelled
+        for booking in event.bookings.all():
+            assert booking.status == 'CANCELLED'
+
+        # emails sent to 3 open bookings
+        assert len(mail.outbox) ==  0
+
+    def test_cannot_uncancel_past_event_with_cancelled_booking(self):
+        event = baker.make_recipe('booking.past_event', cancelled=True)
+        ev_admin = admin.EventAdmin(Event, AdminSite())
+        request = Mock()
+        ev_admin.uncancel_event(request, Event.objects.filter(id=event.id))
+        event.refresh_from_db()
+        assert event.cancelled
+
     def test_cannot_cancel_past_event_with_cancelled_booking(self):
         event = baker.make_recipe('booking.past_event')
         baker.make_recipe('booking.booking', event=event, user__email='test@test.test', status='CANCELLED')
@@ -240,7 +269,7 @@ class EventAdminTests(TestCase):
         ev_admin = admin.EventAdmin(Event, AdminSite())
         request = Mock(GET=[])
         actions = ev_admin.get_actions(request)
-        assert list(actions.keys()) == ['cancel_event']
+        assert list(actions.keys()) == ['cancel_event', 'uncancel_event']
 
     def test_form_venue_not_deleteable(self):
         event = baker.make_recipe('booking.future_EV', max_participants=5)
@@ -383,7 +412,7 @@ class EventProxyAdminTests(TestCase):
         ev_admin = admin.RegularClassAdmin(RegularClass, AdminSite())
         request = Mock(GET=[])
         actions = ev_admin.get_actions(request)
-        assert list(actions.keys()) == ['cancel_event', "toggle_members_only"]
+        assert list(actions.keys()) == ["cancel_event", "uncancel_event", "toggle_members_only"]
 
     def test_toggle_members_only_action(self):
         event = baker.make_recipe('booking.future_PC', max_participants=5, members_only=False)

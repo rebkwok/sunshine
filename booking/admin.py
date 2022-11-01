@@ -3,11 +3,13 @@ import pytz
 from datetime import timedelta
 from django.contrib import admin
 from django.contrib.auth.models import User
+from django.contrib import messages
 from django.utils import timezone
 from django.utils.safestring import mark_safe
 
 from django_object_actions import DjangoObjectActions, takes_instance_or_queryset
 
+from activitylog.models import ActivityLog
 from booking.models import (
     Booking, GiftVoucher, GiftVoucherType, ItemVoucher, Membership, MembershipType, TotalVoucher, 
     WaitingListUser, Workshop, RegularClass, Private, Event
@@ -164,8 +166,8 @@ class EventAdmin(DjangoObjectActions, admin.ModelAdmin):
     actions_on_top = True
     ordering = ('date',)
     form = EventForm
-    actions = ['cancel_event']
-    change_actions = ['cancel_event']
+    actions = ['cancel_event', 'uncancel_event']
+    change_actions = ['cancel_event', 'uncancel_event']
     inlines = [BookingInline, WaitingListInline]
 
     fieldsets = [
@@ -232,46 +234,75 @@ class EventAdmin(DjangoObjectActions, admin.ModelAdmin):
             if not obj.bookings.exists():
                 obj.delete()
                 self.message_user(request, '%s %s deleted (no open/cancelled bookings)' % (event_type.title(), obj))
+                ActivityLog.objects.create(
+                    log=f"{obj} was deleted by admin user {request.user.username}"
+                )
             else:
                 if obj.date <= timezone.now():
-                    self.message_user(request, "Can't cancel past %s" % event_type)
+                    self.message_user(request, "Can't cancel past %s" % event_type, level=messages.ERROR)
                 else:
                     obj.cancelled = True
                     obj.save()
 
+                    ActivityLog.objects.create(
+                        log=f"{obj} was cancelled by admin user {request.user.username}"
+                    )
                     open_bookings = obj.bookings.filter(status='OPEN', no_show=False)
                     open_bookings_count = open_bookings.count()
                     for booking in open_bookings:
                         refunded = False
                         was_booked_with_membership = booking.membership is not None
-                        if booking.status == 'OPEN' and not booking.no_show:
-                            booking.status = 'CANCELLED'
-                            if booking.membership:
-                                booking.membership = None
-                            elif booking.paid and booking.invoice:
-                                # process refund
-                                refunded = process_refund(request, booking)
-                            booking.paid = False
-                            booking.save()
+                        booking.status = 'CANCELLED'
+                        if booking.membership:
+                            booking.membership = None
+                        elif booking.paid and booking.invoice:
+                            # process refund
+                            refunded = process_refund(request, booking)
+                        booking.paid = False
+                        booking.save()
 
-                            send_email(
-                                request,
-                                subject='{} has been cancelled'.format(obj),
-                                ctx={
-                                    'event_type': event_type, 
-                                    'event': obj, 
-                                    'was_booked_with_membership': was_booked_with_membership,
-                                    'refunded': refunded
-                                },
-                                template_txt='booking/email/event_cancelled.txt',
-                                to_list=[booking.user.email]
-                            )
+                        send_email(
+                            request,
+                            subject='{} has been cancelled'.format(obj),
+                            ctx={
+                                'event_type': event_type, 
+                                'event': obj, 
+                                'was_booked_with_membership': was_booked_with_membership,
+                                'refunded': refunded
+                            },
+                            template_txt='booking/email/event_cancelled.txt',
+                            to_list=[booking.user.email]
+                        )
+                        ActivityLog.objects.create(
+                            log=f"Booking {booking.id} for cancelled event {obj.id}, "
+                            f"user {booking.user.username} was "
+                            f"{'refunded' if refunded else 'credited to membership' if was_booked_with_membership else 'cancelled'}"
+                        )
 
                     if open_bookings_count == 0:
                         msg = 'no open bookings'
                     else:
                         msg = 'users for {} open booking(s) have been emailed notification'.format(open_bookings_count)
                     self.message_user(request, '%s %s cancelled; %s' % (event_type.title(), obj,  msg))
+
+
+    @takes_instance_or_queryset
+    def uncancel_event(self, request, queryset):
+        for obj in queryset:
+            if not obj.cancelled:
+                self.message_user(request, "Can't uncancel %s (not cancelled)" % obj, level=messages.ERROR)
+            elif obj.date <= timezone.now():
+                self.message_user(request, "Can't cancel past event %s" % obj, level=messages.ERROR)
+            else:
+                obj.cancelled = False
+                obj.save()
+                ActivityLog.objects.create(
+                    log=f"{obj} was uncancelled by admin user {request.user.username}"
+                )
+                self.message_user(
+                    request, "%s was uncancelled; note bookings remain cancelled. Ensure any manually reopened booking are marked as paid!" % obj, 
+                    level=messages.SUCCESS
+                )
 
 
 @admin.register(Workshop)
@@ -297,12 +328,19 @@ class WorkshopAdmin(EventAdmin):
     cancel_event.label = 'Cancel workshop'
     cancel_event.attrs = {'style': 'font-weight: bold; color: red;'}
 
+    @takes_instance_or_queryset
+    def uncancel_event(self, request, queryset):
+        return super().uncancel_event(request, queryset)
+    uncancel_event.short_description = 'Uncancel workshop; bookings will remain cancelled and will need to be manually reinstated.'
+    uncancel_event.label = 'Uncancel workshop'
+    uncancel_event.attrs = {'style': 'font-weight: bold; color: green;'}
+
 
 @admin.register(RegularClass)
 class RegularClassAdmin(EventAdmin):
 
     readonly_fields = ('cancelled',)
-    actions = ['cancel_event', 'toggle_members_only']
+    actions = ['cancel_event', 'uncancel_event', 'toggle_members_only']
 
     def get_form(self, request, obj=None, **kwargs):
         form = super(RegularClassAdmin, self).get_form(request, obj, **kwargs)
@@ -324,6 +362,13 @@ class RegularClassAdmin(EventAdmin):
     cancel_event.short_description = 'Cancel class; this will cancel all bookings and email notifications to students.'
     cancel_event.label = 'Cancel class'
     cancel_event.attrs = {'style': 'font-weight: bold; color: red;'}
+
+    @takes_instance_or_queryset
+    def uncancel_event(self, request, queryset):
+        return super().uncancel_event(request, queryset)
+    uncancel_event.short_description = 'Uncancel class; bookings will remain cancelled and will need to be manually reinstated.'
+    uncancel_event.label = 'Uncancel class'
+    uncancel_event.attrs = {'style': 'font-weight: bold; color: green;'}
 
     def toggle_members_only(self, request, queryset):
         for obj in queryset:
@@ -356,6 +401,13 @@ class PrivateAdmin(EventAdmin):
     cancel_event.short_description = 'Cancel class; this will cancel all bookings and email notifications to students.'
     cancel_event.label = 'Cancel class'
     cancel_event.attrs = {'style': 'font-weight: bold; color: red;'}
+
+    @takes_instance_or_queryset
+    def uncancel_event(self, request, queryset):
+        return super().uncancel_event(request, queryset)
+    uncancel_event.short_description = 'Uncancel class; bookings will remain cancelled and will need to be manually reinstated.'
+    uncancel_event.label = 'Uncancel class'
+    uncancel_event.attrs = {'style': 'font-weight: bold; color: green;'}
 
 
 @admin.register(Booking)
