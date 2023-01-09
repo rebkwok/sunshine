@@ -11,8 +11,8 @@ class Command(BaseCommand):
 
         studio, _ = Venue.objects.get_or_create(
             name='Sunshine Fitness Studio',
-            address='Woodend Business Centre, Cowdenbeath',
-            postcode='KY4 8HG',
+            address='Moray Institute, Kelty',
+            postcode='KY4 OAQ',
             abbreviation="Fitness Studio"
         )
         
