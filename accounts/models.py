@@ -129,7 +129,7 @@ class DataPrivacyPolicy(models.Model):
         if not self.id and not self.version:
             # if no version specified, go to next major version
             self.version = floor((DataPrivacyPolicy.current_version() + 1))
-        super(DataPrivacyPolicy, self).save(**kwargs)
+        super().save(**kwargs)
         ActivityLog.objects.create(
             log='Data Privacy Policy version {} created'.format(self.version)
         )
@@ -162,7 +162,7 @@ class SignedDataPrivacy(models.Model):
             ActivityLog.objects.create(
                 log="Signed data privacy policy agreement created: {}".format(self.__str__())
             )
-        super(SignedDataPrivacy, self).save()
+        super().save(**kwargs)
 
 
 @has_readonly_fields
@@ -280,7 +280,7 @@ class OnlineDisclaimer(BaseOnlineDisclaimer):
             ActivityLog.objects.create(
                 log="Online disclaimer created: {}".format(self.__str__())
             )
-        super().save()
+        super().save(**kwargs)
 
 
 class ArchivedDisclaimer(BaseOnlineDisclaimer):
