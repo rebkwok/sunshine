@@ -22,11 +22,14 @@ env = environ.Env(DEBUG=(bool, False),
                   SEND_ALL_STUDIO_EMAILS=(bool, False),
                   LOCAL=(bool, False),
                   CI=(bool, False),
+                  TESTING=(bool, False),
                   )
 
 environ.Env.read_env(root('.env'))  # reading .env file
 
-TESTING = any([test_str in arg for arg in sys.argv for test_str in ["test", "pytest"]])
+TESTING = env("TESTING")
+if not TESTING:  # pragma: no cover
+    TESTING = any([test_str in arg for arg in sys.argv for test_str in ["test", "pytest"]])
 
 BASE_DIR = root()
 

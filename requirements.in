@@ -28,5 +28,7 @@ python-dateutil
 pytest
 pytest-django
 pytest-cov
+pytest-env
 pytest-freezegun
+pytest-xdist
 stripe
