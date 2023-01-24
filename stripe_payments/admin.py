@@ -49,6 +49,10 @@ class InvoiceAdmin(admin.ModelAdmin):
         "total_voucher_code", "payment_intent_ids"
     )
     readonly_fields = fields
+    search_fields = (
+        'invoice_id', 'username'
+    )
+    list_filter = ("paid", "username")
 
     inlines = (BookingInline, MembershipInline, GiftVoucherInline)
 
@@ -85,6 +89,10 @@ class StripePaymentIntentAdmin(admin.ModelAdmin):
         "payment_intent_id", "amount", "description", "status", "invoice",
         "metadata", "currency" 
     )
+    search_fields = (
+        'payment_intent_id', 'invoice__invoice_id', 'invoice__username'
+    )
+    list_filter = ("status", "invoice__username")
     readonly_fields = fields
 
     def username(self, obj):
@@ -118,6 +126,10 @@ class StripeRefundAdmin(admin.ModelAdmin):
         "refund_id", "payment_intent", "invoice", "booking_id", "amount", "status", 
         "reason", "metadata", "currency" 
     )
+    search_fields = (
+        'payment_intent_id', 'invoice__invoice_id', 'invoice__username'
+    )
+    list_filter = ("status", "invoice__username")
     readonly_fields = fields
     exclude = ("seller",)
 
