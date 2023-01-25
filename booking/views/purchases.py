@@ -14,7 +14,8 @@ from booking.views.views_utils import data_privacy_required, total_unpaid_item_c
 
 def _membership_purchase_option(
     unpaid_memberships, membership_type, month, year, days_to_end_of_month, is_current=False
-):
+):  
+    warn_for_current = False
     if is_current and days_to_end_of_month <= settings.MEMBERSHIP_AVAILABLE_EARLY_DAYS:
         # This membership is for the current month; don't make it available for purchase near the 
         # end of the month if there are no more events in this month
@@ -22,11 +23,15 @@ def _membership_purchase_option(
             date__gte=timezone.now(), date__month=month
         ).exists():
             return
+        # if it's available at the end of the month at the same time as next month's, show
+        # a warning
+        warn_for_current = True
     return {
         "membership_type": membership_type, 
         "month": month, 
         "month_str": month_name[month],
         "year": year,
+        "warn_for_current": warn_for_current,
         "basket_count": unpaid_memberships.filter(
             membership_type=membership_type, month=month, year=year
             ).count()
