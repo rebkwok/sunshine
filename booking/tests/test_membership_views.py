@@ -111,6 +111,7 @@ def test_membership_purchase_options(freezer, client, configured_user, membershi
             "membership_type": membership_type, 
             "month": 11, 
             "month_str": "November",
+            "warn_for_current": False,
             "year": 2020,
             "basket_count": 0
         }
@@ -125,6 +126,7 @@ def test_membership_purchase_options(freezer, client, configured_user, membershi
             "membership_type": membership_type, 
             "month": 11, 
             "month_str": "November",
+            "warn_for_current": False,
             "year": 2020,
             "basket_count": 0
         }
@@ -139,6 +141,7 @@ def test_membership_purchase_options(freezer, client, configured_user, membershi
             "membership_type": membership_type, 
             "month": 10, 
             "month_str": "October",
+            "warn_for_current": True,
             "year": 2020,
             "basket_count": 0
         },
@@ -146,6 +149,7 @@ def test_membership_purchase_options(freezer, client, configured_user, membershi
             "membership_type": membership_type, 
             "month": 11, 
             "month_str": "November",
+            "warn_for_current": False,
             "year": 2020,
             "basket_count": 0
         }
@@ -165,6 +169,7 @@ def test_membership_purchase_options(freezer, client, configured_user, membershi
             "membership_type": membership_type, 
             "month": 12, 
             "month_str": "December",
+            "warn_for_current": True,
             "year": 2020,
             "basket_count": 0
         },
@@ -172,6 +177,7 @@ def test_membership_purchase_options(freezer, client, configured_user, membershi
             "membership_type": membership_type, 
             "month": 1, 
             "month_str": "January",
+            "warn_for_current": False,
             "year": 2021,
             "basket_count": 0
         }
@@ -192,6 +198,7 @@ def test_membership_purchase_options_with_unpaid_items(
             "membership_type": membership_type, 
             "month": 10, 
             "month_str": "October",
+            "warn_for_current": True,
             "year": 2020,
             "basket_count": 0
         },
@@ -199,6 +206,7 @@ def test_membership_purchase_options_with_unpaid_items(
             "membership_type": membership_type, 
             "month": 11, 
             "month_str": "November",
+            "warn_for_current": False,
             "year": 2020,
             "basket_count": 0
         }
@@ -223,6 +231,7 @@ def test_membership_purchase_options_with_unpaid_items(
             "membership_type": membership_type, 
             "month": 10, 
             "month_str": "October",
+            "warn_for_current": True,
             "year": 2020,
             "basket_count": 1
         },
@@ -230,6 +239,7 @@ def test_membership_purchase_options_with_unpaid_items(
             "membership_type": membership_type, 
             "month": 11, 
             "month_str": "November",
+            "warn_for_current": False,
             "year": 2020,
             "basket_count": 1
         }
