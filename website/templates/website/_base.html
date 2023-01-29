@@ -28,9 +28,16 @@
         <div class="navbar-wrap">
         <div class="navbar navbar-expand-sm navbar-dark navbar-fixed" role="navigation">
         <a class="navbar-brand p-0" href="/"><img class="nav-logo" src="{% static 'website/images/logo_no_text.jpg' %}"></a>
+        <div>
+            <span class="d-inline d-sm-none">
+                <a class="btn btn-warning btn-sm p-2" href="{% url 'booking:shopping_basket' %}">
+                    <span><i class="fas fa-shopping-cart"></i> <span class="badge badge-light" id="cart_item_menu_count">{{ cart_item_count }}</span></span>
+                </a>
+            </span>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
         </button>
+        </div>
 
         <div class="collapse navbar-collapse" id="navbarCollapse">
           <ul class="nav navbar-nav mr-auto">
@@ -48,8 +55,8 @@
 
          <ul class="nav navbar-nav pull-right">
             {% if user.is_authenticated %}
-            <li>
-                <a class="btn btn-warning btn-sm mt-1 mr-2" href="{% url 'booking:shopping_basket' %}">
+            <li class="d-none d-sm-inline">
+                <a class="btn btn-warning btn-sm p-2 mr-2" href="{% url 'booking:shopping_basket' %}">
                   <span><i class="fas fa-shopping-cart"></i> <span class="badge badge-light" id="cart_item_menu_count">{{ cart_item_count }}</span></span>
                 </a>
               </li>
