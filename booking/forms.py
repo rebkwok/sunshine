@@ -51,7 +51,7 @@ class EventForm(forms.ModelForm):
                 'ticked.<br/>'
                 '0 hours cancellation period means users can cancel and '
                 'request refunds at ANY time up to the time of the '
-                'workshop.<br/><br/>'
+                'class/workshop.<br/><br/>'
                 'Users will still see an option to cancel their booking, '
                 'even if cancellation is not allowed, or the cancellation '
                 'period is past.  This allows them to notify you of '

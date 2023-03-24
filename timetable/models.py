@@ -91,6 +91,9 @@ class TimetableSession(models.Model):
         max_digits=8, decimal_places=2, default=8,
     )
     max_participants = models.PositiveIntegerField(default=12)
+    cancellation_period = models.PositiveIntegerField(
+        default=24
+    )
     cancellation_fee = models.DecimalField(max_digits=8, decimal_places=2, default=0.00)
     members_only = models.BooleanField(default=False, help_text="Classes are only available to students with memberships")
     show_on_timetable_page = models.BooleanField(

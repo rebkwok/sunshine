@@ -56,7 +56,7 @@ class TimetableSessionAdmin(admin.ModelAdmin):
         }),
         ('Session details', {
             'fields': ['venue', 'max_participants', 'cost',
-                       'members_only', 'cancellation_fee', 'show_on_timetable_page']
+                       'members_only', 'cancellation_fee', 'cancellation_period', 'show_on_timetable_page']
         }),
         ('Date and time', {
             'fields': ['session_day', 'start_time', 'end_time']

@@ -60,6 +60,7 @@ def upload_timetable(start_date, end_date, session_ids, show_on_site, user=None)
                     max_participants=session.max_participants,
                     cost=session.cost,
                     show_on_site=show_on_site,
+                    cancellation_period=session.cancellation_period,
                     cancellation_fee=session.cancellation_fee,
                     members_only=session.members_only,
                 )
