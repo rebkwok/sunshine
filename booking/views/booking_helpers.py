@@ -27,7 +27,7 @@ def cancel_booking_from_view(request, booking):
     # the cancellation period is not past
     # If not, we let people cancel but leave the booking status OPEN and
     # set to no-show
-    can_cancel_and_refund = booking.event.allow_booking_cancellation and event.can_cancel()
+    can_cancel_and_refund = booking.event.can_cancel()
 
     # if the booking was made with a membership, allow 5 mins to cancel in case user
     # clicked the wrong button by mistake and autobooked with a membership
