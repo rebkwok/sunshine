@@ -212,20 +212,27 @@ TEMPLATES = [
 if env("LOCAL") or env("CI"):
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 else:  # pragma: no cover
-    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-    EMAIL_USE_TLS = True
-    EMAIL_HOST = 'email-smtp.eu-west-1.amazonaws.com'
-    EMAIL_HOST_USER = env('EMAIL_HOST_USER', None)
-    EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD', None)
-    if EMAIL_HOST_USER is None:  # pragma: no cover
-        print("No email host user provided!")
-    if EMAIL_HOST_PASSWORD is None:  # pragma: no cover
-        print("No email host password provided!")
+    EMAIL_BACKEND = 'django_ses.SESBackend'
+    AWS_SES_ACCESS_KEY_ID = env('AWS_SES_ACCESS_KEY_ID')
+    AWS_SES_SECRET_ACCESS_KEY = env('AWS_SES_SECRET_ACCESS_KEY')
+    AWS_SES_REGION_NAME=env('AWS_SES_REGION_NAME')
+    AWS_SES_REGION_ENDPOINT=env('AWS_SES_REGION_ENDPOINT')
     EMAIL_PORT = 587
+
+# MAILCATCHER
+if env('USE_MAILCATCHER'):  # pragma: no cover
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+    EMAIL_HOST = '127.0.0.1'
+    EMAIL_HOST_USER = ''
+    EMAIL_HOST_PASSWORD = ''
+    EMAIL_PORT = 1025
+    EMAIL_USE_TLS = False
+
 DEFAULT_FROM_EMAIL = 'booking@sunshinefitness.co.uk'
 DEFAULT_STUDIO_EMAIL = 'sunshinefitnessfife@gmail.com'
 
 SUPPORT_EMAIL = 'rebkwok@gmail.com'
+SERVER_EMAIL = SUPPORT_EMAIL
 AUTO_BOOK_EMAILS = env('AUTO_BOOK_EMAILS')
 SEND_ALL_STUDIO_EMAILS = env('SEND_ALL_STUDIO_EMAILS')
 

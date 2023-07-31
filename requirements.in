@@ -16,6 +16,7 @@ django-allauth
 django-braces
 django-migration-testcase
 django-object-actions
+django-ses[events]
 # django-suit v2 branch 15/2/20
 git+https://github.com/rebkwok/django-suit.git@v2
 dynamic-django-forms
