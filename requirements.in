@@ -33,3 +33,4 @@ pytest-env
 pytest-freezegun
 pytest-xdist
 stripe
+pymemcache

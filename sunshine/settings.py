@@ -114,8 +114,9 @@ if TESTING or env('LOCAL') or env('CI'):  # use local cache for tests
 else:
     CACHES = {
         'default': {
-            'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-            'LOCATION': 'sunshine',
+            'BACKEND': 'django.core.cache.backends.memcached.PyMemcacheCache',
+            'LOCATION': '127.0.0.1:11211',
+            'KEY_PREFIX': 'sunshine',
         }
     }
 
