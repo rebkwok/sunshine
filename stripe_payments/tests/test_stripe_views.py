@@ -659,7 +659,8 @@ def test_webhook_authorized_account_no_seller(
     mock_account.list.return_value = Mock(data=[Mock(id="stripe-account-1")])
 
     resp = client.post(webhook_url, data={}, HTTP_STRIPE_SIGNATURE="foo")
-    assert resp.status_code == 400
+    assert resp.status_code == 200
+    assert resp.content.decode() == "Stripe account has no associated seller on this site"
 
 
 @patch("stripe_payments.views.stripe.Webhook")
