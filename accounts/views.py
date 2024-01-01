@@ -226,7 +226,7 @@ class DisclaimerCreateView(LoginRequiredMixin, DynamicDisclaimerFormMixin, Creat
         disclaimer = self.form_pre_commit(form)
         disclaimer.user = self.disclaimer_user
         disclaimer.save()
-        return super().form_valid(form)
+        return HttpResponseRedirect(self.get_success_url())
 
     def get_success_url(self):
         return reverse('accounts:profile')
