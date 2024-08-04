@@ -50,12 +50,14 @@ else:  # pragma: no cover
     DEBUG = False
 
 DOMAIN = "sunshinefitness.co.uk"
-ALLOWED_HOSTS = [DOMAIN, f"www.{DOMAIN}", f"vagrant.{DOMAIN}", f"test.{DOMAIN}"]
+ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=[DOMAIN, f"www.{DOMAIN}"])
+
+# https://docs.djangoproject.com/en/4.0/ref/settings/#std:setting-CSRF_TRUSTED_ORIGINS
+CSRF_TRUSTED_ORIGINS = [f"https://{host}" for host in ALLOWED_HOSTS]
+
 if env('LOCAL') or env('CI'):  # pragma: no cover
     ALLOWED_HOSTS = ['*']
 
-# https://docs.djangoproject.com/en/4.0/ref/settings/#std:setting-CSRF_TRUSTED_ORIGINS
-CSRF_TRUSTED_ORIGINS = [f'https://{DOMAIN}', f'https://*.{DOMAIN}']
 
 CSRF_FAILURE_VIEW = "booking.views.csrf_failure"
 
