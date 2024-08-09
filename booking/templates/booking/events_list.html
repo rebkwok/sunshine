@@ -148,7 +148,7 @@
                                     <td class="table-center">
                                         {% if event.max_participants %}
                                             <span id="booking_count_{{ event.id }}"
-                                                class="label label-spaces {% if event.spaces_left == 0 or event.cancelled %}label-default{% else %}label-success{% endif%} label-rounded">
+                                                class="badge badge-pill {% if event.spaces_left == 0 or event.cancelled %}badge-default{% else %}badge-success{% endif%}">
                                                 {{ event.spaces_left }}/{{ event.max_participants }}
                                             </span>
                                         {% else %}N/A{% endif %}

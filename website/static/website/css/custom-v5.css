@@ -404,41 +404,6 @@ td.timetable-row {
     white-space: nowrap;
 }
 
-.label.label-rounded.label-spaces {
-    display: block;
-    border-radius: 25px;
-    width: 58px;
-    padding-top: 4px;
-    padding-bottom: 4px;
-}
-
-td span.label.label-rounded.label-spaces{
-    display:inline-block;
-    text-align:center;
-}
-
-.label.label-rounded {
-    display: block;
-    border-radius: 25px;
-    width: 130px;
-    line-height: 1.25;
-    padding-left: 0;
-    padding-right: 0;
-    font-size: 85%;
-    font-weight: 300;
-}
-
-.label-rounded.label-member {
-    width: 160px;
-    line-height: 1.1;
-    margin-bottom: 2px;
-}
-
-.label-rounded.label-member-title {
-    font-size: 100%;
-    font-weight: 400;
-}
-
 .venue-edinburgh {
     background-color: rgba(220,0,0,0.15);
 }
@@ -460,12 +425,6 @@ td span.label.label-rounded.label-spaces{
     font-size: 85%;
     line-height: 1.75;
     width: 120px;
-}
-
-span.label.label-primary.label-membership {
-  font-weight: 500;
-  padding: .2em .6em .2em;
-  margin-left: 5px;
 }
 
 .paypal-table-btn {
@@ -842,6 +801,8 @@ button:active {
     display: block;
     margin-left: auto;
     margin-right: auto;
+    padding-top: 5px;
+    padding-bottom: 5px;
 }
 
 /*Cookie law banner*/

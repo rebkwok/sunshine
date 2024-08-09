@@ -61,7 +61,7 @@
                             <td class="timetable-row">{{ session.start_time|time:"H:i" }} - {{ session.end_time|time:"H:i" }}</td>
                             <td class="table-center timetable-row">
                                 {% if session.category %}
-                                    <span class="membership-label label label-{{ session.category.colour }} label-rounded">
+                                    <span class="badge badge-pill badge-{{ session.category.colour }}">
                                 {% endif %}
                                     {{ session.name }} {% if session.members_only %}(Members only){% endif %}
                                 </span></td>

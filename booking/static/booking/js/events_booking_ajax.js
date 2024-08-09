@@ -108,12 +108,12 @@ var toggleBooking = function()  {
       //console.log("sf result='" + result + "', status='" + status + "', jqXHR='" + jqXHR + "'");
           $jq('#booking_count_' + event_id).html(result.booking_count);
             if (result.full === true) {
-                $jq('#booking_count_' + event_id).removeClass('label-success');
-                $jq('#booking_count_' + event_id).addClass('label-default');
+                $jq('#booking_count_' + event_id).removeClass('badge-success');
+                $jq('#booking_count_' + event_id).addClass('badge-default');
             }
             else {
-                $jq('#booking_count_' + event_id).removeClass('label-default');
-                $jq('#booking_count_' + event_id).addClass('label-success');
+                $jq('#booking_count_' + event_id).removeClass('badge-default');
+                $jq('#booking_count_' + event_id).addClass('badge-success');
             }
 
         if (result.booked == true) {

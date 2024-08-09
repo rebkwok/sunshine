@@ -30,5 +30,5 @@
     <button class="btn table-btn btn-success book_button">{% if booking %}Rebook{% else %}Book{% endif %}
 {% else %}
     <button class="btn table-btn btn-warning book_button {% if event.members_only %}disabled{% endif %}">Add to basket
-    {% if event.members_only %}  <span class="label label-primary label-membership">Members only</span>{% endif %}</button>
+    {% if event.members_only %}Members only{% endif %}</button>
 {% endif %}
