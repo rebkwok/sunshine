@@ -5,7 +5,7 @@ from django.core import mail
 from model_bakery import baker
 import pytest
 
-from stripe.error import InvalidRequestError
+from stripe import InvalidRequestError
 
 from stripe_payments.models import StripePaymentIntent, Invoice, StripeRefund
 
