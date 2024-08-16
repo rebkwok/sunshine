@@ -9,6 +9,7 @@ django-bootstrap4
 django-classy-tags  # for cookie-law
 django-crispy-forms
 django-cookie-law
+crispy-bootstrap4
 django-email-obfuscator
 django-extensions
 django-environ
@@ -30,7 +31,7 @@ pytest
 pytest-django
 pytest-cov
 pytest-env
-pytest-freezegun
+pytest-freezer
 pytest-xdist
 stripe
 pymemcache

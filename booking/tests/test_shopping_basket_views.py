@@ -10,7 +10,7 @@ from django.urls import reverse
 from django.test import TestCase, override_settings
 from django.utils import timezone
 
-from stripe.error import InvalidRequestError
+from stripe import InvalidRequestError
 
 from accounts.models import DataPrivacyPolicy
 from booking.models import (

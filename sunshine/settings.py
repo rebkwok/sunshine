@@ -77,6 +77,7 @@ INSTALLED_APPS = (
     'django.contrib.humanize',
     'cookielaw',
     'crispy_forms',
+    'crispy_bootstrap4',
     'allauth',
     'allauth.account',
     'django_extensions',
@@ -103,6 +104,7 @@ MIDDLEWARE = [
     'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'allauth.account.middleware.AccountMiddleware',
 ]
 
 
@@ -420,9 +422,11 @@ EMPTY_JOB_TEXT = ["CRON: auto cancel bookings run; nothing to cancel",]
 S3_LOG_BACKUP_PATH = "s3://backups.sunshinestarlet.co.uk/sunshine_activitylogs"
 S3_LOG_BACKUP_ROOT_FILENAME = "sunshine_activity_logs_backup"
 
-# for dynamic disclaimer form
-CRISPY_TEMPLATE_PACK = 'bootstrap4'
+# for crispy forms
+CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap4"
+CRISPY_TEMPLATE_PACK = "bootstrap4"
 USE_CRISPY = True
+# for dynamic disclaimer form
 DYNAMIC_FORMS_CUSTOM_JS = ""
 
 # STRIPE

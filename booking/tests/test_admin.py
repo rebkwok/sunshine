@@ -25,14 +25,14 @@ class EventAdminTests(TestCase):
         baker.make_recipe('booking.future_EV', name='future')
 
         filter = admin.EventDateListFilter(
-            None, {'date': 'past'}, Event, admin.EventAdmin
+            None, {'date': ['past']}, Event, admin.EventAdmin
         )
         event = filter.queryset(None, Event.objects.all())[0]
         assert event.name == 'past'
 
         # default value
         filter = admin.EventDateListFilter(
-            None, {'date': None}, Event, admin.EventAdmin
+            None, {}, Event, admin.EventAdmin
         )
         events = filter.queryset(None, Event.objects.all())
         assert len(events), 1
@@ -46,7 +46,7 @@ class EventAdminTests(TestCase):
         assert event.name == 'future'
 
         filter = admin.EventDateListFilter(
-            None, {'date': "all"}, Event, admin.EventAdmin
+            None, {'date': ["all"]}, Event, admin.EventAdmin
         )
         events = filter.queryset(None, Event.objects.all())
         assert len(events) == 2
@@ -455,7 +455,7 @@ class BookingAdminTests(TestCase):
 
         # no filter parameters returns default (upcoming)
         datefilter = admin.BookingDateListFilter(
-            None, {'event__date': None}, Booking, admin.BookingAdmin
+            None, {}, Booking, admin.BookingAdmin
         )
         booking = datefilter.queryset(None, Booking.objects.all())[0]
         assert booking.event.name == 'future'
@@ -512,7 +512,7 @@ class BookingAdminTests(TestCase):
         assert [booking.id for booking in result] == [booking.id for booking in Booking.objects.all()]
 
         userfilter = admin.UserFilter(
-            None, {'user': self.user.id}, Booking, admin.BookingAdmin
+            None, {'user': [self.user.id]}, Booking, admin.BookingAdmin
         )
         result = userfilter.queryset(None, Booking.objects.all())
         assert result.count() == 5
