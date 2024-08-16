@@ -22,7 +22,7 @@ def send_email(
     reply_to_list = reply_to_list or [settings.DEFAULT_STUDIO_EMAIL]
     ctx.update({"studio_email": settings.DEFAULT_STUDIO_EMAIL})
     if request:
-        domain = request.META.get('HTTP_HOST')
+        domain = request.get_host()
         host = host_from_request(request)
         ctx.update({'domain': domain, 'host': host})
     else:

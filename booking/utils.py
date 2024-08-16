@@ -56,4 +56,4 @@ def start_of_day_in_local_time(input_datetime, local_timezone="Europe/London"):
 
 
 def host_from_request(request):
-    return f"http://{request.META.get('HTTP_HOST')}"
+    return f"http://{request.get_host()}"
