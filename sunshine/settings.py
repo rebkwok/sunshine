@@ -108,23 +108,6 @@ MIDDLEWARE = [
 ]
 
 
-if TESTING or env('LOCAL') or env('CI'):  # use local cache for tests
-    CACHES = {
-        'default': {
-            'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-            'LOCATION': 'test-sunshine',
-        }
-    }
-else:
-    CACHES = {
-        'default': {
-            'BACKEND': 'django.core.cache.backends.memcached.PyMemcacheCache',
-            'LOCATION': '127.0.0.1:11211',
-            'KEY_PREFIX': 'sunshine',
-        }
-    }
-
-
 SITE_ID = 1
 ROOT_URLCONF = 'sunshine.urls'
 
@@ -401,11 +384,18 @@ def show_toolbar(request):  # pragma: no cover
     return True
 
 
-if 'test' in sys.argv or env('CI'):  # use local cache for tests
+if TESTING or env('CI'):  # use local cache for tests
     CACHES = {
         'default': {
             'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-            'LOCATION': 'test-cache',
+            'LOCATION': 'test-sunshine',
+        }
+    }
+else:
+    CACHES = {
+        "default": {
+            "BACKEND": 'django.core.cache.backends.filebased.FileBasedCache',
+            "LOCATION": root("cache"),
         }
     }
 
