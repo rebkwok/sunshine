@@ -10,7 +10,7 @@ from django.utils import timezone
 
 from allauth.account.models import EmailAddress
 
-from ..models import DataPrivacyPolicy, OnlineDisclaimer
+from ..models import DataPrivacyPolicy, DisclaimerContent, OnlineDisclaimer
 from ..utils import has_active_data_privacy_agreement
 from ..views import ProfileUpdateView, profile
 
@@ -175,7 +175,9 @@ class DisclaimerCreateViewTests(TestSetupMixin, TestCase):
             'emergency_contact_phone': '4547',
             'terms_accepted': True,
             'health_questionnaire_responses_0': ["foo"],
-            'password': 'test'
+            'password': 'test',
+            'user': self.user.id,
+            'version': DisclaimerContent.current_version(),
         }
         cache.clear()
         self.client.login(username=self.user.username, password="test")
@@ -295,12 +297,12 @@ class DisclaimerCreateViewTests(TestSetupMixin, TestCase):
         )
         url = reverse('accounts:disclaimer_form', args=(self.user.id,))
         # form data only has response for qn 0 (not required)
-        resp = self.client.post(url, {**self.form_data})
+        resp = self.client.post(url, self.form_data)
         assert resp.status_code == 200
         form = resp.context_data["form"]
         assert form.errors == {"health_questionnaire_responses": ["Please fill in all required fields."]}
 
-        form_data = {**self.form_data}
+        form_data = self.form_data
         del form_data["health_questionnaire_responses_0"]
         form_data["health_questionnaire_responses_1"] = "red"
         resp = self.client.post(url, {**form_data})

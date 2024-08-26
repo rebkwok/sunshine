@@ -168,6 +168,8 @@ class DisclaimerForm(forms.ModelForm):
             HTML(mark_safe(linebreaks(self.disclaimer_content.disclaimer_terms))),
             "terms_accepted",
             "password",
+            Hidden("user", self.user.id),
+            Hidden("version", self.disclaimer_content.version),
             Submit('submit', 'Save', css_class="btn-warning")
         )
 
@@ -175,7 +177,8 @@ class DisclaimerForm(forms.ModelForm):
         model = OnlineDisclaimer
         fields = (
             'terms_accepted', 'emergency_contact_name', 'date_of_birth', 'phone',
-            'emergency_contact_relationship', 'emergency_contact_phone', 'health_questionnaire_responses'
+            'emergency_contact_relationship', 'emergency_contact_phone', 'health_questionnaire_responses',
+            'user', 'version'
         )
         widgets = deepcopy(BASE_DISCLAIMER_FORM_WIDGETS)
 

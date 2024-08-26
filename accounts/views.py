@@ -163,8 +163,22 @@ class DisclaimerContactUpdateView(LoginRequiredMixin, UpdateView):
     def get_success_url(self):
         return reverse('accounts:profile')
 
+   
+class DisclaimerCreateView(LoginRequiredMixin, CreateView):
 
-class DynamicDisclaimerFormMixin(FormMixin):
+    form_class = DisclaimerForm
+    template_name = 'accounts/disclaimer_form.html'
+
+    def dispatch(self, request, *args, **kwargs):
+        self.disclaimer_user = get_object_or_404(User, pk=kwargs["user_id"])
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["disclaimer_user"] = self.disclaimer_user
+        context['disclaimer'] = has_active_disclaimer(self.disclaimer_user)
+        context['expired_disclaimer'] = has_expired_disclaimer(self.disclaimer_user)
+        return context
 
     def get_form(self, *args, **kwargs):
         form = super().get_form(*args, **kwargs)
@@ -195,38 +209,10 @@ class DynamicDisclaimerFormMixin(FormMixin):
                 field.initial = "-"
         return form
 
-    def form_pre_commit(self, form):
-        pre_saved_disclaimer = form.save(commit=False)
-        pre_saved_disclaimer.version = form.disclaimer_content.version
-        return pre_saved_disclaimer
-
-
-class DisclaimerCreateView(LoginRequiredMixin, DynamicDisclaimerFormMixin, CreateView):
-
-    form_class = DisclaimerForm
-    template_name = 'accounts/disclaimer_form.html'
-
-    def dispatch(self, request, *args, **kwargs):
-        self.disclaimer_user = get_object_or_404(User, pk=kwargs["user_id"])
-        return super().dispatch(request, *args, **kwargs)
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["disclaimer_user"] = self.disclaimer_user
-        context['disclaimer'] = has_active_disclaimer(self.disclaimer_user)
-        context['expired_disclaimer'] = has_expired_disclaimer(self.disclaimer_user)
-        return context
-
     def get_form_kwargs(self, **kwargs):
         form_kwargs = super().get_form_kwargs(**kwargs)
         form_kwargs["disclaimer_user"] = self.disclaimer_user
         return form_kwargs
-
-    def form_valid(self, form):
-        disclaimer = self.form_pre_commit(form)
-        disclaimer.user = self.disclaimer_user
-        disclaimer.save()
-        return HttpResponseRedirect(self.get_success_url())
 
     def get_success_url(self):
         return reverse('accounts:profile')
