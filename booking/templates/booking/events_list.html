@@ -34,7 +34,7 @@
 
     {% if not user.is_authenticated %}
     <div>
-        <p><a class='btn btn-info' href="{% url 'account_login' %}?next={{request.get_full_path|urlencode }}">Log in</a> to book</p>
+        <p><a class='btn btn-warning' href="{% url 'account_login' %}?next={{request.get_full_path|urlencode }}">Log in</a> to book</p>
         <span class="divider"></span>
     </div>
     {% else %}
@@ -87,9 +87,7 @@
                     <div class="table-responsive">
                         <table class="table table-book-classes">
                             <tr class="table-heading">
-                                {% if user.is_authenticated %}
-                                    <th class="table-center table-book-btn-col"></th>
-                                {% endif %}
+                                <th class="table-center table-book-btn-col"></th>
                                 <th class="table-center">Date</th>
                                 <th class="table-center">Name</th>
                                 <th class="table-center">Venue</th>
@@ -140,6 +138,10 @@
                                                 {% endif %}
                                             </td>
                                         {% endif %}
+                                    {% else %}
+                                    <td class="table-center table-book-btn-col">
+                                        <a class='btn table-btn btn-warning' href="{% url 'account_login' %}?next={{request.get_full_path|urlencode }}">Log in to book</a>
+                                    </td>
                                     {% endif %}
                                     <td class="table-center">{{ event.date | date:"D d M H:i" }}</td>
                                     <td class="table-center"><a href="{% url 'booking:event_detail' event.slug %}">{{ event.name }}</a></td>

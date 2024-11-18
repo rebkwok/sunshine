@@ -98,6 +98,16 @@
 
         {% cookielaw_banner %}
 
+        {% block anon_banner %}
+            {% if user.is_anonymous %}
+                <div class="mb-4">
+                    <div class="message alert alert-anon p-4">
+                        <div><span class="fas fa-sun"></span> <a href={% url 'account_login' %}?next={{request.get_full_path|urlencode }}>Log in</a> to book a class! <span class="fas fa-sun"></span></div>
+                    </div>
+                </div>
+            {% endif %}
+        {% endblock anon_banner %}
+
         {% if messages %}
             <div class="extra-top-margin col-12">
                 {% for message in messages %}
