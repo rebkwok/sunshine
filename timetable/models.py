@@ -25,10 +25,17 @@ class SessionType(models.Model):
 
 
 class Venue(models.Model):
-    name = models.CharField(max_length=255, default="Venue TBC")
+    name = models.CharField(
+        max_length=255, default="Venue TBC", help_text="Full name for this venue. This will appear on the Venues page."
+    )
     address = models.CharField(max_length=255, null=True, blank=True)
     postcode = models.CharField(max_length=255, null=True, blank=True)
-    abbreviation = models.CharField(max_length=20, default="")
+    abbreviation = models.CharField(
+        max_length=20, default="", help_text="Short name for this venue. This will appear on the timetables."
+    )
+    location = models.CharField(
+        max_length=255, help_text="Name for this location. Timetables will be grouped by location."
+    )
 
     def __str__(self):
         return self.name
