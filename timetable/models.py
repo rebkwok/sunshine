@@ -1,5 +1,6 @@
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.utils.functional import cached_property
 
 
 class SessionType(models.Model):
@@ -36,9 +37,29 @@ class Venue(models.Model):
     location = models.CharField(
         max_length=255, help_text="Name for this location. Timetables will be grouped by location."
     )
+    tab_order = models.IntegerField(
+        default=100, 
+        help_text="For ordering of location tabs; use any numbers, locations will be ordered from smallest to largest."
+    )
 
     def __str__(self):
         return self.name
+    
+    class Meta:
+        ordering = ("tab_order", "location")
+
+    @classmethod
+    def location_choices(cls):
+        return {
+            0: "All locations", 
+            **{
+                i: location 
+                for i, location in enumerate(
+                    cls.objects.distinct("tab_order", "location").values_list("location", flat=True), start=1
+                )
+            }
+        }
+        
 
 
 class Category(models.Model):
