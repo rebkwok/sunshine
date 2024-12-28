@@ -148,6 +148,52 @@ class BaseEventListView(ListView):
         context['time'] = self.event_time
 
         context["all_events_url"] = reverse(f"booking:{self.event_type}_list")
+
+        # TODO: Tabs per location
+        # # paginate each queryset
+        # # tab = self.request.GET.get('tab', 0)
+
+        # # try:
+        # #     tab = int(tab)
+        # # except ValueError:  # value error if tab is not an integer, default to 0
+        # #     tab = 0
+
+        # # context['tab'] = str(tab)
+
+        # # if not tab or tab == 0:
+        # #     page = self.request.GET.get('page', 1)
+        # # else:
+        # #     page = 1
+        # page = self.request.GET.get('page', 1)
+        # all_paginator = Paginator(all_events, 30)
+
+        # queryset = all_paginator.get_page(page)
+        # location_events = [{
+        #     'index': 0,
+        #     'queryset': queryset,
+        #     'location': 'All locations',
+        #     'paginator_range': queryset.paginator.get_elided_page_range(queryset.number)
+        # }]
+        # # NOTE: this is unnecessary since we only have one location; leaving it in in case there is ever another studio to add
+        # # for i, location in enumerate([lc[0] for lc in Event.LOCATION_CHOICES], 1):
+        # #     location_qs = all_events.filter(location=location)
+        # #     if location_qs:
+        # #         # Don't add the location tab if there are no events to display
+        # #         location_paginator = Paginator(location_qs, 30)
+        # #         if tab and tab == i:
+        # #             page = self.request.GET.get('page', 1)
+        # #         else:
+        # #             page = 1
+        # #         queryset = location_paginator.get_page(page)
+        # #
+        # #         location_obj = {
+        # #             'index': i,
+        # #             'queryset': queryset,
+        # #             'location': location
+        # #         }
+        # #         location_events.append(location_obj)
+        # context['location_events'] = location_events
+
         return context
 
 
