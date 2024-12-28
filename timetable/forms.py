@@ -30,7 +30,7 @@ def get_venues():
             ).distinct()
             .values_list('venue__abbreviation', 'venue__abbreviation')
         )
-        VENUE_CHOICES.insert(0, ('all', 'All locations'))
+        VENUE_CHOICES.insert(0, ('all', 'All venues'))
         return tuple(VENUE_CHOICES)
 
     return callable
