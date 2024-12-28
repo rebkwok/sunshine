@@ -9,7 +9,7 @@ from .utils import upload_timetable
 
 @admin.register(Venue)
 class VenueAdmin(admin.ModelAdmin):
-    list_display = ('name', 'address', 'postcode', 'location', 'abbreviation')
+    list_display = ('name', 'address', 'postcode', 'location', 'tab_order', 'abbreviation')
 
 
 @admin.register(SessionType)

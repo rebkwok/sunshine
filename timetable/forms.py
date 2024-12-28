@@ -21,29 +21,9 @@ def get_session_types():
     return callable
 
 
-def get_venues():
-
-    def callable():
-        VENUE_CHOICES = list(
-            TimetableSession.objects.select_related(
-                'venue', 'session_type'
-            ).distinct()
-            .values_list('venue__abbreviation', 'venue__abbreviation')
-        )
-        VENUE_CHOICES.insert(0, ('all', 'All venues'))
-        return tuple(VENUE_CHOICES)
-
-    return callable
-
-
 class TimetableFilter(forms.Form):
     filtered_session_type = forms.ChoiceField(
         choices=get_session_types(),
-        widget=forms.Select(attrs={'class': 'form-control input-xs'})
-    )
-
-    filtered_venue = forms.ChoiceField(
-        choices=get_venues(),
         widget=forms.Select(attrs={'class': 'form-control input-xs'})
     )
     
