@@ -3,6 +3,7 @@ import pytz
 
 from collections import OrderedDict
 
+from django.core.paginator import Paginator
 from django.shortcuts import HttpResponseRedirect, render, get_object_or_404
 from django.views.generic import ListView, DetailView
 from django.urls import reverse
@@ -14,6 +15,7 @@ from booking.email_helpers import email_waiting_lists
 from booking.forms import EventsFilter
 from booking.models import Booking, Event, WaitingListUser
 from booking.utils import host_from_request
+from timetable.models import Venue
 
 
 logger = logging.getLogger(__name__)
@@ -97,11 +99,25 @@ class BaseEventListView(ListView):
             return paginator, page, page.object_list, page.has_other_pages()
         return resp
 
+    def _get_tab(self):
+        tab = self.request.GET.get('tab', 0)
+
+        try:
+            tab = int(tab)
+        except ValueError:  # value error if tab is not an integer, default to 0
+            tab = 0
+        
+        return tab
+    
     def get_context_data(self, **kwargs):
         queryset = self.object_list
         # Call the base implementation first to get a context
         context = super().get_context_data(**kwargs)
         context['section'] = 'booking'
+
+        tab = self._get_tab()
+        context['tab'] = tab
+
         if not self.request.user.is_anonymous:
             # Add in the booked_events
             user_booked_events = Booking.objects.select_related()\
@@ -145,50 +161,34 @@ class BaseEventListView(ListView):
 
         context["all_events_url"] = reverse(f"booking:{self.event_type}_list")
 
-        # TODO: Tabs per location
-        # # paginate each queryset
-        # # tab = self.request.GET.get('tab', 0)
+        page_get = self.request.GET.get('page', 1)
+        
+        location_events = []
 
-        # # try:
-        # #     tab = int(tab)
-        # # except ValueError:  # value error if tab is not an integer, default to 0
-        # #     tab = 0
+        for index, location_choice in Venue.location_choices().items():
+            if index != 0:
+                loc_queryset = queryset.filter(venue__location=location_choice)
+            else:
+                loc_queryset = queryset
+            if loc_queryset:
+                if tab == index:
+                    page = page_get
+                else:
+                    page = 1
 
-        # # context['tab'] = str(tab)
+                paginator = Paginator(loc_queryset, 5)
+                paginated_queryset = paginator.get_page(page)
+                # only add location if there are events to display
+                location_events.append(
+                    {
+                        "index": index,
+                        "queryset": paginated_queryset,
+                        "location": location_choice,
+                        "paginator_range": paginated_queryset.paginator.get_elided_page_range(paginated_queryset.number)
+                    }
+                )
 
-        # # if not tab or tab == 0:
-        # #     page = self.request.GET.get('page', 1)
-        # # else:
-        # #     page = 1
-        # page = self.request.GET.get('page', 1)
-        # all_paginator = Paginator(all_events, 30)
-
-        # queryset = all_paginator.get_page(page)
-        # location_events = [{
-        #     'index': 0,
-        #     'queryset': queryset,
-        #     'location': 'All locations',
-        #     'paginator_range': queryset.paginator.get_elided_page_range(queryset.number)
-        # }]
-        # # NOTE: this is unnecessary since we only have one location; leaving it in in case there is ever another studio to add
-        # # for i, location in enumerate([lc[0] for lc in Event.LOCATION_CHOICES], 1):
-        # #     location_qs = all_events.filter(location=location)
-        # #     if location_qs:
-        # #         # Don't add the location tab if there are no events to display
-        # #         location_paginator = Paginator(location_qs, 30)
-        # #         if tab and tab == i:
-        # #             page = self.request.GET.get('page', 1)
-        # #         else:
-        # #             page = 1
-        # #         queryset = location_paginator.get_page(page)
-        # #
-        # #         location_obj = {
-        # #             'index': i,
-        # #             'queryset': queryset,
-        # #             'location': location
-        # #         }
-        # #         location_events.append(location_obj)
-        # context['location_events'] = location_events
+        context['location_events'] = location_events
 
         return context
 
