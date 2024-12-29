@@ -1,5 +1,5 @@
 {% extends "studioadmin/base.html" %}
-{% load static accounttags bootstrap4 studioadmintags %}
+{% load static accounttags django_bootstrap5 studioadmintags %}
 
 {% block extrastyle %}
     {{ block.super }}
@@ -22,19 +22,19 @@
     </div>
     </form>
 
-    <table class="table table-responsive" id="sortedRegisterTable">
-        <thead class="thead-dark">
+    <table class="table" id="sortedRegisterTable">
+        <thead class="table-dark">
             <tr>
                 <th class="table-center"></th>
                 <th class="table-center">Attended</th>
                 <th class="table-center" >Status</th>
                 <th class="table-center">User</th>
                 <th class="table-center">Disclaimer</th>
-                <th class="table-center d-none d-sm-block">Cancellation Fees<br/><span class="studioadmin-help">(this booking)</span></th>
+                <th class="table-center d-none d-sm-table-cell">Cancellation Fees<br/><span class="studioadmin-help">(this booking)</span></th>
                 <th class="table-center">Outstanding Fees<br/><span class="studioadmin-help">Click to view/update</span></th>
             </tr>
         </thead>
-
+        <tbody>
             {% for booking in bookings %}
                 <tr id='booking-row-{{ booking.id }}' {% if booking.no_show or booking.status == 'CANCELLED' %}class="expired"{% endif %}>
                     {% if status_choice == 'CANCELLED' %}
@@ -68,13 +68,12 @@
                             <a href="{% url 'studioadmin:user_disclaimer' booking.user.id %}" target="_blank">
                                 <span id="disclaimer" class="far fa-file-alt"></span>
                             </a>
-                            {% if not booking.user|has_disclaimer %}<span class=helptext">(expired)</span>{% endif %}
+                            {% if not booking.user|has_disclaimer %}<span class="helptext">(expired)</span>{% endif %}
                         {% else %}
                             <span id="disclaimer" class="fas fa-times"></span>
                         {% endif %}
                     </td>
-
-                    <td class="table-center d-none d-sm-block">
+                    <td class="table-center d-none d-sm-table-cell">
                         <span class="fees" id="fees-{{ booking.id }}">
                             {% if booking.cancellation_fee_incurred %}
                                 {% if booking.cancellation_fee_paid %}
@@ -98,6 +97,8 @@
                     </td>
                 </tr>
             {% endfor %}
+            </tbody>
+            <tfoot>
             <tr {% if not can_add_more %}class="d-none"{% endif %} id="add-more-btn">
                 <td colspan="7">
                     <a class="bookingadd btn btn-success btn-sm register-table-btn" href="#" data-form="{% url 'studioadmin:bookingregisteradd' event.id %}" title="add booking">Add booking</a>
@@ -110,7 +111,7 @@
                     </td>
                 </tr>
             {% endif %}
-
+            </tfoot>
         </table>
 
 </div>
@@ -136,7 +137,7 @@
         $('#sortedRegisterTable').DataTable({
             "paging": false,
             "info": false,
-            "lengthChange":     false,
+            "lengthChange": false,
             "searching": false,
             "responsive": true
         });

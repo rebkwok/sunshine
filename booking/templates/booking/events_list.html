@@ -54,7 +54,6 @@
                         <strong>Show {{ event_type_plural }} by: </strong>
                     </div>
                     <div class="col-sm-2 filter">{{ form.name }}</div>
-                    <div class="col-sm-2 filter">{{ form.venue }}</div>
                     <input type="hidden" name="page" value="{{ request.GET.page }}" />
                     <div class="col-sm-1"><input class="btn btn-warning btn-sm pt-0 pb-0" type="submit" value="Go" /></div>
                 </div>
@@ -64,12 +63,12 @@
 
         {% if events %}
           {% if event_type == "class" %}
-          <div>
-            Costs and membership options <span type="button" class="badge badge-warning" data-toggle="collapse" data-target="#demo"><i class="fas fa-caret-down"></i></span>
-            <div id="demo" class="collapse">
-                {% include 'website/includes/membership.html' %}            
-            </div>
-          </div>
+          <details class="membership">
+            <summary>
+            Costs and membership options <span type="button" class="badge text-bg-warning"><i class="fas fa-caret-down"></i></span>
+            </summary>
+            {% include 'website/includes/membership.html' %}            
+        </details>
           {% endif %}
 
         <div class="row">
@@ -78,23 +77,21 @@
                         {% include 'booking/includes/events_pagination.html' %}
 
                 <div class="panel panel-transparent">
-
-                    <div class="table-responsive">
                         <table class="table table-book-classes">
-                            <tr class="table-heading">
-                                <th class="table-center table-book-btn-col"></th>
-                                <th class="table-center">Date</th>
-                                <th class="table-center">Name</th>
-                                <th class="table-center">Venue</th>
-                                <th class="table-center">Cost</th>
-                                <th class="table-center">Spaces</th>
+                            <tr class="table-secondary">
+                                <th scope="col" class="table-center table-book-btn-col"></th>
+                                <th scope="col" class="table-center">Date</th>
+                                <th scope="col" class="table-center">Name</th>
+                                <th scope="col" class="table-center">Venue</th>
+                                <th scope="col" class="table-center">Cost</th>
+                                <th scope="col" class="table-center">Spaces</th>
                             </tr>
                             <tbody>
                             {% for event in events %}
                                 {% get_booking event user as booking %}
 
-                                <tr id="table-row-event-{{ event.id }}"
-                                    class="table-row-transparent {% if event.cancelled %}expired{% elif event.id in booked_events %}table-row-booked{% endif %}">
+                                <tr scope="row" id="table-row-event-{{ event.id }}"
+                                    class="table-light table-row-transparent {% if event.cancelled %}expired{% elif event.id in booked_events %}table-row-booked{% endif %}">
                                     {% if user.is_authenticated %}
                                         {% if event.id in staff_only_events %}
                                             <td class="table-center table-book-btn-col">VISIBLE TO STAFF ONLY</td>
@@ -145,7 +142,7 @@
                                     <td class="table-center">
                                         {% if event.max_participants %}
                                             <span id="booking_count_{{ event.id }}"
-                                                class="badge badge-pill {% if event.spaces_left == 0 or event.cancelled %}badge-default{% else %}badge-success{% endif%}">
+                                                class="badge rounded-pill {% if event.spaces_left == 0 or event.cancelled %}text-bg-default{% else %}text-bg-success{% endif%}">
                                                 {{ event.spaces_left }}/{{ event.max_participants }}
                                             </span>
                                         {% else %}N/A{% endif %}
@@ -154,8 +151,6 @@
                             {% endfor %}
                             </tbody>
                         </table>
-
-                    </div>
                 </div>
 
                 {% include 'booking/includes/events_pagination.html' %}

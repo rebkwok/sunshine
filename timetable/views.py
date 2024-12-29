@@ -10,7 +10,6 @@ class TimetableListView(ListView):
     template_name = 'timetable/timetable.html'
 
     def get_queryset(self):
-        import ipdb; ipdb.set_trace()
         queryset = (
             TimetableSession.objects
             .filter(show_on_timetable_page=True)
