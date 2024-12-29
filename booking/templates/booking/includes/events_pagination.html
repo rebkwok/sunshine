@@ -4,7 +4,7 @@
 <div class="pagination">
     <span class="page-links">
         {% if page_obj.has_previous %}
-            <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.name %}&name={{ request.GET.name }}{% endif %}{% if request.GET.venue %}&venue={{ request.GET.venue }}{% endif %}{% if request.GET.type %}&type={{ request.GET.type }}{% endif %}">
+            <a href="?page={{ page_obj.previous_page_number }}&tab={{ tab }}{% if request.GET.name %}&name={{ request.GET.name }}{% endif %}{% if request.GET.type %}&type={{ request.GET.type }}{% endif %}">
                 Previous</a>
         {% else %}
             <a class="disabled" disabled=disabled href="#">Previous</a>
@@ -12,14 +12,14 @@
         --
         {% for i in page_obj.paginator.num_pages|get_range:1 %}
             {% if i != page_obj.number %}
-                <a href="?page={{ i }}{% if request.GET.name %}&name={{ request.GET.name }}{% endif %}{% if request.GET.venue %}&venue={{ request.GET.venue }}{% endif %}{% if request.GET.type %}&type={{ request.GET.type }}{% endif %}">
+                <a href="?page={{ i }}&tab={{ tab }}{% if request.GET.name %}&name={{ request.GET.name }}{% endif %}{% if request.GET.type %}&type={{ request.GET.type }}{% endif %}">
                     {{ i }}</a>
         {% else %}<span class="current-page">{{ i }}</span>
             {% endif %}
         {% endfor %}
         --
         {% if page_obj.has_next %}
-            <a href="?page={{ page_obj.next_page_number }}{% if request.GET.name %}&name={{ request.GET.name }}{% endif %}{% if request.GET.venue %}&venue={{ request.GET.venue }}{% endif %}{% if request.GET.type %}&type={{ request.GET.type }}{% endif %}">
+            <a href="?page={{ page_obj.next_page_number }}&tab={{ tab }}{% if request.GET.name %}&name={{ request.GET.name }}{% endif %}{% if request.GET.type %}&type={{ request.GET.type }}{% endif %}">
                 Next</a>
         {% else %}
             <a class="disabled" href="#">Next</a>
