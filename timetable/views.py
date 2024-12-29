@@ -44,7 +44,7 @@ class TimetableListView(ListView):
         session_type = int(session_type)
 
         tab = self._get_tab()
-        context['tab'] = str(tab)
+        context['tab'] = tab
 
         form = TimetableFilter(
             initial={'filtered_session_type': session_type}

@@ -36,7 +36,7 @@
                         </tr>
 
                             {% for booking in bookings %}
-                                <tr scope="row" id='booked-{{ booking.event.id }}-row' {% if booking_status_display|lookup:booking.id == 'CANCELLED' %}class='expired'{% endif %}>
+                                <tr scope="row" id='booked-{{ booking.event.id }}-row' {% if booking_status_display|lookup:booking.id == 'CANCELLED' %}class='expired'{% else %}class='table-light'{% endif %}>
                                     {% if not history %}
                                         <td class="table-center">
                                         {% if booking.event.cancelled %}
