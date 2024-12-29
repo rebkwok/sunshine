@@ -83,11 +83,11 @@ INSTALLED_APPS = (
     'django.contrib.postgres',
     'cookielaw',
     'crispy_forms',
-    'crispy_bootstrap4',
+    'crispy_bootstrap5',
     'allauth',
     'allauth.account',
     'django_extensions',
-    'bootstrap4',
+    'django_bootstrap5',
     'debug_toolbar',
     'dynamic_forms',
     'django_object_actions',
@@ -423,8 +423,8 @@ S3_LOG_BACKUP_PATH = "s3://backups.polefitstarlet.co.uk/sunshine_activitylogs"
 S3_LOG_BACKUP_ROOT_FILENAME = "sunshine_activity_logs_backup"
 
 # for crispy forms
-CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap4"
-CRISPY_TEMPLATE_PACK = "bootstrap4"
+CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
+CRISPY_TEMPLATE_PACK = "bootstrap5"
 USE_CRISPY = True
 # for dynamic disclaimer form
 DYNAMIC_FORMS_CUSTOM_JS = ""

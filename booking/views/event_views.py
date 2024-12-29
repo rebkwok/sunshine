@@ -49,7 +49,6 @@ class BaseEventListView(ListView):
             self.event_name = '{} ({})'.format(name, level.strip())
         else:
             self.event_name = name
-        self.venue = self.request.GET.get('venue', 'all').strip()
         self.event_day = self.request.GET.get('day', '').strip()
         self.event_time = self.request.GET.get('time', '').strip()
 
@@ -65,8 +64,6 @@ class BaseEventListView(ListView):
 
         if self.event_name != 'all':
             events = events.filter(name=self.event_name)
-        if self.venue != 'all':
-            events = events.filter(venue__abbreviation=self.venue)
 
         # select day/time
         if self.event_day in DAYS.keys() and self.event_time:
@@ -138,13 +135,12 @@ class BaseEventListView(ListView):
 
         form = EventsFilter(
             event_type=self.event_type,
-            initial={'name': self.event_name, 'venue': self.venue}
+            initial={'name': self.event_name}
         )
 
         context['form'] = form
         context['name'] = self.event_name
         context['day'] = DAYS.get(self.event_day, None)
-        context['venue'] = self.venue
         context['time'] = self.event_time
 
         context["all_events_url"] = reverse(f"booking:{self.event_type}_list")

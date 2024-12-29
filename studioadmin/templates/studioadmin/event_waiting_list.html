@@ -11,35 +11,33 @@
     <div class="row">
         <div class="col-9">
 
-            {% if waiting_list_users %}
-                    <div class="table-responsive">
-                        <table class="table">
-                            <thead class="thead-dark">
-                            <tr>
-                                <th>User</th>
-                                <th>Date joined</th>
-                                <th></th>
-                            </tr>
-                            </thead>
+            {% comment %} {% if waiting_list_users %} {% endcomment %}
+                    <table class="table">
+                        <thead class="table-dark">
+                        <tr>
+                            <th>User</th>
+                            <th>Date joined</th>
+                            <th></th>
+                        </tr>
+                        </thead>
 
-                            {% for wluser in waiting_list_users %}
-                            <tr>
-                                <td>{{ wluser.user.first_name }} {{ wluser.user.last_name }} ({{ wluser.user.username }})</td>
-                                <td >{{ wluser.date_joined|formatted_uk_date:"%d %b %Y %H:%M" }}</td>
-                                <td class="table-center studioadmin-tbl">
-                                    <form class="wl-table-form" method="post">
-                                        {% csrf_token %}
-                                        <button class="btn btn-sm btn-success" type="submit" name="remove_user"
-                                                id="remove_user_button" value="{{ wluser.id }}">Remove</button>
-                                    </form>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </table>
-                    </div>
-            {% else %}
+                        {% for wluser in waiting_list_users %}
+                        <tr>
+                            <td>{{ wluser.user.first_name }} {{ wluser.user.last_name }} ({{ wluser.user.username }})</td>
+                            <td >{{ wluser.date_joined|formatted_uk_date:"%d %b %Y %H:%M" }}</td>
+                            <td class="table-center studioadmin-tbl">
+                                <form class="wl-table-form" method="post">
+                                    {% csrf_token %}
+                                    <button class="btn btn-sm btn-success" type="submit" name="remove_user"
+                                            id="remove_user_button" value="{{ wluser.id }}">Remove</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </table>
+            {% comment %} {% else %}
                 <p>There are no users on the waiting list.</p>
-            {% endif %}
+            {% endif %} {% endcomment %}
         </div>
     </div>
 

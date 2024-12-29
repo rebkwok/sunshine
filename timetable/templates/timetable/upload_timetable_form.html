@@ -1,4 +1,19 @@
-{% extends "timetable/timetable_admin_base.html" %}
+{% extends "admin/base.html" %}
+{% load static %}
+{% load django_bootstrap5 %}
+
+
+{% block extrastyle %}
+<link href="{% static 'website/css/admin-extra.css' %}" rel="stylesheet">
+  <link rel="stylesheet" type="text/css" href="{% static 'timetable/css/jquery.datetimepicker.css' %}"/ >
+
+<script src="{% static 'timetable/js/jquery.js' %}"></script>
+<script src="{% static 'timetable/js/moment.min.js' %}"></script>
+<script src="{% static 'timetable/js/jquery.are-you-sure.js' %}"></script>
+<script src="{% static 'timetable/js/jquery.datetimepicker.js' %}"></script>
+<script src="{% static 'timetable/js/timetable.js' %}"></script>
+
+{% endblock %}
 
 {% block content %}
 
