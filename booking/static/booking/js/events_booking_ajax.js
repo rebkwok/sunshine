@@ -122,6 +122,7 @@ var toggleBooking = function()  {
         else {
             $jq('#table-row-event-' + event_id).removeClass('table-row-booked');
         }
+        $jq('#cart_item_menu_count-xs').text(result.cart_item_menu_count);
         $jq('#cart_item_menu_count').text(result.cart_item_menu_count);
    };
 

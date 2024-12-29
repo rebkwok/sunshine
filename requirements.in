@@ -5,11 +5,11 @@ dj-static
 psycopg2
 Pillow
 envdir
-django-bootstrap4
+django-bootstrap5
 django-classy-tags  # for cookie-law
 django-crispy-forms
 django-cookie-law
-crispy-bootstrap4
+crispy-bootstrap5
 django-email-obfuscator
 django-extensions
 django-environ
