@@ -769,6 +769,20 @@ button:active {
   border-color: #398439;
 }
 
+.nav-tabs button.nav-link {
+    color: #000;
+    border-radius: 7px 7px 0 0;
+    border-color: #E2E3E5
+}
+
+button.nav-link:hover,
+button.nav-link:focus,
+.nav-tabs button.nav-link.active {
+  color: #000;
+  background-color: rgba(255, 185, 7, 0.8);
+  border-color: rgba(255, 185, 7, 0.8);
+}
+
 .selector .help-icon {
     background: url(../admin/img/icon-unknown.svg) 0 0 no-repeat;
     display: inline-block;
