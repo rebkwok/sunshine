@@ -16,7 +16,7 @@
         {% if unpaid_items %}
 
             <table class="table table-bordered">
-              <thead class="thead-dark">
+              <thead class="table-dark">
                 <tr>
                   <th>Item</th>
                   <th>Cost</th>
@@ -40,7 +40,7 @@
                             {% endif %}
                             <span
                                     id="remove-membership-{{ membership_info.membership.id }}"
-                                    class="remove-membership float-right"
+                                    class="remove-membership float-end"
                                     data-membership_id="{{ membership_info.membership.id }}"
                                     >
                                 <a class="btn btn-sm btn-danger" href="#"><i class="fas fa-trash-alt"></i></a>
@@ -73,7 +73,7 @@
                         {% endif %}
                         <span
                                 id="remove-booking-{{ booking_info.booking.id }}"
-                                class="remove-booking float-right"
+                                class="remove-booking float-end"
                                 data-booking_id="{{ booking_info.booking.id }}"
                                 >
                             <a class="btn btn-sm btn-danger" href="#"><i class="fas fa-trash-alt"></i></a>
@@ -95,7 +95,7 @@
                             <div>Cost: £{{ gift_voucher_info.gift_voucher.gift_voucher_type.cost }}
                                 <span
                                         id="remove-gift-voucher-{{ gift_voucher_info.gift_voucher.id }}"
-                                        class="remove-gift-voucher float-right"
+                                        class="remove-gift-voucher float-end"
                                         data-gift_voucher_id="{{ gift_voucher_info.gift_voucher.id }}"
                                         >
                                     <a class="btn btn-sm btn-danger" href="#"><i class="fas fa-trash-alt"></i></a>

@@ -10,8 +10,6 @@ asgiref==3.8.1
     #   django-allauth
 babel==2.16.0
     # via delorean
-beautifulsoup4==4.12.3
-    # via django-bootstrap4
 boto3==1.35.87
     # via django-ses
 botocore==1.35.87
@@ -28,7 +26,7 @@ coverage[toml]==7.6.9
     # via
     #   -r requirements.in
     #   pytest-cov
-crispy-bootstrap4==2024.10
+crispy-bootstrap5==2024.10
     # via -r requirements.in
 cryptography==44.0.0
     # via django-ses
@@ -41,10 +39,10 @@ dj-static==0.0.6
 django==5.1.4
     # via
     #   -r requirements.in
-    #   crispy-bootstrap4
+    #   crispy-bootstrap5
     #   dj-database-url
     #   django-allauth
-    #   django-bootstrap4
+    #   django-bootstrap5
     #   django-braces
     #   django-classy-tags
     #   django-cookie-law
@@ -57,7 +55,7 @@ django==5.1.4
     #   model-bakery
 django-allauth==65.3.0
     # via -r requirements.in
-django-bootstrap4==24.4
+django-bootstrap5==24.3
     # via -r requirements.in
 django-braces==1.16.0
     # via -r requirements.in
@@ -70,7 +68,7 @@ django-cookie-law==2.2.0
 django-crispy-forms==2.3
     # via
     #   -r requirements.in
-    #   crispy-bootstrap4
+    #   crispy-bootstrap5
 django-debug-toolbar==4.4.6
     # via -r requirements.in
 django-email-obfuscator==0.1.5
@@ -159,8 +157,6 @@ shortuuid==1.0.13
     # via -r requirements.in
 six==1.17.0
     # via python-dateutil
-soupsieve==2.6
-    # via beautifulsoup4
 sqlparse==0.5.3
     # via
     #   django
