@@ -22,22 +22,21 @@
         <div class="col-sm-12">
             <div class="panel panel-transparent">
 
-                <div class="table-responsive">
                     <table class="table table-book-classes">
-                        <tr class="table-heading">
+                        <tr class="table-secondary">
                             {% if not history %}
-                            <th> </th>
+                            <th scope="col"> </th>
                             {% endif %}
-                            <th>Date</th>
-                            <th>Booking</th>
-                            <th>Location</th>
-                            <th class="table-center">Status</th>
-                            <th class="table-center">Paid</th>
-                            <th class="table-center">Membership</th>
+                            <th scope="col">Date</th>
+                            <th scope="col">Booking</th>
+                            <th scope="col">Location</th>
+                            <th scope="col" class="table-center">Status</th>
+                            <th scope="col" class="table-center">Paid</th>
+                            <th scope="col" class="table-center">Membership</th>
                         </tr>
 
                             {% for booking in bookings %}
-                                <tr id='booked-{{ booking.event.id }}-row' {% if booking_status_display|lookup:booking.id == 'CANCELLED' %}class='expired'{% endif %}>
+                                <tr scope="row" id='booked-{{ booking.event.id }}-row' {% if booking_status_display|lookup:booking.id == 'CANCELLED' %}class='expired'{% endif %}>
                                     {% if not history %}
                                         <td class="table-center">
                                         {% if booking.event.cancelled %}
@@ -107,7 +106,6 @@
 
                     </table>
                     {% include 'booking/includes/pagination.html' %}
-                </div>
 
 
         </div>
