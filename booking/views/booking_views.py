@@ -65,7 +65,7 @@ class BookingHistoryListView(DataPolicyAgreementRequiredMixin, LoginRequiredMixi
     paginate_by = 20
 
     def get_queryset(self):
-        return Booking.objects.filter(event__date__gte=timezone.now(), user=self.request.user).order_by('event__date')
+        return Booking.objects.filter(event__date__lte=timezone.now(), user=self.request.user).order_by('-event__date')
 
     def get_context_data(self, **kwargs):
         # Call the base implementation first to get a context
