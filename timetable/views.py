@@ -52,12 +52,15 @@ class TimetableListView(ListView):
 
         context['form'] = form
 
-        queryset = self.get_queryset()
+        all_queryset = self.get_queryset()
         
         location_events = []
+
         for index, location_choice in Venue.location_choices().items():
             if index != 0:
-                queryset = queryset.filter(venue__location=location_choice)
+                queryset = all_queryset.filter(venue__location=location_choice)
+            else:
+                queryset = all_queryset
             if queryset:
                 # only add location if there are events to display
                 location_events.append(
