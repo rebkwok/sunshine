@@ -557,6 +557,10 @@ label {
     color: white;
 }
 
+a {
+    text-decoration: none;
+}
+
 a>.btn, a.btn, a.btn.btn-success {
     color: #fff !important;
     text-decoration: none;
@@ -949,4 +953,12 @@ span.current-page {
 
   .alert-anon > div > span.fa-sun {
     color: rgba(255, 0, 0);
+  }
+
+  details.membership > summary {
+    display: block;
+  }
+
+  div.social > a {
+    text-decoration: none;
   }

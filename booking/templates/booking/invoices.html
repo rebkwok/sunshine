@@ -6,16 +6,16 @@
     <h1>Payment History</h1>
 
     {% if invoices %}
-        <table class="table table-responsive table-striped">
+        <table class="table table-striped">
             <thead>
-                <th>Invoice</th>
-                <th>Amount</th>
-                <th>Date Paid</th>
-                <th>Items</th>
+                <th scope="col">Invoice</th>
+                <th scope="col">Amount</th>
+                <th scope="col">Date Paid</th>
+                <th scope="col">Items</th>
             </thead>
             <tbody>
                 {% for invoice in invoices %}
-                    <tr>
+                    <tr scope="row">
                         <td>{{ invoice.invoice_id }}</td>
                         <td>£{{ invoice.amount }}</td>
                         <td>{{ invoice.date_paid|date:"d-M-y H:i" }}</td>
