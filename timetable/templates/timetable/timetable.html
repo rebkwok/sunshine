@@ -42,40 +42,44 @@
         <div class="tab-content" id="timetableTabContent">
             {% for location in location_events %} 
                 <div class="tab-pane fade {% if tab == location.index %}show active{% endif %}" id="nav-{{ location.index }}" role="tabpanel" aria-labelledby="nav-tab-{{ location.index }}" tabindex="0">
-                    <div class="panel" style="background-color: rgba(230,230,230,0.6);">
-                            <table class="table">
-                                <thead>
-                                <tr class="table-secondary">
-                                    <th scope="col"></th>
-                                    <th scope="col">Day</th>
-                                    <th scope="col">Time</th>
-                                    <th scope="col" class="table-center">Class</th>
-                                    <th scope="col">Level</th>
-                                    <th scope="col">Venue</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                {% for session in location.queryset %}
-                                <tr scope="row" class="table-light">
-                                    <td class="table-center timetable-row">
-                                        <a href="{% url 'booking:regular_session_list' %}?name={{session.name}}&level={{session.level}}&venue={{session.venue.abbreviation}}&day={{session.session_day}}&time={{session.start_time|date:'H:i'}}">
-                                        <div class="btn btn-warning btn-sm pt-0 pb-0"><span class="text-dark">View Dates</span></div></a>
-                                    </td>
-                                    <td class="timetable-row">{{ session.session_day|format_day }}</td>
-                                    <td class="timetable-row">{{ session.start_time|time:"H:i" }} - {{ session.end_time|time:"H:i" }}</td>
-                                    <td class="table-center timetable-row">
-                                        {% if session.category %}
-                                            <span class="badge rounded-pill text-bg-{{ session.category.colour }}">
-                                        {% endif %}
-                                            {{ session.name }} {% if session.members_only %}(Members only){% endif %}
-                                        </span></td>
-                                    <td class="timetable-row session-level-td">{{ session.level }}</td>
-                                    <td class="timetable-row">{{ session.venue.abbreviation }}</td>
-                                </tr>
-                                {% endfor %}
-                                </tbody>
-                            </table>
-                    </div>
+                    {% if not location.queryset %}
+                    <div class="ms-2 mt-2" >No classes at this location</div>
+                    {% else %}
+                        <div class="panel" style="background-color: rgba(230,230,230,0.6);">
+                                <table class="table">
+                                    <thead>
+                                    <tr class="table-secondary">
+                                        <th scope="col"></th>
+                                        <th scope="col">Day</th>
+                                        <th scope="col">Time</th>
+                                        <th scope="col" class="table-center">Class</th>
+                                        <th scope="col">Level</th>
+                                        <th scope="col">Venue</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for session in location.queryset %}
+                                    <tr scope="row" class="table-light">
+                                        <td class="table-center timetable-row">
+                                            <a href="{% url 'booking:regular_session_list' %}?name={{session.name}}&level={{session.level}}&venue={{session.venue.abbreviation}}&day={{session.session_day}}&time={{session.start_time|date:'H:i'}}">
+                                            <div class="btn btn-warning btn-sm pt-0 pb-0"><span class="text-dark">View Dates</span></div></a>
+                                        </td>
+                                        <td class="timetable-row">{{ session.session_day|format_day }}</td>
+                                        <td class="timetable-row">{{ session.start_time|time:"H:i" }} - {{ session.end_time|time:"H:i" }}</td>
+                                        <td class="table-center timetable-row">
+                                            {% if session.category %}
+                                                <span class="badge rounded-pill text-bg-{{ session.category.colour }}">
+                                            {% endif %}
+                                                {{ session.name }} {% if session.members_only %}(Members only){% endif %}
+                                            </span></td>
+                                        <td class="timetable-row session-level-td">{{ session.level }}</td>
+                                        <td class="timetable-row">{{ session.venue.abbreviation }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                        </div>
+                    {% endif%}
                 </div>
             {% endfor %}
         </div>

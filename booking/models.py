@@ -136,6 +136,12 @@ class Event(models.Model):
         local_datestr = self.date.astimezone(pytz.timezone('Europe/London')).strftime('%d %b %Y, %H:%M')
         return f'{self.name} - {local_datestr}'
 
+    @classmethod
+    def active_locations(cls):
+        return cls.objects.filter(
+            show_on_site=True, cancelled=False, date__gt=timezone.now()
+            ).order_by("venue_id").distinct("venue_id").values_list("venue__location", flat=True)
+    
 
 class MembershipType(models.Model):
     name = models.CharField(max_length=255)
