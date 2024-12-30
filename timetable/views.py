@@ -55,21 +55,23 @@ class TimetableListView(ListView):
         all_queryset = self.get_queryset()
         
         location_events = []
+        active_locations = TimetableSession.active_locations()
 
         for index, location_choice in Venue.location_choices().items():
             if index != 0:
+                if location_choice not in active_locations:
+                    continue
                 queryset = all_queryset.filter(venue__location=location_choice)
             else:
                 queryset = all_queryset
-            if queryset:
-                # only add location if there are events to display
-                location_events.append(
-                    {
-                        "index": index,
-                        "queryset": queryset,
-                        "location": location_choice
-                    }
-                )
+
+            location_events.append(
+                {
+                    "index": index,
+                    "queryset": queryset,
+                    "location": location_choice
+                }
+            )
 
         context['location_events'] = location_events
 

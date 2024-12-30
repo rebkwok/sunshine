@@ -130,6 +130,10 @@ class TimetableSession(models.Model):
             "(note: private lessons are never displayed on the timetable page)"
     )
 
+    @classmethod
+    def active_locations(cls):
+        return cls.objects.filter(show_on_timetable_page=True).order_by("venue_id").distinct("venue_id").values_list("venue__location", flat=True)
+
     def __str__(self):
 
         return "{} ({}), {}, {} {}".format(

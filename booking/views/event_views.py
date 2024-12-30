@@ -108,7 +108,7 @@ class BaseEventListView(ListView):
             tab = 0
         
         return tab
-    
+
     def get_context_data(self, **kwargs):
         queryset = self.object_list
         # Call the base implementation first to get a context
@@ -161,32 +161,36 @@ class BaseEventListView(ListView):
 
         context["all_events_url"] = reverse(f"booking:{self.event_type}_list")
 
+        # the default paginator (and paginate_queryset()) handles non-integer and out-of-range pages already
         page_get = self.request.GET.get('page', 1)
         
         location_events = []
 
+        active_locations = Event.active_locations()
         for index, location_choice in Venue.location_choices().items():
             if index != 0:
+                if location_choice not in active_locations:
+                    continue
                 loc_queryset = queryset.filter(venue__location=location_choice)
             else:
                 loc_queryset = queryset
-            if loc_queryset:
-                if tab == index:
-                    page = page_get
-                else:
-                    page = 1
 
-                paginator = Paginator(loc_queryset, 5)
-                paginated_queryset = paginator.get_page(page)
-                # only add location if there are events to display
-                location_events.append(
-                    {
-                        "index": index,
-                        "queryset": paginated_queryset,
-                        "location": location_choice,
-                        "paginator_range": paginated_queryset.paginator.get_elided_page_range(paginated_queryset.number)
-                    }
-                )
+            if tab == index:
+                page = page_get
+            else:
+                page = 1
+
+            paginator = Paginator(loc_queryset, self.paginate_by)
+            paginated_queryset = paginator.get_page(page)
+            # only add location if there are events to display
+            location_events.append(
+                {
+                    "index": index,
+                    "queryset": paginated_queryset,
+                    "location": location_choice,
+                    "paginator_range": paginated_queryset.paginator.get_elided_page_range(paginated_queryset.number)
+                }
+            )
 
         context['location_events'] = location_events
 
