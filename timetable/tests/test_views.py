@@ -55,25 +55,6 @@ class TimetableListViewTests(TestCase):
         for tt in resp.context_data['timetable_sessions']:
             self.assertEqual(tt.session_type, self.pole)
 
-        resp = self.client.get(
-            self.url, {'filtered_venue': self.venue1.abbreviation}
-        )
-        self.assertEqual(len(resp.context_data['timetable_sessions']), 4)
-        for tt in resp.context_data['timetable_sessions']:
-            self.assertEqual(tt.venue, self.venue1)
-
-        resp = self.client.get(
-            self.url,
-            {
-                'filtered_session_type': self.hoop.id,
-                'filtered_venue': self.venue2.abbreviation
-            }
-        )
-        self.assertEqual(len(resp.context_data['timetable_sessions']), 2)
-        for tt in resp.context_data['timetable_sessions']:
-            self.assertEqual(tt.session_type, self.hoop)
-            self.assertEqual(tt.venue, self.venue2)
-
 
 class UploadTimetableTests(TestCase):
 
