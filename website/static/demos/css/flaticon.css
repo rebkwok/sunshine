@@ -1,0 +1,165 @@
+	/*
+  	Flaticon icon font: Flaticon
+  	Creation date: 08/10/2020 08:57
+  	*/
+
+@font-face {
+  font-family: "Flaticon";
+  src: url("../fonts/Flaticon.eot");
+  src: url("../fonts/Flaticon.eot?#iefix") format("embedded-opentype"),
+       url("../fonts/Flaticon.woff2") format("woff2"),
+       url("../fonts/Flaticon.woff") format("woff"),
+       url("../fonts/Flaticon.ttf") format("truetype"),
+       url("../fonts/Flaticon.svg#Flaticon") format("svg");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+  @font-face {
+    font-family: "Flaticon";
+    src: url("../fonts/Flaticon.svg#Flaticon") format("svg");
+  }
+}
+
+[class^="flaticon-"]:before, [class*=" flaticon-"]:before,
+[class^="flaticon-"]:after, [class*=" flaticon-"]:after {   
+  font-family: Flaticon;
+  font-size: 20px;
+  line-height: 1!important;
+  font-style: normal;
+  margin-left: 0;
+}
+
+.flaticon-relax-stones:before { content: "\f100"; }
+.flaticon-lotus:before { content: "\f101"; }
+.flaticon-cream:before { content: "\f102"; }
+.flaticon-nail-polish:before { content: "\f103"; }
+.flaticon-gel:before { content: "\f104"; }
+.flaticon-cream-1:before { content: "\f105"; }
+.flaticon-spa:before { content: "\f106"; }
+.flaticon-smartphone:before { content: "\f107"; }
+.flaticon-washbowl:before { content: "\f108"; }
+.flaticon-herbs:before { content: "\f109"; }
+.flaticon-mortar:before { content: "\f10a"; }
+.flaticon-towel:before { content: "\f10b"; }
+.flaticon-juice:before { content: "\f10c"; }
+.flaticon-herb:before { content: "\f10d"; }
+.flaticon-honey:before { content: "\f10e"; }
+.flaticon-foot:before { content: "\f10f"; }
+.flaticon-waterdrop:before { content: "\f110"; }
+.flaticon-aromatic:before { content: "\f111"; }
+.flaticon-hot-tub:before { content: "\f112"; }
+.flaticon-essential-oil:before { content: "\f113"; }
+.flaticon-tea:before { content: "\f114"; }
+.flaticon-bathrobe:before { content: "\f115"; }
+.flaticon-essential-oil-1:before { content: "\f116"; }
+.flaticon-sandals:before { content: "\f117"; }
+.flaticon-bamboo:before { content: "\f118"; }
+.flaticon-candle:before { content: "\f119"; }
+.flaticon-burner:before { content: "\f11a"; }
+.flaticon-comb:before { content: "\f11b"; }
+.flaticon-hairdryer:before { content: "\f11c"; }
+.flaticon-hair-cream:before { content: "\f11d"; }
+.flaticon-closet:before { content: "\f11e"; }
+.flaticon-makeup:before { content: "\f11f"; }
+.flaticon-washbasin:before { content: "\f120"; }
+.flaticon-candle-1:before { content: "\f121"; }
+.flaticon-sauna:before { content: "\f122"; }
+.flaticon-spa-1:before { content: "\f123"; }
+.flaticon-bamboo-1:before { content: "\f124"; }
+.flaticon-aromatic-candle:before { content: "\f125"; }
+.flaticon-bucket:before { content: "\f126"; }
+.flaticon-body-scrub:before { content: "\f127"; }
+.flaticon-dropper:before { content: "\f128"; }
+.flaticon-flower:before { content: "\f129"; }
+.flaticon-facial-treatment:before { content: "\f12a"; }
+.flaticon-massage:before { content: "\f12b"; }
+.flaticon-honey-jar:before { content: "\f12c"; }
+.flaticon-hot-spring:before { content: "\f12d"; }
+.flaticon-hot-stone:before { content: "\f12e"; }
+.flaticon-oil:before { content: "\f12f"; }
+.flaticon-mortar-1:before { content: "\f130"; }
+.flaticon-oil-1:before { content: "\f131"; }
+.flaticon-aromatherapy:before { content: "\f132"; }
+.flaticon-shower:before { content: "\f133"; }
+.flaticon-slippers:before { content: "\f134"; }
+.flaticon-massage-1:before { content: "\f135"; }
+.flaticon-water:before { content: "\f136"; }
+.flaticon-bathrobe-1:before { content: "\f137"; }
+.flaticon-hot-stones:before { content: "\f138"; }
+.flaticon-kettle:before { content: "\f139"; }
+.flaticon-herbal:before { content: "\f13a"; }
+.flaticon-cream-2:before { content: "\f13b"; }
+.flaticon-sauna-1:before { content: "\f13c"; }
+.flaticon-slipper:before { content: "\f13d"; }
+.flaticon-time:before { content: "\f13e"; }
+.flaticon-candle-2:before { content: "\f13f"; }
+.flaticon-oil-2:before { content: "\f140"; }
+.flaticon-towels:before { content: "\f141"; }
+.flaticon-sauna-2:before { content: "\f142"; }
+.flaticon-massage-2:before { content: "\f143"; }
+.flaticon-skin:before { content: "\f144"; }
+.flaticon-depilation:before { content: "\f145"; }
+.flaticon-bamboo-2:before { content: "\f146"; }
+.flaticon-foot-massage:before { content: "\f147"; }
+.flaticon-spa-2:before { content: "\f148"; }
+.flaticon-spa-3:before { content: "\f149"; }
+.flaticon-shower-1:before { content: "\f14a"; }
+.flaticon-mortar-2:before { content: "\f14b"; }
+.flaticon-flower-1:before { content: "\f14c"; }
+.flaticon-spa-4:before { content: "\f14d"; }
+.flaticon-acupuncture:before { content: "\f14e"; }
+.flaticon-aroma:before { content: "\f14f"; }
+.flaticon-acupuncture-1:before { content: "\f150"; }
+.flaticon-bamboo-3:before { content: "\f151"; }
+.flaticon-flip-flop:before { content: "\f152"; }
+.flaticon-cosmetics:before { content: "\f153"; }
+.flaticon-yoga-mat:before { content: "\f154"; }
+.flaticon-flower-2:before { content: "\f155"; }
+.flaticon-spa-candles:before { content: "\f156"; }
+.flaticon-soap:before { content: "\f157"; }
+.flaticon-towel-1:before { content: "\f158"; }
+.flaticon-lotion:before { content: "\f159"; }
+.flaticon-foot-massage-1:before { content: "\f15a"; }
+.flaticon-massage-3:before { content: "\f15b"; }
+.flaticon-hot-stone-1:before { content: "\f15c"; }
+.flaticon-beauty-treatment:before { content: "\f15d"; }
+.flaticon-honey-1:before { content: "\f15e"; }
+.flaticon-towels-1:before { content: "\f15f"; }
+.flaticon-wax:before { content: "\f160"; }
+.flaticon-acupuncture-2:before { content: "\f161"; }
+.flaticon-massage-4:before { content: "\f162"; }
+.flaticon-make-up:before { content: "\f163"; }
+.flaticon-cream-3:before { content: "\f164"; }
+.flaticon-essential-oil-2:before { content: "\f165"; }
+.flaticon-stones:before { content: "\f166"; }
+.flaticon-lotus-1:before { content: "\f167"; }
+.flaticon-essential-oil-3:before { content: "\f168"; }
+.flaticon-essential-oil-4:before { content: "\f169"; }
+.flaticon-shower-2:before { content: "\f16a"; }
+.flaticon-stopwatch:before { content: "\f16b"; }
+.flaticon-pills:before { content: "\f16c"; }
+.flaticon-spa-5:before { content: "\f16d"; }
+.flaticon-towels-2:before { content: "\f16e"; }
+.flaticon-herbal-1:before { content: "\f16f"; }
+.flaticon-next:before { content: "\f170"; }
+.flaticon-back:before { content: "\f171"; }
+.flaticon-branch:before { content: "\f172"; }
+.flaticon-olive-branch:before { content: "\f173"; }
+.flaticon-branch-1:before { content: "\f174"; }
+.flaticon-bamboo-4:before { content: "\f175"; }
+.flaticon-branch-2:before { content: "\f176"; }
+.flaticon-focus:before { content: "\f177"; }
+.flaticon-focus-1:before { content: "\f178"; }
+.flaticon-focus-2:before { content: "\f179"; }
+.flaticon-plant:before { content: "\f17a"; }
+.flaticon-facial-treatment-1:before { content: "\f17b"; }
+.flaticon-facial-treatment-2:before { content: "\f17c"; }
+.flaticon-skincare:before { content: "\f17d"; }
+.flaticon-settings:before { content: "\f17e"; }
+.flaticon-gift:before { content: "\f17f"; }
+.flaticon-aromatherapy-1:before { content: "\f180"; }
+.flaticon-essential-oil-5:before { content: "\f181"; }
+.flaticon-herbal-2:before { content: "\f182"; }
+.flaticon-teapot:before { content: "\f183"; }

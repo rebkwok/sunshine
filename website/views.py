@@ -16,6 +16,10 @@ def home(request):
     return render(request, 'website/home.html', {'section': 'home', 'class_types': class_types})
 
 
+def demo(request):
+    return render(request, 'website/demos/index.html')
+
+
 def faq(request):
     return render(request, 'website/faq.html')
 
