@@ -2,6 +2,7 @@ from datetime import datetime, timedelta
 from datetime import timezone as dt_timezone
 import os
 import sys
+from tempfile import TemporaryDirectory
 from io import StringIO
 from unittest.mock import patch
 
@@ -11,7 +12,7 @@ from model_bakery import baker
 from django.conf import settings
 from django.contrib.admin.sites import AdminSite
 from django.core import management
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.utils import timezone
 
 from activitylog import admin
@@ -148,38 +149,46 @@ class DeleteOldActivityLogsTests(TestCase):
     def test_delete_default_old_logs(self, mock_now, mock_run):
         mock_now.return_value = self.mock_now
         self.assertEqual(ActivityLog.objects.count(), 3)
-        # no age, defaults to 1 yr
-        management.call_command('delete_old_activitylogs')
-        # 2 logs left - the one that's < 1 yrs old plus the new one to log this activity
-        self.assertEquals(ActivityLog.objects.count(), 2)
-        all_log_ids = ActivityLog.objects.values_list("id", flat=True)
-        for log in [self.log_25monthsold, self.log_37monthsold]:
-            self.assertNotIn(log.id, all_log_ids)
-        self.assertIn(self.log_11monthsold.id, all_log_ids)
+        with TemporaryDirectory() as tmpdir:
+            with override_settings(LOG_FOLDER=tmpdir):
+                # no age, defaults to 1 yr
+                management.call_command('delete_old_activitylogs')
+                # 2 logs left - the one that's < 1 yrs old plus the new one to log this activity
+                self.assertEqual(ActivityLog.objects.count(), 2)
+                all_log_ids = ActivityLog.objects.values_list("id", flat=True)
+                for log in [self.log_25monthsold, self.log_37monthsold]:
+                    self.assertNotIn(log.id, all_log_ids)
+                self.assertIn(self.log_11monthsold.id, all_log_ids)
 
-        self.assertEquals(mock_run.call_count, 1)
-        cutoff = (self.mock_now-relativedelta(years=1)).strftime('%Y-%m-%d')
-        filename = f"{settings.S3_LOG_BACKUP_ROOT_FILENAME}_{cutoff}_{self.mock_now.strftime('%Y%m%d%H%M%S')}.csv"
-        mock_run.assert_called_once_with(
-            ['aws', 's3', 'cp', filename, os.path.join(settings.S3_LOG_BACKUP_PATH, filename)], check=True
-        )
+                self.assertEqual(mock_run.call_count, 1)
+                cutoff = (self.mock_now-relativedelta(years=1)).strftime('%Y-%m-%d')
+                filename = f"{settings.S3_LOG_BACKUP_ROOT_FILENAME}_{cutoff}_{self.mock_now.strftime('%Y%m%d%H%M%S')}.csv"
+                local_filepath = os.path.join(tmpdir, "activitylogs_backup", filename)
+                mock_run.assert_called_once_with(
+                    ['aws', 's3', 'cp', str(local_filepath), os.path.join(settings.S3_LOG_BACKUP_PATH, filename)], check=True
+                )
+                assert not os.path.exists(local_filepath)
 
     @patch('activitylog.management.commands.delete_old_activitylogs.subprocess.run')
     @patch('activitylog.management.commands.delete_old_activitylogs.timezone.now')
     def test_delete_old_logs_with_args(self, mock_now, mock_run):
         mock_now.return_value = self.mock_now
         self.assertEqual(ActivityLog.objects.count(), 3)
-        management.call_command('delete_old_activitylogs', age=3)
-        # 3 logs left - the 2 that are < 3 yrs old plus the new one to log this activity
-        self.assertEquals(ActivityLog.objects.count(), 3)
-        all_log_ids = ActivityLog.objects.values_list("id", flat=True)
-        for log in [self.log_11monthsold, self.log_25monthsold]:
-            self.assertIn(log.id, all_log_ids)
-        self.assertNotIn(self.log_37monthsold.id, all_log_ids)
+        with TemporaryDirectory() as tmpdir:
+            with override_settings(LOG_FOLDER=tmpdir):
+                management.call_command('delete_old_activitylogs', age=3)
+                # 3 logs left - the 2 that are < 3 yrs old plus the new one to log this activity
+                self.assertEqual(ActivityLog.objects.count(), 3)
+                all_log_ids = ActivityLog.objects.values_list("id", flat=True)
+                for log in [self.log_11monthsold, self.log_25monthsold]:
+                    self.assertIn(log.id, all_log_ids)
+                self.assertNotIn(self.log_37monthsold.id, all_log_ids)
 
-        self.assertEquals(mock_run.call_count, 1)
-        cutoff = (self.mock_now-relativedelta(years=3)).strftime('%Y-%m-%d')
-        filename = f"{settings.S3_LOG_BACKUP_ROOT_FILENAME}_{cutoff}_{self.mock_now.strftime('%Y%m%d%H%M%S')}.csv"
-        mock_run.assert_called_once_with(
-            ['aws', 's3', 'cp', filename, os.path.join(settings.S3_LOG_BACKUP_PATH, filename)], check=True
-        )
+                self.assertEqual(mock_run.call_count, 1)
+                cutoff = (self.mock_now-relativedelta(years=3)).strftime('%Y-%m-%d')
+                filename = f"{settings.S3_LOG_BACKUP_ROOT_FILENAME}_{cutoff}_{self.mock_now.strftime('%Y%m%d%H%M%S')}.csv"
+                local_filepath = os.path.join(tmpdir, "activitylogs_backup", filename)
+                mock_run.assert_called_once_with(
+                    ['aws', 's3', 'cp', str(local_filepath), os.path.join(settings.S3_LOG_BACKUP_PATH, filename)], check=True
+                )
+                assert not os.path.exists(local_filepath)
