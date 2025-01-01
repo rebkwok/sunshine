@@ -418,7 +418,7 @@ if env('SHOW_DEBUG_TOOLBAR') and 'test' not in sys.argv:  # pragma: no cover
 # Activitylogs
 EMPTY_JOB_TEXT = ["CRON: auto cancel bookings run; nothing to cancel",]
 
-S3_LOG_BACKUP_PATH = "s3://backups.sunshinestarlet.co.uk/sunshine_activitylogs"
+S3_LOG_BACKUP_PATH = "s3://backups.polefitstarlet.co.uk/sunshine_activitylogs"
 S3_LOG_BACKUP_ROOT_FILENAME = "sunshine_activity_logs_backup"
 
 # for crispy forms
