@@ -63,7 +63,7 @@ class SessionTypeAdmin(admin.ModelAdmin):
         (
             "Website content",
             {
-                "fields": ("index", "description", "photo", "display_on_site"),
+                "fields": ("order", "description", "photo", "display_on_site"),
                 "description": 'Details for the "What we offer" page'
             }
         )

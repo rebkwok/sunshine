@@ -427,6 +427,7 @@ p.p-xl { font-size: 1.25rem; }     /* 20px */
 a {
   color: #ffcc01;
   text-decoration: none;
+  font-weight: 500;
   -webkit-transition: all 400ms ease-in-out;
   -moz-transition: all 400ms ease-in-out;
   -o-transition: all 400ms ease-in-out;
@@ -435,8 +436,7 @@ a {
 }
 
 a:hover {
-  color: #ffffcc;
-  text-decoration: none;
+  text-decoration: underline 1px;
 }
 
 a:focus {
@@ -524,6 +524,15 @@ ol.digit-list p {
 /*------------------------------------------*/
 /*  Button Size
 /*------------------------------------------*/
+
+.btn.btn-xs {
+  font-size: 14px;
+  padding: 8px 14px;
+}
+
+.btn.btn-xs.book-btn {
+  width: 140px;
+}
 
 .btn.btn-sm {
   font-size: 14px;
@@ -1147,6 +1156,17 @@ ol.digit-list p {
   border-color: #ffcc01!important;
 }
 
+.btn-color-03, 
+.scroll .btn-color-03, 
+.white-color .btn-color-03,
+.color-03-hover:hover, 
+.scroll .color-03-hover:hover, 
+.white-color .color-03-hover:hover {
+  color: #fff!important;
+  background-color: #009933;
+  border-color: #009933!important;
+}
+
 /*------------------------------------------*/
 /*  Text Colors
 /*------------------------------------------*/
@@ -1418,8 +1438,16 @@ ol.digit-list p {
   color: #465777;
 }
 
+.navbar-dark .wsmenu > .wsmenu-list > li .active {
+  text-decoration: underline #ffcc01 2px;
+}
+
 .navbar-light .wsmenu > .wsmenu-list > li > a {
   color: #fff;
+}
+
+.navbar-light .wsmenu > .wsmenu-list > li .active {
+  text-decoration: underline #ffcc01 2px;
 }
 
 .wsmenu > .wsmenu-list > li > a.last-link {
@@ -3854,7 +3882,7 @@ ol.digit-list p {
   border-radius: 100%;
 }
 
-#reviews-1 .testimonial-avatar img {
+#testimonials .testimonial-avatar img {
   width: 100px;
   height: 100px;
   display: block;
@@ -3918,7 +3946,7 @@ ol.digit-list p {
 /*  Carousel Dots
 /*------------------------------------------*/
 
-#reviews-1 button {
+#testimonials button {
   background-color: transparent;
   border: none;
   padding: 0 2px;
@@ -5741,8 +5769,8 @@ img.insta-img {
 
 #scrollUp {
   display: none;
-  width: 50px;
-  height: 50px;
+  width: 45px;
+  height: 45px;
   position: fixed;
   bottom: 35px;
   right: 20px;
@@ -5750,7 +5778,7 @@ img.insta-img {
   -webkit-border-radius: 100%;
   -moz-border-radius: 100%;
   border-radius: 100%; 
-  background-image: url(../images/back-to-top.png);
+  background-image: url(../images/up.png);
   background-repeat: no-repeat;
   background-position: 50% 48%;
   background-color: rgba(95, 88, 66, .2);

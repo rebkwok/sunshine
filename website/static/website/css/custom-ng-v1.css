@@ -1,0 +1,31 @@
+.message-container {
+    margin-top: 90px;
+    margin-left: 10px;
+    margin-right: 10px;
+    width: auto;
+}
+
+.message {
+    padding: 4px;
+}
+
+.alert-anon {
+    background-color: rgba(255, 204, 1, 0.6);
+    border: solid 1px rgba(255, 0, 0, 0.5);
+  }
+
+  .alert-anon > div {
+    font-weight: bold;
+  }
+
+  .alert-anon > div > a {
+    color: rgba(255, 0, 0);
+  }
+
+  .alert-anon > div > span.fa-sun {
+    color: rgba(255, 0, 0);
+  }
+
+  details.membership > summary {
+    display: block;
+  }

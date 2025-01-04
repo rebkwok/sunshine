@@ -53,6 +53,7 @@ class BookingListView(DataPolicyAgreementRequiredMixin, LoginRequiredMixin, List
         context['on_waiting_list_booking_ids_list'] = on_waiting_list
         context['can_cancel_booking_ids_list'] = can_cancel
         context['booking_status_display'] = booking_status_display
+        context['section'] = "account"
 
         return context
 
@@ -78,5 +79,6 @@ class BookingHistoryListView(DataPolicyAgreementRequiredMixin, LoginRequiredMixi
         context['booking_status_display'] = booking_status_display
         # Add in the history flag
         context['history'] = True
-
+        context['section'] = "account"
+        
         return context

@@ -34,7 +34,8 @@ def profile(request):
         {
             'has_disclaimer': has_disclaimer,
             'has_expired_disclaimer': has_exp_disclaimer,
-            "latest_disclaimer": latest_disclaimer
+            "latest_disclaimer": latest_disclaimer,
+            "section": "account",
         }
     )
 
@@ -51,6 +52,11 @@ class CustomLoginView(LoginView):
             ret = reverse('accounts:profile')
 
         return ret
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['section'] = "login"
+        return context
 
 
 class CustomSignUpView(SignupView):
@@ -58,12 +64,14 @@ class CustomSignUpView(SignupView):
     def get_context_data(self, **kwargs):
         # add the username to the form if passed in queryparams from login form
         context = super(CustomSignUpView, self).get_context_data(**kwargs)
+        context["section"] = "login"
         username = self.request.GET.get('username', None)
         if username is not None:
             form = context['form']
             form.fields['username'].initial = username
             context['form'] = form
         return context
+    
 
 
 class ProfileUpdateView(LoginRequiredMixin, UpdateView):
@@ -80,6 +88,11 @@ class ProfileUpdateView(LoginRequiredMixin, UpdateView):
 
     def get_success_url(self):
         return reverse('accounts:profile')
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['section'] = "account"
+        return context
 
 
 class SignedDataPrivacyCreateView(LoginRequiredMixin, FormView):
@@ -155,6 +168,7 @@ class DisclaimerContactUpdateView(LoginRequiredMixin, UpdateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data()
         context["disclaimer_user"] = self.disclaimer_user
+        context['section'] = "account"
         return context
 
     def get_object(self, *args, **kwargs):
@@ -178,6 +192,7 @@ class DisclaimerCreateView(LoginRequiredMixin, CreateView):
         context["disclaimer_user"] = self.disclaimer_user
         context['disclaimer'] = has_active_disclaimer(self.disclaimer_user)
         context['expired_disclaimer'] = has_expired_disclaimer(self.disclaimer_user)
+        context['section'] = "account"
         return context
 
     def get_form(self, *args, **kwargs):

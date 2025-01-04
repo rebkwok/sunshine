@@ -68,7 +68,6 @@ video {
 
 .wsmenucontainer {
   background-size: cover;
-  background-image: url(../images/bg01.jpg);
   overflow: hidden;
   background-attachment: fixed;
   background-position: 50% 0;
@@ -132,6 +131,10 @@ video {
   float: left;
 }
 
+.wsmenu > .wsmenu-list > li.active {
+  text-decoration: underline #ffcc01 2px;
+}
+
 .wsmenu > .wsmenu-list > li > a {
   display: block;
   color: #666;
@@ -162,6 +165,10 @@ video {
 .aqua-menu .wsmenu > .wsmenu-list > li > a,
 .blue-menu .wsmenu > .wsmenu-list > li > a {
   color: #fff;
+}
+
+.tra-menu .wsmenu > .wsmenu-list > li.active {
+  text-decoration: underline #ffcc01 2px;
 }
 
 .white-menu .wsmenu > .wsmenu-list > li > a {
