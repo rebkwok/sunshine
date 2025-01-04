@@ -1,91 +1,96 @@
 {% extends "website/_base.html" %}
 {% load customtags %}
 
+{% block navscroll %}scroll{% endblock %}
+
 {% block content %}
 
-    <div class="page-header" >
-        <h1>
-            Timetable
-        </h1>
-    </div>
-
-    <span id="costs">
-    {% include 'website/includes/membership.html' %}
-    </span>
-    {% if future_events.privates %}
-    <p>
-        <strong>Looking for private lessons? <a href="{% url 'booking:private_list' %}">Check available times and book here</a></strong>
-    </p>
-    {% endif %}
-    {% if timetable_sessions %}
-
-        <form class="filter-row" action="" method="get">
-            <div class="row">
-                <div class="col-sm-2">
-                    <strong>Show classes by: </strong>
-                </div>
-                <div class="col-sm-2 filter">{{ form.filtered_session_type }}</div>
-                <div class="col-sm-1"><input class="btn btn-warning btn-sm pt-0 pb-0" type="submit" value="Go" /></div>
-            </div>
-        </form>
-        </br>
-
-        <ul class="nav nav-tabs" id="timetableTab" role="tablist">
-            {% for location in location_events %}
-            <li class="nav-item" role="presentation">
-                <button class="nav-link {% if tab == location.index %}active{% endif %}" id="nav-tab-{{ location.index }}" data-bs-toggle="tab" data-bs-target="#nav-{{ location.index }}" type="button" role="tab" aria-controls="nav-{{ location.index }}" aria-selected={% if tab == location.index %}"true"{% else %}"false"{% endif %}>{{ location.location }}</button>
-            </li>
-            {% endfor %}
-        </ul>  
-
-
-        <div class="tab-content" id="timetableTabContent">
-            {% for location in location_events %} 
-                <div class="tab-pane fade {% if tab == location.index %}show active{% endif %}" id="nav-{{ location.index }}" role="tabpanel" aria-labelledby="nav-tab-{{ location.index }}" tabindex="0">
-                    {% if not location.queryset %}
-                    <div class="ms-2 mt-2" >No classes at this location</div>
-                    {% else %}
-                        <div class="panel" style="background-color: rgba(230,230,230,0.6);">
-                                <table class="table">
-                                    <thead>
-                                    <tr class="table-secondary">
-                                        <th scope="col"></th>
-                                        <th scope="col">Day</th>
-                                        <th scope="col">Time</th>
-                                        <th scope="col" class="table-center">Class</th>
-                                        <th scope="col">Level</th>
-                                        <th scope="col">Venue</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    {% for session in location.queryset %}
-                                    <tr scope="row" class="table-light">
-                                        <td class="table-center timetable-row">
-                                            <a href="{% url 'booking:regular_session_list' %}?name={{session.name}}&level={{session.level}}&venue={{session.venue.abbreviation}}&day={{session.session_day}}&time={{session.start_time|date:'H:i'}}">
-                                            <div class="btn btn-warning btn-sm pt-0 pb-0"><span class="text-dark">View Dates</span></div></a>
-                                        </td>
-                                        <td class="timetable-row">{{ session.session_day|format_day }}</td>
-                                        <td class="timetable-row">{{ session.start_time|time:"H:i" }} - {{ session.end_time|time:"H:i" }}</td>
-                                        <td class="table-center timetable-row">
-                                            {% if session.category %}
-                                                <span class="badge rounded-pill text-bg-{{ session.category.colour }}">
-                                            {% endif %}
-                                                {{ session.name }} {% if session.members_only %}(Members only){% endif %}
-                                            </span></td>
-                                        <td class="timetable-row session-level-td">{{ session.level }}</td>
-                                        <td class="timetable-row">{{ session.venue.abbreviation }}</td>
-                                    </tr>
-                                    {% endfor %}
-                                    </tbody>
-                                </table>
-                        </div>
-                    {% endif%}
-                </div>
-            {% endfor %}
+<section id="timetable" class="bg-color-01 wide-60">
+    <div class="container">
+        <div class="page-header" >
+            <h1>
+                Timetable
+            </h1>
         </div>
 
-    {% else %}
-        <h4>Timetable not currently available</h4>
-    {% endif %}
+        <span id="costs">
+        {% include 'website/includes/membership.html' %}
+        </span>
+        {% if future_events.privates %}
+        <p>
+            <strong>Looking for private lessons? <a href="{% url 'booking:private_list' %}">Check available times and book here</a></strong>
+        </p>
+        {% endif %}
+        {% if timetable_sessions %}
 
+            <form class="filter-row" action="" method="get">
+                <div class="row">
+                    <div class="col-sm-2">
+                        <strong>Show classes by: </strong>
+                    </div>
+                    <div class="col-sm-2 filter">{{ form.filtered_session_type }}</div>
+                    <div class="col-sm-1"><input class="btn btn-warning btn-sm pt-0 pb-0" type="submit" value="Go" /></div>
+                </div>
+            </form>
+            </br>
+
+            <ul class="nav nav-tabs" id="timetableTab" role="tablist">
+                {% for location in location_events %}
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link {% if tab == location.index %}active{% endif %}" id="nav-tab-{{ location.index }}" data-bs-toggle="tab" data-bs-target="#nav-{{ location.index }}" type="button" role="tab" aria-controls="nav-{{ location.index }}" aria-selected={% if tab == location.index %}"true"{% else %}"false"{% endif %}>{{ location.location }}</button>
+                </li>
+                {% endfor %}
+            </ul>  
+
+
+            <div class="tab-content" id="timetableTabContent">
+                {% for location in location_events %} 
+                    <div class="tab-pane fade {% if tab == location.index %}show active{% endif %}" id="nav-{{ location.index }}" role="tabpanel" aria-labelledby="nav-tab-{{ location.index }}" tabindex="0">
+                        {% if not location.queryset %}
+                        <div class="ms-2 mt-2" >No classes at this location</div>
+                        {% else %}
+                            <div class="panel" style="background-color: rgba(230,230,230,0.6);">
+                                    <table class="table">
+                                        <thead>
+                                        <tr class="table-secondary">
+                                            <th scope="col"></th>
+                                            <th scope="col">Day</th>
+                                            <th scope="col">Time</th>
+                                            <th scope="col" class="table-center">Class</th>
+                                            <th scope="col">Level</th>
+                                            <th scope="col">Venue</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        {% for session in location.queryset %}
+                                        <tr scope="row" class="table-light">
+                                            <td class="table-center timetable-row">
+                                                <a href="{% url 'booking:regular_session_list' %}?name={{session.name}}&level={{session.level}}&venue={{session.venue.abbreviation}}&day={{session.session_day}}&time={{session.start_time|date:'H:i'}}">
+                                                <div class="btn btn-warning btn-sm pt-0 pb-0"><span class="text-dark">View Dates</span></div></a>
+                                            </td>
+                                            <td class="timetable-row">{{ session.session_day|format_day }}</td>
+                                            <td class="timetable-row">{{ session.start_time|time:"H:i" }} - {{ session.end_time|time:"H:i" }}</td>
+                                            <td class="table-center timetable-row">
+                                                {% if session.category %}
+                                                    <span class="badge rounded-pill text-bg-{{ session.category.colour }}">
+                                                {% endif %}
+                                                    {{ session.name }} {% if session.members_only %}(Members only){% endif %}
+                                                </span></td>
+                                            <td class="timetable-row session-level-td">{{ session.level }}</td>
+                                            <td class="timetable-row">{{ session.venue.abbreviation }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                        </tbody>
+                                    </table>
+                            </div>
+                        {% endif%}
+                    </div>
+                {% endfor %}
+            </div>
+
+        {% else %}
+            <h4>Timetable not currently available</h4>
+        {% endif %}
+    </div>
+</section>
 {% endblock %}

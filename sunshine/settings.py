@@ -276,6 +276,7 @@ TEMPLATES = [
                 "django.template.context_processors.media",
                 "booking.context_processors.future_events",
                 "booking.context_processors.booking",
+                "timetable.context_processors.timetable",
             ),
             'debug': DEBUG,
         },
