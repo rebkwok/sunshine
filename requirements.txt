@@ -51,6 +51,7 @@ django==5.1.4
     #   django-extensions
     #   django-migration-testcase
     #   django-ses
+    #   django-storages
     #   dynamic-django-forms
     #   model-bakery
 django-allauth==65.3.0
@@ -82,6 +83,8 @@ django-migration-testcase==0.0.15
 django-object-actions==4.3.0
     # via -r requirements.in
 django-ses[events]==4.3.1
+    # via -r requirements.in
+django-storages==1.14.4
     # via -r requirements.in
 django-suit @ git+https://github.com/rebkwok/django-suit.git@v2
     # via -r requirements.in
@@ -175,3 +178,5 @@ urllib3==2.3.0
     # via
     #   botocore
     #   requests
+whitenoise==6.8.2
+    # via -r requirements.in
