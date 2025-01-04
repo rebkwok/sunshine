@@ -87,6 +87,7 @@ INSTALLED_APPS = (
     'allauth',
     'allauth.account',
     'django_extensions',
+    'storages',
     'django_bootstrap5',
     'debug_toolbar',
     'dynamic_forms',
@@ -174,7 +175,7 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'collected-static')
 
-MEDIA_URL = '/media/'
+MEDIA_URL = "/media/"  # note ignored if using S3 storage; should only be used in tests
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 
@@ -182,6 +183,84 @@ STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
 )
+
+# static files storages on S3 with django-storages
+STORAGES = {
+    "default": {
+        "BACKEND": "storages.backends.s3.S3Storage",
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
+    },
+}
+
+if TESTING or (env("LOCAL") and not env("LOCAL_S3", default=False)):
+    # use default storage backend in tests/local
+    STORAGES["default"]["BACKEND"] = "django.core.files.storage.FileSystemStorage"
+
+# for media storage with s3
+# Set up this domain as a bucket on S3
+# settings:
+# - ACLs disabled
+# - Block public access for ACLS only 
+# - default encryption
+# - bucket policy
+# s3:GetObject for all required folders individually - allow all
+# e.g. {
+    #     "Sid": "PublicGetObject",
+    #     "Effect": "Allow",
+    #     "Principal": "*",
+    #     "Action": "s3:GetObject",
+    #     "Resource": "arn:aws:s3:::media.sunshinefitness.co.uk/media/*"
+    # } 
+# Bucket management for IAM user
+# e.g.
+        # {
+        #     "Sid": "AllowUserManageBucket",
+        #     "Effect": "Allow",
+        #     "Principal": {
+        #         "AWS": "arn:aws:iam::xxxx:role/iam-role-name"
+        #     },
+        #     "Action": [
+        #         "s3:ListBucket",
+        #         "s3:GetBucketLocation",
+        #         "s3:ListBucketMultipartUploads",
+        #         "s3:ListBucketVersions"
+        #     ],
+        #     "Resource": "arn:aws:s3:::media.sunshinefitness.co.uk"
+        # }
+
+AWS_STORAGE_BUCKET_NAME = f"media.{DOMAIN}"
+
+
+if env("LOCAL", False) or env("LOCAL_S3", False):
+    AWS_ACCESS_KEY_ID = env.str("AWS_ACCESS_KEY_ID")
+    AWS_SECRET_ACCESS_KEY = env.str("AWS_SECRET_ACCESS_KEY")
+
+# Disables signing of the S3 objects' URLs. When set to True it
+# will append authorization querystring to each URL.
+AWS_QUERYSTRING_AUTH = False
+
+# Do not allow overriding files on S3 as per Wagtail docs recommendation:
+# https://docs.wagtail.io/en/stable/advanced_topics/deploying.html#cloud-storage
+# Not having this setting may have consequences such as losing files.
+AWS_S3_FILE_OVERWRITE = False
+
+# Default ACL for new files should be "private" - not accessible to the
+# public. Images should be made available to public via the bucket policy,
+# where the documents should use wagtail-storages.
+AWS_DEFAULT_ACL = "private"
+
+# only if using cloudfront
+# Create cloudfront distribution for the S3 bucket
+# AWS_S3_CUSTOM_DOMAIN is the cloudfront domain xxxxx.cloudfront.net
+AWS_S3_CUSTOM_DOMAIN = env.str("AWS_S3_CUSTOM_DOMAIN", "")
+AWS_S3_REGION_NAME = "eu-west-1"
+
+# This settings lets you force using http or https protocol when generating
+# the URLs to the files. Set https as default (via env var).
+# https://github.com/jschneier/django-storages/blob/10d1929de5e0318dbd63d715db4bebc9a42257b5/storages/backends/s3boto3.py#L217
+AWS_S3_URL_PROTOCOL = env.str("AWS_S3_URL_PROTOCOL", "http:")
 
 TEMPLATES = [
     {
