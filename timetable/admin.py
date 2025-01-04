@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.shortcuts import render, redirect
 from django.urls import path, reverse
+from django.utils.safestring import mark_safe
 
 from .forms import UploadTimetableForm
 from .models import Category, TimetableSession, SessionType, Venue
@@ -9,19 +10,72 @@ from .utils import upload_timetable
 
 @admin.register(Venue)
 class VenueAdmin(admin.ModelAdmin):
-    list_display = ('name', 'address', 'postcode', 'location', 'tab_order', 'abbreviation')
+    list_display = ('name', 'addr', 'abbreviation', 'location', 'tab_order', 'image_img')
+
+    fieldsets = (
+        (
+            "Venue",
+            {"fields": ("name",)}
+        ),
+        (
+            "Timetable details",
+            {
+                "fields": ("abbreviation", "location", "tab_order"),
+                "description": "Details for displaying and ordering on timetable and booking pages"    
+            },  
+        ),
+        (
+            "Web page content",
+            {
+                "fields": ("address", "postcode", "description", "photo"),
+                "description": "Details displayed on the Venues web page"    
+            }
+        ),
+    )
+
+    @mark_safe
+    def image_img(self,obj):
+        if obj.photo:
+            return '<img src="%s"  height="60px"/>' % obj.photo.url
+        else:
+            return '-'
+    image_img.short_description = "photo"
+
+    def addr(self,obj):
+        return f"{obj.address}, {obj.postcode}"
+    addr.short_description = "address"
 
 
 @admin.register(SessionType)
 class SessionTypeAdmin(admin.ModelAdmin):
-    list_display = ('index', 'name', 'regular_session')
-    ordering = ['index',]
+    list_display = ('order', 'name', 'image_img', 'display_on_site')
     fieldsets = (
-        (None, {
-            'fields': ('index', 'name', 'info', 'regular_session'),
-            'description': "Class type is used to allow users to filter classes on the timetable page"
-        }),
+        (
+            "Session Type", 
+            {
+                'fields': ('name',),
+                'description': (
+                    'Every timetable session must have a session type.'
+                    'Additional session types (not associated with timetabled classes) can be added here for inclusion on the "What we offer" page'
+                )
+            }
+        ),
+        (
+            "Website content",
+            {
+                "fields": ("index", "description", "photo", "display_on_site"),
+                "description": 'Details for the "What we offer" page'
+            }
+        )
     )
+
+    @mark_safe
+    def image_img(self,obj):
+        if obj.photo:
+            return '<img src="%s"  height="60px"/>' % obj.photo.url
+        else:
+            return '-'
+    image_img.short_description = "photo"
 
 
 @admin.register(Category)

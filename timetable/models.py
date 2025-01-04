@@ -1,26 +1,33 @@
 from django.core.exceptions import ValidationError
 from django.db import models
-from django.utils.functional import cached_property
 
 
 class SessionType(models.Model):
-    index = models.PositiveIntegerField(null=True, blank=True, help_text="Determines order class types are displayed on homepage")
+    order = models.PositiveIntegerField(
+        default=100, 
+        help_text=(
+            "Determines order activities are displayed on the 'what we offer' page. "
+            "Use any numbers, locations will be ordered from smallest to largest."
+        )
+    )
     name = models.CharField(max_length=255)
-    info = models.TextField('description',  null=True, blank=True)
-    regular_session = models.BooleanField(
-        'display class', default=True,
-        help_text="Tick this box to list this class type and its description on the homepage")
+    description = models.TextField('description',  null=True, blank=True)
+    display_on_site = models.BooleanField(
+        'display on site', default=True,
+        help_text="Include this activity type and its description on the 'what we offer' page")
+    photo = models.ImageField(upload_to='images/activity_types', null=True, blank=True)
 
     def __str__(self):
         return self.name
 
     class Meta:
-        verbose_name = "class type"
-        verbose_name_plural = "class types"
+        ordering = ("order", "id")
+        verbose_name = "session type"
+        verbose_name_plural = "session types"
     
     def clean(self):
-        if self.regular_session and not self.info:
-            raise ValidationError("To display this class type on the home page, you also need to add a description")
+        if self.display_on_site and not self.info:
+            raise ValidationError("To display this session type on the 'what we offer' page, you also need to add a description")
         
         return super().clean()
 
@@ -35,12 +42,22 @@ class Venue(models.Model):
         max_length=20, default="", help_text="Short name for this venue. This will appear on the timetables."
     )
     location = models.CharField(
-        max_length=255, help_text="Name for this location. Timetables will be grouped by location."
+        max_length=255, 
+        help_text=(
+            "Name for this location. Timetables will be grouped by location. Multiple venues can share the "
+            "same location and will be displayed on the same timetable."
+        )
     )
     tab_order = models.IntegerField(
         default=100, 
         help_text="For ordering of location tabs; use any numbers, locations will be ordered from smallest to largest."
     )
+
+    photo = models.ImageField(upload_to='images/venue', null=True, blank=True)
+
+    display_on_site = models.BooleanField(default=True, help_text="Display this venue on the Venues page")
+
+    description = models.TextField(null=True, blank=True)
 
     def __str__(self):
         return self.name
@@ -84,6 +101,7 @@ class Category(models.Model):
     def __str__(self):
         return self.name
 
+
 class TimetableSession(models.Model):
     level = models.CharField(max_length=255, default="All levels")
 
@@ -109,11 +127,11 @@ class TimetableSession(models.Model):
     end_time = models.TimeField()
 
     name = models.CharField(max_length=255, default="")
-    session_type = models.ForeignKey(SessionType, on_delete=models.CASCADE, verbose_name="class type")
+    session_type = models.ForeignKey(SessionType, on_delete=models.CASCADE)
     venue = models.ForeignKey(Venue, on_delete=models.CASCADE)
     category = models.ForeignKey(
         Category, on_delete=models.CASCADE, null=True, blank=True, 
-        help_text="Assign a category if you want to colour-code classes on the timetable (e.g. to group by class cost, membership etc)"
+        help_text="Assign a category if you want to colour-code sessions on the timetable (e.g. to group by class cost, membership etc)"
     )
     cost = models.DecimalField(
         max_digits=8, decimal_places=2, default=8,
