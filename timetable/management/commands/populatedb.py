@@ -22,9 +22,9 @@ class Command(BaseCommand):
         )
 
         polefit, new = SessionType.objects.update_or_create(
-            name='Pole Fitness', regular_session=True, index=1,
+            name='Pole Fitness', display_on_site=True, index=100,
             defaults={
-                "info": """
+                "description": """
                 Pole dancing has gained popularity as a form of exercise with increased awareness of the benefits
                 to general strength and fitness. This form of exercise increases core and general body strength by 
                 using the body itself as resistance, while 
@@ -33,9 +33,9 @@ class Command(BaseCommand):
         )
 
         stretch, _ = SessionType.objects.update_or_create(
-            name='Stretching',  regular_session=True, index=5,
+            name='Stretching',  display_on_site=True, index=500,
             defaults={
-                "info": """
+                "description": """
                 Stretching will help improve flexibilty and benefit your progression in pole tricks. 
                 There are many benefits to stretching and learning to do it properly is key.  Stretching 
                 can help to reduce muscle tension, increase range of movement in the joints, enhance muscular 
@@ -46,9 +46,9 @@ class Command(BaseCommand):
         )
 
         general_fitness, _ = SessionType.objects.update_or_create(
-            name='General Fitness Classes', regular_session=True, index=3,
+            name='General Fitness Classes', display_on_site=True, index=300,
             defaults={
-                "info": """
+                "description": """
                     We offer a variety of more traditional fitness classes including Legs, Bums and Tums, 
                     Kettle Bells, Circuits and Gym Training, an all over body workout which uses equipment 
                     such as dumbbells, barbells and kettle bells, helps you learn the correct techniques and 
