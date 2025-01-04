@@ -26,20 +26,23 @@ def _membership_purchase_option(
         # if it's available at the end of the month at the same time as next month's, show
         # a warning
         warn_for_current = True
+    if unpaid_memberships is None:
+        basket_count = 0
+    else:
+        basket_count = unpaid_memberships.filter(
+            membership_type=membership_type, month=month, year=year
+            ).count()
     return {
         "membership_type": membership_type, 
         "month": month, 
         "month_str": month_name[month],
         "year": year,
         "warn_for_current": warn_for_current,
-        "basket_count": unpaid_memberships.filter(
-            membership_type=membership_type, month=month, year=year
-            ).count()
+        "basket_count": basket_count
     }
 
 
 @data_privacy_required
-@login_required
 def membership_purchase_view(request):
     now = timezone.now()
     month = now.month
@@ -48,7 +51,10 @@ def membership_purchase_view(request):
     days_to_end_of_month = end_of_month - now.day
 
     membership_types = MembershipType.objects.filter(active=True)
-    unpaid_memberships = get_unpaid_memberships(request.user)
+    if request.user.is_authenticated:
+        unpaid_memberships = get_unpaid_memberships(request.user)
+    else:
+        unpaid_memberships = None
     options = []
     for membership_type in membership_types:
         purchase_option = _membership_purchase_option(
