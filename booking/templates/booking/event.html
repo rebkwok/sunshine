@@ -13,16 +13,16 @@
 
     <div class="col-sm-12">
         <div class="panel panel-transparent">
-            <div class="panel-heading">
+            <div>
                 <h3 class="panel-title">
                         {{ event.name }}
                 </h3>
             </div>
             <div class="panel-body">
                 {% if user.is_staff and not event.show_on_site %}
-                <span class="divider"></span>
+                <hr>
                 <h3>PREVIEW ONLY: THIS PAGE IS NOT VISIBLE TO NON-STAFF USERS</h3>
-                <span class="divider"></span>
+                <hr>
                 {% endif %}
 
                 {% if past %}

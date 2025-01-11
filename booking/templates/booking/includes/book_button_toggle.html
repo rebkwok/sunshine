@@ -15,20 +15,20 @@
 {% if booking %} 
     {% if booking.status == "OPEN" and not booking.no_show %}
         {% if not booking.paid  %}
-            <span class="btn btn-xs book-btn btn-color-03 tra-cherry-hover">
+            <span class="btn btn-xs book-btn btn-oak tra-oak-hover">
                 View basket <i class="fa fa-shopping-basket"></i>
             </span></a>
         {% else %}
-            <span class="btn btn-xs book-btn btn-cherry">Cancel</a>
+            <span class="btn btn-xs book-btn btn-pink tra-pink-hover">Cancel</a>
         {% endif %}
     {% elif booking.event|has_available_membership:request.user %}
-        <button class="btn btn-xs book-btn btn-color-01 tra-cherry-hover">Rebook</button>
+        <button class="btn btn-xs book-btn btn-green tra-green-hover">Rebook</button>
     {% else %}
-        <button class="btn btn-xs book-btn btn-color-02 tra-cherry-hover">Add to basket</button>
+        <button class="btn btn-xs book-btn btn-sunshine tra-sunshine-hover">Add to basket</button>
     {% endif %}
 {% elif event|has_available_membership:request.user %}
-    <button class="btn btn-xs book-btn btn-color-01 tra-cherry-hover">{% if booking %}Rebook{% else %}Book{% endif %}
+    <button class="btn btn-xs book-btn btn-green tra-green-hover">{% if booking %}Rebook{% else %}Book{% endif %}
 {% else %}
-    <button class="btn btn-xs book-btn btn-color-02 tra-cherry-hover {% if event.members_only %}disabled{% endif %}">Add to basket</button>
+    <button class="btn btn-xs book-btn btn-sunshine tra-sunshine-hover {% if event.members_only %}disabled{% endif %}">Add to basket</button>
     {% if event.members_only %} (Members only){% endif %}
 {% endif %}
