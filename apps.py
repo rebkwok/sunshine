@@ -29,6 +29,7 @@ class SuitConfig(DjangoSuitConfig):
             ChildItem(model='website.teammember'),
             ChildItem(model='website.gallerycategory'),
             ChildItem(model='website.galleryimage'),
+            ChildItem(model='website.testimonial'),
         ], icon='fa fa-web', permissions=superuser_permissions),
         ParentItem('Accounts', children=[
             ChildItem(model='auth.user'),

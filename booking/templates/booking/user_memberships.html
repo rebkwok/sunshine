@@ -21,7 +21,7 @@
     </div>
     {% if membership_types %}
     <div class="col-4 mb-2">
-        <a class="btn btn-sm btn-warning"href="{% url 'booking:membership_purchase' %}">Buy a new membership</a>
+        <a class="btn btn-sm  btn-sunshine tra-sunshine-hover"href="{% url 'booking:membership_purchase' %}">Buy a new membership</a>
     </div>
     {% endif %}
 
@@ -30,7 +30,7 @@
         {% for membership in memberships %}
         <div class="list-group mb-2">
             <div class="list-group-item list-group-item-dark pt-1 pb-1">{{ membership }}
-                <a href="{% url 'booking:membership_detail' membership.id %}" class="btn btn-sm btn-dark float-right pt-0 pb-0">View details</a>
+                <a href="{% url 'booking:membership_detail' membership.id %}" class="btn btn-sm btn-color-01 tra-01-hover float-end">View details</a>
             </div>
             <div class="list-group-item {% if not membership.current_or_future %}list-group-item-secondary{% endif %} pb-0 pt-0">
                 <strong>Purchased:</strong> {{ membership.purchase_date | date:"d-M-Y" }}
