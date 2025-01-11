@@ -1,3 +1,5 @@
+import random
+
 from django.urls import reverse
 from django.conf import settings
 from django.shortcuts import render, HttpResponseRedirect
@@ -6,10 +8,25 @@ from django.utils.safestring import mark_safe
 
 from booking.email_helpers import send_email
 from website.forms import ContactForm
+from .models import GalleryImage, Testimonial, TeamMember
 
 
 def home(request):
-    return render(request, 'website/home.html', {'section': 'home'})
+    images = GalleryImage.objects.filter(display_on_homepage=True)
+    testimonials = list(Testimonial.objects.all())
+    random.shuffle(testimonials)
+
+    return render(
+        request, 
+        'website/home.html', 
+        {
+            'section': 'home',
+            'gallery_images': images,
+            'gallery_categories': set(images.values_list("category__name", flat=True)) - {None},
+            'testimonials': testimonials,
+            'team_members': TeamMember.objects.all()
+        }
+    )
 
 
 def faq(request):

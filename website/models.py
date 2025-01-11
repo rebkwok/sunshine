@@ -13,7 +13,7 @@ class GalleryCategory(models.Model):
 
 class GalleryImage(models.Model):
     category = models.ForeignKey(
-        GalleryCategory, null=True, on_delete=models.SET_NULL,
+        GalleryCategory, null=True, blank=True, on_delete=models.SET_NULL,
         help_text="Optional category, for filtering photos in the gallery section"
     )
     photo = models.ImageField(upload_to='images/gallery')
@@ -37,8 +37,10 @@ class GalleryImage(models.Model):
 class TeamMember(models.Model):
     name = models.CharField(max_length=255)
     role = models.CharField(max_length=255)
-    bio = models.TextField()
+    bio = models.TextField(max_length=500, help_text="Max 500 characters")
     photo = models.ImageField(upload_to='images/team', null=True, blank=True)
+    facebook = models.URLField(null=True, blank=True, help_text="Optional facebook page link")
+    instagram = models.URLField(null=True, blank=True, help_text="Optional instagram page link")
     order = models.PositiveIntegerField(
         default=100,
         help_text=(
@@ -49,3 +51,10 @@ class TeamMember(models.Model):
 
     class Meta:
         ordering = ("order", "id")
+
+
+class Testimonial(models.Model):
+    name = models.CharField(max_length=255, help_text="Name of reviewer")
+    display_name = models.CharField(max_length=255, help_text="Name to display on the website")
+    occupation = models.CharField(max_length=255, null=True, blank=True, help_text="Optional occupation to display")
+    review = models.TextField()
