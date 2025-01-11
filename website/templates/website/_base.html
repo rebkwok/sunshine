@@ -58,7 +58,7 @@
 		<link href='{% static "website/css/owl.theme.default.min.css" %}' rel="stylesheet">
 	
 		<!-- TEMPLATE CSS -->
-		<link href='{% static "website/css/pink-theme.css" %}' rel="stylesheet">
+		<link href='{% static "website/css/sunshine-theme.css" %}' rel="stylesheet">
 
 		<!-- RESPONSIVE CSS -->
 		<link href='{% static "website/css/responsive.css" %}' rel="stylesheet">
@@ -74,162 +74,169 @@
 		============================================= -->	
 		<div id="page" class="page">
 
-			<!-- HEADER
-			============================================= -->
-			<header id="header" class="header tra-menu navbar-light">
-				<div class="header-wrapper">
+            <div class="main-content">
+                <!-- HEADER
+                ============================================= -->
+                <header id="header" class="header tra-menu navbar-light">
+                    <div class="header-wrapper">
 
 
-					<!-- MOBILE HEADER -->
-				    <div class="wsmobileheader clearfix">	  	
-				    	<span class="smllogo"><img src='{% static "website/images/logo.jpg" %}' width="50" height="50" alt="mobile-logo"/></span>
-				    	<a id="wsnavtoggle" class="wsanimated-arrow"><span></span></a>	
-				 	</div>
-
-
-				 	<!-- NAVIGATION MENU -->
-				  	<div class="wsmainfull menu clearfix {% block navscroll %}scroll{% endblock %}">
-	    				<div class="wsmainwp clearfix">
-
-
-	    					<!-- LOGO IMAGE -->
-	    					<div class="desktoplogo"><a href="#hero-12" class="logo-black"><img src='{% static "website/images/logo-transparent.png" %}' width="40" height="40" alt="header-logo"></a></div>
-	    					<div class="desktoplogo"><a href="#hero-12" class="logo-white"><img src='{% static "website/images/SunshineLogo-transparent-white.png" %}' width="auto" height="100" alt="header-logo"></a></div>
-
-
-	    					<!-- MAIN MENU -->
-	      					<nav class="wsmenu clearfix">
-	        					<ul class="wsmenu-list">
-
-									<li id="nav-home" class="nl-simple" aria-haspopup="true"><a href="/">Home</a></li>
-
-
-	        						<!-- DROPDOWN MENU -->
-						          	<li aria-haspopup="true" id="nav-timetable"><a href="#">Timetables <span class="wsarrow"></span></a>
-	            						<ul class="sub-menu">
-                                            {% for tab, location in timetable_locations %}
-						           			    <li aria-haspopup="true"><a href="{% url 'timetable:timetable' %}?tab={{ tab }}">{{ location}}</a></li>
-						           			{% endfor %}		      
-						           		</ul>
-								    </li>	<!-- END DROPDOWN MENU -->
-
-
-								    <li id="nav-membership" class="nl-simple" aria-haspopup="true"><a href="{% url 'booking:membership_purchase' %}">Memberships</a></li>
-                                    <li id="nav-booking" class="nl-simple" aria-haspopup="true"><a href="{% url 'booking:regular_session_list' %}">Book a class</a></li>
-									<li id="nav-contact" class="nl-simple" aria-haspopup="true"><a href="{% url 'website:contact' %}">Contact us</a></li>
-
-                                    {% if user.is_anonymous %}
-                                        <li id="nav-login" class="nl-simple" aria-haspopup="true"><a href="{% url 'account_login' %}">Login</a></li>
-                                    {% else %}
-                                        <!-- MEGAMENU -->
-                                        <li id="nav-account" aria-haspopup="true"><a href="#">My Account <span class="wsarrow"></span></a>
-                                            <div class="wsmegamenu w-70 clearfix">
-                                                <div class="container">
-                                                    <div class="row">
-
-                                                        <!-- MEGAMENU LINKS -->
-                                                        <ul class="col-md-12 col-lg-4 link-list">
-                                                            <li class="title txt-color-01"><p>Account</p></li>
-                                                            <li class="fst-li"><a href="{% url 'accounts:profile' %}">Profile</a></li>
-                                                            <li><a href="{% url 'account_change_password' %}">Change password</a></li>
-                                                            <li><a href="{% url 'account_logout' %}">Logout</a></li>
-                                                        </ul>
-
-                                                        <!-- MEGAMENU LINKS -->
-                                                        <ul class="col-md-12 col-lg-4 link-list">
-                                                            <li class="title txt-color-01"><p>Activity</p></li>
-                                                            <li class="fst-li"><a href="#">Bookings</a></li>					                 
-                                                            <li><a href="#">Booking History</a></li>
-                                                            <li><a href="#">Memberships</a></li>
-                                                            <li><a href="#">Payment History</a></li>			              
-                                                        </ul>
-
-                                                        <!-- MEGAMENU LINKS - ADMIN -->
-                                                        {% if user.is_staff or user.is_superuser %}
-                                                            <ul class="col-md-12 col-lg-4 link-list">
-                                                                <li class="title txt-color-01"><p>Admin</p></li>
-                                                                <li class="fst-li"><a href="#">Instructor Admin</a></li>
-                                                                {% if user.is_staff %}
-                                                                    <li><a href="#">Site admin</a></li>
-                                                                {% endif %}	              
-                                                            </ul>
-                                                        {% endif %}		
-                    
-                                                    </div>  <!-- End row -->	
-                                                </div>  <!-- End container -->	
-                                            </div>  <!-- End wsmegamenu -->	
-                                        </li>	<!-- END MEGAMENU -->
-                                    {% endif %}
-
-								    <!-- HEADER BUTTON  -->
-                                    {% if user.is_authenticated %}
-                                        <li class="nl-simple" aria-haspopup="true">
-                                            <a href="{% url 'booking:shopping_basket' %}" class="btn btn-color-02 tra-02-hover white-color last-link p-2">
-                                                <i class="fas fa-shopping-cart me-0"></i> <span id="cart_item_menu_count-xs">{{ cart_item_count }}</span>
-                                                </a>
-                                            
-                                            </a>
-                                        </li>
-                                    {% endif %}
-
-
-								    <!-- HEADER SOCIAL LINKS 															
-									<li class="nl-simple txt-color-03 header-socials clearfix" aria-haspopup="true">
-										<span><a href="#" class="ico-facebook"><i class="fab fa-facebook-f"></i></a></span>
-										<span><a href="#" class="ico-twitter"><i class="fab fa-twitter"></i></a></span>
-										<span><a href="#" class="ico-instagram"><i class="fab fa-instagram"></i></a></span>
-										<span><a href="#" class="ico-dribbble"><i class="fab fa-yelp"></i></a></span>	
-									</li> -->
-									
-
-	        					</ul>
-	        				</nav>	<!-- END MAIN MENU -->
-
-	    				</div>
-	    			</div>	<!-- END NAVIGATION MENU -->
-
-
-				</div>     <!-- End header-wrapper -->
-			</header>	<!-- END HEADER -->
-
-            {% cookielaw_banner %}
-
-            {% block anon_banner %}
-                {% if user.is_anonymous %}
-                    <div class="message-container">
-                        <div class="message alert alert-anon p-4">
-                            <div><span class="fas fa-sun"></span> <a href={% url 'account_login' %}?next={{request.get_full_path|urlencode }}>Log in</a> to book a class! <span class="fas fa-sun"></span></div>
+                        <!-- MOBILE HEADER -->
+                        <div class="wsmobileheader clearfix">	  	
+                            <span class="smllogo"><img src='{% static "website/images/logo.jpg" %}' width="50" height="50" alt="mobile-logo"/></span>
+                            <a id="wsnavtoggle" class="wsanimated-arrow"><span></span></a>	
                         </div>
+
+
+                        <!-- NAVIGATION MENU -->
+                        <div class="wsmainfull menu clearfix {% block navscroll %}scroll{% endblock %}">
+                            <div class="wsmainwp clearfix">
+
+
+                                <!-- LOGO IMAGE -->
+                                <div class="desktoplogo"><a href="#hero-12" class="logo-black"><img src='{% static "website/images/logo-transparent.png" %}' width="40" height="40" alt="header-logo"></a></div>
+                                <div class="desktoplogo"><a href="#hero-12" class="logo-white"><img src='{% static "website/images/SunshineLogo-transparent-white.png" %}' width="auto" height="100" alt="header-logo"></a></div>
+
+
+                                <!-- MAIN MENU -->
+                                <nav class="wsmenu clearfix">
+                                    <ul class="wsmenu-list">
+
+                                        <li id="nav-home" class="nl-simple" aria-haspopup="true"><a href="/">Home</a></li>
+
+
+                                        <!-- DROPDOWN MENU -->
+                                        <li aria-haspopup="true" id="nav-timetable"><a href="#">Timetables <span class="wsarrow"></span></a>
+                                            <ul class="sub-menu">
+                                                {% for tab, location in timetable_locations %}
+                                                    <li aria-haspopup="true"><a href="{% url 'timetable:timetable' %}?tab={{ tab }}">{{ location}}</a></li>
+                                                {% endfor %}		      
+                                            </ul>
+                                        </li>	<!-- END DROPDOWN MENU -->
+
+                                        <li id="nav-membership" class="nl-simple" aria-haspopup="true"><a href="{% url 'booking:membership_purchase' %}">Memberships</a></li>
+                                        <li id="nav-booking" class="nl-simple" aria-haspopup="true"><a href="{% url 'booking:regular_session_list' %}">Book a class</a></li>
+                                        {% if gift_vouchers_available %}
+                                            <li id="nav-gift_voucher" class="nl-simple" aria-haspopup="true"><a href="{% url 'booking:buy_gift_voucher' %}">Gift Vouchers</a>
+                                        {% endif %}
+                                        <li id="nav-contact" class="nl-simple" aria-haspopup="true"><a href="{% url 'website:contact' %}">Contact us</a></li>
+
+                                        {% if user.is_anonymous %}
+                                            <li id="nav-login" class="nl-simple" aria-haspopup="true"><a href="{% url 'account_login' %}">Login</a></li>
+                                        {% else %}
+                                            <!-- MEGAMENU -->
+                                            <li id="nav-account" aria-haspopup="true"><a href="#">My Account <span class="wsarrow"></span></a>
+                                                <div class="wsmegamenu w-70 clearfix">
+                                                    <div class="container">
+                                                        <div class="row">
+
+                                                            <!-- MEGAMENU LINKS -->
+                                                            <ul class="col-md-12 col-lg-4 link-list">
+                                                                <li class="title txt-color-01"><p>Account</p></li>
+                                                                <li class="fst-li"><a href="{% url 'accounts:profile' %}">Profile</a></li>
+                                                                <li><a href="{% url 'account_change_password' %}">Change password</a></li>
+                                                                <li><a href="{% url 'account_logout' %}">Logout</a></li>
+                                                            </ul>
+
+                                                            <!-- MEGAMENU LINKS -->
+                                                            <ul class="col-md-12 col-lg-4 link-list">
+                                                                <li class="title txt-color-01"><p>Activity</p></li>
+                                                                <li class="fst-li"><a href="{% url 'booking:bookings' %}">Bookings</a></li>					                 
+                                                                <li><a href="{% url 'booking:booking_history' %}">Booking History</a></li>
+                                                                <li><a href="{% url 'booking:user_memberships' %}">Memberships</a></li>
+                                                                <li><a href="{% url 'booking:transactions' %}">Payment History</a></li>			              
+                                                            </ul>
+
+                                                            <!-- MEGAMENU LINKS - ADMIN -->
+                                                            {% if user.is_staff or user.is_superuser %}
+                                                                <ul class="col-md-12 col-lg-4 link-list">
+                                                                    <li class="title txt-color-01"><p>Admin</p></li>
+                                                                    <li class="fst-li"><a href="{% url 'studioadmin:regular_session_register_list' %}">Instructor Admin</a></li>
+                                                                    {% if user.is_staff %}
+                                                                        <li><a href="{% url 'admin:index' %}">Site admin</a></li>
+                                                                    {% endif %}	              
+                                                                </ul>
+                                                            {% endif %}		
+                        
+                                                        </div>  <!-- End row -->	
+                                                    </div>  <!-- End container -->	
+                                                </div>  <!-- End wsmegamenu -->	
+                                            </li>	<!-- END MEGAMENU -->
+                                        {% endif %}
+
+                                        <!-- HEADER BUTTON  -->
+                                        {% if user.is_authenticated %}
+                                            <li class="nl-simple" aria-haspopup="true">
+                                                <a href="{% url 'booking:shopping_basket' %}" class="btn btn-sunshine tra-sunshine-hover last-link p-2">
+                                                    <i class="fas fa-shopping-cart me-0"></i> <span id="cart_item_menu_count-xs">{{ cart_item_count }}</span>
+                                                    </a>
+                                                
+                                                </a>
+                                            </li>
+                                        {% endif %}
+
+
+                                        <!-- HEADER SOCIAL LINKS 															
+                                        <li class="nl-simple txt-color-03 header-socials clearfix" aria-haspopup="true">
+                                            <span><a href="#" class="ico-facebook"><i class="fab fa-facebook-f"></i></a></span>
+                                            <span><a href="#" class="ico-twitter"><i class="fab fa-twitter"></i></a></span>
+                                            <span><a href="#" class="ico-instagram"><i class="fab fa-instagram"></i></a></span>
+                                            <span><a href="#" class="ico-dribbble"><i class="fab fa-yelp"></i></a></span>	
+                                        </li> -->
+                                        
+
+                                    </ul>
+                                </nav>	<!-- END MAIN MENU -->
+
+                            </div>
+                        </div>	<!-- END NAVIGATION MENU -->
+
+
+                    </div>     <!-- End header-wrapper -->
+                </header>	<!-- END HEADER -->
+
+                {% cookielaw_banner %}
+
+                {% block anon_banner %}
+                    {% if user.is_anonymous %}
+                        <div class="message-container">
+                            <div class="message alert alert-anon p-4">
+                                <div><span class="fas fa-sun"></span> <a href={% url 'account_login' %}?next={{request.get_full_path|urlencode }}>Log in</a> to book a class! <span class="fas fa-sun"></span></div>
+                            </div>
+                        </div>
+                    {% endif %}
+                {% endblock anon_banner %}
+                
+                {% block messages %}
+                    {% if messages %}
+                        <div class="message-container">
+                            {% for message in messages %}
+                            <div {% if message.tags and message.tags == 'error' %}
+                                        class="message alert alert-danger"
+                                {% elif message.tags %}
+                                        class="message alert alert-{{ message.tags }}"
+                                {% endif %}>
+                                {% if 'safe' in message.tags %}
+                                    {{ message|safe }}
+                                {% else %}
+                                    {{ message }}
+                                {% endif %}</div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                {% endblock %}
+                
+                {% block page_content %}
+                    <div class="inner-page-wrapper">
+                    {% block content %}{% endblock content %}
                     </div>
-                {% endif %}
-            {% endblock anon_banner %}
-            
-            {% block messages %}
-                {% if messages %}
-                    <div class="message-container">
-                        {% for message in messages %}
-                        <div {% if message.tags and message.tags == 'error' %}
-                                    class="message alert alert-danger"
-                            {% elif message.tags %}
-                                    class="message alert alert-{{ message.tags }}"
-                            {% endif %}>
-                            {% if 'safe' in message.tags %}
-                                {{ message|safe }}
-                            {% else %}
-                                {{ message }}
-                            {% endif %}</div>
-                        {% endfor %}
-                    </div>
-                {% endif %}
-            {% endblock %}
+                {% endblock %}
 
-
-            {% block content %}{% endblock content %}
-
-
+            </div>
+			
 			<!-- FOOTER-1
 			============================================= -->
-			<footer id="footer-1" class="bg-color-01 footer division">
+            <footer id="footer-1" class="bg-color-01 footer division">
 				<div class="container">
                     
                     {% block extra_footer %}
@@ -257,9 +264,6 @@
 
 				</div>	   <!-- End container -->										
 			</footer>	<!-- END FOOTER-1 -->
-
-
-
 
 		</div>	<!-- END PAGE CONTENT -->
 

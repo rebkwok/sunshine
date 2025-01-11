@@ -170,7 +170,7 @@ class DisclaimerForm(forms.ModelForm):
             "password",
             Hidden("user", self.user.id),
             Hidden("version", self.disclaimer_content.version),
-            Submit('submit', 'Save', css_class="btn-warning")
+            Submit('submit', 'Save', css_class="btn-sunshine btn-xs tra-sunshine-hover")
         )
 
     class Meta:
@@ -211,7 +211,7 @@ class DisclaimerContactUpdateForm(forms.ModelForm):
             "emergency_contact_name",
             "emergency_contact_phone",
             "emergency_contact_relationship",
-            Submit('submit', 'Save', css_class="btn btn-success")
+            Submit('submit', 'Save', css_class="btn btn-green tra-green-hover")
         )
 
     class Meta:

@@ -14,11 +14,11 @@
 
         <h1 class="page-header">Book {{ event_type_plural|title }}
         {% if workshops_available_to_book %}</br>
-            <a class="btn btn-warning" href="{% url 'booking:workshop_list' %}"><strong class="text-dark">Show Workshops</strong></a>
+            <a class="btn btn-sunshine tra-sunshine-hover" href="{% url 'booking:workshop_list' %}"><strong class="text-dark">Show Workshops</strong></a>
         {% elif classes_available_to_book %}</br>
-            <a class="btn btn-warning" href="{% url 'booking:regular_session_list' %}"><strong class="text-dark">Show Classes</strong></a> 
+            <a class="btn btn-sunshine tra-sunshine-hover" href="{% url 'booking:regular_session_list' %}"><strong class="text-dark">Show Classes</strong></a> 
         {% elif privates_available_to_book %}</br>   
-            <a class="btn btn-warning" href="{% url 'booking:private_list' %}"><strong class="text-dark">Show Private Lessons</strong></a>        
+            <a class="btn btn-sunshine tra-sunshine-hover" href="{% url 'booking:private_list' %}"><strong class="text-dark">Show Private Lessons</strong></a>        
         {% endif %}
         </h1>
         
@@ -26,8 +26,8 @@
             <h3>
                 Showing options for {{ name }} - {{ day }} {{ time }}<br/>
             </h3>
-            <a class="btn btn-warning table-btn" href="{{ all_events_url }}">
-                <span class="text-dark">Show all</span>
+            <a class="btn btn-sunshine tra-hover-sunshine btn-sm" href="{{ all_events_url }}">
+                Show all
             </a>
             <br/><br/>
         {% endif %}
@@ -42,7 +42,7 @@
                 <p>Please complete a disclaimer before booking.</p>
             {% endif %}
                 <a class="btn btn-primary" href="{% url 'accounts:disclaimer_form' user.id %}">Complete disclaimer now</a>
-        <span class="divider"></span>
+        <hr>
         {% endif %}
     {% endif %}
 
@@ -55,7 +55,7 @@
                     </div>
                     <div class="col-sm-2 filter">{{ form.name }}</div>
                     <input type="hidden" name="page" value="{{ request.GET.page }}" />
-                    <div class="col-sm-1"><input class="btn btn-warning btn-sm pt-0 pb-0" type="submit" value="Go" /></div>
+                    <div class="col-sm-1"><input class="btn btn-sunshine tra-sunshine-hover btn-xs" type="submit" value="Go" /></div>
                 </div>
             </form>
             </br>
@@ -65,7 +65,7 @@
           {% if event_type == "class" %}
           <details class="membership mb-4">
             <summary>
-            Costs and membership options <span type="button" class="badge text-bg-warning"><i class="fas fa-caret-down"></i></span>
+            Costs and membership options <span type="button" class="badge badge-sunshine"><i class="fas fa-caret-down"></i></span>
             </summary>
             {% include 'website/includes/membership.html' %}            
         </details>
@@ -89,7 +89,7 @@
                         {% include 'booking/includes/events_pagination.html' with page_obj=location.queryset tab=location.index %}
                     
                         <div class="panel panel-transparent">
-                                <table class="table table-book-classes">
+                                <table class="table">
                                     <tr class="table-secondary">
                                         <th scope="col" class="table-center table-book-btn-col"></th>
                                         <th scope="col" class="table-center">Date</th>
@@ -116,7 +116,7 @@
                                                                 {% include "booking/includes/outstanding_fee_disabled_buttons.html" %}
                                                             {% elif event.bookable or event.id in booked_events %}
                                                                 {% if event.members_only and not event|has_available_membership:user and not event.id in booked_events %}
-                                                                    <span class="btn table-btn btn-warning book_button disabled" disabled=disabled>Members only</span>
+                                                                    <span class="btn btn-sunshine tra-sunshine-hover book_button disabled" disabled=disabled>Members only</span>
                                                                 {% else %}
                                                                 <span
                                                                     id="book_{{ event.id }}"
@@ -144,7 +144,7 @@
                                                 {% endif %}
                                             {% else %}
                                             <td class="table-center table-book-btn-col">
-                                                <a class='btn table-btn btn-warning' href="{% url 'account_login' %}?next={{request.get_full_path|urlencode }}">Log in to book</a>
+                                                <a class='btn btn-sunshine tra-sunshine-hover' href="{% url 'account_login' %}?next={{request.get_full_path|urlencode }}">Log in to book</a>
                                             </td>
                                             {% endif %}
                                             <td class="table-center">{{ event.date | date:"D d M H:i" }}</td>
@@ -154,7 +154,7 @@
                                             <td class="table-center">
                                                 {% if event.max_participants %}
                                                     <span id="booking_count_{{ event.id }}"
-                                                        class="badge rounded-pill {% if event.spaces_left == 0 or event.cancelled %}text-bg-default{% else %}text-bg-success{% endif%}">
+                                                        class="badge rounded-pill {% if event.spaces_left == 0 or event.cancelled %}badge-dark{% else %}badge-green{% endif%}">
                                                         {{ event.spaces_left }}/{{ event.max_participants }}
                                                     </span>
                                                 {% else %}N/A{% endif %}

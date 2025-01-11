@@ -20,8 +20,8 @@
   <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
   {% endif %}
 
-  <button class="primaryAction btn btn-warning" type="submit">{% trans "Log In" %}</button>
-   <a class="btn btn-warning" href="#"
+  <button class="primaryAction btn  btn-sunshine tra-sunshine-hover" type="submit">{% trans "Log In" %}</button>
+   <a class="btn  btn-sunshine tra-sunshine-hover" href="#"
     onclick="this.href='{{ signup_url }}{% if redirect_field_value %}&{% else %}?{% endif %}username='
             + encodeURIComponent(document.getElementById('id_login').value);">
        <span class="text-dark">Sign up for a new account</span></a>
