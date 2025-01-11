@@ -43,7 +43,7 @@
                                     class="remove-membership float-end"
                                     data-membership_id="{{ membership_info.membership.id }}"
                                     >
-                                <a class="btn btn-sm btn-danger" href="#"><i class="fas fa-trash-alt"></i></a>
+                                <a class="btn btn-sm btn-pink tra-pink-hover" href="#"><i class="fas fa-trash-alt"></i></a>
                             </span>
                             </div>
                         </td>
@@ -76,7 +76,7 @@
                                 class="remove-booking float-end"
                                 data-booking_id="{{ booking_info.booking.id }}"
                                 >
-                            <a class="btn btn-sm btn-danger" href="#"><i class="fas fa-trash-alt"></i></a>
+                            <a class="btn btn-sm btn-pink tra-pink-hover" href="#"><i class="fas fa-trash-alt"></i></a>
                         </span>
                         </div>
                     </td>
@@ -98,7 +98,7 @@
                                         class="remove-gift-voucher float-end"
                                         data-gift_voucher_id="{{ gift_voucher_info.gift_voucher.id }}"
                                         >
-                                    <a class="btn btn-sm btn-danger" href="#"><i class="fas fa-trash-alt"></i></a>
+                                    <a class="btn btn-sm btn-pink tra-pink-hover" href="#"><i class="fas fa-trash-alt"></i></a>
                                 </span>
                             </div>
                         </td>
@@ -121,7 +121,7 @@
                           {% csrf_token %}
                           <input type="hidden" name="cart_total" id="cart_total_input" value="{{ total_cost }}">
                           <input
-                                  class="btn btn-warning mb-1"
+                                  class="btn btn-sunshine tra-sunshine-hover mb-1"
                                   type="submit"
                                   value="{% if total_cost > 0 %}Checkout{% else %}Submit{% endif %}"
                           />
@@ -130,18 +130,18 @@
                       <div>Add additional items:<br/>
                       {% if request.user.is_authenticated %}
                         {% if membership_types %}
-                        <a class="btn btn-sm btn-outline-warning" href="{% url 'booking:membership_purchase' %}">Membership</a>
+                        <a class="btn btn-sm btn-tra-sunshine sunshine-hover" href="{% url 'booking:membership_purchase' %}">Membership</a>
                         {% endif %}
-                        <a class="btn btn-sm btn-outline-warning" href="{% url 'booking:regular_session_list' %}">Class</a>
+                        <a class="btn btn-sm btn-tra-sunshine sunshine-hover" href="{% url 'booking:regular_session_list' %}">Class</a>
                         {% if future_events.privates %}
-                            <a class="btn btn-sm btn-outline-warning" href="{% url 'booking:private_list' %}">Private</a>
+                            <a class="btn btn-sm btn-tra-sunshine sunshine-hover" href="{% url 'booking:private_list' %}">Private</a>
                         {% endif %}
                         {% if future_events.workshops %}  
-                            <a class="btn btn-sm btn-outline-warning" href="{% url 'booking:workshop_list' %}">Workshop</a>
+                            <a class="btn btn-sm btn-tra-sunshine sunshine-hover" href="{% url 'booking:workshop_list' %}">Workshop</a>
                         {% endif %}
                       {% endif %}
                       {% if gift_vouchers_available %}
-                      <a class="btn btn-sm btn-outline-warning" href="{% url 'booking:buy_gift_voucher' %}">Gift vouchers</a>
+                      <a class="btn btn-sm btn-tra-sunshine sunshine-hover" href="{% url 'booking:buy_gift_voucher' %}">Gift vouchers</a>
                       {% endif %}  
                     </div>
                       {% if request.user.is_authenticated %}
@@ -149,7 +149,7 @@
                           <form name="voucher_form" class="form-inline" method="post" action="">
                             {% csrf_token %}
                             <input name="code" type="text" required="required"/>
-                            <input class="btn btn-sm btn-warning ml-2" type="submit" name="add_voucher_code" value="Apply voucher code"/>
+                            <input class="btn btn-sm btn-sunshine tra-sunshine-hover ml-2" type="submit" name="add_voucher_code" value="Apply voucher code"/>
                         </form>
                         <span class="errorlist"><ul>{% for error in voucher_add_error %}<li>{{ error }}</li>{% endfor %}</ul></span>
                       {% if applied_voucher_codes_and_discount %}
@@ -160,8 +160,8 @@
                                     {% csrf_token %}
                                     <input name="code" type="hidden" value="{{ applied_voucher_code }}"/>
                                     <span class="mr-1 m-0 pb-1 pl-1 pr-1 pt-0 alert alert-info"><small><strong>{{ applied_voucher_code }}</strong> ({% if applied_voucher_discount %}{{ applied_voucher_discount }}%{% else %}£{{ applied_voucher_discount_amount }}{%  endif %} off)</small></span>
-                                    <button type="submit" name="remove_voucher_code" class="btn btn-sm btn-danger pb-1 pl-2 pr-2 pt-0"><small><i class="fas fa-trash-alt"></i></small></button>
-                                    <button type="submit" name="refresh_voucher_code" class="btn btn-sm btn-info pb-1 pl-2 pr-2 pt-0 ml-1"><small><i class="fas fa-sync-alt"></i></small></button>
+                                    <button type="submit" name="remove_voucher_code" class="btn btn-sm btn-pink tra-pink-hover pb-1 pl-2 pr-2 pt-0"><small><i class="fas fa-trash-alt"></i></small></button>
+                                    <button type="submit" name="refresh_voucher_code" class="btn btn-sm btn-cherry tra-cherry-hover pb-1 pl-2 pr-2 pt-0 ml-1"><small><i class="fas fa-sync-alt"></i></small></button>
                                 </form>
                             {% endfor %}
                      </div>
@@ -179,17 +179,17 @@
     {% if request.user.is_authenticated %}
     <p>
         {% if membership_types %}
-            <a class="btn btn-sm btn-outline-warning" href="{% url 'booking:membership_purchase' %}">Add membership</a>
+            <a class="btn btn-sm btn-tra-sunshine sunshine-hover" href="{% url 'booking:membership_purchase' %}">Add membership</a>
         {% endif %}
-        <a class="btn btn-sm btn-outline-warning" href="{% url 'booking:regular_session_list' %}">Add classes</a>
+        <a class="btn btn-sm btn-tra-sunshine sunshine-hover" href="{% url 'booking:regular_session_list' %}">Add classes</a>
         {% if future_events.privates %}
-            <a class="btn btn-sm btn-outline-warning" href="{% url 'booking:private_list' %}">Add private lessons</a>
+            <a class="btn btn-sm btn-tra-sunshine sunshine-hover" href="{% url 'booking:private_list' %}">Add private lessons</a>
         {% endif %}
         {% if future_events.workshops %}  
-            <a class="btn btn-sm btn-outline-warning" href="{% url 'booking:workshop_list' %}">Add workshops</a>
+            <a class="btn btn-sm btn-tra-sunshine sunshine-hover" href="{% url 'booking:workshop_list' %}">Add workshops</a>
         {% endif %}
         {% if gift_vouchers_available %}
-        <a class="btn btn-sm btn-outline-warning" href="{% url 'booking:buy_gift_voucher' %}">Add gift vouchers</a>
+        <a class="btn btn-sm btn-tra-sunshine sunshine-hover" href="{% url 'booking:buy_gift_voucher' %}">Add gift vouchers</a>
         {% endif %} 
     </p>
     {% endif %}

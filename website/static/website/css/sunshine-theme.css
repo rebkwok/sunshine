@@ -30,6 +30,12 @@ body {
   font-family: 'Roboto', 'Helvetica Neue', Helvetica, Arial, sans-serif;
   color: #283034;
   font-weight: 300;
+  min-height: 100vh;
+  flex-direction: column;
+}
+
+.footer-grow {
+  flex-grow: 1;
 }
 
 /*------------------------------------------------------------------*/
@@ -46,7 +52,13 @@ body {
 /*  PAGE CONTENT
 /*------------------------------------------*/
 
-#page { overflow: hidden; }
+#page { 
+  overflow: hidden; 
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+  justify-content: space-between;
+}
 
 /*------------------------------------------*/
 /*  SPACING & INDENTS
@@ -328,37 +340,7 @@ body {
 .bg-shell { background-color: #afa074; }
 .bg-rosybrown { background-color: #b7948e; }
 .bg-purple { background-color: #3f2b4e; }
-
-.bg-sunshine { background-color: rgba(255, 185, 7, 0.8); }
-
-/*------------------------------------------*/
-/*  Background Images for Sections
-/*------------------------------------------*/
-
-.bg-01,
-.bg-02,
-.bg-03 {
-  width: 100%;
-  background-repeat: no-repeat;
-  background-position: center center;   
-  background-size: cover;
-  background-attachment: scroll!important;
-}
-
-.bg-01 { background-image: url(../images/bg-01.jpg); }
-.bg-02 { background-image: url(../images/bg-02.jpg); }
-.bg-03 { background-image: url(../images/bg-03.jpg); }
-
-/*------------------------------------------*/
-/*. BORDER SETTINGS FOR DEMOS
-/*------------------------------------------*/
-
-.b-top { border-top: 1px solid rgba(142, 126, 81, .3); }
-.b-bottom { border-bottom: 1px solid rgba(142, 126, 81, .3); }
-.b-left { border-left: 1px solid rgba(142, 126, 81, .3); }
-.b-right { border-right: 1px solid rgba(142, 126, 81, .3); }
-
-
+.bg-sunshine { background-color: #ffcc01; }
 
 
 /* ==========================================================================
@@ -521,6 +503,10 @@ ol.digit-list p {
   transition: all 400ms ease-in-out; 
 }
 
+a.btn {
+  text-decoration: none;
+}
+
 /*------------------------------------------*/
 /*  Button Size
 /*------------------------------------------*/
@@ -609,6 +595,29 @@ ol.digit-list p {
   border-color: #b7948e!important;
 }
 
+.btn-tra-green, 
+.scroll .btn-tra-green, 
+.white-color .btn-tra-green,
+.tra-green-hover:hover, 
+.scroll .tra-green-hover:hover, 
+.white-color .tra-green-hover:hover {
+  color: #009933!important;
+  background-color: transparent;
+  border-color: #009933!important;
+}
+
+.btn-tra-sunshine, 
+.scroll .btn-tra-sunshine, 
+.white-color .btn-tra-sunshine,
+.tra-sunshine-hover:hover, 
+.scroll .tra-sunshine-hover:hover, 
+.white-color .tra-sunshine-hover:hover {
+  color: #ffcc01!important;
+  background-color: transparent;
+  border-color: #ffcc01!important;
+}
+
+
 /*------------------------------------------*/
 /*  Button Color
 /*------------------------------------------*/
@@ -662,6 +671,36 @@ ol.digit-list p {
   background-color: #b7948e;
   border-color: #b7948e!important;
 }
+
+.btn-green, 
+.scroll .btn-green, 
+.white-color .btn-green,
+.green-hover:hover, 
+.scroll .green-hover:hover, 
+.white-color .green-hover:hover {
+  color: #fff!important;
+  background-color: #009933;
+  border-color: #009933!important;
+}
+
+.btn-sunshine, 
+.scroll .btn-sunshine, 
+.white-color .btn-sunshine,
+.sunshine-hover:hover, 
+.scroll .sunshine-hover:hover, 
+.white-color .sunshine-hover:hover {
+  color: #fff!important;
+  background-color: #ffcc01;
+  border-color: #ffcc01!important;
+}
+
+
+.btn-sunshine.disabled {
+  color: #9b9292!important;
+  background-color: #ffcc01;
+  border-color: #ffcc01!important;
+}
+
 
 /*------------------------------------------*/
 /*  Button Hover
@@ -992,6 +1031,18 @@ ol.digit-list p {
 .wood-color span, 
 .white-color .wood-color { color: #5f5842; }
 
+.txt-sunshine,
+.txt-sunshine h2, 
+.txt-sunshine h3, 
+.txt-sunshine h4, 
+.txt-sunshine h5, 
+.txt-sunshine h6, 
+.txt-sunshine p, 
+.txt-sunshine a,
+.txt-sunshine li, 
+.txt-sunshine i,
+.txt-sunshine span, 
+.white-color .txt-sunshine { color: #ffb907; }
 /*------------------------------------------*/
 /*  TEXT BLOCK TYPOGRAPHY
 /*------------------------------------------*/ 
@@ -1118,9 +1169,9 @@ ol.digit-list p {
 .tra-01-hover:hover, 
 .scroll .tra-01-hover:hover, 
 .white-color .tra-01-hover:hover {
-  color: #ffcc01!important;
+  color: #727475!important;
   background-color: transparent;
-  border-color: #ffcc01!important;
+  border-color: #727475!important;
 }
 
 .btn-tra-02, 
@@ -1141,31 +1192,10 @@ ol.digit-list p {
 .scroll .color-01-hover:hover, 
 .white-color .color-01-hover:hover {
   color: #fff!important;
-  background-color: #996e00;
-  border-color: #996e00!important;
+  background-color: #727475;
+  border-color: #727475!important;
 }
 
-.btn-color-02, 
-.scroll .btn-color-02, 
-.white-color .btn-color-02,
-.color-02-hover:hover, 
-.scroll .color-02-hover:hover, 
-.white-color .color-02-hover:hover {
-  color: #fff!important;
-  background-color: #ffcc01;
-  border-color: #ffcc01!important;
-}
-
-.btn-color-03, 
-.scroll .btn-color-03, 
-.white-color .btn-color-03,
-.color-03-hover:hover, 
-.scroll .color-03-hover:hover, 
-.white-color .color-03-hover:hover {
-  color: #fff!important;
-  background-color: #009933;
-  border-color: #009933!important;
-}
 
 /*------------------------------------------*/
 /*  Text Colors
@@ -3611,6 +3641,13 @@ ol.digit-list p {
   display: block;
 }
 
+.tm-meta span.bio, .tm-meta span.bio p {
+  font-size: 0.9rem;
+  font-weight: 300;
+  font-style: italic;
+  display: block;
+}
+
 /*------------------------------------------*/
 /*  Team Member Photo
 /*------------------------------------------*/ 
@@ -5242,6 +5279,8 @@ p.foo-email a {
 
 .inner-page-wrapper {
   margin-top: 80px;
+  margin-left: 20px;
+  margin-right: 20px;
 }
 
 /*------------------------------------------*/
@@ -5656,15 +5695,23 @@ ul.blog-category-list > li a:hover:before {
   line-height: 1;
 }
 
-.badge:hover {
-  background-color: #ffcc01;
-  border-color: #ffcc01;
-}
-
 .badge:hover a {
   color: #fff!important;
 }
 
+.badge.badge-sunshine {
+  background-color: #ffcc01;
+}
+
+.badge.badge-dark {
+  background-color: #51504d;
+  border-color: #51504d;
+}
+
+.badge.badge-green {
+  background-color: #009933;
+  border-color: #009933;
+}
 
 /*------------------------------------------*/
 /*  SIDEBAR INSTAGRAM LINKS

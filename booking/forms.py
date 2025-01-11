@@ -191,7 +191,7 @@ class GiftVoucherForm(forms.ModelForm):
         if self.instance.id:
             submit_button = Submit('submit', 'Update')
         else:
-            submit_button = Submit('submit', 'Add to cart') if user is not None else Submit('submit', 'Checkout as guest')
+            submit_button = Submit('submit', 'Add to cart', css_class="btn btn-sunshine tra-sunshine-hover") if user is not None else Submit('submit', 'Checkout as guest', css_class="btn btn-sunshine tra-sunshine-hover")
 
         self.helper.layout = Layout(
             "gift_voucher_type",
