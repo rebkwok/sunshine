@@ -3,7 +3,7 @@ from django.shortcuts import render
 from django.urls import path
 from django.utils.safestring import mark_safe
 
-from .models import GalleryCategory, GalleryImage, TeamMember
+from .models import GalleryCategory, GalleryImage, TeamMember, Testimonial
 
 
 @admin.register(GalleryCategory)
@@ -35,7 +35,7 @@ class GalleryImageAdmin(admin.ModelAdmin):
 
 @admin.register(TeamMember)
 class TeamMemberAdmin(admin.ModelAdmin):
-    list_display = ('name', 'role', 'image_img')
+    list_display = ('name', 'role', 'image_img', "order")
 
     @mark_safe
     def image_img(self,obj):
@@ -44,3 +44,8 @@ class TeamMemberAdmin(admin.ModelAdmin):
         else:
             return '-'
     image_img.short_description = "photo"
+
+
+@admin.register(Testimonial)
+class TestimonialAdmin(admin.ModelAdmin):
+    list_display = ('name', 'display_name', 'occupation', 'review')

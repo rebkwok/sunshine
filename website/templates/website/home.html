@@ -30,7 +30,7 @@
 	{% endfor %}
 {% endblock %}
 
-{% block content %}
+{% block page_content %}
 
 	<!-- HERO-12
 	============================================= -->	
@@ -59,7 +59,7 @@
 										</p>
 
 										<!-- Button -->
-										<a href="#" class="btn btn-md btn-color-02 tra-white-hover">Timetable</a>
+										<a href="#" class="btn btn-md btn-sunshine tra-white-hover">Timetable</a>
 											
 									</div>
 								</li>	  <!-- END SLIDE #1 -->
@@ -78,7 +78,7 @@
 										</p>
 
 										<!-- Button -->
-										<a href="#" class="btn btn-md btn-color-02 tra-white-hover">Discover More</a>
+										<a href="#" class="btn btn-md btn-sunshine tra-white-hover">Discover More</a>
 											
 									</div>
 								</li>	  <!-- END SLIDE #2 -->
@@ -97,7 +97,7 @@
 										</p>
 
 										<!-- Button -->
-										<a href="#" class="btn btn-md btn-color-02 tra-white-hover">Book Now</a>
+										<a href="#" class="btn btn-md btn-sunshine tra-white-hover">Book Now</a>
 											
 									</div>
 								</li>	  <!-- END SLIDE #3 -->	
@@ -126,7 +126,7 @@
 					<div class="section-title mb-60 text-center">	
 
 						<!-- Transparent Header -->	
-						<h2 class="tra-header txt-color-02">Welcome To</h2>	
+						<h2 class="tra-header txt-sunshine">Welcome To</h2>	
 
 						<!-- Title 	-->	
 						<h3 class="h3-xl txt-color-01">Sunshine Fitness</h3>		
@@ -166,7 +166,7 @@
 								<p class="txt-color-05">Aliquam an augue suscipit luctus neque purus magna ipsum neque dolor</p>	
 
 								<!-- Button -->
-								<a href="#" class="btn p-sm btn-tra-01 color-02-hover">Find Out More</a> 
+								<a href="#" class="btn p-sm btn-tra-sunshine sunshine-hover">Find Out More</a> 
 
 							</div>
 
@@ -196,8 +196,11 @@
 								<p class="txt-color-05">Aliquam an augue suscipit luctus neque purus magna ipsum neque dolor</p>		
 
 								<!-- Button -->
-								<a href="#" class="btn p-sm btn-tra-01 color-02-hover">Moray</a> 
-								<a href="#" class="btn p-sm btn-tra-01 color-02-hover">TBC</a> 
+								 {% for tab, location in timetable_locations %}
+								 	{% if tab != 0 %}
+									<a href="{% url 'timetable:timetable' %}?tab={{ tab }}" class="btn p-sm btn-tra-sunshine sunshine-hover">{{ location }}</a> 
+									{% endif %}
+								{% endfor %}
 
 							</div>						
 						
@@ -226,7 +229,7 @@
 								<p class="txt-color-05">Aliquam an augue suscipit luctus neque purus magna ipsum neque dolor</p>	
 
 								<!-- Button -->
-								<a href="#" class="btn p-sm btn-tra-01 color-02-hover">Find Out More</a> 	
+								<a href="#" class="btn p-sm btn-tra-sunshine sunshine-hover">Find Out More</a> 	
 
 							</div>
 
@@ -255,7 +258,7 @@
 								<p class="txt-color-05">Aliquam an augue suscipit luctus neque purus magna ipsum neque dolor</p>		
 
 								<!-- Button -->
-								<a href="#" class="btn p-sm btn-tra-01 color-02-hover">Find Out More</a> 		
+								<a href="{% url 'booking:membership_purchase' %}" class="btn p-sm btn-tra-sunshine sunshine-hover">Find Out More</a> 		
 
 							</div>
 
@@ -337,7 +340,7 @@
 					<div class="section-title mb-60 text-center">	
 
 						<!-- Transparent Header -->	
-						<h2 class="tra-header txt-color-02">Our ethos</h2>	
+						<h2 class="tra-header txt-sunshine">Our ethos</h2>	
 
 						<!-- Title 	-->	
 						<h3 class="h3-xl txt-color-01">Come as you are</h3>	
@@ -357,6 +360,88 @@
 	</section>	<!-- END SERVICES-1 -->
 
 
+
+
+			<!-- TEAM-1
+			============================================= -->
+			<section id="team-1" class="bg-color-01 wide-60 team-section division">
+				<div class="container">
+
+
+					<!-- SECTION TITLE -->	
+					<div class="row">	
+						<div class="col-lg-10 offset-lg-1">
+							<div class="section-title mb-60 text-center">	
+
+								<!-- Transparent Header -->	
+								<h2 class="tra-header txt-color-02">Our Team</h2>	
+
+								<!-- Title 	-->	
+								<h3 class="h3-xl txt-color-01">Meet the team</h3>	
+
+								<!-- Text -->	
+								<p class="p-lg txt-color-05">Aliquam a augue suscipit, luctus neque purus ipsum neque undo dolor 
+								   primis libero tempus, blandit a cursus varius at magna tempor
+								</p>
+									
+							</div>	
+						</div>
+					</div>
+
+
+					<!-- TEAM MEMBERS WRAPPER -->
+			 		<div class="tm-wrapper">
+						<div class="row">	
+
+							{% for team_member in team_members %}
+
+							<!-- TEAM MEMBER #1 -->
+								<div class="col-md-6 col-lg-3">	
+									<div class="team-member">
+
+										<!-- Team Member Photo -->
+										<div class="team-member-photo">
+											<div class="hover-overlay"> 
+
+												<img class="img-fluid" src="{{ team_member.photo.url }}" alt="team-member-foto">
+											
+												<!-- Social Icons -->
+												<div class="tm-social clearfix">
+													<ul class="text-center clearfix">
+														{% if team_member.facebook %}																	
+														<li><a href="#" class="ico-facebook"><i class="fab fa-facebook-f"></i></a></li>
+														{% endif %}
+														{% if team_member.instagram %}
+														<li><a href="#" class="ico-instagram"><i class="fab fa-instagram"></i></a></li>
+														{% endif %}
+													</ul>
+												</div>	
+
+											</div>
+										</div>
+
+										<!-- Team Member Meta -->		
+										<div class="tm-meta">
+											<h6 class="h6-lg txt-color-01">{{ team_member.name }}</h6>
+											<span class="txt-color-06">{{ team_member.role }}</span>
+											<span class="txt-color-01 bio">{{ team_member.bio | linebreaks }}</span>
+										</div>
+
+									</div>
+								</div>
+							{% endfor %}
+
+
+						</div>	<!-- End row -->
+					</div>	<!-- END TEAM MEMBERS WRAPPER -->
+
+
+				</div>	   <!-- End container -->	
+			</section>	<!-- END TEAM-1 -->
+
+
+
+
 	<!-- GALLERY-1
 	============================================= -->
 	<section id="gallery-1" class="bg-color-01 wide-100 gallery-section division">
@@ -369,7 +454,7 @@
 					<div class="section-title mb-60 text-center">	
 
 						<!-- Transparent Header -->	
-						<h2 class="tra-header txt-color-02">A snapshot of Sunshine</h2>	
+						<h2 class="tra-header txt-sunshine">A snapshot of Sunshine</h2>	
 
 						<!-- Title 	-->	
 						<h3 class="h3-xl txt-color-01">Gallery</h3>	
@@ -389,9 +474,9 @@
 				<div class="col-md-12 text-center">
 					<div class="masonry-filter mb-40">
 						<button data-filter="*" class="is-checked">All</button>
-						<button data-filter=".pole">Pole</button>
-						<button data-filter=".pt">PT</button>
-						<button data-filter=".workshops">Workshops</button>
+						{% for category in gallery_categories %}
+							<button data-filter=".{{ category|lower }}">{{ category }}</button>
+						{% endfor %}
 					</div>
 				</div>
 			</div>
@@ -402,13 +487,13 @@
 				<div class="col-md-12 gallery-items-list">
 					<div class="masonry-wrap grid-loaded">
 
-
-						<!-- IMAGE #1 -->
-						<div class="masonry-item pole">
+						{% for gallery_image in gallery_images %}
+						<!-- IMAGE -->
+						<div class="masonry-item {{ gallery_image.category|lower }}">
 							<div class="hover-overlay"> 
 
 								<!-- Image -->
-								<img class="img-fluid" src="{% static 'website/images/gallery/gallery1.jpg' %}" alt="gallery-image" />			
+								<img class="img-fluid" src="{{ gallery_image.photo.url }}" alt="gallery-image" />			
 								<div class="item-overlay"></div>
 
 								<!-- Image Description -->
@@ -416,217 +501,18 @@
 									<div class="image-data">
 
 										<!-- Image Link -->
-										<h5 class="h5-sm"><a class="image-link" href="{% static 'website/images/gallery/gallery1.jpg' %}">Sunshine Fitness</a></h5>		
+										<h5 class="h5-sm"><a class="image-link" href="{{ gallery_image.photo.url }}">{{ gallery_image.caption_title }}</a></h5>		
 
 										<!-- Project Meta -->
-										<p>Pole Dance</p>	
-
+										{% if gallery_image.caption_subtitle %}
+											<p>{{ gallery_image.caption_subtitle }}</p>
+										{% endif %}	
 									</div>																										 
 								</div> 
 
 							</div>
-						</div>	<!-- END IMAGE #1 -->	
-
-
-						<!-- IMAGE #2 -->
-						<div class="masonry-item pole">
-							<div class="hover-overlay"> 
-
-								<!-- Image -->
-								<img class="img-fluid" src="{% static 'website/images/gallery/gallery2.jpg' %}" alt="gallery-image" />			
-								<div class="item-overlay"></div>				
-								
-								<!-- Image Description -->
-								<div class="image-description white-color">
-									<div class="image-data">
-
-										<!-- Image Link -->
-										<h5 class="h5-sm"><a class="image-link" href="{% static 'website/images/gallery/gallery2.jpg' %}">Sunshine Fitness</a></h5>		
-
-										<!-- Project Meta -->
-										<p>Pole Dance</p>
-
-									</div>																										 
-								</div> 
-
-							</div>
-						</div>	<!-- END IMAGE #2 -->	
-
-
-						<!-- IMAGE #3 -->
-						<div class="masonry-item pole">
-							<div class="hover-overlay"> 
-
-								<!-- Image -->
-								<img class="img-fluid" src="{% static 'website/images/gallery/gallery3.jpg' %}" alt="gallery-imagee" />			
-								<div class="item-overlay"></div>				
-								
-								<!-- Image Description -->
-								<div class="image-description white-color">
-									<div class="image-data">
-
-										<!-- Image Link -->
-										<h5 class="h5-sm"><a class="image-link" href="{% static 'website/images/gallery/gallery3.jpg' %}">Sunshine Fitness</a></h5>		
-
-										<!-- Project Meta -->
-										<p>Pole Dance</p>	
-
-									</div>																										 
-								</div> 
-
-							</div>
-						</div>	<!-- END IMAGE #3 -->	
-
-
-						<!-- IMAGE #4 -->
-						<div class="masonry-item pt">
-							<div class="hover-overlay"> 
-
-								<!-- Image -->
-								<img class="img-fluid" src="{% static 'website/images/gallery/gallery4.jpg' %}" alt="gallery-image" />			
-								<div class="item-overlay"></div>				
-								
-								<!-- Image Description -->
-								<div class="image-description white-color">
-									<div class="image-data">
-
-										<!-- Image Link -->
-										<h5 class="h5-sm"><a class="image-link" href="{% static 'website/images/gallery/gallery4.jpg' %}">Sunshine Fitness</a></h5>		
-
-										<!-- Project Meta -->
-										<p>Pole Dance</p>	
-
-									</div>																										 
-								</div> 
-
-							</div>
-						</div>	<!-- END IMAGE #4 -->
-
-
-						<!-- IMAGE #5 -->
-						<div class="masonry-item pt">
-							<div class="hover-overlay"> 
-
-								<!-- Image -->
-								<img class="img-fluid" src="{% static 'website/images/gallery/gallery5.jpg' %}" alt="gallery-image" />			
-								<div class="item-overlay"></div>				
-								
-								<!-- Image Description -->
-								<div class="image-description white-color">
-									<div class="image-data">
-
-										<!-- Image Link -->
-										<h5 class="h5-sm"><a class="image-link" href="{% static 'website/images/gallery/gallery5.jpg' %}">Sunshine Fitness</a></h5>		
-
-										<!-- Project Meta -->
-										<p>Pole Dance</p>		
-
-									</div>																										 
-								</div> 
-
-							</div>
-						</div>	<!-- END IMAGE #5 -->
-
-
-						<!-- IMAGE #6 -->
-						<div class="masonry-item pt">
-							<div class="hover-overlay"> 
-
-								<!-- Image -->
-								<img class="img-fluid" src="{% static 'website/images/gallery/gallery6.jpg' %}" alt="gallery-image" />			
-								<div class="item-overlay"></div>				
-								
-								<!-- Image Description -->
-								<div class="image-description white-color">
-									<div class="image-data">
-
-										<!-- Image Link -->
-										<h5 class="h5-sm"><a class="image-link" href="{% static 'website/images/gallery/gallery6.jpg' %}">Sunshine Fitness</a></h5>		
-
-										<!-- Project Meta -->
-										<p>Pole Dance</p>	
-
-									</div>																										 
-								</div>  
-
-							</div>
-						</div>	<!-- END IMAGE #6 -->
-
-
-						<!-- IMAGE #7 -->
-						<div class="masonry-item workshops">
-							<div class="hover-overlay"> 
-
-								<!-- Image -->
-								<img class="img-fluid" src="{% static 'website/images/gallery/gallery7.jpg' %}" alt="gallery-image" />			
-								<div class="item-overlay"></div>				
-								
-								<!-- Image Description -->
-								<div class="image-description white-color">
-									<div class="image-data">
-
-										<!-- Image Link -->
-										<h5 class="h5-sm"><a class="image-link" href="{% static 'website/images/gallery/gallery7.jpg' %}">Sunshine Fitness</a></h5>		
-
-										<!-- Project Meta -->
-										<p>Pole Dance</p>	
-
-									</div>																										 
-								</div>  
-
-							</div>
-						</div>	<!-- END IMAGE #7 -->
-
-
-						<!-- IMAGE #8 -->
-						<div class="masonry-item workshops">
-							<div class="hover-overlay"> 
-
-								<!-- Image -->
-								<img class="img-fluid" src="{% static 'website/images/gallery/gallery8.jpg' %}" alt="gallery-image" />			
-								<div class="item-overlay"></div>				
-								
-								<!-- Image Description -->
-								<div class="image-description white-color">
-									<div class="image-data">
-
-										<!-- Image Link -->
-										<h5 class="h5-sm"><a class="image-link" href="{% static 'website/images/gallery/gallery8.jpg' %}">Sunshine Fitness</a></h5>		
-
-										<!-- Project Meta -->
-										<p>Pole Dance</p>	
-
-									</div>																										 
-								</div> 
-
-							</div>
-						</div>	<!-- END IMAGE #8 -->
-
-
-						<!-- IMAGE #9 -->
-						<div class="masonry-item workshops">
-							<div class="hover-overlay"> 
-
-								<!-- Image -->
-								<img class="img-fluid" src="{% static 'website/images/gallery/gallery9.jpg' %}" alt="gallery-image" />			
-								<div class="item-overlay"></div>				
-								
-								<!-- Image Description -->
-								<div class="image-description white-color">
-									<div class="image-data">
-
-										<!-- Image Link -->
-										<h5 class="h5-sm"><a class="image-link" href="{% static 'website/images/gallery/gallery9.jpg' %}">Sunshine Fitness</a></h5>		
-
-										<!-- Project Meta -->
-										<p>Pole Dance</p>		
-
-									</div>																										 
-								</div> 
-
-							</div>
-						</div>	<!-- END IMAGE #9 -->
-
+						</div>	<!-- END IMAGE -->	
+						{% endfor %}
 
 					</div>
 				</div>	
@@ -649,7 +535,7 @@
 					<div class="section-title mb-60 text-center">	
 
 						<!-- Transparent Header -->	
-						<h2 class="tra-header txt-color-02">Testimonials</h2>	
+						<h2 class="tra-header txt-sunshine">Testimonials</h2>	
 
 						<!-- Title 	-->	
 						<h3 class="h3-xl txt-color-01">What Our Students Say</h3>	
@@ -669,167 +555,32 @@
 				<div class="col-md-12">					
 					<div class="owl-carousel owl-theme reviews-wrapper">
 
+						{% for testimonial in testimonials %}
 				
-						<!-- TESTIMONIAL #1 -->
-						<div class="review-1">
-							
-							<!-- Testimonial Author Avatar -->
-							<div class="testimonial-avatar">
-								<img src="{% static 'website/images/logo-round.png' %}" alt="testimonial-avatar">
-							</div>
+							<!-- TESTIMONIAL #1 -->
+							<div class="review-1">
+								
+								<!-- Testimonial Author Avatar -->
+								<div class="testimonial-avatar">
+									<img src="{% static 'website/images/logo-round.png' %}" alt="testimonial-avatar">
+								</div>
 
-							<!-- Testimonial Author -->
-							<div class="author-data txt-color-01">
-								<h6 class="h6-sm">Jane Doe</h6>	
+								<!-- Testimonial Author -->
+								<div class="author-data txt-color-01">
+									<h6 class="h6-sm">{{ testimonial.display_name }}</h6>	
+									{% if testimonial.occupation %}
+										<p class="p-sm" >{{ testimonial.occupation }}</p>
+									{% endif %}
+								</div>
+																								
+								<!-- Testimonial Text -->
+								<div class="review-1-txt txt-color-05">
+									<p>{{ testimonial.review }}</p>															
+								</div>	
+														
 							</div>
-																							
-							<!-- Testimonial Text -->
-							<div class="review-1-txt txt-color-05">
-								<p>Sagittis congue etiam sapien sem accumsan suscipit egestas lobortis magna, porttitor
-									sodales vitae aenean mauris tempor risus lectus 								   
-								</p>															
-							</div>	
-													
-						</div>
-				
-				
-						<!-- TESTIMONIAL #2 -->
-						<div class="review-1">
-							
-							<!-- Testimonial Author Avatar -->
-							<div class="testimonial-avatar">
-								<img src="{% static 'website/images/logo-round.png' %}" alt="testimonial-avatar">
-							</div>
-
-							<!-- Testimonial Author -->
-							<div class="author-data txt-color-01">
-								<h6 class="h6-sm">Janet Doe</h6>
-							</div>
-																							
-							<!-- Testimonial Text -->
-							<div class="review-1-txt txt-color-05">
-								<p>Sapien sem accumsan  vitae purus diam integer congue magna undo. Magna, sodales vitae
-									aenean mauris tempor risus lectus aenean magna ipsum vitae purus	vitae						   
-								</p>															
-							</div>	
-													
-						</div>
-				
-				
-						<!-- TESTIMONIAL #3 -->
-						<div class="review-1">
-
-							<!-- Testimonial Author Avatar -->
-							<div class="testimonial-avatar">
-								<img src="{% static 'website/images/logo-round.png' %}" alt="testimonial-avatar">
-							</div>
-
-							<!-- Testimonial Author -->
-							<div class="author-data txt-color-01">
-								<h6 class="h6-sm">June Doe</h6>
-							</div>
-																							
-							<!-- Testimonial Text -->
-							<div class="review-1-txt txt-color-05">
-								<p>Etiam sapien sem accumsan sagittis congue. Suscipit egestas at lobortis magna, porttitor
-									sodales vitae aenean mauris tempor risus lectus aenean diam aenean mauris								   
-								</p>															
-							</div>	
-													
-						</div>
 						
-						
-						<!-- TESTIMONIAL #4 -->
-						<div class="review-1">
-							
-							<!-- Testimonial Author Avatar -->
-							<div class="testimonial-avatar">
-								<img src="{% static 'website/images/logo-round.png' %}" alt="testimonial-avatar">
-							</div>
-
-							<!-- Testimonial Author -->
-							<div class="author-data txt-color-01">
-								<h6 class="h6-sm">Jenn Doe</h6>
-							</div>
-																							
-							<!-- Testimonial Text -->
-							<div class="review-1-txt txt-color-05">
-								<p>Egestas egestas magna ipsum vitae purus efficitur ipsum primis in cubilia laoreet augue
-									congue. An egestas lobortis magna, sodales vitae 								   
-								</p>															
-							</div>	
-													
-						</div>
-						
-						
-						<!-- TESTIMONIAL #5 -->
-						<div class="review-1">
-							
-							<!-- Testimonial Author Avatar -->
-							<div class="testimonial-avatar">
-								<img src="{% static 'website/images/logo-round.png' %}" alt="testimonial-avatar">
-							</div>
-
-							<!-- Testimonial Author -->
-							<div class="author-data txt-color-01">
-								<h6 class="h6-sm">John Doe</h6>
-							</div>
-																							
-							<!-- Testimonial Text -->
-							<div class="review-1-txt txt-color-05">
-								<p>An orci nullam tempor sapien, eget orci gravida donec enim ipsum porta justo integer and
-									odio velna auctor. Egestas magna ipsum vitae purus ipsum primis in laoreet augue								   
-								</p>															
-							</div>
-													
-						</div>
-						
-						
-						<!-- TESTIMONIAL #6 -->
-						<div class="review-1">
-
-							<!-- Testimonial Author Avatar -->
-							<div class="testimonial-avatar">
-								<img src="{% static 'website/images/logo-round.png' %}" alt="testimonial-avatar">
-							</div>
-
-							<!-- Testimonial Author -->
-							<div class="author-data txt-color-01">
-								<h6 class="h6-sm">Judy Doe</h6>	
-							</div>
-																							
-							<!-- Testimonial Text -->
-							<div class="review-1-txt txt-color-05">
-								<p>Mauris donec ociis et magnis sapien an etiam sapien sem sagittis congue augue. An orci nullam
-									tempor sapien, eget orci gravida donec porta							   
-								</p>															
-							</div>	
-													
-						</div>
-						
-						
-						<!-- TESTIMONIAL #7 -->
-						<div class="review-1">
-
-							<!-- Testimonial Author Avatar -->
-							<div class="testimonial-avatar">
-								<img src="{% static 'website/images/logo-round.png' %}" alt="testimonial-avatar">
-							</div>
-
-							<!-- Testimonial Author -->
-							<div class="author-data txt-color-01">
-								<h6 class="h6-sm">Jill Doe</h6>	
-							</div>
-																							
-							<!-- Testimonial Text -->
-							<div class="review-1-txt txt-color-05">
-								<p>At sagittis congue augue egestas egestas magna ipsum vitae purus ipsum primis in cubilia
-									laoreet augue diam ociis nullam tempor 		   
-								</p>															
-							</div>	
-													
-						</div>
-
+						{% endfor %}
 					
 					</div>
 				</div>									
@@ -839,7 +590,7 @@
 		</div>	   <!-- End container -->
 	</section>	 <!-- END TESTIMONIALS-1 -->
 
-{% endblock content %}
+{% endblock page_content %}
 
 {% block extra_footer %}
 	<!-- FOOTER CONTENT -->
