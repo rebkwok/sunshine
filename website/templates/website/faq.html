@@ -1,51 +1,317 @@
 {% extends 'website/_base.html' %}
 {% load static %}
 
-{% block content %}
+{% block page_content %}
 
-<h1 class="page-header">Frequently Asked Questions</h1>
 
-<div class="col-12">
+<!-- PAGE HERO
+============================================= -->	
+<section id="faqs-page" class="bg-fixed page-hero-section division">
+    <div class="container">	
 
-<h2>How to prepare for a Sunshine pole class</h2>
 
-<h4>What's best to wear?</h4>
+        <!-- PAGE HERO TEXT -->
+        <div class="row">	
+            <div class="col-md-10 col-xl-8 offset-md-1 offset-xl-2">
+                <div class="hero-txt text-center txt-sunshine">
 
-    <ul>
-        <li>Bare skin is what allows you to grip the pole, so we recommend fitted shorts and a vest top. (There are alternative options if you do not wish to wear shorts.) Make sure you have something warm to wear until you warm up.</li>
-        <li>Class can be done in socks, barefoot or indoor trainers.</li>
-        <li>Strictly no jewellery, we recommend leaving all jewellery at home to keep it safe.</li>
-    </ul>
+                    <!-- Title -->
+                    <h2 class="h2-lg mt-100">Frequency Asked Questions</h2>
+                </div>
+            </div>	
+        </div>    <!-- END PAGE HERO TEXT -->
 
-<h4>What to bring?</h4>
-    <ul>
-        <li>Water bottle.</li>
-        <li>Small hand towel/cloth for wiping the pole.</li>
-        <li>Kneepads for attending "Poledance" classes.</li>
-    </ul>
 
-<h2>Prices and Payment Info</h2>
-    {% include 'website/includes/membership.html' %}
+    </div>	   <!-- End container --> 
+</section>	<!-- END PAGE HERO -->
 
-    <strong>Before paying, please be aware of the following.</strong>
-    <ul>
-        <li>Memberships are due on the 1st day of the month.</li>
-        <li>Payment can be made via bank transfer or cash (see bank details bellow).</li>
-        <li>All paid classes must be used up by the end of the month and will not be carried over to the following month.</li>
-        <li>No refunds will be given.</li>
-    </ul>
+<!-- FAQs-1
+============================================= -->
+<section id="faqs-1" class="bg-color-01 pt-100 faqs-section division">				
+    <div class="container">
 
-<h2>Arriving at the facility.</h2>
-    <ul>
-        <li>Do not park in front of the blue containers or in front of the big black door marked 1A as other businesses need 24 hour access.</li>
-        <li>Our entrance is down the stone walkway and up the stairs.</li>
-        <li>Please arrive 5 minutes before your class is due to start and wait until the instructor invites you into the studio.</li>
-        <li>If you miss the warm up you will not be permitted to take part in the class for safety reasons.</li>
-    </ul>
 
-<h2>Come as you are.</h2>
-<p>We run a come as you are policy. This means you do not need to shave, lose weight, be stronger or fitter or change in any way to attend these classes.
-Pole is for absolutely everyone and we are a safe and inclusive environment for you to be 100% your authentic self.<p/>
+        <!-- SECTION TITLE -->	
+        <div class="row">	
+            <div class="col-lg-10 offset-lg-1">
+                <div class="section-title mb-60 text-center">	
+
+                    <!-- Transparent Header -->	
+                    <h2 class="tra-header txt-color-02">FAQs</h2>	
+
+                    <!-- Title 	-->	
+                    <h3 class="h3-xl txt-color-01">How to prepare for a Sunshine pole class</h3>	
+                        
+                </div>	
+            </div>
+        </div>
+
+
+        <!-- FAQs-1 QUESTIONS -->	
+        <div class="faqs-1-questions pc-15">
+            <div class="row">
+            
+
+                <!-- QUESTIONS WRAPPER -->
+                <div class="col-lg-10 offset-lg-1">
+                    <div class="questions-wrapper pc-30">
+
+
+                        <!-- QUESTION #1 -->
+                        <div class="question">
+
+                            <!-- Question -->
+                            <h5 class="h5-xs txt-color-01"><span>1.</span> What's best to wear?</h5>
+
+                            <!-- Answer -->
+                            <p class="txt-color-05">
+                                <ul class="simple-list txt-color-05">
+                                    <li class="list-item">
+                                        <p>Bare skin is what allows you to grip the pole, so we recommend fitted shorts and a vest top. (There are alternative options if you do not wish to wear shorts.) Make sure you have something warm to wear until you warm up.</p>
+                                    </li>
+                                    <li class="list-item">
+                                        <p>Class can be done in socks, barefoot or indoor trainers.</p>
+                                    </li>
+                                    <li class="list-item">
+                                        <p>Strictly no jewellery, we recommend leaving all jewellery at home to keep it safe.</p>
+                                    </li>
+                                </ul>
+                            </p>
+
+                        </div>	
+
+
+                        <!-- QUESTION #2 -->					
+                        <div class="question">
+
+                            <!-- Question -->
+                            <h5 class="h5-xs txt-color-01"><span>2.</span> What to bring?</h5>
+
+                            <!-- Answer -->
+                             <p>
+                            <ul class="simple-list txt-color-05">
+
+                                <li class="list-item">
+                                    <p>Water bottle.
+                                    </p>
+                                </li>
+
+                                <li class="list-item">
+                                    <p>Small hand towel/cloth for wiping the pole.
+                                    </p>
+                                </li>
+                                <li class="list-item">
+                                    <p>
+                                    Kneepads for attending "Poledance" classes.
+                                    </p>
+                                </li>
+                            </ul>
+                        </p>
+
+                        </div>
+
+
+                    </div>
+                </div>	<!-- END QUESTIONS WRAPPER -->
+
+
+            </div>	<!-- End row -->
+        </div>	<!-- END FAQs-1 QUESTIONS -->	
+
+    </div>     <!-- End container -->
+</section>	<!-- END FAQs-1 -->
+
+
+<!-- FAQs-2
+============================================= -->
+<section id="faqs-2" class="bg-color-01 pt-100 faqs-section division">				
+    <div class="container">
+
+
+        <!-- SECTION TITLE -->	
+        <div class="row">	
+            <div class="col-lg-10 offset-lg-1">
+                <div class="section-title mb-60 text-center">	
+
+                    <!-- Transparent Header -->	
+                    <h2 class="tra-header txt-color-02">FAQs</h2>	
+
+                    <!-- Title 	-->	
+                    <h3 class="h3-xl txt-color-01">Prices and Payment Info</h3>	
+                    
+                    {% include 'website/includes/membership.html' %}
+                </div>	
+            </div>
+        </div>
+
+
+        <!-- FAQs-2 QUESTIONS -->	
+        <div class="faqs-2-questions pc-15">
+            <div class="row">
+            
+
+                <!-- QUESTIONS WRAPPER -->
+                <div class="col-lg-10 offset-lg-1">
+                    <div class="questions-wrapper pc-30">
+
+
+                        <!-- QUESTION #1 -->
+                        <div class="question">
+
+                            <!-- Question -->
+                            <h5 class="h5-xs txt-color-01">Before paying, please be aware of the following:</h5>
+
+                            <!-- Answer -->
+                            <p class="txt-color-05">
+                                <ul class="simple-list txt-color-05">
+                                        <li class="list-item"><p>Memberships are due on the 1st day of the month.</p></li>
+                                        <li class="list-item"><p>Payment can be made via bank transfer or cash (see bank details bellow).</p></li>
+                                        <li class="list-item"><p>All paid classes must be used up by the end of the month and will not be carried over to the following month.</p></li>
+                                        <li class="list-item"><p>No refunds will be given.</p></li>
+                                </ul>
+                            </p>
+
+                        </div>	
+
+                    </div>
+                </div>	<!-- END QUESTIONS WRAPPER -->
+
+
+            </div>	<!-- End row -->
+        </div>	<!-- END FAQs-2 QUESTIONS -->	
+
+    </div>     <!-- End container -->
+</section>	<!-- END FAQs-2 -->
+
+
+
+<!-- FAQs-3
+============================================= -->
+<section id="faqs-3" class="bg-color-01 pt-100 aqs-section division">				
+    <div class="container">
+
+
+        <!-- SECTION TITLE -->	
+        <div class="row">	
+            <div class="col-lg-10 offset-lg-1">
+                <div class="section-title mb-60 text-center">	
+
+                    <!-- Transparent Header -->	
+                    <h2 class="tra-header txt-color-02">FAQs</h2>	
+
+                    <!-- Title 	-->	
+                    <h3 class="h3-xl txt-color-01">Arriving at the facility</h3>	
+                    
+                </div>	
+            </div>
+        </div>
+
+
+        <!-- FAQs-3 QUESTIONS -->	
+        <div class="faqs-3-questions pc-15">
+            <div class="row">
+            
+
+                <!-- QUESTIONS WRAPPER -->
+                <div class="col-lg-10 offset-lg-1">
+                    <div class="questions-wrapper pc-30">
+
+
+                        <!-- QUESTION #1 -->
+                        <div class="question">
+
+                            <!-- Question -->
+                            
+
+                            <!-- Answer -->
+                            <p class="txt-color-05">
+                                <ul class="simple-list txt-color-05">
+                                    <li class="list-item"><p>Do not park in front of the blue containers or in front of the big black door marked 1A as other businesses need 24 hour access.</p></li>
+                                    <li class="list-item"><p>Our entrance is down the stone walkway and up the stairs.</p></li>
+                                    <li class="list-item"><p>Please arrive 5 minutes before your class is due to start and wait until the instructor invites you into the studio.</p></li>
+                                    <li class="list-item"><p>If you miss the warm up you will not be permitted to take part in the class for safety reasons.</p></li>
+                                </ul>
+                            </p>
+
+                        </div>	
+
+                    </div>
+                </div>	<!-- END QUESTIONS WRAPPER -->
+
+
+            </div>	<!-- End row -->
+        </div>	<!-- END FAQs-3 QUESTIONS -->	
+
+    </div>     <!-- End container -->
+</section>	<!-- END FAQs-3 -->
+
+
+<!-- FAQs-4
+============================================= -->
+<section id="faqs-4" class="bg-color-01 pt-100 faqs-section division">				
+    <div class="container">
+
+
+        <!-- SECTION TITLE -->	
+        <div class="row">	
+            <div class="col-lg-10 offset-lg-1">
+                <div class="section-title mb-60 text-center">	
+
+                    <!-- Transparent Header -->	
+                    <h2 class="tra-header txt-color-02">FAQs</h2>	
+
+                    <!-- Title 	-->	
+                    <h3 class="h3-xl txt-color-01">Come as you are</h3>	
+                    
+                </div>	
+            </div>
+        </div>
+
+
+        <!-- FAQs-3 QUESTIONS -->	
+        <div class="faqs-4-questions pc-15">
+            <div class="row">
+            
+
+                <!-- QUESTIONS WRAPPER -->
+                <div class="col-lg-10 offset-lg-1">
+                    <div class="questions-wrapper pc-30">
+
+
+                        <!-- QUESTION #1 -->
+                        <div class="question">
+
+                            <!-- Question -->
+                            
+
+                            <!-- Answer -->
+                            <p class="txt-color-05">
+                                We run a come as you are policy. This means you do not need to shave, lose weight, be stronger or fitter or change in any way to attend these classes.
+                                Pole is for absolutely everyone and we are a safe and inclusive environment for you to be 100% your authentic self.
+                            </p>
+
+                        </div>	
+
+                    </div>
+                </div>	<!-- END QUESTIONS WRAPPER -->
+
+
+            </div>	<!-- End row -->
+        </div>	<!-- END FAQs-3 QUESTIONS -->	
+
+    </div>     <!-- End container -->
+</section>	<!-- END FAQs-3 -->
+
+
+
+<!-- MORE QUESTIONS BUTTON -->		
+ <div class="row">
+    <div class="col-md-12">
+        <div class="more-questions-btn text-center">
+            <a href="{% url 'website:contact' %}" class="btn btn-md btn-sunshine tra-hover-sunshine">Still Have A Question?</a>
+        </div>
+    </div>
+</div>
 
 
 {% endblock %}
