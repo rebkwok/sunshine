@@ -8,10 +8,15 @@
   <script src="https://js.stripe.com/v3/"></script>
 {% endblock %}
 
+{% block title %}
+  {% include "website/includes/header.html" with title="Checkout" %}  
+{% endblock %}
+
 {% block content %}
 
-    <h1 class="mt-2">Checkout</h1>
-    <hr>
+
+<section>
+    <div class="container mt-20">
 
     <div class="sr-root">
       <div class="sr-main">
@@ -22,11 +27,7 @@
               <p>This invoice has already been paid.</p>
           {% endif %}
           <p>Technical support has been notified and someone will be in contact shortly.</p>
-
       {% else %}
-
-
-
         <h3 class="mt-1">Order Summary</h3>
 
         <table class="table table-bordered">
