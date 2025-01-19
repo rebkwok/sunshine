@@ -3,6 +3,7 @@ from dateutil.relativedelta import relativedelta
 
 from django import forms
 from django.contrib.auth.models import User
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.html import mark_safe, linebreaks
 
@@ -206,12 +207,14 @@ class DisclaimerContactUpdateForm(forms.ModelForm):
         self.fields["phone"].label = "Contact phone number"
 
         self.helper = FormHelper()
+        back_url = reverse('accounts:profile')
         self.helper.layout = Layout(
             "phone",
             "emergency_contact_name",
             "emergency_contact_phone",
             "emergency_contact_relationship",
-            Submit('submit', 'Save', css_class="btn btn-green tra-green-hover")
+            Submit('submit', 'Save', css_class="btn btn-green tra-green-hover"),
+            HTML(f'<a class="btn btn-color-01 tra-01-hover" href="{back_url}">Cancel</a>')
         )
 
     class Meta:
@@ -220,3 +223,12 @@ class DisclaimerContactUpdateForm(forms.ModelForm):
             'phone', 'emergency_contact_name', 'emergency_contact_relationship', 'emergency_contact_phone'
         )
         widgets = deepcopy(BASE_DISCLAIMER_FORM_WIDGETS)
+
+
+"""
+Row(
+                Column(Submit('submit', 'Save', css_class="btn btn-green tra-green-hover col-6")),
+                Column(HTML(f'<a class="btn btn-color-01 tra-01-hover mt-2" href="{reverse('accounts:profile')}">Cancel</a>')),
+            )
+        )
+"""

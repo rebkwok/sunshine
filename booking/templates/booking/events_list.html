@@ -6,13 +6,19 @@
 {% include 'booking/includes/ajax_head.html' %}
 {% endblock %}
 
+{% block title %}
+    {% include "website/includes/header.html" with title=title %}
+{% endblock %}
+
 {% block content %}
 
 <div id="confirm-dialog"></div>
 
+
+<section>
+    <div class="container mt-20">
         {% include "booking/includes/fees_due_banner.html" %}
 
-        <h1 class="page-header">Book {{ event_type_plural|title }}
         {% if workshops_available_to_book %}</br>
             <a class="btn btn-sunshine tra-sunshine-hover" href="{% url 'booking:workshop_list' %}"><strong class="text-dark">Show Workshops</strong></a>
         {% elif classes_available_to_book %}</br>
@@ -174,6 +180,8 @@
             <p>There are currently no classes available to book.</p>
         {% endif %}
 
+    </div>
+</section>
 
 {% endblock content %}
 

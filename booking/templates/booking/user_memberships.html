@@ -6,48 +6,55 @@
 {% include 'booking/includes/ajax_head.html' %}
 {% endblock %}
 
+{% block title %}
+    {% include "website/includes/header.html" with title=title %}
+{% endblock %}
+
 {% block content %}
 
+<section>
 
-<h1>{% if not show_all %}Active {% endif %}Memberships</h1>
+    <div class="container mt-20">
 
-<div class="row">
-    <div class="col-8">
-        {% if show_all %}
-            <a href="{% url 'booking:user_memberships' %}">Hide expired/full</a>
-        {% else %}
-            <a href="{% url 'booking:user_memberships' %}?include-expired=true">Show all (including expired/full)</a>
-        {% endif %}
-    </div>
-    {% if membership_types %}
-    <div class="col-4 mb-2">
-        <a class="btn btn-sm  btn-sunshine tra-sunshine-hover"href="{% url 'booking:membership_purchase' %}">Buy a new membership</a>
-    </div>
-    {% endif %}
-
-    <div class="col-12">
-    {% if memberships %}
-        {% for membership in memberships %}
-        <div class="list-group mb-2">
-            <div class="list-group-item list-group-item-dark pt-1 pb-1">{{ membership }}
-                <a href="{% url 'booking:membership_detail' membership.id %}" class="btn btn-sm btn-color-01 tra-01-hover float-end">View details</a>
+        <div class="row">
+            <div class="col-8">
+                {% if show_all %}
+                    <a href="{% url 'booking:user_memberships' %}">Hide expired/full</a>
+                {% else %}
+                    <a href="{% url 'booking:user_memberships' %}?include-expired=true">Show all (including expired/full)</a>
+                {% endif %}
             </div>
-            <div class="list-group-item {% if not membership.current_or_future %}list-group-item-secondary{% endif %} pb-0 pt-0">
-                <strong>Purchased:</strong> {{ membership.purchase_date | date:"d-M-Y" }}
-                <br/>
-                <strong>Valid for: </strong>Classes in {{ membership.month_str }} {{ membership.year }}<br/>
-                <strong>Number of classes:</strong> {{ membership.membership_type.number_of_classes }}
-                <br>
-                <strong>Bookings made:</strong> {{ membership.times_used }}
+            {% if membership_types %}
+            <div class="col-4 mb-2">
+                <a class="btn btn-sm  btn-sunshine tra-sunshine-hover"href="{% url 'booking:membership_purchase' %}">Buy a new membership</a>
             </div>
+            {% endif %}
+
+            <div class="col-12">
+            {% if memberships %}
+                {% for membership in memberships %}
+                <div class="list-group mb-2">
+                    <div class="list-group-item list-group-item-dark pt-1 pb-1">{{ membership }}
+                        <a href="{% url 'booking:membership_detail' membership.id %}" class="btn btn-sm btn-color-01 tra-01-hover float-end">View details</a>
+                    </div>
+                    <div class="list-group-item {% if not membership.current_or_future %}list-group-item-secondary{% endif %} pb-0 pt-0">
+                        <strong>Purchased:</strong> {{ membership.purchase_date | date:"d-M-Y" }}
+                        <br/>
+                        <strong>Valid for: </strong>Classes in {{ membership.month_str }} {{ membership.year }}<br/>
+                        <strong>Number of classes:</strong> {{ membership.membership_type.number_of_classes }}
+                        <br>
+                        <strong>Bookings made:</strong> {{ membership.times_used }}
+                    </div>
+                </div>
+                {% endfor %}
+
+            {% else %}
+                <p>No memberships found.</p>
+            {% endif %}
+            </div>
+            {% include 'booking/includes/pagination.html' %}
         </div>
-        {% endfor %}
 
-    {% else %}
-        <p>No memberships found.</p>
-    {% endif %}
     </div>
-    {% include 'booking/includes/pagination.html' %}
-</div>
-
+</section>
 {% endblock content %}
