@@ -22,7 +22,7 @@ class Command(BaseCommand):
         )
 
         polefit, new = SessionType.objects.update_or_create(
-            name='Pole Fitness', display_on_site=True, index=100,
+            name='Pole Fitness', display_on_site=True, order=100,
             defaults={
                 "description": """
                 Pole dancing has gained popularity as a form of exercise with increased awareness of the benefits
@@ -33,7 +33,7 @@ class Command(BaseCommand):
         )
 
         stretch, _ = SessionType.objects.update_or_create(
-            name='Stretching',  display_on_site=True, index=500,
+            name='Stretching',  display_on_site=True, order=500,
             defaults={
                 "description": """
                 Stretching will help improve flexibilty and benefit your progression in pole tricks. 
@@ -46,7 +46,7 @@ class Command(BaseCommand):
         )
 
         general_fitness, _ = SessionType.objects.update_or_create(
-            name='General Fitness Classes', display_on_site=True, index=300,
+            name='General Fitness Classes', display_on_site=True, order=300,
             defaults={
                 "description": """
                     We offer a variety of more traditional fitness classes including Legs, Bums and Tums, 
