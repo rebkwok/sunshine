@@ -6,12 +6,16 @@
 {% include 'booking/includes/ajax_head.html' %}
 {% endblock %}
 
+
+{% block title %}
+    {% include "website/includes/header.html" with title="Shopping Basket" %}
+{% endblock %}
+
+
 {% block content %}
 
-
-<div class="container-fluid">
-    <div class="row">
-        <h3 class="mt-1">Shopping Basket</h3>
+<section>
+    <div class="container mt-20">
     
         {% if unpaid_items %}
 
@@ -171,31 +175,32 @@
               </tr>
               </tfoot>
             </table>
-    </div>
 
-{% else %}
-    <div class="col-12">
-    <p>Your cart is empty</p>
-    {% if request.user.is_authenticated %}
-    <p>
-        {% if membership_types %}
-            <a class="btn btn-sm btn-tra-sunshine sunshine-hover" href="{% url 'booking:membership_purchase' %}">Add membership</a>
+        {% else %}
+            <div class="col-12">
+            <p>Your cart is empty</p>
+            {% if request.user.is_authenticated %}
+            <p>
+                {% if membership_types %}
+                    <a class="btn btn-sm btn-tra-sunshine sunshine-hover" href="{% url 'booking:membership_purchase' %}">Add membership</a>
+                {% endif %}
+                <a class="btn btn-sm btn-tra-sunshine sunshine-hover" href="{% url 'booking:regular_session_list' %}">Add classes</a>
+                {% if future_events.privates %}
+                    <a class="btn btn-sm btn-tra-sunshine sunshine-hover" href="{% url 'booking:private_list' %}">Add private lessons</a>
+                {% endif %}
+                {% if future_events.workshops %}  
+                    <a class="btn btn-sm btn-tra-sunshine sunshine-hover" href="{% url 'booking:workshop_list' %}">Add workshops</a>
+                {% endif %}
+                {% if gift_vouchers_available %}
+                <a class="btn btn-sm btn-tra-sunshine sunshine-hover" href="{% url 'booking:buy_gift_voucher' %}">Add gift vouchers</a>
+                {% endif %} 
+            </p>
+            {% endif %}
+            </div>
         {% endif %}
-        <a class="btn btn-sm btn-tra-sunshine sunshine-hover" href="{% url 'booking:regular_session_list' %}">Add classes</a>
-        {% if future_events.privates %}
-            <a class="btn btn-sm btn-tra-sunshine sunshine-hover" href="{% url 'booking:private_list' %}">Add private lessons</a>
-        {% endif %}
-        {% if future_events.workshops %}  
-            <a class="btn btn-sm btn-tra-sunshine sunshine-hover" href="{% url 'booking:workshop_list' %}">Add workshops</a>
-        {% endif %}
-        {% if gift_vouchers_available %}
-        <a class="btn btn-sm btn-tra-sunshine sunshine-hover" href="{% url 'booking:buy_gift_voucher' %}">Add gift vouchers</a>
-        {% endif %} 
-    </p>
-    {% endif %}
+    
     </div>
-{% endif %}
-</div>
+</section>
 
 {% endblock content %}
 

@@ -6,120 +6,120 @@
 {% include 'booking/includes/ajax_head.html' %}
 {% endblock %}
 
+{% block title %}{% include "website/includes/header.html" with title=title %}{% endblock %}
+
 {% block content %}
 
-<div id="confirm-dialog"></div>
+<section>
 
+    <div id="confirm-dialog"></div>
 
-    {% include "booking/includes/fees_due_banner.html" %}
+    <div class="container mt-20">
 
-    
-        <h1 class="page-header">{% if history %}Past bookings{% else %}Bookings{% endif %}</h1>
-
-
-    {% if bookings %}
-    <div class="row">
-        <div class="col-sm-12">
-            <div class="panel panel-transparent">
-
-                    <table class="table">
-                        <tr class="table-secondary">
-                            {% if not history %}
-                            <th scope="col"> </th>
-                            {% endif %}
-                            <th scope="col">Date</th>
-                            <th scope="col">Booking</th>
-                            <th scope="col">Location</th>
-                            <th scope="col" class="table-center">Status</th>
-                            <th scope="col" class="table-center">Paid</th>
-                            <th scope="col" class="table-center">Membership</th>
-                        </tr>
-
-                            {% for booking in bookings %}
-                                <tr scope="row" id='booked-{{ booking.event.id }}-row' {% if booking_status_display|lookup:booking.id == 'CANCELLED' %}class='expired'{% else %}class='table-light'{% endif %}>
+        {% include "booking/includes/fees_due_banner.html" %}
+        
+        <div class="row">
+            {% if bookings %}
+                <div class="col-sm-12">
+                    <div class="panel panel-transparent">
+                            <table class="table">
+                                <tr class="table-secondary">
                                     {% if not history %}
-                                        <td class="table-center">
-                                        {% if booking.event.cancelled %}
-                                            CLASS CANCELLED
-                                        {% elif user.has_outstanding_fees %}
-                                            {% if booking.status == 'OPEN' and not booking.no_show %}
-                                                <span
-                                                    id="book_{{ booking.event.id }}"
-                                                    data-event_id="{{ booking.event.id }}"
-                                                    data-event_str="{{ booking.event.name }} ({{ booking.event.date|date:'D d b H:i'|title }})"
-                                                    data-ref="bookings"
-                                                    data-show_warning="{{ booking.event|show_warning }}"
-                                                    data-cancellation_fee="{{ booking.event.cancellation_fee }}"
-                                                    class="td_ajax_book_btn">
-                                                {% include "booking/includes/book_button_toggle.html" %}
-                                                </span>
-                                            {% else %}
-                                                {% include "booking/includes/outstanding_fee_disabled_buttons.html" %}
-                                            {% endif %}
-                                        {% elif booking|show_booking_button %}
-                                            <span
-                                                id="book_{{ booking.event.id }}"
-                                                data-event_id="{{ booking.event.id }}"
-                                                data-event_str="{{ booking.event.name }} ({{ booking.event.date|date:'D d b H:i'|title }})"
-                                                data-ref="bookings"
-                                                data-show_warning="{{ booking.event|show_warning }}"
-                                                data-cancellation_fee="{{ booking.event.cancellation_fee }}"
-                                                class="td_ajax_book_btn">
-                                            {% include "booking/includes/book_button_toggle.html" %}
-                                            </span>
-                                        {% else %}
-                                            <span
-                                                id="waiting_list_button_{{ booking.event.id }}"
-                                                data-event_id="{{ booking.event.id }}"
-                                                class="td_ajax_waiting_list_btn">
-                                            {% include "booking/includes/waiting_list_toggle.html" %}
-                                            </span>
-                                        {% endif %}
-                                        </td>
-
+                                    <th scope="col"> </th>
                                     {% endif %}
-
-                                    <td>{{ booking.event.date |  date:"D d M H:i" }}</td>
-                                    <td>{{ booking.event.name }}</td>
-                                    <td>{{ booking.event.venue.abbreviation }}</td>
-                                    <td class="table-center"><span id="booked-{{ booking.event.id }}-status">{{ booking_status_display|lookup:booking.id  }}</span></td>
-                                    <td class="table-center">
-                                        <span id="booked-{{ booking.event.id }}-paid">
-                                            <span 
-                                                class="{% if booking.paid %}text-success fas fa-check-circle{% else %}text-danger fas fa-times-circle{% endif %}"/>
-                                            </span>
-                                        </span>
-                                    </td>
-                                    <td class="table-center">
-                                        <span id="booked-{{ booking.event.id }}-membership">
-                                            {% if booking.membership %}
-                                                <a href={% url "booking:membership_detail" booking.membership.id %}>
-                                                    <span class="text-success fas fa-check-circle"></span>
-                                                </a>
-                                            {% else %}
-                                                <span class="text-danger fas fa-times-circle"></span>
-                                            {% endif %}
-                                        </span>
-                                    </td>
+                                    <th scope="col">Date</th>
+                                    <th scope="col">Booking</th>
+                                    <th scope="col">Location</th>
+                                    <th scope="col" class="table-center">Status</th>
+                                    <th scope="col" class="table-center">Paid</th>
+                                    <th scope="col" class="table-center">Membership</th>
                                 </tr>
-                            {% endfor %}
 
-                    </table>
-                    {% include 'booking/includes/pagination.html' %}
+                                    {% for booking in bookings %}
+                                        <tr scope="row" id='booked-{{ booking.event.id }}-row' {% if booking_status_display|lookup:booking.id == 'CANCELLED' %}class='expired'{% else %}class='table-light'{% endif %}>
+                                            {% if not history %}
+                                                <td class="table-center">
+                                                {% if booking.event.cancelled %}
+                                                    CLASS CANCELLED
+                                                {% elif user.has_outstanding_fees %}
+                                                    {% if booking.status == 'OPEN' and not booking.no_show %}
+                                                        <span
+                                                            id="book_{{ booking.event.id }}"
+                                                            data-event_id="{{ booking.event.id }}"
+                                                            data-event_str="{{ booking.event.name }} ({{ booking.event.date|date:'D d b H:i'|title }})"
+                                                            data-ref="bookings"
+                                                            data-show_warning="{{ booking.event|show_warning }}"
+                                                            data-cancellation_fee="{{ booking.event.cancellation_fee }}"
+                                                            class="td_ajax_book_btn">
+                                                        {% include "booking/includes/book_button_toggle.html" %}
+                                                        </span>
+                                                    {% else %}
+                                                        {% include "booking/includes/outstanding_fee_disabled_buttons.html" %}
+                                                    {% endif %}
+                                                {% elif booking|show_booking_button %}
+                                                    <span
+                                                        id="book_{{ booking.event.id }}"
+                                                        data-event_id="{{ booking.event.id }}"
+                                                        data-event_str="{{ booking.event.name }} ({{ booking.event.date|date:'D d b H:i'|title }})"
+                                                        data-ref="bookings"
+                                                        data-show_warning="{{ booking.event|show_warning }}"
+                                                        data-cancellation_fee="{{ booking.event.cancellation_fee }}"
+                                                        class="td_ajax_book_btn">
+                                                    {% include "booking/includes/book_button_toggle.html" %}
+                                                    </span>
+                                                {% else %}
+                                                    <span
+                                                        id="waiting_list_button_{{ booking.event.id }}"
+                                                        data-event_id="{{ booking.event.id }}"
+                                                        class="td_ajax_waiting_list_btn">
+                                                    {% include "booking/includes/waiting_list_toggle.html" %}
+                                                    </span>
+                                                {% endif %}
+                                                </td>
+
+                                            {% endif %}
+
+                                            <td>{{ booking.event.date |  date:"D d M H:i" }}</td>
+                                            <td>{{ booking.event.name }}</td>
+                                            <td>{{ booking.event.venue.abbreviation }}</td>
+                                            <td class="table-center"><span id="booked-{{ booking.event.id }}-status">{{ booking_status_display|lookup:booking.id  }}</span></td>
+                                            <td class="table-center">
+                                                <span id="booked-{{ booking.event.id }}-paid">
+                                                    <span 
+                                                        class="{% if booking.paid %}text-success fas fa-check-circle{% else %}text-danger fas fa-times-circle{% endif %}"/>
+                                                    </span>
+                                                </span>
+                                            </td>
+                                            <td class="table-center">
+                                                <span id="booked-{{ booking.event.id }}-membership">
+                                                    {% if booking.membership %}
+                                                        <a href={% url "booking:membership_detail" booking.membership.id %}>
+                                                            <span class="text-success fas fa-check-circle"></span>
+                                                        </a>
+                                                    {% else %}
+                                                        <span class="text-danger fas fa-times-circle"></span>
+                                                    {% endif %}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+
+                            </table>
+                            {% include 'booking/includes/pagination.html' %}
 
 
-        </div>
+                </div>
+            
+            {% else %}
+                {% if history %}
+                    <p>You do not have any past bookings.</p>
+                {% else %}
+                    <p>You do not have any upcoming bookings.</p>
+                {% endif %}
+            {% endif %}
         </div>
     </div>
-    {% else %}
-        {% if history %}
-            <p>You do not have any past bookings.</p>
-        {% else %}
-            <p>You do not have any upcoming bookings.</p>
-        {% endif %}
-    {% endif %}
-
-
+</section>
 {% endblock content %}
 
 

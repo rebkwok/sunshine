@@ -7,11 +7,17 @@
 {% include 'booking/includes/ajax_head.html' %}
 {% endblock %}
 
+{% block title %}
+    {% include "website/includes/header.html" with title="Memberships" %}
+{% endblock %}
+
 {% block content %}
+
 <div id="confirm-dialog"></div>
-<div id="background">
-    <h2 class="mt-1">Memberships</h2>
-    {{ section }}
+
+<section>
+    <div class="container mt-20">
+
           <div class="mb-2">
         {%  if request.user.is_authenticated %}
               <a class="btn btn-tra-sunshine sunshine-hover btn-xs" href="{% url 'booking:shopping_basket' %}"><span>View cart <i class="fas fa-shopping-cart"></i></span></a>
@@ -72,6 +78,7 @@
             <p>No memberships are available for purchase</p>
         {% endif %}
     </div>
+</section>
 {% endblock content %}
 
 

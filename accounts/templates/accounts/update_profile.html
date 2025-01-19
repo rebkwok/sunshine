@@ -1,33 +1,41 @@
 {% extends 'website/_base.html' %}
 {% load static %}
 
-{% block content %}
-<div class="container-fluid">
-    <div class="page-header">
-        <h2>Edit Your Account Profile</h2>
-    </div>
-    <form action="" method="post">{% csrf_token %}
-                    {% csrf_token %}
-                      {{ form.non_field_errors }}
-                            {% for field in form %}
-                                {% if field.name == 'confirmation_key' %}
-                                    <span class="d-none">{{ field }}</span>
-                                {% else %}
-                                    <div class="form-group">
-                                       <label class="control-label" for="{{ field.name }}_id">{{ field.label }}{% if field.field.required %}*{% endif %}</label><br/>
-                                       <div class="{% if form.field.errors %}errorlist{% endif %}">{{ field }}</div>
-                                       <div class="helptext">{{ field.help_text }}</div>
-                                        {% if field.errors %}
-                                            <div class="errorlist">
-                                                {{ field.errors }}
-                                            </div>
-                                        {% endif %}
-                                   </div>
-                                {% endif %}
-                            {% endfor %}
+{% block title %}
+    {% include "website/includes/header.html" with title="Edit Your Account Profile" %}
+{% endblock %}
 
-                    <input class="btn btn-success" type="submit" value="Update" />
-                    <a href="{% url 'accounts:profile' %}"><div class="btn btn-color-01 tra-01-hover">Cancel</div></a>
-                </form>
-</div>
+{% block content %}
+
+<section>
+
+    <div class="container mt-20">
+
+        <form action="" method="post">{% csrf_token %}
+            {% csrf_token %}
+                {{ form.non_field_errors }}
+                    {% for field in form %}
+                        {% if field.name == 'confirmation_key' %}
+                            <span class="d-none">{{ field }}</span>
+                        {% else %}
+                            <div class="form-group">
+                                <label class="control-label" for="{{ field.name }}_id">{{ field.label }}{% if field.field.required %}*{% endif %}</label><br/>
+                                <div class="{% if form.field.errors %}errorlist{% endif %}">{{ field }}</div>
+                                <div class="helptext">{{ field.help_text }}</div>
+                                {% if field.errors %}
+                                    <div class="errorlist">
+                                        {{ field.errors }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+            <div class="mt-10">
+                <input class="btn btn-green tra-green-hover" type="submit" value="Update" />
+                <a href="{% url 'accounts:profile' %}"><div class="btn btn-color-01 tra-01-hover">Cancel</div></a>
+            </div>
+        </form>
+    </div>
+
+</section>
 {% endblock content %}

@@ -62,7 +62,7 @@
 
 		<!-- RESPONSIVE CSS -->
 		<link href='{% static "website/css/responsive.css" %}' rel="stylesheet">
-	
+        
 	</head>
 
 	<body>
@@ -106,7 +106,7 @@
 
 
                                         <!-- DROPDOWN MENU -->
-                                        <li aria-haspopup="true" id="nav-timetable"><a href="#">Timetables <span class="wsarrow"></span></a>
+                                        <li aria-haspopup="true" id="nav-timetable"><a href="{% url 'timetable:timetable' %}">Timetables <span class="wsarrow"></span></a>
                                             <ul class="sub-menu">
                                                 {% for tab, location in timetable_locations %}
                                                     <li aria-haspopup="true"><a href="{% url 'timetable:timetable' %}?tab={{ tab }}">{{ location}}</a></li>
@@ -197,10 +197,11 @@
 
                 {% cookielaw_banner %}
 
+                {% block title %}{% endblock %}
                 {% block anon_banner %}
                     {% if user.is_anonymous %}
                         <div class="message-container">
-                            <div class="message alert alert-anon p-4">
+                            <div class="message alert alert-anon p-4 mt-0">
                                 <div><span class="fas fa-sun"></span> <a href={% url 'account_login' %}?next={{request.get_full_path|urlencode }}>Log in</a> to book a class! <span class="fas fa-sun"></span></div>
                             </div>
                         </div>
@@ -226,12 +227,10 @@
                     {% endif %}
                 {% endblock %}
                 
-                {% block page_content %}
-                    <div class="inner-page-wrapper">
-                    {% block content %}{% endblock content %}
-                    </div>
-                {% endblock %}
-
+                <div {% block content_class %}{% endblock %}>
+                {% block content %}{% endblock content %}
+                </div>
+                
             </div>
 			
 			<!-- FOOTER-1

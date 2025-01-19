@@ -2,8 +2,16 @@
 
 {% load static %}
 
+{% block title %}
+    {% include "website/includes/header.html" with title="Payment History" %}
+{% endblock %}
+
 {% block content %}
-    <h1>Payment History</h1>
+
+
+<section>
+
+    <div class="container mt-20">
 
     {% if invoices %}
         <table class="table table-striped">
@@ -36,6 +44,8 @@
     {% endif %}
     {% include 'booking/includes/pagination.html' %}
 
+    </div>
+</section>
 {% endblock content %}
 {% block extrascripts %}
 {% endblock %}

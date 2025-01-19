@@ -54,6 +54,7 @@ class BookingListView(DataPolicyAgreementRequiredMixin, LoginRequiredMixin, List
         context['can_cancel_booking_ids_list'] = can_cancel
         context['booking_status_display'] = booking_status_display
         context['section'] = "account"
+        context["title"] = "Bookings"
 
         return context
 
@@ -80,5 +81,6 @@ class BookingHistoryListView(DataPolicyAgreementRequiredMixin, LoginRequiredMixi
         # Add in the history flag
         context['history'] = True
         context['section'] = "account"
-        
+        context["title"] = "Past Bookings"
+
         return context

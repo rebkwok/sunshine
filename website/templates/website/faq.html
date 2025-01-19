@@ -1,29 +1,11 @@
 {% extends 'website/_base.html' %}
 {% load static %}
 
-{% block page_content %}
+{% block title %}
+    {% include "website/includes/header.html" with title="Frequently Asked Questions" %}
+{% endblock %}
 
-
-<!-- PAGE HERO
-============================================= -->	
-<section id="faqs-page" class="bg-fixed page-hero-section division">
-    <div class="container">	
-
-
-        <!-- PAGE HERO TEXT -->
-        <div class="row">	
-            <div class="col-md-10 col-xl-8 offset-md-1 offset-xl-2">
-                <div class="hero-txt text-center txt-sunshine">
-
-                    <!-- Title -->
-                    <h2 class="h2-lg mt-100">Frequency Asked Questions</h2>
-                </div>
-            </div>	
-        </div>    <!-- END PAGE HERO TEXT -->
-
-
-    </div>	   <!-- End container --> 
-</section>	<!-- END PAGE HERO -->
+{% block content %}
 
 <!-- FAQs-1
 ============================================= -->

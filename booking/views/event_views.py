@@ -194,6 +194,7 @@ class BaseEventListView(ListView):
 
         context['location_events'] = location_events
 
+        context["title"] = f"Book {self.event_type_plural}"
         return context
 
 

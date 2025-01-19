@@ -3,7 +3,7 @@ from django.urls import reverse
 from django.utils.safestring import mark_safe 
 
 from booking.models import Booking, Membership, GiftVoucher
-from stripe_payments.models import Invoice, StripeRefund, StripePaymentIntent
+from stripe_payments.models import Invoice, Seller, StripeRefund, StripePaymentIntent
 
 
 class BookingInline(admin.TabularInline):
@@ -163,3 +163,8 @@ class StripeRefundAdmin(admin.ModelAdmin):
                 ))
         except Booking.DoesNotExist:
             return f"{obj.booking_id} (deleted)"
+
+
+@admin.register(Seller)
+class SellerAdmin(admin.ModelAdmin):
+    ...

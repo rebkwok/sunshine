@@ -35,6 +35,9 @@ class MembershipListView(DataPolicyAgreementRequiredMixin, LoginRequiredMixin, L
         context["section"] = "membership"
         if self.request.GET.get("include-expired"):
             context["show_all"] = True
+            context["title"] = "Active Memberships"
+        else:
+            context["title"] = "Memberships"
         return context
 
 
