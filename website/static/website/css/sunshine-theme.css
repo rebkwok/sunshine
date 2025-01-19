@@ -5272,17 +5272,6 @@ p.foo-email a {
 
 
 
-
-/* ==========================================================================
-  23. INNER PAGE WRAPPER
-  =========================================================================== */
-
-.inner-page-wrapper {
-  margin-top: 80px;
-  margin-left: 20px;
-  margin-right: 20px;
-}
-
 /*------------------------------------------*/
 /*  INNER PAGE HERO
 /*------------------------------------------*/
@@ -5308,8 +5297,8 @@ p.foo-email a {
   background-image: url(../images/contacts-page.jpg);
 }
 
-#faqs-page.page-hero-section {
-  background-image: url(../images/faq-page.png);
+#page-header.page-hero-section {
+  background-image: url(../images/header-bg.png);
 }
 
 #gallery-page.page-hero-section {
