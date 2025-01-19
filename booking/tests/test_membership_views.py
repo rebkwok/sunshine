@@ -58,22 +58,9 @@ def test_detail_url(client, configured_user):
 
 # membership_purchase_view (views/purchases.py)
 buy_url = reverse("booking:membership_purchase")
-def test_membership_purchase_login_required(client, configured_user, membership_type):
-    list_url = reverse("booking:user_memberships")
-    resp = client.get(buy_url)
-    assert resp.status_code == 302
-    assert reverse("account_login") in resp.url
-
-    client.force_login(configured_user) 
+def test_membership_purchase_login_not_required(client, configured_user, membership_type):
     resp = client.get(buy_url)
     assert resp.status_code == 200
-    
-    # data privacy agreement required
-    configured_user.data_privacy_agreement.all().delete()
-    client.force_login(configured_user) 
-    resp = client.get(buy_url)
-    assert resp.status_code == 302
-    assert reverse('accounts:data_privacy_review') in resp.url
 
 
 def test_get_available_memberships_to_purchase(client, configured_user, membership_type, membership_type_4):
