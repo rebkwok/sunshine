@@ -9,6 +9,9 @@ class TimetableListView(ListView):
     context_object_name = 'timetable_sessions'
     template_name = 'timetable/timetable.html'
 
+    def default_tab(self):
+        return 0 if TimetableSession.active_locations().count() > 1 else 1
+
     def get_queryset(self):
         queryset = (
             TimetableSession.objects
@@ -26,12 +29,12 @@ class TimetableListView(ListView):
         return queryset
 
     def _get_tab(self):
-        tab = self.request.GET.get('tab', 0)
+        tab = self.request.GET.get('tab', self.default_tab())
 
         try:
             tab = int(tab)
         except ValueError:  # value error if tab is not an integer, default to 0
-            tab = 0
+            tab = self.default_tab()
         
         return tab
 
@@ -58,12 +61,12 @@ class TimetableListView(ListView):
         active_locations = TimetableSession.active_locations()
 
         for index, location_choice in Venue.location_choices().items():
-            if index != 0:
-                if location_choice not in active_locations:
-                    continue
-                queryset = all_queryset.filter(venue__location=location_choice)
-            else:
+            if location_choice not in active_locations:
+                continue
+            if index == 0:
                 queryset = all_queryset
+            else:
+                queryset = all_queryset.filter(venue__location=location_choice)
 
             location_events.append(
                 {
