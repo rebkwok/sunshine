@@ -37,7 +37,7 @@ class BaseEventListView(ListView):
     context_object_name = 'events'    
     template_name = 'booking/events_list.html'
     paginate_by = 20
-    
+
     def dispatch(self, request, *args, **kwargs):
         # Cleanup bookings so user is looking at current availability
         event_ids_from_expired_bookings = Booking.cleanup_expired_bookings(use_cache=True)
@@ -100,12 +100,14 @@ class BaseEventListView(ListView):
         return resp
 
     def _get_tab(self):
-        tab = self.request.GET.get('tab', 0)
+        default_tab = 0 if Event.active_locations().count() > 1 else 1
+        
+        tab = self.request.GET.get('tab', default_tab)
 
         try:
             tab = int(tab)
         except ValueError:  # value error if tab is not an integer, default to 0
-            tab = 0
+            tab = default_tab
         
         return tab
 
@@ -168,12 +170,13 @@ class BaseEventListView(ListView):
 
         active_locations = Event.active_locations()
         for index, location_choice in Venue.location_choices().items():
-            if index != 0:
-                if location_choice not in active_locations:
-                    continue
-                loc_queryset = queryset.filter(venue__location=location_choice)
-            else:
+            
+            if location_choice not in active_locations:
+                continue
+            if index == 0:
                 loc_queryset = queryset
+            else:
+                loc_queryset = queryset.filter(venue__location=location_choice)
 
             if tab == index:
                 page = page_get

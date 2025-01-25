@@ -106,7 +106,7 @@
 
 
                                         <!-- DROPDOWN MENU -->
-                                        <li aria-haspopup="true" id="nav-timetable"><a href="{% url 'timetable:timetable' %}">Timetables <span class="wsarrow"></span></a>
+                                        <li aria-haspopup="true" id="nav-timetable"><a href="{% url 'timetable:timetable' %}">Timetable <span class="wsarrow"></span></a>
                                             <ul class="sub-menu">
                                                 {% for tab, location in timetable_locations %}
                                                     <li aria-haspopup="true"><a href="{% url 'timetable:timetable' %}?tab={{ tab }}">{{ location}}</a></li>

@@ -140,7 +140,7 @@ class Event(models.Model):
     def active_locations(cls):
         return cls.objects.filter(
             show_on_site=True, cancelled=False, date__gt=timezone.now()
-            ).order_by("venue_id").distinct("venue_id").values_list("venue__location", flat=True)
+            ).order_by("venue__location").distinct("venue__location").values_list("venue__location", flat=True)
     
 
 class MembershipType(models.Model):
