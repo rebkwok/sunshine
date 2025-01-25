@@ -114,3 +114,14 @@ def contact_form(request, template_name='website/contact_form.html'):
 def contact(request):
     return contact_form(request, template_name='website/contact_us.html')
 
+
+def session_types(request):
+    return render(
+        request, 'website/session_types.html', {'section': 'session_types'}
+    )
+
+
+def venues(request):
+    return render(
+        request, 'website/venues.html', {'section': 'venues'}
+    )

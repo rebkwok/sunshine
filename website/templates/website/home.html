@@ -78,7 +78,7 @@
 										</p>
 
 										<!-- Button -->
-										<a href="#" class="btn btn-md btn-sunshine tra-white-hover">Discover More</a>
+										<a href="{% url 'website:session_types' %}" class="btn btn-md btn-sunshine tra-white-hover">Discover More</a>
 											
 									</div>
 								</li>	  <!-- END SLIDE #2 -->
@@ -97,7 +97,7 @@
 										</p>
 
 										<!-- Button -->
-										<a href="#" class="btn btn-md btn-sunshine tra-white-hover">Book Now</a>
+										<a href="{% url 'booking:regular_session_list' %}" class="btn btn-md btn-sunshine tra-white-hover">Book Now</a>
 											
 									</div>
 								</li>	  <!-- END SLIDE #3 -->	
@@ -166,7 +166,7 @@
 								<p class="txt-color-05">Aliquam an augue suscipit luctus neque purus magna ipsum neque dolor</p>	
 
 								<!-- Button -->
-								<a href="#" class="btn p-sm btn-tra-sunshine sunshine-hover">Find Out More</a> 
+								<a href="{% url 'website:session_types' %}" class="btn p-sm btn-tra-sunshine sunshine-hover">Find Out More</a> 
 
 							</div>
 
@@ -229,7 +229,7 @@
 								<p class="txt-color-05">Aliquam an augue suscipit luctus neque purus magna ipsum neque dolor</p>	
 
 								<!-- Button -->
-								<a href="#" class="btn p-sm btn-tra-sunshine sunshine-hover">Find Out More</a> 	
+								<a href="{% url 'website:venues' %}" class="btn p-sm btn-tra-sunshine sunshine-hover">Find Out More</a> 	
 
 							</div>
 
@@ -409,10 +409,10 @@
 												<div class="tm-social clearfix">
 													<ul class="text-center clearfix">
 														{% if team_member.facebook %}																	
-														<li><a href="#" class="ico-facebook"><i class="fab fa-facebook-f"></i></a></li>
+														<li><a href="{{ team_member.facebook }}" class="ico-facebook"><i class="fab fa-facebook-f"></i></a></li>
 														{% endif %}
 														{% if team_member.instagram %}
-														<li><a href="#" class="ico-instagram"><i class="fab fa-instagram"></i></a></li>
+														<li><a href="{{ team_member.instagram }}" class="ico-instagram"><i class="fab fa-instagram"></i></a></li>
 														{% endif %}
 													</ul>
 												</div>	
@@ -649,7 +649,7 @@
 
 				<!-- Footer List -->
 				<ul class="clearfix txt-color-05">									
-					<li><p><a href="#">Location</a></p></li>																	
+					<li><p><a href="{% url 'website:venues' %}">Location</a></p></li>																	
 					<li><p><a href="{% url 'website:faq' %}">Help & FAQs</a></p></li>
 					<li><p><a href="{% url 'timetable:timetable' %}">Timetable</a></p></li>
 					<li><p><a href="{% url 'booking:membership_purchase' %}">Membership</a></p></li>	
