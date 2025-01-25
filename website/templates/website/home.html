@@ -59,7 +59,7 @@
 										</p>
 
 										<!-- Button -->
-										<a href="#" class="btn btn-md btn-sunshine tra-white-hover">Timetable</a>
+										<a href="{% url 'timetable:timetable' %}" class="btn btn-md btn-sunshine tra-white-hover">Timetable</a>
 											
 									</div>
 								</li>	  <!-- END SLIDE #1 -->
@@ -190,14 +190,14 @@
 
 											
 								<!-- Title -->
-								<h5 class="h5-sm txt-color-01">Timetables</h5>
+								<h5 class="h5-sm txt-color-01">Timetable</h5>
 
 								<!-- Text -->	
 								<p class="txt-color-05">Aliquam an augue suscipit luctus neque purus magna ipsum neque dolor</p>		
 
 								<!-- Button -->
 								 {% for tab, location in timetable_locations %}
-								 	{% if tab != 0 %}
+								 	{% if location != "All locations" %}
 									<a href="{% url 'timetable:timetable' %}?tab={{ tab }}" class="btn p-sm btn-tra-sunshine sunshine-hover">{{ location }}</a> 
 									{% endif %}
 								{% endfor %}
@@ -651,7 +651,7 @@
 				<ul class="clearfix txt-color-05">									
 					<li><p><a href="#">Location</a></p></li>																	
 					<li><p><a href="{% url 'website:faq' %}">Help & FAQs</a></p></li>
-					<li><p><a href="{% url 'timetable:timetable' %}">Timetables</a></p></li>
+					<li><p><a href="{% url 'timetable:timetable' %}">Timetable</a></p></li>
 					<li><p><a href="{% url 'booking:membership_purchase' %}">Membership</a></p></li>	
 					<li><p><a href="{% url 'booking:regular_session_list' %}">Book a class</a></p></li>						
 				</ul>

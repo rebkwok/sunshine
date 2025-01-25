@@ -150,7 +150,7 @@ class TimetableSession(models.Model):
 
     @classmethod
     def active_locations(cls):
-        return cls.objects.filter(show_on_timetable_page=True).order_by("venue_id").distinct("venue_id").values_list("venue__location", flat=True)
+        return cls.objects.filter(show_on_timetable_page=True).order_by("venue__location").distinct("venue__location").values_list("venue__location", flat=True)
 
     def __str__(self):
 
