@@ -9,7 +9,7 @@
 
 	<!-- ABOUT-2
 	============================================= -->
-    {% for location_name, location in locations.items %}
+    {% for location, venues in locations.items %}
 	<section id="venues" class="bg-color-01 wide-60 division">
 		<div class="container">
             <div class="col-lg-10 offset-lg-1">
@@ -19,10 +19,10 @@
                     <h2 class="tra-header txt-sunshine">Our venues</h2>	
 
                     <!-- Title 	-->	
-                    <h3 class="h3-xl txt-color-01">{{ location_name }}</h3>	
+                    <h3 class="h3-xl txt-color-01">{{ location.name }}</h3>	
                 </div>
             
-            {% for venue in location.venues %}
+            {% for venue in venues %}
                 
                 {% if forloop.counter|divisibleby:2 and venue.photo %}
                     <!-- VENUE WITH PHOTO ON LEFT -->
