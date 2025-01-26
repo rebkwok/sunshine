@@ -4,14 +4,19 @@ from django.urls import path, reverse
 from django.utils.safestring import mark_safe
 
 from .forms import UploadTimetableForm
-from .models import Category, TimetableSession, SessionType, Venue
+from .models import Category, TimetableSession, SessionType, Venue, Location
 from .utils import upload_timetable
+
+
+@admin.register(Location)
+class LocationAdmin(admin.ModelAdmin):
+    fields = ("name", "address", "postcode")
 
 
 @admin.register(Venue)
 class VenueAdmin(admin.ModelAdmin):
-    list_display = ('name', 'addr', 'abbreviation', 'location', 'tab_order', 'display_on_site', 'image_img')
-
+    list_display = ('name', 'addr', 'abbreviation', 'location', 'order', 'display_on_site', 'image_img')
+    list_editable = ('order', 'display_on_site')
     fieldsets = (
         (
             "Venue",
@@ -20,14 +25,14 @@ class VenueAdmin(admin.ModelAdmin):
         (
             "Timetable details",
             {
-                "fields": ("abbreviation", "location", "tab_order"),
+                "fields": ("abbreviation", "location", "order"),
                 "description": "Details for displaying and ordering on timetable and booking pages"    
             },  
         ),
         (
             "Web page content",
             {
-                "fields": ("display_on_site", "address", "postcode", "description", "photo"),
+                "fields": ("display_on_site", "description", "photo"),
                 "description": "Details displayed on the Venues web page"    
             }
         ),
@@ -42,13 +47,14 @@ class VenueAdmin(admin.ModelAdmin):
     image_img.short_description = "photo"
 
     def addr(self,obj):
-        return f"{obj.address}, {obj.postcode}"
+        return f"{obj.location.address}, {obj.location.postcode}"
     addr.short_description = "address"
 
 
 @admin.register(SessionType)
 class SessionTypeAdmin(admin.ModelAdmin):
-    list_display = ('order', 'name', 'image_img', 'display_on_site')
+    list_display = ('name', 'image_img', 'order', 'display_on_site')
+    list_editable = ('order', 'display_on_site')
     fieldsets = (
         (
             "Session Type", 
