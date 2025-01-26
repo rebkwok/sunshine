@@ -22,7 +22,7 @@ def home(request):
         request, 
         'website/home.html', 
         {
-            'section': 'home',
+            'section': 'about',
             'gallery_images': images,
             'gallery_categories': set(images.values_list("category__name", flat=True)) - {None},
             'testimonials': testimonials,
@@ -32,7 +32,7 @@ def home(request):
 
 
 def faq(request):
-    return render(request, 'website/faq.html')
+    return render(request, 'website/faq.html', {'section': 'about'})
 
 
 def process_contact_form(request, template_name):
@@ -85,7 +85,7 @@ def process_contact_form(request, template_name):
         else:
             messages.error(request, 'Please correct the errors below')
         return render(
-            request, template_name, {'section': 'contact', 'form': form}
+            request, template_name, {'section': 'about', 'form': form}
         )
 
 
@@ -109,7 +109,7 @@ def contact_form(request, template_name='website/contact_form.html'):
     })
 
     return render(
-        request, template_name, {'section': 'contact', 'form': form}
+        request, template_name, {'section': 'about', 'form': form}
     )
 
 
@@ -119,7 +119,7 @@ def contact(request):
 
 def session_types(request):
     return render(
-        request, 'website/session_types.html', {'section': 'session_types'}
+        request, 'website/session_types.html', {'section': 'about'}
     )
 
 
@@ -131,5 +131,5 @@ def venues(request):
             locations.setdefault(venue.location, {"venues": [], "address": venue.address, "postcode": venue.postcode})
         locations[venue.location]["venues"].append(venue)
     return render(
-        request, 'website/venues.html', {'section': 'venues', "locations": locations}
+        request, 'website/venues.html', {'section': 'about', "locations": locations}
     )
