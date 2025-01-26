@@ -102,7 +102,15 @@
                                 <nav class="wsmenu clearfix">
                                     <ul class="wsmenu-list">
 
-                                        <li id="nav-home" class="nl-simple" aria-haspopup="true"><a href="/">Home</a></li>
+                                        <!-- DROPDOWN MENU -->
+                                        <li aria-haspopup="true" id="nav-about"><a href="/">About <span class="wsarrow"></span></a>
+                                            <ul class="sub-menu">
+                                                <li aria-haspopup="true"><a href="{% url 'website:session_types' %}">What we offer</a></li>
+                                                <li aria-haspopup="true"><a href="{% url 'website:venues' %}">Venues</a></li>
+                                                <li aria-haspopup="true"><a href="{% url 'website:faq' %}">FAQ</a></li>
+                                                <li aria-haspopup="true"><a href="{% url 'website:contact' %}">Contact us</a></li>
+                                            </ul>
+                                        </li>	<!-- END DROPDOWN MENU -->
 
 
                                         <!-- DROPDOWN MENU -->
@@ -119,7 +127,6 @@
                                         {% if gift_vouchers_available %}
                                             <li id="nav-gift_voucher" class="nl-simple" aria-haspopup="true"><a href="{% url 'booking:buy_gift_voucher' %}">Gift Vouchers</a>
                                         {% endif %}
-                                        <li id="nav-contact" class="nl-simple" aria-haspopup="true"><a href="{% url 'website:contact' %}">Contact us</a></li>
 
                                         {% if user.is_anonymous %}
                                             <li id="nav-login" class="nl-simple" aria-haspopup="true"><a href="{% url 'account_login' %}">Login</a></li>
