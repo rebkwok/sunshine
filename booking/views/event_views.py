@@ -180,7 +180,7 @@ class BaseEventListView(ListView):
             elif location_choice not in active_locations:
                 continue
             else:
-                loc_queryset = queryset.filter(venue__location=location_choice)
+                loc_queryset = queryset.filter(venue__location__name=location_choice)
 
             if tab == index:
                 page = page_get

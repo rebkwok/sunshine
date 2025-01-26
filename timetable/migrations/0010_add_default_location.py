@@ -5,23 +5,36 @@ from django.db import migrations
 
 def add_default_location(apps, schema_editor):
     Venue = apps.get_model('timetable', 'Venue')
+    Location = apps.get_model('timetable', 'Location')
 
     for venue in Venue.objects.all():
         if venue.postcode:
-            venue.location = venue.postcode
+            location_name = venue.postcode
         else:
-            venue.location = venue.name
+            location_name = venue.name
+        
+        location, _ = Location.objects.get_or_create(name=location_name, postcode=venue.postcode, address=venue.address)
+        venue.location = location
+        venue.save()
+
+
+def revert_location(apps, schema_editor):
+    Venue = apps.get_model('timetable', 'Venue')
+
+    for venue in Venue.objects.all():
+        venue.address = venue.location.address
+        venue.postcode = venue.location.postcode
         venue.save()
 
 
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('timetable', '0009_venue_location_alter_venue_abbreviation'),
+        ('timetable', '0009_location_alter_sessiontype_options_and_more'),
     ]
 
     operations = [
         migrations.RunPython(
-            add_default_location, reverse_code=migrations.RunPython.noop
+            add_default_location, reverse_code=revert_location
         )
     ]
