@@ -99,8 +99,14 @@ class BaseEventListView(ListView):
             return paginator, page, page.object_list, page.has_other_pages()
         return resp
 
-    def _get_tab(self):
-        default_tab = 0 if Event.active_locations().count() > 1 else 1
+    def _get_location_data(self):
+        active_locations = Event.active_locations()
+        venue_locations = Venue.location_choices().items()
+        
+        if len(active_locations) > 1:
+            default_tab = 0
+        else:
+            default_tab = next(k for k, v in venue_locations if v == active_locations[0])
         
         tab = self.request.GET.get('tab', default_tab)
 
@@ -109,7 +115,7 @@ class BaseEventListView(ListView):
         except ValueError:  # value error if tab is not an integer, default to 0
             tab = default_tab
         
-        return tab
+        return tab, active_locations, venue_locations
 
     def get_context_data(self, **kwargs):
         queryset = self.object_list
@@ -117,7 +123,7 @@ class BaseEventListView(ListView):
         context = super().get_context_data(**kwargs)
         context['section'] = 'booking'
 
-        tab = self._get_tab()
+        tab, active_locations, venue_locations = self._get_location_data()
         context['tab'] = tab
 
         if not self.request.user.is_anonymous:
@@ -168,13 +174,11 @@ class BaseEventListView(ListView):
         
         location_events = []
 
-        active_locations = Event.active_locations()
-        for index, location_choice in Venue.location_choices().items():
-            
-            if location_choice not in active_locations:
-                continue
-            if index == 0:
+        for index, location_choice in venue_locations:
+            if index == 0 and len(active_locations) > 1:
                 loc_queryset = queryset
+            elif location_choice not in active_locations:
+                continue
             else:
                 loc_queryset = queryset.filter(venue__location=location_choice)
 
@@ -196,7 +200,6 @@ class BaseEventListView(ListView):
             )
 
         context['location_events'] = location_events
-
         context["title"] = f"Book {self.event_type_plural}"
         return context
 

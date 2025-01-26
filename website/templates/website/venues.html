@@ -1,4 +1,5 @@
 {% extends 'website/_base.html' %}
+{% load static %}
 
 {% block title %}
     {% include "website/includes/header.html" with title="Venues" %}
@@ -6,10 +7,105 @@
 
 {% block content %}
 
-<section>
-    <div class="container mt-20">
-        <h3>Venues</h3>
+	<!-- ABOUT-2
+	============================================= -->
+    {% for location_name, location in locations.items %}
+	<section id="venues" class="bg-color-01 wide-60 division">
+		<div class="container">
+            <div class="col-lg-10 offset-lg-1">
+                <div class="section-title mb-60 text-center">	
+
+                    <!-- Transparent Header -->	
+                    <h2 class="tra-header txt-sunshine">Our venues</h2>	
+
+                    <!-- Title 	-->	
+                    <h3 class="h3-xl txt-color-01">{{ location_name }}</h3>	
+                </div>
             
-    </div>
-</section>
+            {% for venue in location.venues %}
+                
+                {% if forloop.counter|divisibleby:2 and venue.photo %}
+                    <!-- VENUE WITH PHOTO ON LEFT -->
+                    <div class="row d-flex align-items-center m-row">
+                        <!-- IMAGE BLOCK -->
+                        <div class="col-md-4 col-lg-5 m-bottom">
+                            {% if venue.photo %}
+                            <div class="img-rounded img-responsive right-column pc-15 mb-40">
+                                <img class="img-fluid" src="{{ venue.photo.url }}" alt="{{ venue.name }}">
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- TEXT BLOCK -->	
+                        <div class="col-md-8 col-lg-7 m-top">
+                            <div class="txt-block left-column pc-15 mb-40">
+
+                                <!-- Title -->	
+                                <h3 class="h3-md txt-color-01">{{ venue }}</h3>
+
+                                <!-- Text -->
+                                <p class="txt-color-05">{{ venue.description | linebreaks }}</p>
+
+                            </div>
+                        </div>	<!-- END TEXT BLOCK -->	
+                        
+                    </div>	  <!-- End row -->	
+
+                {% else %}
+                    <div class="row d-flex align-items-center m-row">
+
+                        <!-- TEXT BLOCK -->	
+                        <div class="col-md-8 col-lg-7 m-top">
+                            <div class="txt-block left-column pc-15 mb-40">
+
+                                <!-- Title -->	
+                                <h3 class="h3-md txt-color-01">{{ venue }}</h3>
+
+                                <!-- Text -->
+                                <p class="txt-color-05">{{ venue.description | linebreaks }}</p>
+
+                            </div>
+                        </div>	<!-- END TEXT BLOCK -->	
+
+
+                        <!-- IMAGE BLOCK -->
+                        <div class="col-md-4 col-lg-5 m-bottom">
+                            {% if venue.photo %}
+                            <div class="img-rounded img-responsive right-column pc-15 mb-40">
+                                <img class="img-fluid" src="{{ venue.photo.url }}" alt="{{ venue.name }}">
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>	  <!-- End row -->	
+
+                {% endif %}
+
+            {% endfor %}
+            <hr/>
+            <div class="row d-flex align-items-center m-row">
+
+				<!-- TEXT BLOCK -->	
+				<div class="col-md-8 col-lg-7 m-top">
+					<div class="txt-block left-column pc-15 mb-40 txt-color-05">
+                        <h5 class="txt-color-01">Address</h3>
+						<!-- Text -->
+						{{ location.address | linebreaks }}
+                        {{ location.postcode  }}
+					</div>
+				</div>	<!-- END TEXT BLOCK -->	
+
+
+				<!-- MAP BLOCK -->
+				<div class="col-md-4 col-lg-5 m-bottom">
+					<div class="right-column pc-15">
+                        <div style="width: 100%"><iframe width="100%" height="400" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" src="https://maps.google.com/maps?width=100%25&amp;height=400&amp;hl=en&amp;q={{ location.address }}&amp{{ location.postcode }}&amp{{ location_name }}&amp;t=&amp;z=14&amp;ie=UTF8&amp;iwloc=B&amp;output=embed"><a href="https://www.gps.ie/">gps map</a></iframe></div>
+                    </div>
+				</div>
+
+
+			</div>	  <!-- End row -->	
+		</div>	   <!-- End container -->
+	</section>	<!-- END ABOUT-2 -->
+{% endfor %}
+
 {% endblock %}
