@@ -51,16 +51,13 @@
 									<div class="caption-txt">
 										
 										<!-- Title -->
-										<h2>Pole Fitness</h2>
+										<h2>Sunshine Fitness</h2>
 
 										<!-- Text -->
-										<p>Feugiat primis ligula gravida auctor egestas augue viverra mauri tortor in iaculis a 
-											placerat eugiat mauris ipsum integer odio velna
-										</p>
+										<p>Pole and fitness studio based in Fife</p>
 
 										<!-- Button -->
-										<a href="{% url 'timetable:timetable' %}" class="btn btn-md btn-sunshine tra-white-hover">Timetable</a>
-											
+										<a href="{% url 'website:session_types' %}" class="btn btn-md btn-sunshine tra-white-hover">Discover More</a>											
 									</div>
 								</li>	  <!-- END SLIDE #1 -->
 
@@ -78,7 +75,7 @@
 										</p>
 
 										<!-- Button -->
-										<a href="{% url 'website:session_types' %}" class="btn btn-md btn-sunshine tra-white-hover">Discover More</a>
+										<a href="{% url 'timetable:timetable' %}" class="btn btn-md btn-sunshine tra-white-hover">Timetable</a>
 											
 									</div>
 								</li>	  <!-- END SLIDE #2 -->
@@ -97,7 +94,7 @@
 										</p>
 
 										<!-- Button -->
-										<a href="{% url 'booking:regular_session_list' %}" class="btn btn-md btn-sunshine tra-white-hover">Book Now</a>
+										<a href="{% url 'booking:workshop_list' %}" class="btn btn-md btn-sunshine tra-white-hover">Book Now</a>
 											
 									</div>
 								</li>	  <!-- END SLIDE #3 -->	
@@ -163,7 +160,7 @@
 								<h5 class="h5-sm txt-color-01">What we offer</h5>
 
 								<!-- Text -->	
-								<p class="txt-color-05">Aliquam an augue suscipit luctus neque purus magna ipsum neque dolor</p>	
+								<p class="txt-color-05">Pole classes and more</p>	
 
 								<!-- Button -->
 								<a href="{% url 'website:session_types' %}" class="btn p-sm btn-tra-sunshine sunshine-hover">Find Out More</a> 
@@ -193,14 +190,10 @@
 								<h5 class="h5-sm txt-color-01">Timetable</h5>
 
 								<!-- Text -->	
-								<p class="txt-color-05">Aliquam an augue suscipit luctus neque purus magna ipsum neque dolor</p>		
+								<p class="txt-color-05">Regular scheduled classes</p>		
 
 								<!-- Button -->
-								 {% for tab, location in timetable_locations %}
-								 	{% if location != "All locations" %}
-									<a href="{% url 'timetable:timetable' %}?tab={{ tab }}" class="btn p-sm btn-tra-sunshine sunshine-hover">{{ location }}</a> 
-									{% endif %}
-								{% endfor %}
+								<a href="{% url 'timetable:timetable' %}" class="btn p-sm btn-tra-sunshine sunshine-hover">View now</a> 
 
 							</div>						
 						
@@ -226,7 +219,7 @@
 								<h5 class="h5-sm txt-color-01">Venues</h5>
 
 								<!-- Text -->	
-								<p class="txt-color-05">Aliquam an augue suscipit luctus neque purus magna ipsum neque dolor</p>	
+								<p class="txt-color-05">Where we are</p>	
 
 								<!-- Button -->
 								<a href="{% url 'website:venues' %}" class="btn p-sm btn-tra-sunshine sunshine-hover">Find Out More</a> 	
@@ -255,7 +248,7 @@
 								<h5 class="h5-sm txt-color-01">Memberships</h5>
 
 								<!-- Text -->	
-								<p class="txt-color-05">Aliquam an augue suscipit luctus neque purus magna ipsum neque dolor</p>		
+								<p class="txt-color-05">Monthly memberships</p>		
 
 								<!-- Button -->
 								<a href="{% url 'booking:membership_purchase' %}" class="btn p-sm btn-tra-sunshine sunshine-hover">Find Out More</a> 		
@@ -460,8 +453,7 @@
 						<h3 class="h3-xl txt-color-01">Gallery</h3>	
 
 						<!-- Text -->	
-						<p class="p-lg txt-color-05">Aliquam a augue suscipit, luctus neque purus ipsum neque undo dolor 
-							primis libero tempus, blandit a cursus varius at magna tempor
+						<p class="p-lg txt-color-05">
 						</p>
 							
 					</div>	
@@ -541,8 +533,7 @@
 						<h3 class="h3-xl txt-color-01">What Our Students Say</h3>	
 
 						<!-- Text -->	
-						<p class="p-lg txt-color-05">Aliquam a augue suscipit, luctus neque purus ipsum neque undo dolor 
-							primis libero tempus, blandit a cursus varius at magna tempor
+						<p class="p-lg txt-color-05">Read some reviews from our students below.
 						</p>
 							
 					</div>	
