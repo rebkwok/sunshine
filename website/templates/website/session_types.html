@@ -6,10 +6,74 @@
 
 {% block content %}
 
-<section>
-    <div class="container mt-20">
-        <h3>What we offer</h3>
-            
-    </div>
-</section>
+	<!-- ABOUT-2
+	============================================= -->
+    {% for session_type in session_types %}
+	<section id="session_types" class="bg-color-01 wide-60 division">
+		<div class="container">
+            <div class="col-lg-10 offset-lg-1">
+                <div class="section-title mb-60 text-center">	
+
+                    <!-- Transparent Header -->	
+                    <h2 class="tra-header txt-sunshine">What We Offer</h2>	
+
+                    <!-- Title 	-->	
+                    <h3 class="h3-xl txt-color-01">{{ session_type.name }}</h3>	
+                </div>
+                
+                {% if forloop.counter|divisibleby:2 and session_type.photo %}
+                    <!-- VENUE WITH PHOTO ON LEFT -->
+                    <div class="row d-flex align-items-center m-row">
+                        <!-- IMAGE BLOCK -->
+                        <div class="col-md-4 col-lg-5 m-bottom">
+                            {% if session_type.photo %}
+                            <div class="img-rounded img-responsive right-column pc-15 mb-40">
+                                <img class="img-fluid" src="{{ session_type.photo.url }}" alt="{{ session_type.name }}">
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- TEXT BLOCK -->	
+                        <div class="col-md-8 col-lg-7 m-top">
+                            <div class="txt-block left-column pc-15 mb-40">
+
+                                <!-- Text -->
+                                <p class="txt-color-05">{{ session_type.description | linebreaks }}</p>
+
+                            </div>
+                        </div>	<!-- END TEXT BLOCK -->	
+                        
+                    </div>	  <!-- End row -->	
+
+                {% else %}
+                    <div class="row d-flex align-items-center m-row">
+
+                        <!-- TEXT BLOCK -->	
+                        <div class="col-md-8 col-lg-7 m-top">
+                            <div class="txt-block left-column pc-15 mb-40">
+
+                                <!-- Text -->
+                                <p class="txt-color-05">{{ session_type.description | linebreaks }}</p>
+
+                            </div>
+                        </div>	<!-- END TEXT BLOCK -->	
+
+
+                        <!-- IMAGE BLOCK -->
+                        <div class="col-md-4 col-lg-5 m-bottom">
+                            {% if session_type.photo %}
+                            <div class="img-rounded img-responsive right-column pc-15 mb-40">
+                                <img class="img-fluid" src="{{ session_type.photo.url }}" alt="{{ session_type.name }}">
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>	  <!-- End row -->	
+
+                {% endif %}
+
+			</div>	  <!-- End row -->	
+		</div>	   <!-- End container -->
+	</section>	<!-- END ABOUT-2 -->
+{% endfor %}
+
 {% endblock %}

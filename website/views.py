@@ -1,4 +1,3 @@
-from collections import defaultdict
 import random
 
 from django.urls import reverse
@@ -8,7 +7,7 @@ from django.contrib import messages
 from django.utils.safestring import mark_safe
 
 from booking.email_helpers import send_email
-from timetable.models import Venue
+from timetable.models import Location, Venue, SessionType
 from website.forms import ContactForm
 from .models import GalleryImage, Testimonial, TeamMember
 
@@ -119,17 +118,18 @@ def contact(request):
 
 def session_types(request):
     return render(
-        request, 'website/session_types.html', {'section': 'about'}
+        request, 'website/session_types.html', {'section': 'about', "session_types": SessionType.objects.filter(display_on_site=True)}
     )
 
 
 def venues(request):
-    visible_venues = Venue.objects.filter(display_on_site=True)
+    locations_in_order = Venue.distinct_locations_in_order()
     locations = {}
-    for venue in visible_venues:
-        if venue.location not in locations:
-            locations.setdefault(venue.location, {"venues": [], "address": venue.address, "postcode": venue.postcode})
-        locations[venue.location]["venues"].append(venue)
+    for location_name in locations_in_order:
+        location = Location.objects.get(name=location_name)
+        if location.venues.filter(display_on_site=True):
+            locations[location] = location.venues.filter(display_on_site=True)
+
     return render(
         request, 'website/venues.html', {'section': 'about', "locations": locations}
     )
