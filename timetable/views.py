@@ -69,7 +69,7 @@ class TimetableListView(ListView):
             elif location_choice not in active_locations:
                 continue
             else:
-                queryset = all_queryset.filter(venue__location=location_choice)
+                queryset = all_queryset.filter(venue__location__name=location_choice)
 
             location_events.append(
                 {

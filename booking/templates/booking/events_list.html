@@ -52,6 +52,9 @@
         {% endif %}
     {% endif %}
 
+    {% if event_type == "class" %}
+        {% include 'website/includes/membership.html' %}  
+    {% endif %}
 
     {% if not day or not time %}
         <form class="filter-row" action="" method="get">
@@ -68,14 +71,6 @@
     {% endif %}
 
         {% if events %}
-          {% if event_type == "class" %}
-          <details class="membership mb-4">
-            <summary>
-            Costs and membership options <span type="button" class="badge badge-sunshine"><i class="fas fa-caret-down"></i></span>
-            </summary>
-            {% include 'website/includes/membership.html' %}            
-        </details>
-          {% endif %}
 
         <ul class="nav nav-tabs" id="eventTab" role="tablist">
             {% for location in location_events %}
