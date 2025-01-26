@@ -9,9 +9,6 @@ class TimetableListView(ListView):
     context_object_name = 'timetable_sessions'
     template_name = 'timetable/timetable.html'
 
-    def default_tab(self):
-        return 0 if TimetableSession.active_locations().count() > 1 else 1
-
     def get_queryset(self):
         queryset = (
             TimetableSession.objects
@@ -28,15 +25,23 @@ class TimetableListView(ListView):
 
         return queryset
 
-    def _get_tab(self):
-        tab = self.request.GET.get('tab', self.default_tab())
+    def _get_location_data(self):
+        active_locations = TimetableSession.active_locations()
+        venue_locations = Venue.location_choices().items()
+        
+        if len(active_locations) > 1:
+            default_tab = 0
+        else:
+            default_tab = next(k for k, v in venue_locations if v == active_locations[0])
+        
+        tab = self.request.GET.get('tab', default_tab)
 
         try:
             tab = int(tab)
         except ValueError:  # value error if tab is not an integer, default to 0
-            tab = self.default_tab()
+            tab = default_tab
         
-        return tab
+        return tab, active_locations, venue_locations
 
     def get_context_data(self, *args, **kwargs):
         # Call the base implementation first to get a context
@@ -46,7 +51,7 @@ class TimetableListView(ListView):
         session_type = self.request.GET.get('filtered_session_type', 0)
         session_type = int(session_type)
 
-        tab = self._get_tab()
+        tab, active_locations, venue_locations = self._get_location_data()
         context['tab'] = tab
 
         form = TimetableFilter(
@@ -58,13 +63,11 @@ class TimetableListView(ListView):
         all_queryset = self.get_queryset()
         
         location_events = []
-        active_locations = TimetableSession.active_locations()
-
-        for index, location_choice in Venue.location_choices().items():
-            if location_choice not in active_locations:
-                continue
-            if index == 0:
+        for index, location_choice in venue_locations:
+            if index == 0 and len(active_locations) > 1:
                 queryset = all_queryset
+            elif location_choice not in active_locations:
+                continue
             else:
                 queryset = all_queryset.filter(venue__location=location_choice)
 

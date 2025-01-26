@@ -1100,6 +1100,10 @@ a.btn {
   text-align: center;
 }
 
+.img-rounded, .img-rounded img {
+  border-radius: 4px;
+}
+
 .inner-img {
   margin-top: 35px;
   margin-bottom: 35px;  
