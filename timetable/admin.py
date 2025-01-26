@@ -10,7 +10,7 @@ from .utils import upload_timetable
 
 @admin.register(Venue)
 class VenueAdmin(admin.ModelAdmin):
-    list_display = ('name', 'addr', 'abbreviation', 'location', 'tab_order', 'image_img')
+    list_display = ('name', 'addr', 'abbreviation', 'location', 'tab_order', 'display_on_site', 'image_img')
 
     fieldsets = (
         (
@@ -27,7 +27,7 @@ class VenueAdmin(admin.ModelAdmin):
         (
             "Web page content",
             {
-                "fields": ("address", "postcode", "description", "photo"),
+                "fields": ("display_on_site", "address", "postcode", "description", "photo"),
                 "description": "Details displayed on the Venues web page"    
             }
         ),

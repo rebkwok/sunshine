@@ -36,7 +36,7 @@ class Venue(models.Model):
     name = models.CharField(
         max_length=255, default="Venue TBC", help_text="Full name for this venue. This will appear on the Venues page."
     )
-    address = models.CharField(max_length=255, null=True, blank=True)
+    address = models.TextField(max_length=255, null=True, blank=True)
     postcode = models.CharField(max_length=255, null=True, blank=True)
     abbreviation = models.CharField(
         max_length=20, default="", help_text="Short name for this venue. This will appear on the timetables."
@@ -65,15 +65,26 @@ class Venue(models.Model):
     class Meta:
         ordering = ("tab_order", "location")
 
+    def clean(self):
+        if self.display_on_site and not all([self.description, self.address, self.postcode]):
+            raise ValidationError("In order to display this venue on the Venues page of the website, please add description, address and postcode details.")
+    
+    @classmethod
+    def distinct_locations_in_order(cls):
+        locations_with_order = cls.objects.distinct("tab_order", "location").values_list("location", flat=True)
+        seen = set()
+        for location in locations_with_order:
+            if location not in seen:
+                seen.add(location)
+                yield location
+
     @classmethod
     def location_choices(cls):
         return {
             0: "All locations", 
             **{
-                i: location 
-                for i, location in enumerate(
-                    cls.objects.distinct("tab_order", "location").values_list("location", flat=True), start=1
-                )
+                i: location
+                for i, location in enumerate(cls.distinct_locations_in_order(), start=1)
             }
         }
         
@@ -150,8 +161,12 @@ class TimetableSession(models.Model):
 
     @classmethod
     def active_locations(cls):
-        return cls.objects.filter(show_on_timetable_page=True).order_by("venue__location").distinct("venue__location").values_list("venue__location", flat=True)
-
+        locations_in_order =list(Venue.distinct_locations_in_order())
+        active_locations = set(cls.objects.filter(
+            show_on_timetable_page=True).values_list("venue__location", flat=True)
+        )
+        return sorted(active_locations, key=lambda x: locations_in_order.index(x))
+    
     def __str__(self):
 
         return "{} ({}), {}, {} {}".format(
