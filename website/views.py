@@ -88,7 +88,7 @@ def process_contact_form(request, template_name):
         )
 
 
-def contact_form(request, template_name='website/contact_form.html'):
+def contact(request, template_name='website/contact_us.html'):
     if request.method == 'POST':
         return process_contact_form(request, template_name)
 
@@ -110,10 +110,6 @@ def contact_form(request, template_name='website/contact_form.html'):
     return render(
         request, template_name, {'section': 'about', 'form': form}
     )
-
-
-def contact(request):
-    return contact_form(request, template_name='website/contact_us.html')
 
 
 def session_types(request):
