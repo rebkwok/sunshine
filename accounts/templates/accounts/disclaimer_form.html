@@ -1,8 +1,11 @@
 {% extends 'website/_base.html' %}
 {% load static accounttags %}
 
+{% block title %}{% include "website/includes/header.html" with title="Disclaimer" %}{% endblock %}
+
+
 {% block content %}
-<div class="container row">
+<div class="container mt-20">
     <div class="panel panel-transparent">
     <div class="panel-body">
 
