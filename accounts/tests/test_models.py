@@ -11,7 +11,7 @@ from django.core.exceptions import ValidationError
 from django.test import TestCase, override_settings
 from django.utils import timezone
 
-from ..models import CookiePolicy, DataPrivacyPolicy, SignedDataPrivacy, ArchivedDisclaimer, DisclaimerContent
+from ..models import CookiePolicy, DataPrivacyPolicy, SignedDataPrivacy, ArchivedDisclaimer, DisclaimerContent, OnlineDisclaimer
 from ..utils import active_data_privacy_cache_key, \
     has_active_data_privacy_agreement
 
@@ -230,13 +230,19 @@ class UserDisclaimerModelTests(TestSetupMixin, TestCase):
             date=datetime(2015, 2, 10, 19, 0, tzinfo=dt_timezone.utc), version=self.content.version
         )
         assert disclaimer.is_active is False
+        assert OnlineDisclaimer.objects.count() == 1
         # can make a new disclaimer
         make_online_disclaimer(user=self.user, version=self.content.version)
+        assert OnlineDisclaimer.objects.count() == 2
+
         # can't make new disclaimer when one is already active
-        with self.assertRaises(ValidationError):
-            make_online_disclaimer(user=self.user   , version=self.content.version)
+        make_online_disclaimer(user=self.user, version=self.content.version)
+        assert OnlineDisclaimer.objects.count() ==2
 
     def test_delete_online_disclaimer(self):
+        # delete existing disclaimers and clear cache do we can create new one
+        OnlineDisclaimer.objects.all().delete()
+        cache.clear()
         assert ArchivedDisclaimer.objects.exists() is False
         disclaimer = make_online_disclaimer(user=self.user, version=self.content.version)
         disclaimer.delete()
@@ -247,7 +253,11 @@ class UserDisclaimerModelTests(TestSetupMixin, TestCase):
         assert archived.date == disclaimer.date
 
     def test_delete_online_disclaimer_older_than_6_yrs(self):
+        # delete existing disclaimers and clear cache do we can create new one
+        OnlineDisclaimer.objects.all().delete()
+        cache.clear()
         assert ArchivedDisclaimer.objects.exists() is False
+
         # disclaimer created > 6yrs ago
         disclaimer = make_online_disclaimer(
             user=self.user, date=timezone.now() - timedelta(2200), version=self.content.version

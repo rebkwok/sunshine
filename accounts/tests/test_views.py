@@ -10,7 +10,7 @@ from django.utils import timezone
 
 from allauth.account.models import EmailAddress
 
-from ..models import DataPrivacyPolicy, DisclaimerContent, OnlineDisclaimer
+from ..models import DataPrivacyPolicy, DisclaimerContent, OnlineDisclaimer, has_active_disclaimer,active_disclaimer_cache_key
 from ..utils import has_active_data_privacy_agreement
 from ..views import ProfileUpdateView, profile
 
@@ -193,7 +193,9 @@ class DisclaimerCreateViewTests(TestSetupMixin, TestCase):
 
     def test_shows_msg_if_already_has_disclaimer(self):
         make_online_disclaimer(user=self.user, version=self.content.version)
+        self.client.force_login(self.user)
         url = reverse('accounts:disclaimer_form', args=(self.user.id,))
+        assert has_active_disclaimer(self.user)
         resp = self.client.get(url)
         assert resp.status_code == 200
 

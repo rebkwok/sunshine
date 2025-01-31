@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from datetime import timedelta
+import logging
 import pytz
 from math import floor
 
@@ -15,6 +16,8 @@ from accounts.utils import active_data_privacy_cache_key
 from activitylog.models import ActivityLog
 from stripe_payments.models import Seller
 
+
+log = logging.getLogger(__name__)
 
 # Decorator for django models that contain readonly fields.
 def has_readonly_fields(original_class):
@@ -265,20 +268,20 @@ class OnlineDisclaimer(BaseOnlineDisclaimer):
         return self.version == DisclaimerContent.current_version() and (date_signed + timedelta(days=365)) > timezone.now()
 
     def save(self, **kwargs):
-        # delete the cache keys to force re-cache
-        cache.delete(active_disclaimer_cache_key(self.user))
-        cache.delete(expired_disclaimer_cache_key(self.user))
         if not self.id:
-            existing_disclaimers = OnlineDisclaimer.objects.filter(
-                user=self.user
-            )
-            if existing_disclaimers and [
-                True for disc in existing_disclaimers if disc.is_active
-            ]:
-                raise ValidationError('Active disclaimer already exists')
-
+            # Can't create a new disclaimer if an active one already exists (we can end up here when
+            # a user double-clicks the save button)
+            if has_active_disclaimer(self.user):
+                log.info(f"{self.user} aleady has active disclaimer, not creating another")
+                return
             ActivityLog.objects.create(
-                log="Online disclaimer created: {}".format(self.__str__())
+                log="Online disclaimer created: {self}"
+            )
+            # delete the cache keys to force re-cache on next retrieval
+            cache.delete(active_disclaimer_cache_key(self.user))
+            cache.delete(expired_disclaimer_cache_key(self.user))
+        ActivityLog.objects.create(
+                log="Online disclaimer updated: {self}"
             )
         super().save(**kwargs)
 
@@ -315,7 +318,7 @@ def has_active_disclaimer(user):
     has_disclaimer = cache.get(key)
     if has_disclaimer is None:
         has_disclaimer = any(
-            True for od in user.online_disclaimer.all() if od.is_active
+            od.is_active for od in user.online_disclaimer.all()
         )
         cache.set(key, has_disclaimer, timeout=600)
     else:
@@ -327,12 +330,9 @@ def has_expired_disclaimer(user):
     key = expired_disclaimer_cache_key(user)
     cached_expired_disclaimer = cache.get(key)
     if cached_expired_disclaimer is None:
-        expired_disclaimer = bool(
-                [
-                    True for od in user.online_disclaimer.all()
-                    if not od.is_active
-                ]
-            )
+        expired_disclaimer = any(
+            not od.is_active for od in user.online_disclaimer.all()
+        )
         if expired_disclaimer:
             # Only set cache if we know the disclaimer has expired
             cache.set(key, expired_disclaimer, timeout=600)
