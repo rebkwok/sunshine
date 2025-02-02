@@ -233,7 +233,7 @@ if TESTING or (env("LOCAL") and not env("LOCAL_S3", default=False)):
 AWS_STORAGE_BUCKET_NAME = f"media.{DOMAIN}"
 
 
-if env("LOCAL", False) or env("LOCAL_S3", False):
+if env("LOCAL", False) or env("LOCAL_S3", default=False):
     AWS_ACCESS_KEY_ID = env.str("AWS_ACCESS_KEY_ID")
     AWS_SECRET_ACCESS_KEY = env.str("AWS_SECRET_ACCESS_KEY")
 
