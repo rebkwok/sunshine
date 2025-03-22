@@ -28,6 +28,7 @@ class SignUpFormTests(TestSetupMixin, TestCase):
             'first_name': 'Test',
             'last_name': 'User',
             'email': 'test_user@test.com',
+            'email2': 'test_user@test.com',
             'username': 'testuser',
             'password1': 'dj34nmadkl24', 'password2': 'dj34nmadkl24'
          }
