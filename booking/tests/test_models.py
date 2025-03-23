@@ -8,8 +8,6 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 from django.utils import timezone
-from django.urls import reverse
-from soupsieve import match
 
 import pytest
 
