@@ -21,7 +21,7 @@ class EventListViewTests(TestSetupMixin, TestCase):
     def setUpTestData(cls):
         super().setUpTestData()
         make_online_disclaimer(user=cls.user)
-        venue = baker.make_recipe('booking.venue', location="venue", tab_order=100)
+        venue = baker.make_recipe('booking.venue', location__name="venue", order=100)
         cls.events = baker.make_recipe('booking.future_EV', venue=venue, _quantity=3)
         cls.reg_class1 = baker.make_recipe('booking.future_PC', name='Class 1', venue=venue)
         cls.reg_class2 = baker.make_recipe('booking.future_PC', name='Class 2', venue=venue)
@@ -54,7 +54,7 @@ class EventListViewTests(TestSetupMixin, TestCase):
         assert resp.context_data['event_type'] == "private"
 
     def test_event_list_pagination(self):
-        baker.make_recipe('booking.future_EV', venue__location="loc1", venue__tab_order=200, _quantity=25)
+        baker.make_recipe('booking.future_EV', venue__location__name="loc1", venue__order=200, _quantity=25)
         assert Workshop.objects.count() == 28
 
         # default (unused) paginator
@@ -248,8 +248,8 @@ class EventListViewTests(TestSetupMixin, TestCase):
 
     def test_event_list_with_tab(self):
         assert Event.objects.filter(event_type="regular_session").count() == 2
-        baker.make_recipe('booking.future_PC', venue__location="loc1", venue__tab_order=200, _quantity=10)
-        baker.make_recipe('booking.future_PC', venue__location="loc2", venue__tab_order=300, _quantity=15)
+        baker.make_recipe('booking.future_PC', venue__location__name="loc1", venue__order=200, _quantity=10)
+        baker.make_recipe('booking.future_PC', venue__location__name="loc2", venue__order=300, _quantity=15)
         assert Event.objects.filter(event_type="regular_session").count() == 27
         resp = self.client.get(self.classes_url)
 
