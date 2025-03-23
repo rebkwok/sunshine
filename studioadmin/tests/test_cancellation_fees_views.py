@@ -51,7 +51,7 @@ class CancellationFeesListViewTests(TestPermissionMixin, TestCase):
 
         resp = self.client.get(self.url)
         soup = BeautifulSoup(resp.content, 'html.parser')
-        fees = soup.findAll("span", {"class": "fees-due"})
+        fees = soup.find_all("span", {"class": "fees-due"})
         self.assertEqual(len(fees), 2)
 
         fees_links = [

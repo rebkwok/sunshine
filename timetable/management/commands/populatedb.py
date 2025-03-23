@@ -2,23 +2,28 @@ import datetime
 
 from django.core.management.base import BaseCommand
 
-from ...models import Category, Venue, SessionType, TimetableSession
+from ...models import Category, Location, Venue, SessionType, TimetableSession
 
 
 class Command(BaseCommand):
 
     def handle(self, *args, **options):
-
-        studio, _ = Venue.objects.get_or_create(
+        
+        location, _ = Location.objects.get_or_create(
             name='Sunshine Fitness Studio',
             address='Moray Institute, Kelty',
             postcode='KY4 OAQ',
-            abbreviation="Fitness Studio"
+        )
+        studio, _ = Venue.objects.get_or_create(
+            name='Sunshine Fitness Studio',
+            abbreviation="Fitness Studio",
+            location=location
         )
         
         tbc, _ = Venue.objects.get_or_create(
             name="Venue TBC",
-            abbreviation="TBC"
+            abbreviation="TBC",
+            location=location,
         )
 
         polefit, new = SessionType.objects.update_or_create(
