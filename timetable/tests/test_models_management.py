@@ -16,7 +16,7 @@ class ModelTests(TestCase):
     def test_venue_str(self):
         venue = baker.make(
             Venue, name="Sunshine Studio",
-            address="1 Street",
+            location__address="1 Street",
             abbreviation="Sunshine"
         )
         self.assertEqual(str(venue), "Sunshine Studio")
