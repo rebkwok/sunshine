@@ -138,8 +138,8 @@ AUTHENTICATION_BACKENDS = (
 )
 
 
-ACCOUNT_AUTHENTICATION_METHOD = "username_email"
-ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_LOGIN_METHODS = {'email', 'username'}
+ACCOUNT_SIGNUP_FIELDS = ['email*', 'email2*', 'username*', 'password1*', 'password2*']
 ACCOUNT_EMAIL_VERIFICATION = "optional"
 ACCOUNT_EMAIL_SUBJECT_PREFIX = "[sunshine fitness] "
 ACCOUNT_SIGNUP_FORM_CLASS = 'accounts.forms.SignupForm'
