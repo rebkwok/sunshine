@@ -1,6 +1,6 @@
 from django.contrib import admin
-from django.shortcuts import render
-from django.urls import path
+from django.shortcuts import render, redirect
+from django.urls import path, reverse
 
 from .forms import UploadTimetableForm
 from .models import Category, TimetableSession, SessionType, Venue
@@ -76,6 +76,9 @@ class TimetableSessionAdmin(admin.ModelAdmin):
 
     def upload_timetable(self, request, template_name="timetable/upload_timetable_form.html"):
 
+        if not request.user.is_superuser:
+            return redirect(reverse("admin:index"))
+        
         context = {'current_app': self.admin_site.name, 'available_apps': self.admin_site.get_app_list(request)}
 
         if request.method == 'POST':
