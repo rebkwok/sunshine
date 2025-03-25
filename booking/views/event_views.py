@@ -3,6 +3,7 @@ import pytz
 
 from collections import OrderedDict
 
+from django.core.paginator import Paginator
 from django.shortcuts import HttpResponseRedirect, render, get_object_or_404
 from django.views.generic import ListView, DetailView
 from django.urls import reverse
@@ -14,6 +15,7 @@ from booking.email_helpers import email_waiting_lists
 from booking.forms import EventsFilter
 from booking.models import Booking, Event, WaitingListUser
 from booking.utils import host_from_request
+from timetable.models import Venue
 
 
 logger = logging.getLogger(__name__)
@@ -35,7 +37,7 @@ class BaseEventListView(ListView):
     context_object_name = 'events'    
     template_name = 'booking/events_list.html'
     paginate_by = 20
-    
+
     def dispatch(self, request, *args, **kwargs):
         # Cleanup bookings so user is looking at current availability
         event_ids_from_expired_bookings = Booking.cleanup_expired_bookings(use_cache=True)
@@ -49,7 +51,6 @@ class BaseEventListView(ListView):
             self.event_name = '{} ({})'.format(name, level.strip())
         else:
             self.event_name = name
-        self.venue = self.request.GET.get('venue', 'all').strip()
         self.event_day = self.request.GET.get('day', '').strip()
         self.event_time = self.request.GET.get('time', '').strip()
 
@@ -65,8 +66,6 @@ class BaseEventListView(ListView):
 
         if self.event_name != 'all':
             events = events.filter(name=self.event_name)
-        if self.venue != 'all':
-            events = events.filter(venue__abbreviation=self.venue)
 
         # select day/time
         if self.event_day in DAYS.keys() and self.event_time:
@@ -100,11 +99,33 @@ class BaseEventListView(ListView):
             return paginator, page, page.object_list, page.has_other_pages()
         return resp
 
+    def _get_location_data(self):
+        active_locations = Event.active_locations()
+        venue_locations = Venue.location_choices().items()
+        
+        if len(active_locations) > 1:
+            default_tab = 0
+        else:
+            default_tab = next(k for k, v in venue_locations if v == active_locations[0])
+        
+        tab = self.request.GET.get('tab', default_tab)
+
+        try:
+            tab = int(tab)
+        except ValueError:  # value error if tab is not an integer, default to 0
+            tab = default_tab
+        
+        return tab, active_locations, venue_locations
+
     def get_context_data(self, **kwargs):
         queryset = self.object_list
         # Call the base implementation first to get a context
         context = super().get_context_data(**kwargs)
         context['section'] = 'booking'
+
+        tab, active_locations, venue_locations = self._get_location_data()
+        context['tab'] = tab
+
         if not self.request.user.is_anonymous:
             # Add in the booked_events
             user_booked_events = Booking.objects.select_related()\
@@ -138,16 +159,48 @@ class BaseEventListView(ListView):
 
         form = EventsFilter(
             event_type=self.event_type,
-            initial={'name': self.event_name, 'venue': self.venue}
+            initial={'name': self.event_name}
         )
 
         context['form'] = form
         context['name'] = self.event_name
         context['day'] = DAYS.get(self.event_day, None)
-        context['venue'] = self.venue
         context['time'] = self.event_time
 
         context["all_events_url"] = reverse(f"booking:{self.event_type}_list")
+
+        # the default paginator (and paginate_queryset()) handles non-integer and out-of-range pages already
+        page_get = self.request.GET.get('page', 1)
+        
+        location_events = []
+
+        for index, location_choice in venue_locations:
+            if index == 0 and len(active_locations) > 1:
+                loc_queryset = queryset
+            elif location_choice not in active_locations:
+                continue
+            else:
+                loc_queryset = queryset.filter(venue__location__name=location_choice)
+
+            if tab == index:
+                page = page_get
+            else:
+                page = 1
+
+            paginator = Paginator(loc_queryset, self.paginate_by)
+            paginated_queryset = paginator.get_page(page)
+            # only add location if there are events to display
+            location_events.append(
+                {
+                    "index": index,
+                    "queryset": paginated_queryset,
+                    "location": location_choice,
+                    "paginator_range": paginated_queryset.paginator.get_elided_page_range(paginated_queryset.number)
+                }
+            )
+
+        context['location_events'] = location_events
+        context["title"] = f"Book {self.event_type_plural}"
         return context
 
 

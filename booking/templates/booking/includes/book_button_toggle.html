@@ -15,20 +15,20 @@
 {% if booking %} 
     {% if booking.status == "OPEN" and not booking.no_show %}
         {% if not booking.paid  %}
-            <span class="btn table-btn btn-warning book_button">
+            <span class="btn btn-xs book-btn btn-oak tra-oak-hover">
                 View basket <i class="fa fa-shopping-basket"></i>
             </span></a>
         {% else %}
-            <span class="btn btn-danger table-btn">Cancel</a>
+            <span class="btn btn-xs book-btn btn-pink tra-pink-hover">Cancel</a>
         {% endif %}
     {% elif booking.event|has_available_membership:request.user %}
-        <button class="btn table-btn btn-success book_button">Rebook</button>
+        <button class="btn btn-xs book-btn btn-green tra-green-hover">Rebook</button>
     {% else %}
-        <button class="btn table-btn btn-warning book_button">Add to basket</button>
+        <button class="btn btn-xs book-btn btn-sunshine tra-sunshine-hover">Add to basket</button>
     {% endif %}
 {% elif event|has_available_membership:request.user %}
-    <button class="btn table-btn btn-success book_button">{% if booking %}Rebook{% else %}Book{% endif %}
+    <button class="btn btn-xs book-btn btn-green tra-green-hover">{% if booking %}Rebook{% else %}Book{% endif %}
 {% else %}
-    <button class="btn table-btn btn-warning book_button {% if event.members_only %}disabled{% endif %}">Add to basket
-    {% if event.members_only %}Members only{% endif %}</button>
+    <button class="btn btn-xs book-btn btn-sunshine tra-sunshine-hover {% if event.members_only %}disabled{% endif %}">Add to basket</button>
+    {% if event.members_only %} (Members only){% endif %}
 {% endif %}

@@ -1,3 +1,4 @@
+bs4
 delorean
 Django
 dj-database-url
@@ -5,11 +6,11 @@ dj-static
 psycopg2
 Pillow
 envdir
-django-bootstrap4
+django-bootstrap5
 django-classy-tags  # for cookie-law
 django-crispy-forms
 django-cookie-law
-crispy-bootstrap4
+crispy-bootstrap5
 django-email-obfuscator
 django-extensions
 django-environ
@@ -18,6 +19,7 @@ django-braces
 django-migration-testcase
 django-object-actions
 django-ses[events]
+django-storages
 # django-suit v2 branch 15/2/20
 git+https://github.com/rebkwok/django-suit.git@v2
 dynamic-django-forms
@@ -35,3 +37,4 @@ pytest-freezer
 pytest-xdist
 stripe
 pymemcache
+whitenoise

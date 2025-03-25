@@ -11,13 +11,15 @@ asgiref==3.8.1
 babel==2.17.0
     # via delorean
 beautifulsoup4==4.13.3
-    # via django-bootstrap4
+    # via bs4
 boto3==1.37.18
     # via django-ses
 botocore==1.37.18
     # via
     #   boto3
     #   s3transfer
+bs4==0.0.2
+    # via -r requirements.in
 certifi==2025.1.31
     # via requests
 cffi==1.17.1
@@ -28,7 +30,7 @@ coverage[toml]==7.7.1
     # via
     #   -r requirements.in
     #   pytest-cov
-crispy-bootstrap4==2024.10
+crispy-bootstrap5==2024.10
     # via -r requirements.in
 cryptography==44.0.2
     # via django-ses
@@ -41,10 +43,10 @@ dj-static==0.0.6
 django==5.1.7
     # via
     #   -r requirements.in
-    #   crispy-bootstrap4
+    #   crispy-bootstrap5
     #   dj-database-url
     #   django-allauth
-    #   django-bootstrap4
+    #   django-bootstrap5
     #   django-braces
     #   django-classy-tags
     #   django-cookie-law
@@ -53,11 +55,12 @@ django==5.1.7
     #   django-extensions
     #   django-migration-testcase
     #   django-ses
+    #   django-storages
     #   dynamic-django-forms
     #   model-bakery
 django-allauth==65.5.0
     # via -r requirements.in
-django-bootstrap4==25.1
+django-bootstrap5==25.1
     # via -r requirements.in
 django-braces==1.17.0
     # via -r requirements.in
@@ -70,7 +73,7 @@ django-cookie-law==2.2.0
 django-crispy-forms==2.3
     # via
     #   -r requirements.in
-    #   crispy-bootstrap4
+    #   crispy-bootstrap5
 django-debug-toolbar==5.1.0
     # via -r requirements.in
 django-email-obfuscator==0.1.5
@@ -84,6 +87,8 @@ django-migration-testcase==0.0.15
 django-object-actions==4.3.0
     # via -r requirements.in
 django-ses[events]==4.4.0
+    # via -r requirements.in
+django-storages==1.14.4
     # via -r requirements.in
 django-suit @ git+https://github.com/rebkwok/django-suit.git@v2
     # via -r requirements.in
@@ -180,3 +185,5 @@ urllib3==2.3.0
     # via
     #   botocore
     #   requests
+whitenoise==6.8.2
+    # via -r requirements.in

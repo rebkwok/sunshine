@@ -42,5 +42,5 @@ def booking(request):
         'gift_vouchers_available': GiftVoucherType.objects.filter(active=True),
         'cart_timeout_mins': settings.CART_TIMEOUT_MINUTES,
         'membership_types': MembershipType.objects.filter(active=True),
-        'single_class_cost': single_cost
+        'single_class_cost': single_cost,
     }
