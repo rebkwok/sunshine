@@ -81,7 +81,7 @@ django-extensions==3.2.3
     # via -r requirements.in
 django-migration-testcase==0.0.15
     # via -r requirements.in
-django-object-actions==4.3.0
+django-object-actions==5.0.0
     # via -r requirements.in
 django-ses[events]==4.4.0
     # via -r requirements.in
