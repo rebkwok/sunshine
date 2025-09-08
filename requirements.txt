@@ -167,7 +167,7 @@ sqlparse==0.5.3
     #   django-debug-toolbar
 static3==0.7.0
     # via dj-static
-stripe==11.6.0
+stripe==12.5.1
     # via -r requirements.in
 typing-extensions==4.12.2
     # via
