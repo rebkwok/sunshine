@@ -176,7 +176,7 @@ typing-extensions==4.12.2
     #   stripe
 tzlocal==5.3.1
     # via delorean
-urllib3==2.3.0
+urllib3==2.6.0
     # via
     #   botocore
     #   requests
