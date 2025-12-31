@@ -1,20 +1,17 @@
 # -*- coding: utf-8 -*-
 from datetime import timedelta
-from telnetlib import SE
 from model_bakery import baker
 from unittest.mock import Mock, patch
 
-from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
 from django.urls import reverse
-from django.test import TestCase, override_settings
+from django.test import TestCase
 from django.utils import timezone
 
 from stripe import InvalidRequestError
 
-from accounts.models import DataPrivacyPolicy
 from booking.models import (
-    Booking, Event, GiftVoucher, TotalVoucher, ItemVoucher, MembershipType, Membership
+    Booking, Event, TotalVoucher, ItemVoucher, MembershipType, Membership
 )
 from .helpers import TestSetupMixin, make_disclaimer_content, make_data_privacy_agreement, make_online_disclaimer
 from stripe_payments.models import Invoice, Seller
