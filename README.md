@@ -4,7 +4,7 @@ This is the codebase for the Sunshine Fitness website, which is a Django site.
 
 ## Development
 
-Requires Python 3.7+
+Requires Python 3.13+ and uv
 
 Clone this repo and change directory to the cloned folder:
 
@@ -21,7 +21,7 @@ To install dev dependencies, run migrations, populate a test database and setup 
 
 Run the django server:
 ```
-python manage.py runserver
+uv run python manage.py runserver
 ```
 
 Access in a web browser at http://127.0.0.1:8000

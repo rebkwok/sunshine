@@ -1,0 +1,52 @@
+[project]
+name = "sunshine"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "crispy-bootstrap4>=2025.6",
+    "delorean>=1.0.0",
+    "dj-database-url>=3.0.1",
+    "dj-static>=0.0.6",
+    "django>=6.0",
+    "django-allauth>=65.13.1",
+    "django-bootstrap4>=25.3",
+    "django-braces>=1.17.0",
+    "django-classy-tags>=4.1.0",
+    "django-cookie-law>=2.2.0",
+    "django-crispy-forms>=2.5",
+    "django-debug-toolbar>=6.1.0",
+    "django-email-obfuscator>=0.1.5",
+    "django-environ>=0.12.0",
+    "django-extensions>=4.1",
+    "django-object-actions>=5.0.0",
+    "django-ses[events]>=4.5.0",
+    "django-suit",
+    "dynamic-django-forms>=0.1.11",
+    "envdir>=1.0.1",
+    "gunicorn>=23.0.0",
+    "pillow>=12.0.0",
+    "psycopg2>=2.9.11",
+    "pymemcache>=4.0.0",
+    "python-dateutil>=2.9.0.post0",
+    "shortuuid>=1.0.13",
+    "stripe>=14.1.0",
+]
+
+[dependency-groups]
+dev = [
+    "coverage>=7.13.1",
+    "django-migration-testcase>=0.0.15",
+    "ipdb>=0.13.13",
+    "model-bakery>=1.21.0",
+    "pytest>=9.0.2",
+    "pytest-cov>=7.0.0",
+    "pytest-django>=4.11.1",
+    "pytest-env>=1.2.0",
+    "pytest-freezer>=0.4.9",
+    "pytest-xdist>=3.8.0",
+]
+
+[tool.uv.sources]
+django-suit = { git = "https://github.com/rebkwok/django-suit.git", rev = "v2" }
