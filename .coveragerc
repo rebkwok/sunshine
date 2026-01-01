@@ -1,3 +1,0 @@
-[run]
-omit=venv/*,../*migrations*,../*tests*,../*wsgi*,../*__init__*,manage.py,website/management/commands/ensure_superuser.py
-relative_files = True
