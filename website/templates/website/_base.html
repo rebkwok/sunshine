@@ -76,7 +76,15 @@
 
                         <!-- MOBILE HEADER -->
                         <div class="wsmobileheader clearfix">	  	
-                            <span class="smllogo"><img src='{% static "website/images/logo.jpg" %}' width="50" height="50" alt="mobile-logo"/></span>
+                            <span class="smllogo">
+                                <img src='{% static "website/images/logo.jpg" %}' width="50" height="50" alt="mobile-logo"/>
+                                <span class="mobile-cart">
+                                    <a href="{% url 'booking:shopping_basket' %}" class="btn btn-tra-sunshine sunshine-hover p-2">
+                                        <i class="fas fa-shopping-basket me-0"></i> <span id="cart_item_menu_count_xs">{{ cart_item_count }}</span>
+                                    </a>
+                                </span>
+                            </span>
+
                             <a id="wsnavtoggle" class="wsanimated-arrow"><span></span></a>	
                         </div>
 
@@ -168,7 +176,7 @@
                                         {% if user.is_authenticated %}
                                             <li class="nl-simple" aria-haspopup="true">
                                                 <a href="{% url 'booking:shopping_basket' %}" class="btn btn-sunshine tra-sunshine-hover last-link p-2">
-                                                    <i class="fas fa-shopping-cart me-0"></i> <span id="cart_item_menu_count-xs">{{ cart_item_count }}</span>
+                                                    <i class="fas fa-shopping-basket me-0"></i> <span id="cart_item_menu_count">{{ cart_item_count }}</span>
                                                     </a>
                                                 
                                                 </a>

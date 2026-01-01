@@ -141,6 +141,7 @@ var toggleBooking = function()  {
             $jq('#booked-' + event_id + '-' + 'row').addClass('expired');
         }
         $jq('#cart_item_menu_count').text(result.cart_item_menu_count);
+        $jq('#cart_item_menu_count_xs').text(result.cart_item_menu_count);
    };
 
     var processFailure = function(
