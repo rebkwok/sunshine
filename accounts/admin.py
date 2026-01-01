@@ -63,16 +63,20 @@ class PolicyAdminMixin:
     def has_delete_permission(self, request, obj=None):
         return False
 
-    def has_change_permission(self, request, obj=None):
+    def get_fields(self, request, obj=None):
         if obj:
             self.fields = ("note", "content", "version", 'issue_date')
+        else:
+            self.fields = ("content", "version", "issue_date")
+        return super().get_fields(request, obj)
+    
+    def has_change_permission(self, request, obj=None):
+        if obj:
             return False
-        self.fields = ("content", "version", "issue_date")
         return super().has_change_permission(request, obj)
 
     def note(self, obj):
-        if not self.has_change_permission(None, obj):
-            return "THIS POLICY IS PUBLISHED AND CANNOT BE EDITED. TO MAKE CHANGES, GO BACK AND ADD A NEW VERSION"
+        return "THIS POLICY IS PUBLISHED AND CANNOT BE EDITED. TO MAKE CHANGES, GO BACK AND ADD A NEW VERSION"
 
 
 class CookiePolicyAdmin(PolicyAdminMixin, admin.ModelAdmin):
@@ -147,25 +151,31 @@ class DisclaimerContentAdmin(admin.ModelAdmin):
     
     def has_delete_permission(self, request, obj=None):
         return False
-
+ 
+    def get_fields(self, request, obj=None):
+        if obj:
+            if not obj.is_draft:
+                self.fields = ("note", "version", "disclaimer_terms", "health_questionnaire_questions", 'issue_date')
+            else:
+                self.fields = ("disclaimer_terms", "version", "form", "is_draft", 'issue_date')
+        return super().get_fields(request, obj)
+    
     def has_change_permission(self, request, obj=None):
         if obj and not obj.is_draft:
-            self.fields = ("note", "version", "disclaimer_terms", "health_questionnaire_questions", 'issue_date')
             return False
-        self.fields = ("disclaimer_terms", "version", "form", "is_draft", 'issue_date')
         return super().has_change_permission(request, obj)
 
     def health_questionnaire_questions(self, obj):
-        if not self.has_change_permission(None, obj):
-            args = [qn['label'] for qn in obj.form]
+        args = [qn['label'] for qn in obj.form]
+        if args:
             qns = ''.join(["<li>{}</li>" for _ in args])
             format_string = f"<ul>{qns}</ul>"
             return format_html(format_string, *args)
+        return "-"
 
     def note(self, obj):
-        if not self.has_change_permission(None, obj):
-            return "THIS DISCLAIMER CONTENT IS PUBLISHED AND CANNOT BE EDITED. TO MAKE CHANGES, " \
-                   "GO BACK AND ADD A NEW VERSION"
+        return "THIS DISCLAIMER CONTENT IS PUBLISHED AND CANNOT BE EDITED. TO MAKE CHANGES, " \
+                "GO BACK AND ADD A NEW VERSION"
 
 
 class OnlineDisclaimerAdmin(admin.ModelAdmin):

@@ -6,18 +6,102 @@ from django.contrib.admin.sites import AdminSite
 from django.utils import timezone
 
 import accounts.admin as admin
-from accounts.models import OnlineDisclaimer
-from booking.tests.helpers import make_data_privacy_agreement, make_online_disclaimer, make_disclaimer_content
+from accounts.models import OnlineDisclaimer, DisclaimerContent, CookiePolicy
+from booking.tests.helpers import make_online_disclaimer, make_disclaimer_content
 
 
 @pytest.mark.django_db
-def test_disclaimer_content_display_no_questionnaire_responses(configured_user):
+def test_disclaimer_content_no_health_questionnaire_questions():
+    content = make_disclaimer_content()
+    disclaimer_content_admin = admin.DisclaimerContentAdmin(DisclaimerContent, AdminSite())
+    assert disclaimer_content_admin.health_questionnaire_questions(content) == "-"
+
+
+@pytest.mark.django_db
+def test_disclaimer_content_health_questionnaire_questions():
+    content = make_disclaimer_content(
+        form=[
+                {
+                    'type': 'text',
+                    'required': False,
+                    'label': 'Say something',
+                    'name': 'text-1',
+                    'subtype': 'text'
+                },
+            ]
+    )
+    disclaimer_content_admin = admin.DisclaimerContentAdmin(DisclaimerContent, AdminSite())
+    assert disclaimer_content_admin.health_questionnaire_questions(content) == "<ul><li>Say something</li></ul>"
+
+
+@pytest.mark.django_db
+def test_disclaimer_content_fields():
+    make_disclaimer_content()
+    disclaimer_content_admin = admin.DisclaimerContentAdmin(DisclaimerContent, AdminSite())
+    # no obj, return default (all fields on model)
+    assert disclaimer_content_admin.get_fields(None, None) == [
+        'disclaimer_terms',
+        'version',
+        'form',
+        'is_draft',
+        'issue_date',
+    ]
+
+@pytest.mark.django_db
+def test_disclaimer_content_fields_draft():
+    content = make_disclaimer_content(is_draft=True)
+    disclaimer_content_admin = admin.DisclaimerContentAdmin(DisclaimerContent, AdminSite())
+    # no obj, return default (all fields on model)
+    assert disclaimer_content_admin.get_fields(None, content) == (
+        'disclaimer_terms',
+        'version',
+        'form',
+        'is_draft',
+        'issue_date',
+    )
+
+
+@pytest.mark.django_db
+def test_disclaimer_content_fields_non_draft():
+    content = make_disclaimer_content(is_draft=False)
+    disclaimer_content_admin = admin.DisclaimerContentAdmin(DisclaimerContent, AdminSite())
+    # no obj, return default (all fields on model)
+    assert disclaimer_content_admin.get_fields(None, content) == (
+        'note',
+        'version',
+        'disclaimer_terms',
+        'health_questionnaire_questions',
+        'issue_date',
+    )
+
+
+@pytest.mark.django_db
+def test_policy_fields():
+    cookie_policy = CookiePolicy.objects.create(content="foo")
+    policy_content_admin = admin.CookiePolicyAdmin(DisclaimerContent, AdminSite())
+    # no obj, return default (all fields on model)
+    assert policy_content_admin.get_fields(None, None) == (
+        'content',
+        'version',
+        'issue_date',
+    )
+    # with object, show note
+    assert policy_content_admin.get_fields(None, cookie_policy) == (
+        'note',
+        'content',
+        'version',
+        'issue_date',
+    )
+
+
+@pytest.mark.django_db
+def test_disclaimer_display_no_questionnaire_responses(configured_user):
     disclaimer_admin = admin.OnlineDisclaimerAdmin(OnlineDisclaimer, AdminSite())
     assert disclaimer_admin.health_questionnaire(configured_user.online_disclaimer.last()) == ""
 
 
 @pytest.mark.django_db
-def test_disclaimer_content_display_with_questionnaire_responses():
+def test_disclaimer_display_with_questionnaire_responses():
     user = User.objects.create_user(
         username='test', 
         first_name="Test", 
@@ -74,6 +158,7 @@ def test_user_admin_no_disclaimer():
     )
     make_disclaimer_content()
     assert user_admin.disclaimer(user) == "<img src='/static/admin/img/icon-no.svg' alt='False'>"
+
 
 @pytest.mark.django_db
 def test_user_admin_disclaimer_expired():
