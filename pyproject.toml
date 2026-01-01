@@ -89,4 +89,4 @@ django-ses = { git = "https://github.com/hesstobi/django-ses.git", rev = "1ab8ed
 [tool.coverage.report]
     skip_empty = true
     skip_covered = true
-    fail_under = 96
+    fail_under = 97
