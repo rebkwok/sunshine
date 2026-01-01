@@ -157,8 +157,10 @@ class DisclaimerContentAdmin(admin.ModelAdmin):
 
     def health_questionnaire_questions(self, obj):
         if not self.has_change_permission(None, obj):
-            qns = [f"<li>{qn['label']}</li>" for qn in obj.form]
-            return format_html(mark_safe(f"<ul>{''.join(qns)}</ul>"))
+            args = [qn['label'] for qn in obj.form]
+            qns = ''.join(["<li>{}</li>" for _ in args])
+            format_string = f"<ul>{qns}</ul>"
+            return format_html(format_string, *args)
 
     def note(self, obj):
         if not self.has_change_permission(None, obj):
@@ -185,11 +187,20 @@ class OnlineDisclaimerAdmin(admin.ModelAdmin):
 
     def health_questionnaire(self, obj):
         responses = []
-        for question, response in obj.health_questionnaire_responses.items():
+        if not obj.health_questionnaire_responses:
+            health_questionnaire_responses = {}
+        else:
+            health_questionnaire_responses = obj.health_questionnaire_responses
+
+        args = []
+        for question, response in health_questionnaire_responses.items():
             if isinstance(response, list):
                 response = ", ".join(response)
-            responses.append(f"<strong>{question}</strong><br/>{response}")
-        return format_html(mark_safe("<br/>".join(responses)))
+            responses.append("<strong>{}</strong><br/>{}")
+            args.extend([question, response])
+        if responses:
+            return format_html("<br/>".join(responses), *args)
+        return ""
 
 
 class ArchivedDisclaimerAdmin(OnlineDisclaimerAdmin):
@@ -220,16 +231,16 @@ class UserAdmin(BaseUserAdmin):
 
     def disclaimer(self, obj):
         if has_active_disclaimer(obj):
-            return format_html(mark_safe(f"<img src='/static/admin/img/icon-yes.svg' alt='True'>"))
+            return mark_safe(f"<img src='/static/admin/img/icon-yes.svg' alt='True'>")
         elif has_expired_disclaimer(obj):
-            return format_html(mark_safe(f"<img src='/static/admin/img/icon-yes.svg' alt='True'> (Expired)"))
+            return mark_safe(f"<img src='/static/admin/img/icon-yes.svg' alt='True'> (Expired)")
         else:
-            return format_html(mark_safe(f"<img src='/static/admin/img/icon-no.svg' alt='False'>"))
+            return mark_safe(f"<img src='/static/admin/img/icon-no.svg' alt='False'>")
 
     def disclaimer_link(self, obj):
         if has_active_disclaimer(obj) or has_expired_disclaimer(obj):
             url = reverse("studioadmin:user_disclaimer", args=(obj.id,))
-            return format_html(mark_safe(f"<a href={url}><img src='/static/admin/img/icon-viewlink.svg' alt='View'></a>"))
+            return format_html("<a href={}><img src='/static/admin/img/icon-viewlink.svg' alt='View'></a>", url)
     disclaimer_link.short_description = "view disclaimer"
 
     def name(self, obj):

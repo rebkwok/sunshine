@@ -24,8 +24,13 @@ def full_name(user):
 @register.filter
 def format_health_questionnaire(questionnaire_responses):
     responses = []
+    args = []
     for question, response in questionnaire_responses.items():
         if isinstance(response, list):
             response = ", ".join(response)
-        responses.append(f"<strong>{question}</strong><br/>{response}")
-    return format_html(mark_safe("<br/>".join(responses)))
+        responses.append("<strong>{}</strong><br/>{}")
+        args.extend([question, response])
+    if responses:
+        return format_html("<br/>".join(responses), *args)
+    return ""
+

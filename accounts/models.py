@@ -336,6 +336,7 @@ def has_expired_disclaimer(user):
         if expired_disclaimer:
             # Only set cache if we know the disclaimer has expired
             cache.set(key, expired_disclaimer, timeout=600)
+            cached_expired_disclaimer = expired_disclaimer
     else:
         cached_expired_disclaimer = bool(cache.get(key))
     return cached_expired_disclaimer
