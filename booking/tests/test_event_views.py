@@ -126,6 +126,10 @@ class EventListViewTests(TestSetupMixin, TestCase):
         assert loc1_paginator.paginator.count == 25
         assert loc1_paginator.number == 1
 
+        # tab not a number, returns first tab
+        resp = self.client.get(self.workshops_url + "?page=2&tab=foo")
+        assert resp.context_data["tab"] == 0
+
     def test_event_list_past_event(self):
         """
         Test that past events is not listed

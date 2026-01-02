@@ -419,7 +419,7 @@ class GiftVoucher(models.Model):
 
     @property
     def expiry_date(self):
-        if self.voucher:
+        if self.voucher and self.voucher.expiry_date:
             return self.voucher.expiry_date.strftime("%d-%b-%Y")
     
     @property
@@ -864,6 +864,6 @@ User.__str__ = user_str_patch
 @receiver(post_delete, sender=GiftVoucher)
 def delete_related_voucher(sender, instance, **kwargs):
     if instance.voucher:
-        if instance.voucher.basevoucher_ptr_id is None:
+        if instance.voucher.basevoucher_ptr_id is None: # pragma: no cover
             instance.voucher.basevoucher_ptr_id = instance.voucher.id
         instance.voucher.delete()

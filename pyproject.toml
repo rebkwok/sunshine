@@ -57,6 +57,10 @@ django-suit = { git = "https://github.com/rebkwok/django-suit.git", rev = "v2" }
 
 [tool.pytest]
     addopts = ["--reuse-db", "-n", "auto"]
+    testpaths = [
+        "*/tests/*.py",
+        "*/tests.py",
+    ]
     DJANGO_SETTINGS_MODULE = "sunshine.settings"
     env = [
         "TESTING=1",
@@ -85,6 +89,7 @@ django-suit = { git = "https://github.com/rebkwok/django-suit.git", rev = "v2" }
         "*/__init__.py",
         "manage.py",
         "website/management/commands/ensure_superuser.py",
+        "custom_logging.py",
     ]
 
     relative_files = true
@@ -92,4 +97,4 @@ django-suit = { git = "https://github.com/rebkwok/django-suit.git", rev = "v2" }
 [tool.coverage.report]
     skip_empty = true
     skip_covered = true
-    fail_under = 97
+    fail_under = 98

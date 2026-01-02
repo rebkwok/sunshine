@@ -132,11 +132,22 @@ class DisclaimerContentAdminForm(forms.ModelForm):
 
         # check content has changed
         current_content = DisclaimerContent.current()
+
+        # no form content in either
+        has_changed = True
         if current_content and current_content.disclaimer_terms == new_disclaimer_terms:
-            if current_content.form == json.loads(new_health_questionnaire):
-                self.add_error(
-                    None, 'No changes made from previous version; new version must update disclaimer content'
-                )
+            if not new_health_questionnaire and not current_content.form:
+                has_changed = False
+            else: 
+                if new_health_questionnaire:
+                    new_health_questionnaire = json.loads(new_health_questionnaire)
+
+                if current_content.form == new_health_questionnaire:
+                    has_changed = False
+        if not has_changed:
+            self.add_error(
+                None, 'No changes made from previous version; new version must update disclaimer content'
+            )
 
     class Meta:
         model = DisclaimerContent

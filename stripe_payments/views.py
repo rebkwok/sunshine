@@ -129,6 +129,8 @@ def stripe_webhook(request):
     try:
         site_seller = Seller.objects.filter(site=Site.objects.get_current(request)).first()
         try:
+            # This try block is presumably here for a reason, but not sure what it is. I think
+            # this could only raise an AttributeError, and then we log and proceed
             account = event.account
         except Exception as e:
             logger.error(e)
