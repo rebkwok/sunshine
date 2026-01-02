@@ -2,78 +2,83 @@
 {% load static %}
 {% load accounttags bookingtags %}
 
+{% block title %}
+    {% include "website/includes/header.html" with title=event.name %}
+{% endblock %}
+
 {% block content %}
 
-<div class="row">
+<div class="container  mt-20">
     {% include "booking/includes/fees_due_banner.html" %}
 
     <h2 class="page-header">
          {{ event_type|title }} Details
     </h2>
 
-    <div class="col-sm-12">
-        <div class="panel panel-transparent">
-            <div>
-                <h3 class="panel-title">
-                        {{ event.name }}
-                </h3>
-            </div>
-            <div class="panel-body">
-                {% if user.is_staff and not event.show_on_site %}
-                <hr>
-                <h3>PREVIEW ONLY: THIS PAGE IS NOT VISIBLE TO NON-STAFF USERS</h3>
-                <hr>
-                {% endif %}
+    <div class="panel panel-transparent">
 
-                {% if past %}
-                    <h3>This {{ event_type }} is now past.</h3>
-                {% endif %}
+        <div class="panel-body">
+            {% if user.is_staff and not event.show_on_site %}
+            <hr>
+            <h3>PREVIEW ONLY: THIS PAGE IS NOT VISIBLE TO NON-STAFF USERS</h3>
+            <hr>
+            {% endif %}
 
-                <ul class="list-group">
-                    {% if event.description %}
-                        <li class="list-group-item"><p><strong>Description</strong></p>
-                        <p>{{ event.description | safe }}</p>
+            {% if past %}
+                <h3>This {{ event_type }} is now past.</h3>
+            {% endif %}
+
+            <ul class="list-group">
+                {% if event.description %}
+                    <li class="list-group-item"><p><strong>Description</strong></p>
+                    <p>{{ event.description | safe }}</p>
+                    </li>
+                {% endif %}
+                
+                <li class="list-group-item"><strong>{{ event_type|title }}:</strong>  {{ event.name }}</li>
+                <li class="list-group-item"><strong>Venue:</strong>  {{ event.venue }}</li>
+                <li class="list-group-item">
+                    <strong>Location:</strong> {{ event.venue.location.name }}<br/>
+                    {{ event.venue.location.address }}<br/>
+                    {{ event.venue.location.postcode }}
+                </li>
+                <li class="list-group-item"><strong>Date and time:</strong> {{ event.date |  date:"D d F, g:i a" }}</li>
+                {% if not past %}
+                            <li class="list-group-item"><strong>Contact:</strong> <a href="mailto:{{ event.contact_email }}?Subject=Enquiry regarding booking for {{ event.name }}" target="_blank">{{ event.contact_email }}</a></li>
+                        {% if event.event_type == "workshop" %}
+                            <li class="list-group-item"><p><strong>Payment information</strong></p>
+                            <p>Cost: £ {{ event.cost }}</p>
+                            <p>Payment is required to secure your space. Please contact the studio for payment details.</p>
+
                         </li>
-                    {% endif %}
-                    <li class="list-group-item"><strong>Location:</strong>  {{ event.venue }}</li>
-                    <li class="list-group-item"><strong>Date and time:</strong> {{ event.date |  date:"D d F, g:i a" }}</li>
-                    {% if not past %}
-                             <li class="list-group-item"><strong>Contact:</strong> <a href="mailto:{{ event.contact_email }}?Subject=Enquiry regarding booking for {{ event.name }}" target="_blank">{{ event.contact_email }}</a></li>
-                            {% if event.event_type == "workshop" %}
-                             <li class="list-group-item"><p><strong>Payment information</strong></p>
-                                <p>Cost: £ {{ event.cost }}</p>
-                                <p>Payment is required to secure your space. Please contact the studio for payment details.</p>
-
-                            </li>
-                            {% endif %}
-                            {% if not event.allow_booking_cancellation %}
-                                <li class="list-group-item"><strong>Cancellation information</strong>
-                                    <p>Bookings are final and non-refundable; if you cancel your booking you will not be eligible for any refund or credit.</p>
-                                </li>
-                            {% elif event.cancellation_period %}
-                                <li class="list-group-item"><strong>Cancellation information</strong>
-                                    <p>Cancellation is allowed up to {{ event.cancellation_period | format_cancellation }} prior to the {{ event_type }}.
-                                        If you cancel your booking after this time, you will not be eligible for any refunds{% if event.cancellation_fee > 0%} and a cancellation fee may be applied{% endif %}.
-                                    </p>
-                                </li>
-
-                            {% endif %}
-                    {% endif %}  
-                </ul>
-
-                {% comment %} {% if not past %}
-                        <h5>There are a maximum {{ event.max_participants }} spaces for this
-                            {{ event_type }}.</h5>
-                        <h5>Spaces left: {{ event.spaces_left }}</h5>
-                        {% if booked %}
-                            <h5>{{ booking_info_text }}</h5>
-                            <h5>See <a href="{% url 'booking:bookings' %}">your bookings</a> for details
-                                and to check if your place has been confirmed.</h5>
-                        {% else %}
-                            <h5>{{ booking_info_text_cancelled }}{{ booking_info_text }}</h5>
                         {% endif %}
-                    {% endif %} {% endcomment %}
-            </div>
+                        {% if not event.allow_booking_cancellation %}
+                            <li class="list-group-item"><strong>Cancellation information</strong>
+                                <p>Bookings are final and non-refundable; if you cancel your booking you will not be eligible for any refund or credit.</p>
+                            </li>
+                        {% elif event.cancellation_period %}
+                            <li class="list-group-item"><strong>Cancellation information</strong>
+                                <p>Cancellation is allowed up to {{ event.cancellation_period | format_cancellation }} prior to the {{ event_type }}.
+                                    If you cancel your booking after this time, you will not be eligible for any refunds{% if event.cancellation_fee > 0%} and a cancellation fee may be applied{% endif %}.
+                                </p>
+                            </li>
+
+                        {% endif %}
+                {% endif %}  
+            </ul>
+
+            {% comment %} {% if not past %}
+                    <h5>There are a maximum {{ event.max_participants }} spaces for this
+                        {{ event_type }}.</h5>
+                    <h5>Spaces left: {{ event.spaces_left }}</h5>
+                    {% if booked %}
+                        <h5>{{ booking_info_text }}</h5>
+                        <h5>See <a href="{% url 'booking:bookings' %}">your bookings</a> for details
+                            and to check if your place has been confirmed.</h5>
+                    {% else %}
+                        <h5>{{ booking_info_text_cancelled }}{{ booking_info_text }}</h5>
+                    {% endif %}
+                {% endif %} {% endcomment %}
         </div>
     </div>
 

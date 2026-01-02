@@ -1,0 +1,11 @@
+<h3>Costs and Membership options</h3>
+    <ul>
+        <li>Single class: £{{ single_class_cost }}</li>
+        {% for membership_type in membership_types %}
+        <li>{{ membership_type.name }}: £{{ membership_type.cost}}/month</li>
+        {% endfor %}
+    </ul>
+    {% if membership_types %}
+    <p><a href="{% url 'booking:membership_purchase' %}">Buy a membership</a></p>
+    {% endif %}
+    <p>All classes in monthly blocks must be used up by the last day of the month. No classes will be carried over to the following month.</p>

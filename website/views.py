@@ -30,6 +30,13 @@ def home(request):
     )
 
 
+def home_legacy(request):
+
+    class_types = SessionType.objects.filter(display_on_site=True)
+
+    return render(request, 'website/home_legacy.html', {'section': 'home', 'class_types': class_types})
+
+
 def faq(request):
     return render(request, 'website/faq.html', {'section': 'about'})
 

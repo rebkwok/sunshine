@@ -494,12 +494,13 @@ a.btn {
 /*------------------------------------------*/
 
 .btn.btn-xs {
-  font-size: 14px;
+  font-size: 0.9rem;
   padding: 8px 14px;
 }
 
 .btn.btn-xs.book-btn {
-  width: 140px;
+  width: 120px;
+  padding: 8px 0px;
 }
 
 .btn.btn-sm {
