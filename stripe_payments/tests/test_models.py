@@ -105,6 +105,7 @@ def test_create_stripe_payment_intent_instance_from_pi(get_mock_payment_intent):
     assert StripePaymentIntent.objects.count() == 1
     assert pi.invoice == invoice
     assert pi.seller is None
+    assert invoice.payment_intent_ids == pi.payment_intent_id
 
     # update with seller
     seller = baker.make(Seller, user__email="testuser@test.com")

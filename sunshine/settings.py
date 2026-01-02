@@ -484,7 +484,7 @@ if TESTING or env('CI'):  # use local cache for tests
             'LOCATION': 'test-sunshine',
         }
     }
-else:
+else:  # pragma: no cover
     CACHES = {
         "default": {
             "BACKEND": 'django.core.cache.backends.filebased.FileBasedCache',

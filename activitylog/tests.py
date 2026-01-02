@@ -6,6 +6,7 @@ from tempfile import TemporaryDirectory
 from io import StringIO
 from unittest.mock import patch
 
+import pytest
 from dateutil.relativedelta import relativedelta
 from model_bakery import baker
 
@@ -19,17 +20,15 @@ from activitylog import admin
 from activitylog.models import ActivityLog
 
 
-class ActivityLogAdminTests(TestCase):
+pytestmark = pytest.mark.django_db
 
-    def test_timestamp_display(self):
-        baker.make(ActivityLog, log="New log")
 
-        log_admin = admin.ActivityLogAdmin(ActivityLog, AdminSite())
-        log_query = log_admin.get_queryset(None)[0]
-        self.assertEqual(
-            log_admin.timestamp_formatted(log_query),
-            log_query.timestamp.strftime('%d-%b-%Y %H:%M:%S (%Z)')
-        )
+def test_activity_log_admin_timestamp_display():
+    baker.make(ActivityLog, log="New log")
+
+    log_admin = admin.ActivityLogAdmin(ActivityLog, AdminSite())
+    log_query = log_admin.get_queryset(None)[0]
+    assert log_admin.timestamp_formatted(log_query) == log_query.timestamp.strftime('%d-%b-%Y %H:%M:%S (%Z)')
 
 
 class DeleteEmptyJobActivityLogsTests(TestCase):

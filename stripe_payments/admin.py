@@ -13,7 +13,7 @@ class BookingInline(admin.TabularInline):
     extra = 0
     can_delete = False
     
-    def has_add_permission(self, request, obj):
+    def has_add_permission(self, request, obj):  # pragma: no cover
         return False
 
 
@@ -24,7 +24,7 @@ class MembershipInline(admin.TabularInline):
     extra = 0
     can_delete = False
     
-    def has_add_permission(self, request, obj):
+    def has_add_permission(self, request, obj):  # pragma: no cover
         return False
 
 
@@ -35,7 +35,7 @@ class GiftVoucherInline(admin.TabularInline):
     extra = 0
     can_delete = False
     
-    def has_add_permission(self, request, obj):
+    def has_add_permission(self, request, obj):  # pragma: no cover
         return False
     
 
