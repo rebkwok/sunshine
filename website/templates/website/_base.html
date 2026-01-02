@@ -77,7 +77,7 @@
                         <!-- MOBILE HEADER -->
                         <div class="wsmobileheader clearfix">	  	
                             <span class="smllogo">
-                                <img src='{% static "website/images/logo.jpg" %}' width="50" height="50" alt="mobile-logo"/>
+                                <a href="/"><img src='{% static "website/images/logo.jpg" %}' width="50" height="50" alt="mobile-logo"/></a>
                                 <span class="mobile-cart">
                                     <a href="{% url 'booking:shopping_basket' %}" class="btn btn-tra-sunshine sunshine-hover p-2">
                                         <i class="fas fa-shopping-basket me-0"></i> <span id="cart_item_menu_count_xs">{{ cart_item_count }}</span>
@@ -104,24 +104,30 @@
                                     <ul class="wsmenu-list">
 
                                         <!-- DROPDOWN MENU -->
-                                        <li aria-haspopup="true" id="nav-about"><a href="/">About <span class="wsarrow"></span></a>
-                                            <ul class="sub-menu">
-                                                <li aria-haspopup="true"><a href="{% url 'website:session_types' %}">What we offer</a></li>
-                                                <li aria-haspopup="true"><a href="{% url 'website:venues' %}">Venues</a></li>
-                                                <li aria-haspopup="true"><a href="{% url 'website:faq' %}">FAQ</a></li>
-                                                <li aria-haspopup="true"><a href="{% url 'website:contact' %}">Contact us</a></li>
-                                            </ul>
-                                        </li>	<!-- END DROPDOWN MENU -->
-
-
-                                        <!-- DROPDOWN MENU -->
-                                        <li aria-haspopup="true" id="nav-timetable"><a href="{% url 'timetable:timetable' %}">Timetable <span class="wsarrow"></span></a>
-                                            <ul class="sub-menu">
-                                                {% for tab, location in timetable_locations %}
-                                                    <li aria-haspopup="true"><a href="{% url 'timetable:timetable' %}?tab={{ tab }}">{{ location}}</a></li>
-                                                {% endfor %}		      
-                                            </ul>
-                                        </li>	<!-- END DROPDOWN MENU -->
+                                        {% if not legacy_homepage %}
+                                            <li aria-haspopup="true" id="nav-about"><a href="/">About <span class="wsarrow"></span></a>
+                                                <ul class="sub-menu">
+                                                    <li aria-haspopup="true"><a href="{% url 'website:session_types' %}">What we offer</a></li>
+                                                    <li aria-haspopup="true"><a href="{% url 'website:venues' %}">Venues</a></li>
+                                                    <li aria-haspopup="true"><a href="{% url 'website:faq' %}">FAQ</a></li>
+                                                    <li aria-haspopup="true"><a href="{% url 'website:contact' %}">Contact us</a></li>
+                                                </ul>
+                                            </li>	<!-- END DROPDOWN MENU -->
+                                        {% endif %}
+                                        
+                                        <!-- Dropdown for timetables only if >1 location -->
+                                        {% if timetable_locations|length > 1 %}
+                                            <!-- DROPDOWN MENU -->
+                                            <li aria-haspopup="true" id="nav-timetable"><a href="{% url 'timetable:timetable' %}">Timetable <span class="wsarrow"></span></a>
+                                                <ul class="sub-menu">
+                                                    {% for tab, location in timetable_locations %}
+                                                        <li aria-haspopup="true"><a href="{% url 'timetable:timetable' %}?tab={{ tab }}">{{ location}}</a></li>
+                                                    {% endfor %}		      
+                                                </ul>
+                                            </li>	<!-- END DROPDOWN MENU -->
+                                        {% else %}
+                                                <li id="nav-timetable" class="nl-simple" aria-haspopup="true"><a href="{% url 'timetable:timetable' %}">Timetable</a></li>
+                                        {% endif %}
 
                                         <li id="nav-membership" class="nl-simple" aria-haspopup="true"><a href="{% url 'booking:membership_purchase' %}">Memberships</a></li>
                                         <li id="nav-booking" class="nl-simple" aria-haspopup="true"><a href="{% url 'booking:regular_session_list' %}">Book a class</a></li>
@@ -256,12 +262,13 @@
 
 
 							<!-- BOTTOM FOOTER LINKS -->
-							<div class="col-lg-6">
+							<div>
 								<ul class="bottom-footer-list text-right clearfix">
 									<li><p class="first-list-link"><a href="https://www.facebook.com/profile.php?id=100078690747041"><i class="fab fa-facebook-f"></i> Facebook</a></p></li>	
                                     <li><p class="list-link"><a href="https://www.instagram.com/sunshine_fife/"><i class="fab fa-instagram"></i> Instagram</a></p></li>
                                     <li><p class="list-link"><a href="{% url 'website:faq' %}">FAQ</a></p></li>
-                                    <li><p class="last-li"><a href="{% url 'data_privacy_policy' %}">Data Privacy Policy</a></p></li>
+                                    <li><p class="list-link"><a href="{% url 'data_privacy_policy' %}">Data Privacy Policy</a></p></li>
+                                    <li><p class="last-li"><a href="{% url 'website:contact' %}">Contact</a></p></li>
                                 </ul>
 							</div>
 

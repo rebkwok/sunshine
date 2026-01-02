@@ -1,0 +1,178 @@
+{% load static %}
+{% load bootstrap4 %}
+{% load cookielaw_tags %}
+
+
+<!DOCTYPE html>
+<head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Sunshine Fitness</title>
+
+        <link rel="icon" type="image/jpg" href="{% static 'website/images/logo_no_text.jpg' %}">
+        <link rel="shortcut icon" href="{% static 'website/images/favicon.ico' %}" type="image/vnd.microsoft.icon">
+
+        <!-- Bootstrap core CSS -->
+        {% bootstrap_css %}
+
+        <link href="{% static 'website/css/custom-legacy.css' %}" rel="stylesheet">
+          <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
+          <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.13.2/themes/base/jquery-ui.min.css" integrity="sha512-ELV+xyi8IhEApPS/pSj66+Jiw+sOT1Mqkzlh8ExXihe4zfqbWkxPRi8wptXIO9g73FSlhmquFlUOuMSoXz5IRw==" crossorigin="anonymous" referrerpolicy="no-referrer" />         
+          <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.13.2/themes/base/theme.min.css" integrity="sha512-hbs/7O+vqWZS49DulqH1n2lVtu63t3c3MTAn0oYMINS5aT8eIAbJGDXgLt6IxDHcWyzVTgf9XyzZ9iWyVQ7mCQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+          {% block extrahead %}{% endblock %}
+
+    </head>
+<body>
+
+        <!-- Fixed navbar -->
+        <div class="navbar-wrap">
+        <div class="navbar navbar-expand-sm navbar-dark navbar-fixed" role="navigation">
+        <a class="navbar-brand p-0" href="/"><img class="nav-logo" src="{% static 'website/images/logo_no_text.jpg' %}"></a>
+        <div>
+            <span class="d-inline d-sm-none">
+                <a class="btn btn-warning btn-sm p-2" href="{% url 'booking:shopping_basket' %}">
+                    <span><i class="fas fa-shopping-cart"></i> <span class="badge badge-light" id="cart_item_menu_count_xs">{{ cart_item_count }}</span></span>
+                </a>
+            </span>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        </div>
+
+        <div class="collapse navbar-collapse" id="navbarCollapse">
+          <ul class="nav navbar-nav mr-auto">
+            <li class="nav-item"><a class="nav-link{% if section == 'home' %} active{% endif %}" href="{% url 'website:home' %}">Home</a></li>
+            <li class="nav-item"><a class="nav-link{% if section == 'timetable' %} active{% endif %}" href="{% url 'timetable:timetable' %}">Timetable</a></li>
+            {% if membership_types %}
+            <li class="nav-item"><a class="nav-link{% if section == 'membership' %} active{% endif %}" href="{% url 'booking:membership_purchase' %}">Memberships</a>
+            {% endif %}
+            {% if gift_vouchers_available %}
+                <li class="nav-item"><a class="nav-link{% if section == 'gift_voucher' %} active{% endif %}" href="{% url 'booking:buy_gift_voucher' %}">Gift Vouchers</a>
+            {% endif %}
+            <li class="nav-item"><a class="nav-link{% if section == 'booking' %} active{% endif %}" href="{% url 'booking:regular_session_list' %}">Book</a></li>
+            <li class="nav-item"><a class="nav-link{% if section == 'contact' %} active{% endif %}" href="{% url 'website:contact' %}">Contact us</a></li>
+          </ul>
+
+         <ul class="nav navbar-nav pull-right">
+            {% if user.is_authenticated %}
+            <li class="d-none d-sm-inline">
+                <a class="btn btn-warning btn-sm p-2 mr-2" href="{% url 'booking:shopping_basket' %}">
+                  <span><i class="fas fa-shopping-cart"></i> <span class="badge badge-light" id="cart_item_menu_count">{{ cart_item_count }}</span></span>
+                </a>
+              </li>
+            <li class="dropdown dropleft float-right">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown">My account<b class="caret"></b></a>
+                <ul class="dropdown-menu float-right pl-2">
+                    <li class="nav-item"><a class="account-menu-option" href="{% url 'accounts:profile' %}">Profile</a></li>
+                    <li class="nav-item"><a class="account-menu-option" href="{% url 'account_change_password' %}">Change password</a></li>
+                    <div class="dropdown-divider"></div>
+                    <li class="nav-item"><a class="account-menu-option" href="{% url 'booking:bookings' %}">Bookings</a></li>
+                    <li class="nav-item"><a class="account-menu-option" href="{% url 'booking:booking_history' %}">Booking history</a></li>
+                    <li class="nav-item"><a class="account-menu-option" href="{% url 'booking:user_memberships' %}">Memberships</a></li>
+                    <li class="nav-item"><a class="account-menu-option" href="{% url 'booking:transactions' %}">Payment history</a></li>
+                    <div class="dropdown-divider"></div>
+                    <li class="nav-item"><a class="account-menu-option" href="{% url 'account_logout' %}">Log out</a></li>
+
+                    {% if user.is_staff or user.is_superuser %}
+                        <div class="dropdown-divider"></div>
+                        <li class="nav-item"><a class="account-menu-option" href="{% url 'studioadmin:regular_session_register_list' %}">Instructor Admin</a></li>
+                    {% endif %}
+                    {% if user.is_superuser %}
+                        <li class="nav-item"><a class="account-menu-option" href="{% url 'admin:index' %}">Site Admin</a></li>
+                    {% endif %}
+
+                </ul>
+            </li>
+            {% else %}
+            <li class="pull-right"><a href="{% url 'account_login' %}">Log in</a></li>
+            {% endif %}
+
+        </ul> 
+        </div>    
+
+    </div>
+    </div>
+
+<div class="wrapper">
+    <main role="main" class="container-fluid">
+
+        {% cookielaw_banner %}
+
+        {% block anon_banner %}
+            {% if user.is_anonymous %}
+                <div class="mb-4">
+                    <div class="message alert alert-anon p-4">
+                        <div><span class="fas fa-sun"></span> <a href={% url 'account_login' %}?next={{request.get_full_path|urlencode }}>Log in</a> to book a class! <span class="fas fa-sun"></span></div>
+                    </div>
+                </div>
+            {% endif %}
+        {% endblock anon_banner %}
+
+        {% if messages %}
+            <div class="extra-top-margin col-12">
+                {% for message in messages %}
+                <div {% if message.tags and message.tags == 'error' %}
+                            class="message alert alert-danger"
+                     {% elif message.tags %}
+                            class="message alert alert-{{ message.tags }}"
+                     {% endif %}>
+                    {% if 'safe' in message.tags %}
+                        {{ message|safe }}
+                    {% else %}
+                        {{ message }}
+                    {% endif %}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <div class="container-fluid">
+        {% block content %}
+        <p>You need to define a content block!</p>
+        {% endblock %}
+        </div>
+
+
+    </main> 
+    </div>
+
+    <footer class="footer">
+            <span class="divider"></span>
+
+        <div class="container-fluid">
+            <div class="row footer_box">
+                <div class="col-4 float-left">
+                    <div class="footer-fb">
+                    <a href="https://www.facebook.com/sunshinefitnessfife">
+                        <span class="fab fa-facebook-square"></span>
+                    </a>
+                    <a href="https://www.instagram.com/sunshinefitnessfife">
+                        <span class="fab fa-instagram"></span>
+                    </a>
+                    </div>
+                    <div class="footer-credit"><a href="{% url 'data_privacy_policy' %}">Data Privacy Policy</a></div>
+                </div>
+                <div class="col-4 text-center">
+		            <a class="footer-link" href="{% url 'website:contact' %}">Contact us</a> | <a href="{% url 'website:faq' %}">FAQ</a>
+                </div>
+                <div class="col-4 float-right">
+                        <div class="footer-credit float-right">Site developed by <a href="https://twitter.com/rebkwok" target="_blank" style="color: #0B0B61">Becky Smith</a></div>
+                </div>
+
+            </div>
+        </div>
+    </footer>
+
+</body>
+
+
+    {% bootstrap_javascript %}
+
+    <div id="fb-root"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.13.2/jquery-ui.min.js" integrity="sha512-57oZ/vW8ANMjR/KQ6Be9v/+/h6bq9/l3f0Oc7vn6qMqyhvPd1cvKBRWWpzu0QoneImqr2SkmO4MSqU+RpHom3Q==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>    <script src="{% static 'website/js/custom-v3.js' %}"></script>
+    <script src="{% static 'website/js/ajax_csrf.js' %}"></script>
+    <script type="text/javascript" src="{% static 'cookielaw/js/cookielaw.js' %}"></script>
+
+    {% block extrascripts %}{% endblock %}
+
+</html>

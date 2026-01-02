@@ -23,22 +23,24 @@
 
             <form class="filter-row" action="" method="get">
                 <div class="row">
-                    <div class="col-sm-2">
+                    <div class="col-md-2">
                         <strong>Show classes by: </strong>
                     </div>
-                    <div class="col-sm-2 filter">{{ form.filtered_session_type }}</div>
-                    <div class="col-sm-1"><input class="btn  btn-sunshine tra-sunshine-hover btn-xs" type="submit" value="Go" /></div>
+                    <div class="col-11 col-md-2 filter">{{ form.filtered_session_type }}</div>
+                    <div class="col-1"><input class="btn  btn-sunshine tra-sunshine-hover btn-xs" type="submit" value="Go" /></div>
                 </div>
             </form>
             </br>
 
+            {% if location_events|length > 1 %}
             <ul class="nav nav-tabs" id="timetableTab" role="tablist">
                 {% for location in location_events %}
                 <li class="nav-item" role="presentation">
                     <button class="nav-link {% if tab == location.index %}active{% endif %}" id="nav-tab-{{ location.index }}" data-bs-toggle="tab" data-bs-target="#nav-{{ location.index }}" type="button" role="tab" aria-controls="nav-{{ location.index }}" aria-selected={% if tab == location.index %}"true"{% else %}"false"{% endif %}>{{ location.location }}</button>
                 </li>
                 {% endfor %}
-            </ul>  
+            </ul>
+            {% endif %}
 
 
             <div class="tab-content" id="timetableTabContent">
@@ -67,7 +69,7 @@
                                                 <div class="btn btn-sunshine btn-xs tra-sunshine-hover"><span class="text-dark">View Dates</span></div></a>
                                             </td>
                                             <td class="timetable-row">{{ session.session_day|format_day }}</td>
-                                            <td class="timetable-row">{{ session.start_time|time:"H:i" }} - {{ session.end_time|time:"H:i" }}</td>
+                                            <td class="timetable-row">{{ session.start_time|time:"H:i" }}-{{ session.end_time|time:"H:i" }}</td>
                                             <td class="table-center timetable-row">
                                                 {% if session.category %}
                                                     <span class="badge rounded-pill text-bg-{{ session.category.colour }}">

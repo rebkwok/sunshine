@@ -14,6 +14,8 @@ import logging
 import os
 import sys
 
+from django.contrib import messages
+
 from .custom_logging import GroupWriteRotatingFileHandler, log_file_permissions
 
 logging.handlers.GroupWriteRotatingFileHandler = GroupWriteRotatingFileHandler
@@ -88,6 +90,7 @@ INSTALLED_APPS = (
     'allauth.account',
     'django_extensions',
     'storages',
+    'bootstrap4',
     'django_bootstrap5',
     'debug_toolbar',
     'dynamic_forms',
@@ -276,6 +279,7 @@ TEMPLATES = [
                 "django.template.context_processors.media",
                 "booking.context_processors.future_events",
                 "booking.context_processors.booking",
+                "booking.context_processors.feature_flags",
                 "timetable.context_processors.timetable",
             ),
             'debug': DEBUG,
@@ -462,7 +466,6 @@ else:  # pragma: no cover
 ADMINS = [SUPPORT_EMAIL]
 
 
-from django.contrib import messages
 MESSAGE_TAGS = {
     messages.ERROR: 'danger'
 }
@@ -518,3 +521,6 @@ INVOICE_KEY=env("INVOICE_KEY")
 
 CART_TIMEOUT_MINUTES = env("CART_TIMEOUT_MINUTES", default=15)
 MEMBERSHIP_AVAILABLE_EARLY_DAYS = env.int("MEMBERSHIP_AVAILABLE_EARLY_DAYS", default=10)
+
+# Feature flag for legacy homepage
+LEGACY_HOMEPAGE = env.bool("LEGACY_HOMEPAGE", default=True)

@@ -71,14 +71,16 @@
     {% endif %}
 
         {% if events %}
-
+        
+        {% if location_events|length > 1 %}
         <ul class="nav nav-tabs" id="eventTab" role="tablist">
             {% for location in location_events %}
             <li class="nav-item" role="presentation">
                 <button class="nav-link {% if tab == location.index %}active{% endif %}" id="nav-tab-{{ location.index }}" data-bs-toggle="tab" data-bs-target="#nav-{{ location.index }}" type="button" role="tab" aria-controls="nav-{{ location.index }}" aria-selected={% if tab == location.index %}"true"{% else %}"false"{% endif %}>{{ location.location }}</button>
             </li>
             {% endfor %}
-        </ul>  
+        </ul> 
+        {% endif %} 
 
 
         <div class="tab-content" id="eventTabContent">
