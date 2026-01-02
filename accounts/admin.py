@@ -2,7 +2,7 @@ from decimal import Decimal
 from math import floor
 import json
 
-from django.contrib import admin, messages
+from django.contrib import admin
 from django import forms
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import User
@@ -13,6 +13,7 @@ from accounts.models import (
     CookiePolicy, DataPrivacyPolicy, SignedDataPrivacy, DisclaimerContent, OnlineDisclaimer, ArchivedDisclaimer,
     has_active_disclaimer, has_expired_disclaimer
 )
+from accounts.utils import format_questionnaire_responses_to_html
 
 
 class PolicyAdminFormMixin:
@@ -196,21 +197,7 @@ class OnlineDisclaimerAdmin(admin.ModelAdmin):
         return False
 
     def health_questionnaire(self, obj):
-        responses = []
-        if not obj.health_questionnaire_responses:
-            health_questionnaire_responses = {}
-        else:
-            health_questionnaire_responses = obj.health_questionnaire_responses
-
-        args = []
-        for question, response in health_questionnaire_responses.items():
-            if isinstance(response, list):
-                response = ", ".join(response)
-            responses.append("<strong>{}</strong><br/>{}")
-            args.extend([question, response])
-        if responses:
-            return format_html("<br/>".join(responses), *args)
-        return ""
+        return format_questionnaire_responses_to_html(obj.health_questionnaire_responses)
 
 
 class ArchivedDisclaimerAdmin(OnlineDisclaimerAdmin):

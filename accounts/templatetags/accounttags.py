@@ -1,7 +1,8 @@
 from django import template
 from django.utils.html import format_html, mark_safe
 
-from ..models import has_active_disclaimer, has_expired_disclaimer as has_expired_disclaimer_util
+from accounts.models import has_active_disclaimer, has_expired_disclaimer as has_expired_disclaimer_util
+from accounts.utils import format_questionnaire_responses_to_html
 
 register = template.Library()
 
@@ -23,14 +24,4 @@ def full_name(user):
 
 @register.filter
 def format_health_questionnaire(questionnaire_responses):
-    responses = []
-    args = []
-    for question, response in questionnaire_responses.items():
-        if isinstance(response, list):
-            response = ", ".join(response)
-        responses.append("<strong>{}</strong><br/>{}")
-        args.extend([question, response])
-    if responses:
-        return format_html("<br/>".join(responses), *args)
-    return ""
-
+    return format_questionnaire_responses_to_html(questionnaire_responses)
