@@ -1,3 +1,4 @@
+import pytest
 from model_bakery import baker
 
 from django.urls import reverse
@@ -6,6 +7,7 @@ from django.contrib.auth.models import User
 
 from studioadmin.views.users import NAME_FILTERS
 from .helpers import TestPermissionMixin
+from booking.tests.helpers import make_disclaimer_content, make_online_disclaimer
 
 
 class UserListViewTests(TestPermissionMixin, TestCase):
@@ -119,3 +121,53 @@ class UserListViewTests(TestPermissionMixin, TestCase):
                 self.assertFalse(opt['available'])
             else:
                 self.assertTrue(opt['available'])
+
+
+@pytest.mark.django_db
+def test_user_disclaimer_view_questionnaire_responses(client, superuser):
+    user = baker.make(User)
+    make_disclaimer_content(
+        form=[
+                {
+                    'type': 'text',
+                    'required': False,
+                    'label': 'Say something',
+                    'name': 'text-1',
+                    'subtype': 'text'
+                },
+                {
+                    'type': 'text',
+                    'required': True,
+                    'label': 'What is your favourite colour?',
+                    'name': 'text-2',
+                    'choices': ["red", "green", "blue"],
+                    'subtype': 'text'
+                }
+            ]
+    )
+    make_online_disclaimer(
+        user=user,
+        health_questionnaire_responses={
+            "Say something": "OK",
+            'What is your favourite colour?': ["blue"]
+        }
+    )
+
+    client.force_login(superuser)
+    resp = client.get(
+        reverse("studioadmin:user_disclaimer", args=(user.id,))
+    )
+    assert "<strong>Say something</strong><br/>OK<br/><strong>What is your favourite colour?</strong><br/>blue" in resp.rendered_content
+
+
+@pytest.mark.django_db
+def test_user_disclaimer_view_questionnaire_no_responses(client, superuser):
+    user = baker.make(User)
+    make_online_disclaimer(user=user)
+
+    client.force_login(superuser)
+    # confirm no errors if no questionnaire responses to display
+    resp = client.get(
+        reverse("studioadmin:user_disclaimer", args=(user.id,))
+    )
+    assert resp.status_code == 200

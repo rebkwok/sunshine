@@ -58,6 +58,10 @@ django-ses = { git = "https://github.com/hesstobi/django-ses.git", rev = "1ab8ed
 
 [tool.pytest]
     addopts = ["--reuse-db", "-n", "auto"]
+    testpaths = [
+        "*/tests/*.py",
+        "*/tests.py",
+    ]
     DJANGO_SETTINGS_MODULE = "sunshine.settings"
     env = [
         "TESTING=1",
@@ -86,6 +90,7 @@ django-ses = { git = "https://github.com/hesstobi/django-ses.git", rev = "1ab8ed
         "*/__init__.py",
         "manage.py",
         "website/management/commands/ensure_superuser.py",
+        "custom_logging.py",
     ]
 
     relative_files = true
@@ -93,4 +98,4 @@ django-ses = { git = "https://github.com/hesstobi/django-ses.git", rev = "1ab8ed
 [tool.coverage.report]
     skip_empty = true
     skip_covered = true
-    fail_under = 97
+    fail_under = 98

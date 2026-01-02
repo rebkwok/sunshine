@@ -42,6 +42,19 @@ def superuser():
 
 
 @pytest.fixture
+def instructor_user():
+    user = User.objects.create_user(
+            username='test_instructor', 
+            first_name="Test", 
+            last_name="User", 
+            email='instructor@test.com', 
+            password='test',
+            is_staff=True,
+        )
+    yield user
+
+
+@pytest.fixture
 def seller():
     yield baker.make(Seller, site=Site.objects.get_current(), stripe_user_id="id123")
 
@@ -134,8 +147,9 @@ def get_mock_refund():
 def get_mock_webhook_event(seller, get_mock_payment_intent):
     def mock_webhook_event(**params):
         webhook_event_type = params.pop("webhook_event_type", "payment_intent.succeeded")
+        account = params.pop("account", seller.stripe_user_id)
         mock_event = Mock(
-            account=seller.stripe_user_id,
+            account=account,
             data=Mock(object=get_mock_payment_intent(webhook_event_type, **params)), type=webhook_event_type
         )
         return mock_event
