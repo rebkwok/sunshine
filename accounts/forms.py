@@ -111,7 +111,6 @@ BASE_DISCLAIMER_FORM_WIDGETS = {
 class DisclaimerForm(forms.ModelForm):
 
     terms_accepted = forms.BooleanField(
-        validators=[account_validators.validate_confirm],
         required=True,
         widget=forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         label='Please tick to accept terms.'
