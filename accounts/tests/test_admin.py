@@ -39,7 +39,7 @@ def test_disclaimer_content_health_questionnaire_questions():
 def test_disclaimer_content_fields():
     make_disclaimer_content()
     disclaimer_content_admin = admin.DisclaimerContentAdmin(DisclaimerContent, AdminSite())
-    # no obj, return default (all fields on model)
+    # no obj, return default fields
     assert disclaimer_content_admin.get_fields(None, None) == [
         'disclaimer_terms',
         'version',
@@ -52,28 +52,28 @@ def test_disclaimer_content_fields():
 def test_disclaimer_content_fields_draft():
     content = make_disclaimer_content(is_draft=True)
     disclaimer_content_admin = admin.DisclaimerContentAdmin(DisclaimerContent, AdminSite())
-    # no obj, return default (all fields on model)
-    assert disclaimer_content_admin.get_fields(None, content) == (
+    # no obj, return default fields
+    assert disclaimer_content_admin.get_fields(None, content) == [
         'disclaimer_terms',
         'version',
         'form',
         'is_draft',
         'issue_date',
-    )
+    ]
 
 
 @pytest.mark.django_db
 def test_disclaimer_content_fields_non_draft():
     content = make_disclaimer_content(is_draft=False)
     disclaimer_content_admin = admin.DisclaimerContentAdmin(DisclaimerContent, AdminSite())
-    # no obj, return default (all fields on model)
-    assert disclaimer_content_admin.get_fields(None, content) == (
+    # non-draft obj, return custom fields
+    assert disclaimer_content_admin.get_fields(None, content) == [
         'note',
         'version',
         'disclaimer_terms',
         'health_questionnaire_questions',
         'issue_date',
-    )
+    ]
 
 
 @pytest.mark.django_db
