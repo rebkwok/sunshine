@@ -25,7 +25,7 @@ class ContactFormTests(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        cls.url = reverse('website:contact_form')
+        cls.url = reverse('website:contact')
         cls.user = User.objects.create(
             username='test', email='test@test.com', password='test'
         )

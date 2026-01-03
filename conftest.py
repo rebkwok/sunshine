@@ -15,18 +15,25 @@ def use_dummy_cache_backend(settings):
     settings.SKIP_NEW_ACCOUNT_EMAIL = True
 
 
-@pytest.fixture
-def configured_user():
-    user = User.objects.create_user(
-            username='test', 
-            first_name="Test", 
-            last_name="User", 
-            email='test@test.com', 
-            password='test'
-        )
+def configure_user(user):
     make_disclaimer_content()
     make_online_disclaimer(user=user)
     make_data_privacy_agreement(user)
+
+
+@pytest.fixture
+def user():
+    yield User.objects.create_user(
+        username='test', 
+        first_name="Test", 
+        last_name="User", 
+        email='test@test.com', 
+        password='test'
+    )
+
+@pytest.fixture
+def configured_user(user):
+    configure_user(user)
     yield user
 
 
@@ -39,6 +46,19 @@ def superuser():
         email='super@test.com', 
         password='test'
     )
+
+
+@pytest.fixture
+def instructor_user():
+    user = User.objects.create_user(
+            username='test_instructor', 
+            first_name="Test", 
+            last_name="User", 
+            email='instructor@test.com', 
+            password='test',
+            is_staff=True,
+        )
+    yield user
 
 
 @pytest.fixture
@@ -134,8 +154,9 @@ def get_mock_refund():
 def get_mock_webhook_event(seller, get_mock_payment_intent):
     def mock_webhook_event(**params):
         webhook_event_type = params.pop("webhook_event_type", "payment_intent.succeeded")
+        account = params.pop("account", seller.stripe_user_id)
         mock_event = Mock(
-            account=seller.stripe_user_id,
+            account=account,
             data=Mock(object=get_mock_payment_intent(webhook_event_type, **params)), type=webhook_event_type
         )
         return mock_event

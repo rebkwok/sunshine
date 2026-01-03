@@ -1,49 +1,56 @@
 {% extends 'website/_base.html' %}
 {% load accounttags %}
 
-{% block content %}
-<div class="container-fluid">
-   <h1 class="page-header">Your Profile</h1>
-   <div class="card">
-       <h2 class="card-header">Personal Details</h2>
-       <div class="card-body">
-           <div class="card-text"><strong>Username:</strong> {{ user.username }}</div>
-           <div class="card-text"><strong>Name:</strong> {{ user.first_name }} {{ user.last_name }}</div>
-          <div class="card-text"><a class="btn btn-warning btn-sm" href="{% url 'accounts:update_profile' %}"><span class="text-dark">Change</span></a></div>
+{% block title %}{% include "website/includes/header.html" with title="Your Profile" %}{% endblock %}
 
+
+{% block content %}
+
+<section>
+
+    <div class="container mt-20">
+        <div class="card">
+            <h2 class="card-header">Personal Details</h2>
+            <div class="card-body">
+                <div class="card-text"><strong>Username:</strong> {{ user.username }}</div>
+                <div class="card-text"><strong>Name:</strong> {{ user.first_name }} {{ user.last_name }}</div>
+                <div class="card-text"><a class="btn btn-sunshine tra-sunshine-hover btn-sm" href="{% url 'accounts:update_profile' %}">Change</a></div>
+
+                </div>
+            </div>
+            <div class="card">
+            <h2 class="card-header">Your Info and Emergency Contact Information</h2>
+            <p>Your emergency contact will be contacted in the case of an accident or emergency.</p>
+            <div class="card-body">
+            <div class="card-text"><strong>Date of birth:</strong> {{ latest_disclaimer.date_of_birth }}</div>
+            <div class="card-text"><strong>Contact phone number:</strong> {{ latest_disclaimer.phone }} </div>
+            <div class="card-text"><strong>Emergency Contact Name:</strong> {{ latest_disclaimer.emergency_contact_name }} </div>
+            <div class="card-text"><strong>Emergency Contact Phone:</strong> {{ latest_disclaimer.emergency_contact_phone }} </div>
+            <div class="card-text"><strong>Relationship:</strong> {{ latest_disclaimer.emergency_contact_relationship }} </div>
+            <div class="card-text"><a class="btn btn-sunshine tra-sunshine-hover btn-sm" href="{% url 'accounts:update_emergency_contact' user.id %}">Change</a></div>
+            </div>
         </div>
-       </div>
-    <div class="card">
-       <h2 class="card-header">Your Info and Emergency Contact Information</h2>
-       <p>Your emergency contact will be contacted in the case of an accident or emergency.</p>
-       <div class="card-body">
-      <div class="card-text"><strong>Date of birth:</strong> {{ latest_disclaimer.date_of_birth }}</div>
-      <div class="card-text"><strong>Contact phone number:</strong> {{ latest_disclaimer.phone }} </div>
-       <div class="card-text"><strong>Emergency Contact Name:</strong> {{ latest_disclaimer.emergency_contact_name }} </div>
-       <div class="card-text"><strong>Emergency Contact Phone:</strong> {{ latest_disclaimer.emergency_contact_phone }} </div>
-       <div class="card-text"><strong>Relationship:</strong> {{ latest_disclaimer.emergency_contact_relationship }} </div>
-       <div class="card-text"><a class="btn btn-warning btn-sm" href="{% url 'accounts:update_emergency_contact' user.id %}"><span class="text-dark">Change</span></a></div>
-       </div>
-   </div>
-    <div class="card">
-       <h2 class="card-header">Email Addresses</h2>
-       <div class="card-body">
-        <div class="card-text"><strong>Primary email address:</strong> {{ user.email }}</div>
-       <div class="card-text"><a class="btn btn-sm btn-warning" href="{% url 'account_email' %}"><span class="text-dark">Change</span></a></div>
-       </div>
-    </div>
-    <div class="card">
-        <h2 class="card-header">Disclaimer</h2>
+        <div class="card">
+        <h2 class="card-header">Email Addresses</h2>
         <div class="card-body">
-            <p>All students must have a completed and current disclaimer before any bookings can be made.  Disclaimers will need to be reviewed
-                annually and whenever terms are updated.</p>
-            {% if user|has_disclaimer %}
-                <span class="badge disclaimer-badge badge-warning pt-1 pb-1">Completed</span>
-            {% else %}<span class="badge disclaimer-badge badge-dark">{% if user|has_expired_disclaimer %}Expired{% else %}Not Completed{% endif %}</span>
-                <a class="btn btn-warning  p-0" href="{% url 'accounts:disclaimer_form' user.id %}"><span class="text-dark pl-1 pr-1"> Add new disclaimer</span></a>
-            {% endif %}
+            <div class="card-text"><strong>Primary email address:</strong> {{ user.email }}</div>
+        <div class="card-text"><a class="btn btn-sm btn-sunshine tra-sunshine-hover" href="{% url 'account_email' %}">Change</a></div>
+        </div>
+        </div>
+        <div class="card">
+            <h2 class="card-header">Disclaimer</h2>
+            <div class="card-body">
+                <p>All students must have a completed and current disclaimer before any bookings can be made.  Disclaimers will need to be reviewed
+                    annually and whenever terms are updated.</p>
+                {% if user|has_disclaimer %}
+                    <span class="badge rounded-pill badge-sunshine white-color">Completed</span>
+                    <a href="{% url 'accounts:disclaimer_form_update' user.id %}"> View/update</a>
+                {% else %}<span class="badge rounded-pill badge-dark">{% if user|has_expired_disclaimer %}Expired{% else %}Not Completed{% endif %}</span>
+                    <a class="btn btn-sunshine tra-sunshine-hover btn-sm" href="{% url 'accounts:disclaimer_form' user.id %}"> Add new disclaimer</a>
+                {% endif %}
+            </div>
         </div>
     </div>
-</div>
+</section>
 {% endblock content %}
 

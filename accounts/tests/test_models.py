@@ -2,13 +2,14 @@
 from datetime import datetime, timedelta
 from datetime import timezone as dt_timezone
 from decimal import Decimal
+import pytest
 import pytz
 
 from model_bakery import baker
 
 from django.core.cache import cache
 from django.core.exceptions import ValidationError
-from django.test import TestCase, override_settings
+from django.test import TestCase
 from django.utils import timezone
 
 from ..models import CookiePolicy, DataPrivacyPolicy, SignedDataPrivacy, ArchivedDisclaimer, DisclaimerContent, OnlineDisclaimer
@@ -276,3 +277,9 @@ class UserDisclaimerModelTests(TestSetupMixin, TestCase):
         disclaimer.delete()
         # archive created
         assert ArchivedDisclaimer.objects.exists() is True
+
+
+@pytest.mark.django_db
+def test_user_is_seller(configured_user, seller):
+    assert not configured_user.is_seller
+    assert seller.user.is_seller

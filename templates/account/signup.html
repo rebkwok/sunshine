@@ -1,29 +1,36 @@
-{% extends 'website/_base.html' %}
+{% extends 'allauth/layouts/base.html' %}
 
-{% load i18n %}
+{% load allauth i18n %}
+{% block head_title %}
+    {% trans "Signup" %}
+{% endblock head_title %}
 
-{% block head_title %}{% trans "Signup" %}{% endblock %}
+{% block title %}
+{% include "website/includes/header.html" with title="Sign out" %}
+{% endblock %}
+
 
 {% block content %}
-<div class="container-fluid row">
-<div class="col-sm-12">
+  <div class="container mt-20">
+    {% setvar link %}
+        <a href="{{ login_url }}">
+        {% endsetvar %}
+        {% setvar end_link %}
+        </a>
+    {% endsetvar %}
+    {% element p %}
+        {% blocktranslate %}Already have an account? Then please {{ link }}sign in{{ end_link }}.{% endblocktranslate %}
+    {% endelement %}
 
-<h1>{% trans "Sign Up" %}</h1>
-
-<p>Already have an account? Then please <a href="{{ login_url }}">log in</a>.</p></br>
-
-<p>Or sign up using the form below</p>
-
-<form class="signup mock-bs-form" id="signup_form" method="post" action="{% url 'account_signup' %}">
-  {% csrf_token %}
-  {% include 'account/includes/signup_form_content.html' %}
-
-  {% if redirect_field_value %}
-  <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
-  {% endif %}
-  <button class="btn btn-warning mt-2 " type="submit">{% trans "Sign Up" %}</button>
-</form>
-
-</div>
-</div>
-{% endblock %}
+    <form class="signup" id="signup_form" method="post" action="{% url 'account_signup' %}">
+      {% csrf_token %}
+      {% include 'account/includes/signup_form_content.html' %}
+    
+      {% if redirect_field_value %}
+      <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
+      {% endif %}
+      <div class="mt-10"/>
+      <button type="submit">{% trans "Sign Up" %}</button>
+    </form>
+  </div>
+{% endblock content %}

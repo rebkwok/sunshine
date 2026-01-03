@@ -1,5 +1,5 @@
 {% load static %}
-{% load bootstrap4 %}
+{% load django_bootstrap5 %}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -14,7 +14,7 @@
         <!-- Bootstrap core CSS -->
         {% bootstrap_css %}
 
-        <link href="{% static 'website/css/custom-v5.css' %}" rel="stylesheet">
+        <link href="{% static 'website/css/sunshine-theme.css' %}" rel="stylesheet">
         <link rel="stylesheet" href="{% static 'website/css/print.css' %}"  type="text/css" media="print" />
 
         <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
@@ -40,9 +40,10 @@
 
 </html>
 
-{% bootstrap_javascript jquery=3 %}
+{% bootstrap_javascript %}
 
 <div id="fb-root"></div>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js" integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU=" crossorigin="anonymous"></script>
 <script src="{% static 'website/js/custom-v3.js' %}"></script>
 <script src="{% static 'website/js/ajax_csrf.js' %}"></script>

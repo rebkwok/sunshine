@@ -1,23 +1,28 @@
 {% extends 'website/_base.html' %}
 {% load accounttags %}
 
-{% block content %}
 {% load crispy_forms_tags %}
-<div class="container-fluid">
-    <div class="page-header">
-        <h2>Edit Your Contact and Emergency Contact Information</h2>
+
+{% block title %}
+    {% include "website/includes/header.html" with title="Edit Your Contact Information" %}
+{% endblock %}
+
+{% block content %}
+
+<section>
+
+    <div class="container mt-20">
 
         <p>Your emergency contact will be contacted in the case of an accident or emergency.</p>
 
-    </div>
-    {% if form.errors %}
-        <div class="errorlist">Please correct the errors below</div>
-    {% endif %}
+        {% if form.errors %}
+            <div class="errorlist">Please correct the errors below</div>
+        {% endif %}
 
-       <form class="dirty-check form" action="" method="post">
-           {% csrf_token %}
+        <form class="dirty-check form" action="" method="post">
+            {% csrf_token %}
             {% crispy form %}
-       </form>
-        <a href="{% url 'accounts:profile' %}"><div class="btn btn-secondary mt-2">Cancel</div></a>
-</div>
+        </form>
+    </div>
+</section>
 {% endblock %}

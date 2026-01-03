@@ -30,6 +30,7 @@ var processRemoveMembership = function()  {
           window.location = result.url;
       } else {
         $jq('#cart-row-membership-' + membership_id).html("");
+        $jq('#cart_item_menu_count_xs').text(result.cart_item_menu_count);
         $jq('#cart_item_menu_count').text(result.cart_item_menu_count);
         $jq('#total').text(result.cart_total);
         $jq('#cart_total_input').val(result.cart_total)
@@ -77,6 +78,7 @@ var processRemoveBooking = function()  {
      } else {
       $jq('#cart-row-booking-' + booking_id).html("");
       $jq('#cart_item_menu_count').text(result.cart_item_menu_count);
+      $jq('#cart_item_menu_count_xs').text(result.cart_item_menu_count);
       $jq('#total').text(result.cart_total);
       $jq('#cart_total_input').val(result.cart_total)
    }
@@ -123,6 +125,7 @@ var processRemoveGiftVoucher = function()  {
      } else {
       $jq('#cart-row-gift-voucher-' + gift_voucher_id).html("");
       $jq('#cart_item_menu_count').text(result.cart_item_menu_count);
+      $jq('#cart_item_menu_count_xs').text(result.cart_item_menu_count);
       $jq('#total').text(result.cart_total);
       $jq('#checkout-btn').data('total', result.cart_total);
    }
