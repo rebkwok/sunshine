@@ -177,15 +177,8 @@ class DisclaimerContactUpdateView(LoginRequiredMixin, UpdateView):
     def get_success_url(self):
         return reverse('accounts:profile')
 
-   
-class DisclaimerCreateView(LoginRequiredMixin, CreateView):
 
-    form_class = DisclaimerForm
-    template_name = 'accounts/disclaimer_form.html'
-
-    def dispatch(self, request, *args, **kwargs):
-        self.disclaimer_user = get_object_or_404(User, pk=kwargs["user_id"])
-        return super().dispatch(request, *args, **kwargs)
+class DisclaimerFormMixin:
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -194,6 +187,24 @@ class DisclaimerCreateView(LoginRequiredMixin, CreateView):
         context['expired_disclaimer'] = has_expired_disclaimer(self.disclaimer_user)
         context['section'] = "account"
         return context
+
+    def get_form_kwargs(self, **kwargs):
+        form_kwargs = super().get_form_kwargs(**kwargs)
+        form_kwargs["disclaimer_user"] = self.disclaimer_user
+        return form_kwargs
+
+    def get_success_url(self):
+        return reverse('accounts:profile')
+
+   
+class DisclaimerCreateView(LoginRequiredMixin, DisclaimerFormMixin, CreateView):
+
+    form_class = DisclaimerForm
+    template_name = 'accounts/disclaimer_form.html'
+    
+    def dispatch(self, request, *args, **kwargs):
+        self.disclaimer_user = get_object_or_404(User, pk=kwargs["user_id"])
+        return super().dispatch(request, *args, **kwargs)
 
     def get_form(self, *args, **kwargs):
         form = super().get_form(*args, **kwargs)
@@ -208,6 +219,7 @@ class DisclaimerCreateView(LoginRequiredMixin, CreateView):
             updating_disclaimer = None
 
         for field in form.fields["health_questionnaire_responses"].fields:
+            field.widget.attrs["autocomplete"] = "off"
             if updating_disclaimer and field.label in updating_disclaimer.health_questionnaire_responses.keys():
                 previous_response = updating_disclaimer.health_questionnaire_responses[field.label]
                 # check that previous choices are still valid
@@ -219,15 +231,41 @@ class DisclaimerCreateView(LoginRequiredMixin, CreateView):
                     # will either get ignored or validated by the form, so it should be safe to use the
                     # previous response and let the form handle any errors
                     field.initial = previous_response
-            if isinstance(field.widget, TextInput) and not field.initial:
-                # prevent Chrome's wonky autofill
-                field.initial = "-"
         return form
 
-    def get_form_kwargs(self, **kwargs):
-        form_kwargs = super().get_form_kwargs(**kwargs)
-        form_kwargs["disclaimer_user"] = self.disclaimer_user
-        return form_kwargs
 
-    def get_success_url(self):
-        return reverse('accounts:profile')
+class DisclaimerUpdateView(LoginRequiredMixin, DisclaimerFormMixin, UpdateView):
+
+    form_class = DisclaimerForm
+    template_name = 'accounts/disclaimer_form.html'
+    model = OnlineDisclaimer
+
+    def dispatch(self, request, *args, **kwargs):
+        self.disclaimer_user = get_object_or_404(User, pk=kwargs["user_id"])
+        # Only allow updating of active disclaimers
+        if not has_active_disclaimer(self.disclaimer_user):
+            return HttpResponseRedirect(reverse("accounts:disclaimer_form", args=(self.disclaimer_user.id,)))
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_object(self, *args, **kwargs):
+        return self.request.user.online_disclaimer.latest("id")
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['updating'] = True
+        return context
+
+    def get_form(self, *args, **kwargs):
+        form = super().get_form(*args, **kwargs)
+        # # Form should already have the correct disclaimer content added, use it to get the form
+        json_data = form.disclaimer_content.form
+        # Add fields in JSON to dynamic form rendering field.
+        form.fields["health_questionnaire_responses"].add_fields(json_data)
+        for field in form.fields["health_questionnaire_responses"].fields:
+            field.widget.attrs["autocomplete"] = "off"
+            # Populate initial if there is a response available (if the entire questionnaire was
+            # not required, there may be no responses in the existing disclaimer)
+            if field.label in self.object.health_questionnaire_responses:
+                field.initial = self.object.health_questionnaire_responses[field.label]
+        return form
+

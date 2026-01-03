@@ -15,18 +15,25 @@ def use_dummy_cache_backend(settings):
     settings.SKIP_NEW_ACCOUNT_EMAIL = True
 
 
-@pytest.fixture
-def configured_user():
-    user = User.objects.create_user(
-            username='test', 
-            first_name="Test", 
-            last_name="User", 
-            email='test@test.com', 
-            password='test'
-        )
+def configure_user(user):
     make_disclaimer_content()
     make_online_disclaimer(user=user)
     make_data_privacy_agreement(user)
+
+
+@pytest.fixture
+def user():
+    yield User.objects.create_user(
+        username='test', 
+        first_name="Test", 
+        last_name="User", 
+        email='test@test.com', 
+        password='test'
+    )
+
+@pytest.fixture
+def configured_user(user):
+    configure_user(user)
     yield user
 
 

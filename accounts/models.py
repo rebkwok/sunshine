@@ -280,9 +280,11 @@ class OnlineDisclaimer(BaseOnlineDisclaimer):
             # delete the cache keys to force re-cache on next retrieval
             cache.delete(active_disclaimer_cache_key(self.user))
             cache.delete(expired_disclaimer_cache_key(self.user))
-        ActivityLog.objects.create(
-                log=f"Online disclaimer updated: {self}"
-            )
+        else:
+            self.date_updated = timezone.now()
+            ActivityLog.objects.create(
+                    log=f"Online disclaimer updated: {self}"
+                )
         super().save(**kwargs)
 
 

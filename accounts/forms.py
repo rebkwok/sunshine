@@ -152,6 +152,14 @@ class DisclaimerForm(forms.ModelForm):
                         last_value = getattr(last_disclaimer, field_name)
                         self.fields[field_name].initial = last_value
         self.helper = FormHelper()
+        back_url = reverse('accounts:profile')
+
+        # Add a cancel button if we're updating a disclaimer
+        buttons = [Submit('submit', 'Save', css_class="btn-sunshine btn-xs tra-sunshine-hover")]
+        if self.instance.id:
+            buttons.append(
+                HTML(f'<a class="btn  btn-xs btn-color-01 tra-01-hover" href="{back_url}">Cancel</a>')
+            )
         self.helper.layout = Layout(
             HTML("<h3>Your details</h3>"),
             "phone",
@@ -171,7 +179,7 @@ class DisclaimerForm(forms.ModelForm):
             "password",
             Hidden("user", self.user.id),
             Hidden("version", self.disclaimer_content.version),
-            Submit('submit', 'Save', css_class="btn-sunshine btn-xs tra-sunshine-hover")
+            *buttons,
         )
 
     class Meta:
@@ -223,12 +231,3 @@ class DisclaimerContactUpdateForm(forms.ModelForm):
             'phone', 'emergency_contact_name', 'emergency_contact_relationship', 'emergency_contact_phone'
         )
         widgets = deepcopy(BASE_DISCLAIMER_FORM_WIDGETS)
-
-
-"""
-Row(
-                Column(Submit('submit', 'Save', css_class="btn btn-green tra-green-hover col-6")),
-                Column(HTML(f'<a class="btn btn-color-01 tra-01-hover mt-2" href="{reverse('accounts:profile')}">Cancel</a>')),
-            )
-        )
-"""
