@@ -3,7 +3,7 @@
 from model_bakery import baker
 
 from django.urls import reverse
-from django.test import TestCase, RequestFactory
+from django.test import TestCase
 
 
 from booking.views import EventDetailView

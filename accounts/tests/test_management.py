@@ -9,7 +9,7 @@ from django.utils import timezone
 from accounts.models import ArchivedDisclaimer, OnlineDisclaimer
 from activitylog.models import ActivityLog
 
-from booking.tests.helpers import make_online_disclaimer, make_archived_disclaimer
+from conftest import make_online_disclaimer, make_archived_disclaimer
 
 
 class DeleteExpiredDisclaimersTests(TestCase):

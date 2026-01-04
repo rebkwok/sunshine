@@ -14,7 +14,8 @@ from ..forms import DataPrivacyAgreementForm, SignupForm
 from ..models import CookiePolicy, DataPrivacyPolicy, SignedDataPrivacy, DisclaimerContent
 
 
-from booking.tests.helpers import TestSetupMixin, make_disclaimer_content
+from booking.tests.helpers import TestSetupMixin
+from conftest import make_disclaimer_content
 
 
 class SignUpFormTests(TestSetupMixin, TestCase):

@@ -12,7 +12,8 @@ from django.utils import timezone
 from django.test import TestCase
 
 from booking.models import Event, Booking, WaitingListUser, Workshop 
-from booking.tests.helpers import TestSetupMixin, format_content, make_online_disclaimer
+from booking.tests.helpers import TestSetupMixin, format_content
+from conftest import make_online_disclaimer
 
 
 class EventListViewTests(TestSetupMixin, TestCase):

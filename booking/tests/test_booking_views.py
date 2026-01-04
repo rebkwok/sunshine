@@ -1,22 +1,15 @@
 # -*- coding: utf-8 -*-
-from datetime import datetime
-from unittest.mock import Mock, patch
 from model_bakery import baker
 
-from django.conf import settings
-from django.core import mail
 from django.urls import reverse
-from django.test import TestCase, RequestFactory
-from django.contrib.messages.storage.fallback import FallbackStorage
-from django.utils import timezone
+from django.test import TestCase
 
 from accounts.models import DataPrivacyPolicy
 
-from activitylog.models import ActivityLog
 
-from booking.models import Event, Booking, WaitingListUser
-from booking.views import BookingListView, BookingHistoryListView
-from booking.tests.helpers import _create_session, TestSetupMixin
+from booking.models import Booking, WaitingListUser
+from booking.views import BookingHistoryListView
+from booking.tests.helpers import TestSetupMixin
 
 
 

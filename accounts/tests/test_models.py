@@ -15,8 +15,8 @@ from django.utils import timezone
 from ..models import CookiePolicy, DataPrivacyPolicy, SignedDataPrivacy, ArchivedDisclaimer, DisclaimerContent, OnlineDisclaimer
 from ..utils import active_data_privacy_cache_key, \
     has_active_data_privacy_agreement
-
-from booking.tests.helpers import make_disclaimer_content, make_online_disclaimer, TestSetupMixin, make_data_privacy_agreement
+from booking.tests.helpers import TestSetupMixin
+from conftest import make_disclaimer_content, make_online_disclaimer, make_data_privacy_agreement
 
 
 class DataPrivacyPolicyModelTests(TestCase):

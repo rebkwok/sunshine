@@ -8,7 +8,7 @@ from django.utils import timezone
 
 import accounts.admin as admin
 from accounts.models import OnlineDisclaimer, DisclaimerContent, CookiePolicy
-from booking.tests.helpers import make_online_disclaimer, make_disclaimer_content
+from conftest import make_online_disclaimer, make_disclaimer_content
 
 
 @pytest.mark.django_db

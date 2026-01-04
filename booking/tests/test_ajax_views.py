@@ -12,7 +12,7 @@ from django.urls import reverse
 from django.test import override_settings, TestCase
 from django.utils import timezone
 
-from booking.tests.helpers import make_data_privacy_agreement
+from conftest import make_data_privacy_agreement
 from stripe_payments.models import Invoice
 
 from ..models import Event, Booking, GiftVoucher, Membership, WaitingListUser

@@ -7,7 +7,7 @@ from django.contrib.auth.models import User
 
 from studioadmin.views.users import NAME_FILTERS
 from .helpers import TestPermissionMixin
-from booking.tests.helpers import make_disclaimer_content, make_online_disclaimer
+from conftest import make_disclaimer_content, make_online_disclaimer
 
 
 class UserListViewTests(TestPermissionMixin, TestCase):
