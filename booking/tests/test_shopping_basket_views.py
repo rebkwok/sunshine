@@ -14,7 +14,6 @@ from booking.models import (
     Booking, Event, TotalVoucher, ItemVoucher, MembershipType, Membership
 )
 from conftest import make_disclaimer_content, make_data_privacy_agreement, make_online_disclaimer
-from .helpers import TestSetupMixin
 from stripe_payments.models import Invoice, Seller
 
 
@@ -24,7 +23,7 @@ class ShoppingBasketMixin:
         make_disclaimer_content()
         make_data_privacy_agreement(self.user)
         make_online_disclaimer(user=self.user)
-        self.client.login(username=self.user.username, password="test")
+        self.client.force_login(self.user)
         self.membership_type = baker.make(MembershipType, name="4 per month", number_of_classes=4, cost=20)
         future = timezone.now() + timedelta(1)
         past = timezone.now() - timedelta(1)
@@ -34,12 +33,13 @@ class ShoppingBasketMixin:
         self.private = baker.make(Event, event_type="private", cost=30, date=future)
 
 
-class ShoppingBasketViewTests(ShoppingBasketMixin, TestSetupMixin, TestCase):
+class ShoppingBasketViewTests(ShoppingBasketMixin, TestCase):
 
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()
         cls.url = reverse('booking:shopping_basket')
+        cls.user = baker.make_recipe("booking.user", password="test")
 
     def test_not_logged_in(self):
         self.client.logout()
@@ -608,15 +608,16 @@ class ShoppingBasketViewTests(ShoppingBasketMixin, TestSetupMixin, TestCase):
         assert "Submit" in resp.rendered_content
 
 
-class GuestShoppingBasketTests(TestSetupMixin, TestCase):
+class GuestShoppingBasketTests(TestCase):
 
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()
+        cls.user = baker.make_recipe("booking.user", password="test")
         cls.url = reverse("booking:guest_shopping_basket")
 
     def test_with_logged_in_user_no_purchases(self):
-        self.client.login(username=self.user.username, password="test")
+        self.client.force_login(self.user)
         resp = self.client.get(self.url)
         assert resp.status_code == 302
         assert resp.url == reverse("booking:shopping_basket")
@@ -671,12 +672,13 @@ class GuestShoppingBasketTests(TestSetupMixin, TestCase):
         ]
 
 
-class StripeCheckoutTests(ShoppingBasketMixin, TestSetupMixin, TestCase):
+class StripeCheckoutTests(ShoppingBasketMixin, TestCase):
 
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()
         cls.url = reverse('booking:stripe_checkout')
+        cls.user = baker.make_recipe("booking.user", password="test")
 
     def get_mock_payment_intent(self, **params):
         defaults = {

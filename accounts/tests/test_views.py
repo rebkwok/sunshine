@@ -16,7 +16,6 @@ from allauth.account.models import EmailAddress
 from ..models import DataPrivacyPolicy, DisclaimerContent, OnlineDisclaimer, has_active_disclaimer
 from ..utils import has_active_data_privacy_agreement
 
-from booking.tests.helpers import TestSetupMixin
 from conftest import make_disclaimer_content, make_online_disclaimer, make_data_privacy_agreement
 
 pytestmark = pytest.mark.django_db
@@ -73,11 +72,11 @@ def test_profile_view_requires_signed_data_privacy(client, user):
     assert resp.status_code == 200
 
 
-class CustomLoginViewTests(TestSetupMixin, TestCase):
+class CustomLoginViewTests(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        super(CustomLoginViewTests, cls).setUpTestData()
+        super().setUpTestData()
         cls.user = User.objects.create(username='test_user', is_active=True)
         cls.user.set_password('password')
         cls.user.save()
