@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import pytz
 from datetime import datetime, timedelta
 from datetime import timezone as dt_timezone
 
@@ -10,7 +9,7 @@ from django.contrib.auth.models import User
 from django.core import mail
 from django.urls import reverse
 from django.utils import timezone
-from django.test import TestCase
+from django.test import RequestFactory, TestCase
 
 from booking.models import Event, WaitingListUser
 from studioadmin.views.register import process_event_booking_updates
@@ -308,7 +307,7 @@ class RegisterAjaxAddBookingViewsTests(TestPermissionMixin, TestCase):
         baker.make_recipe('booking.booking', user=self.user, event=self.pc, status='OPEN')
 
         # try to process the form
-        request = self.factory.get(self.pc_url)
+        request = RequestFactory().get("/")
         process_event_booking_updates(form, self.pc, request)
 
         mock_messages.assert_called_once_with(request, 'Open booking for this user already exists')

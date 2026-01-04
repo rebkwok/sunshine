@@ -2,28 +2,23 @@
 
 from model_bakery import baker
 
+from django.contrib.auth.models import User
 from django.urls import reverse
 from django.test import TestCase
 
 
-from booking.views import EventDetailView
-from booking.tests.helpers import TestSetupMixin
-
-
-class BookingtagTests(TestSetupMixin, TestCase):
+class BookingtagTests(TestCase):
 
     @classmethod
     def setUpTestData(cls):
         super(BookingtagTests, cls).setUpTestData()
-        cls.user.is_staff = True
+        cls.user = baker.make(User, is_staff=True)
         cls.user.save()
 
     def _get_response(self, user, event):
+        self.client.force_login(self.user)
         url = reverse('booking:event_detail', args=[event.slug])
-        request = self.factory.get(url)
-        request.user = user
-        view = EventDetailView.as_view()
-        return view(request, slug=event.slug)
+        return self.client.get(url)
 
     def test_cancellation_format_tag_event_detail(self):
         """
