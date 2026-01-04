@@ -12,15 +12,15 @@ from django.utils import timezone
 from django.test import TestCase
 
 from booking.models import Event, Booking, WaitingListUser, Workshop 
-from booking.tests.helpers import TestSetupMixin, format_content
 from conftest import make_online_disclaimer
 
 
-class EventListViewTests(TestSetupMixin, TestCase):
+class EventListViewTests(TestCase):
 
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()
+        cls.user = baker.make_recipe("booking.user", password="test")
         make_online_disclaimer(user=cls.user)
         venue = baker.make_recipe('booking.venue', location__name="venue", order=100)
         cls.events = baker.make_recipe('booking.future_EV', venue=venue, _quantity=3)
@@ -32,7 +32,7 @@ class EventListViewTests(TestSetupMixin, TestCase):
         cls.private_url = reverse("booking:private_list")
 
     def setUp(self):
-        self.client.login(username=self.user.username, password='test')
+        self.client.force_login(self.user)
 
     def test_event_list(self):
         """
@@ -391,17 +391,18 @@ class EventListViewTests(TestSetupMixin, TestCase):
         assert self.reg_class1.bookings.count() == 1
 
 
-class EventDetailViewTests(TestSetupMixin, TestCase):
+class EventDetailViewTests(TestCase):
 
     @classmethod
     def setUpTestData(cls):
+        cls.user = baker.make_recipe("booking.user", password="test")
         super(EventDetailViewTests, cls).setUpTestData()
         make_online_disclaimer(user=cls.user)
         baker.make_recipe('booking.future_EV', _quantity=3)
 
     def setUp(self):
         self.event = baker.make_recipe('booking.future_EV')
-        self.client.login(username=self.user.username, password='test')
+        self.client.force_login(self.user)
 
     def url(self, event=None):
         event = event or self.event
@@ -475,7 +476,7 @@ class EventDetailViewTests(TestSetupMixin, TestCase):
         assert resp.status_code == 404
 
         # still can't get if not show on site and logged in as normal user
-        self.client.login(username=self.user.username, password='test')
+        self.client.force_login(self.user)
         resp = self.client.get(self.url())
         assert resp.status_code == 404
 
@@ -524,7 +525,7 @@ class EventDetailViewTests(TestSetupMixin, TestCase):
         resp = self.client.get(self.url())
 
         # show cancellation period and due date text
-        assert 'Cancellation is allowed up to 24 hours prior to the workshop' in format_content(resp.rendered_content)
+        assert 'Cancellation is allowed up to 24 hours prior to the workshop' in resp.rendered_content
 
     def test_cancellation_information_displayed_cancellation_not_allowed(self):
         """
@@ -545,11 +546,11 @@ class EventDetailViewTests(TestSetupMixin, TestCase):
 
         # don't show cancellation period and due date text
         assert 'Cancellation is allowed up to 12 hours prior to the workshop ' \
-            not in format_content(resp.rendered_content)
+            not in resp.rendered_content
         booking_info = "Bookings are final and non-refundable; if you cancel your " \
                         "booking you will not be eligible for any refund or credit."
         
-        assert booking_info in format_content(resp.rendered_content)
+        assert booking_info in resp.rendered_content
 
     def test_past_event(self):
         past_event = baker.make_recipe('booking.past_event')

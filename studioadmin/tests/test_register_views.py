@@ -15,7 +15,7 @@ from django.test import TestCase
 from booking.models import Event, WaitingListUser
 from studioadmin.views.register import process_event_booking_updates
 from studioadmin.forms import AddRegisterBookingForm
-from .helpers import format_content, TestPermissionMixin
+from .helpers import TestPermissionMixin
 
 
 class EventRegisterListViewTests(TestPermissionMixin, TestCase):
@@ -87,19 +87,12 @@ class EventRegisterListViewTests(TestPermissionMixin, TestCase):
         self.assertEqual(len(resp.context_data['events']), 5)
 
     def test_event_register_list_shows_correct_booking_count(self):
-        event = baker.make_recipe('booking.future_PC')
+        event = baker.make_recipe('booking.future_PC', max_participants=5)
         baker.make_recipe('booking.booking', event=event, _quantity=2)
         baker.make_recipe('booking.booking', event=event, status='CANCELLED')
         baker.make_recipe('booking.booking', event=event, no_show=True)
         resp = self.client.get(self.url)
-        self.assertIn(
-            '{} {} 2'.format(
-                event.date.astimezone(
-                    pytz.timezone('Europe/London')
-                ).strftime('%a %d %b, %H:%M'), event.name
-            ),
-            format_content(resp.rendered_content)
-        )
+        assert "2/5" in resp.rendered_content
 
     @patch("studioadmin.views.register.timezone")
     def test_register_shows_event_dates_in_local_time(self, mock_tz):
