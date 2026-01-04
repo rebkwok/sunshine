@@ -1,3 +1,5 @@
+import random
+from datetime import datetime, UTC
 from unittest.mock import Mock
 
 from model_bakery import baker
@@ -5,10 +7,69 @@ import pytest
 
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
+from django.utils import timezone
 
+from accounts.models import ArchivedDisclaimer, DisclaimerContent, OnlineDisclaimer, DataPrivacyPolicy, SignedDataPrivacy
+from accounts.utils import has_active_data_privacy_agreement
 from booking.models import GiftVoucher, MembershipType, GiftVoucherType
-from booking.tests.helpers import make_data_privacy_agreement, make_online_disclaimer, make_disclaimer_content
 from stripe_payments.models import Seller
+
+
+# helper functions
+def make_disclaimer_content(**kwargs):
+    defaults = {
+        "disclaimer_terms": f"test content {random.randint(0, 100000)}",
+        "form": [],
+        "version": None,
+        "is_draft": False
+    }
+    data = {**defaults, **kwargs}
+    return DisclaimerContent.objects.create(**data)
+
+
+def make_online_disclaimer(**kwargs):
+    if "version" not in kwargs:
+        kwargs["version"] = DisclaimerContent.current_version()
+    defaults = {
+        "health_questionnaire_responses": [],
+        "terms_accepted": True,
+        "date_of_birth": datetime(2000, 1, 1, tzinfo=UTC),
+        "phone": 123,
+        "emergency_contact_name": "test",
+        "emergency_contact_relationship": "test",
+        "emergency_contact_phone": "123",
+    }
+    data = {**defaults, **kwargs}
+    return OnlineDisclaimer.objects.create(**data)
+
+
+def make_archived_disclaimer(**kwargs):
+    if "version" not in kwargs:
+        kwargs["version"] = DisclaimerContent.current_version()
+    defaults = {
+        "name": "Test User",
+        "date_of_birth": datetime(1990, 6, 7, tzinfo=UTC),
+        "date_archived": timezone.now(),
+        "phone": "123455",
+        "health_questionnaire_responses": [],
+        "terms_accepted": True,
+        "emergency_contact_name": "test",
+        "emergency_contact_relationship": "test",
+        "emergency_contact_phone": "123",
+    }
+    data = {**defaults, **kwargs}
+    return ArchivedDisclaimer.objects.create(**data)
+
+
+def make_data_privacy_agreement(user):
+    if not has_active_data_privacy_agreement(user):
+        if DataPrivacyPolicy.current_version() == 0:
+            baker.make(DataPrivacyPolicy,content='Foo')
+        baker.make(
+            SignedDataPrivacy, user=user,
+            version=DataPrivacyPolicy.current_version()
+        )
+
 
 @pytest.fixture(autouse=True)
 def use_dummy_cache_backend(settings):

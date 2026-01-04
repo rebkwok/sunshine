@@ -6,18 +6,18 @@ import pytest
 from model_bakery import baker
 
 from django.core.cache import cache
-from django.test import TestCase, override_settings
-from django.contrib.auth.models import User, Group
+from django.test import TestCase
+from django.contrib.auth.models import User
 from django.urls import reverse
 from django.utils import timezone
 
 from allauth.account.models import EmailAddress
 
-from ..models import DataPrivacyPolicy, DisclaimerContent, OnlineDisclaimer, has_active_disclaimer, active_disclaimer_cache_key
+from ..models import DataPrivacyPolicy, DisclaimerContent, OnlineDisclaimer, has_active_disclaimer
 from ..utils import has_active_data_privacy_agreement
-from ..views import ProfileUpdateView, profile
 
-from booking.tests.helpers import TestSetupMixin, make_disclaimer_content, make_online_disclaimer, make_data_privacy_agreement
+from booking.tests.helpers import TestSetupMixin
+from conftest import make_disclaimer_content, make_online_disclaimer, make_data_privacy_agreement
 
 pytestmark = pytest.mark.django_db
 

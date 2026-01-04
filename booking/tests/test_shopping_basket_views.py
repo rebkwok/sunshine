@@ -13,7 +13,8 @@ from stripe import InvalidRequestError
 from booking.models import (
     Booking, Event, TotalVoucher, ItemVoucher, MembershipType, Membership
 )
-from .helpers import TestSetupMixin, make_disclaimer_content, make_data_privacy_agreement, make_online_disclaimer
+from conftest import make_disclaimer_content, make_data_privacy_agreement, make_online_disclaimer
+from .helpers import TestSetupMixin
 from stripe_payments.models import Invoice, Seller
 
 
