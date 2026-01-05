@@ -349,7 +349,14 @@ border-left: 1px solid white;
 	border-right: 1px solid #4B088A;
 }
 
-.navbar-wrap { background-color: #fff; border-style: solid; border-color: #ffb907; border-width: 3px 0px 3px 0px;}
+.navbar-wrap { 
+  background-color: #fff; 
+  border-style: solid; 
+  border-color: #ffb907; 
+  border-width: 3px 0px 3px 0px; 
+  padding-left: 15px; 
+  padding-right: 15px;
+}
 
 .navbar.navbar-expand-sm.navbar-fixed { padding-top: 0px; padding-bottom: 0px;}
 /* .navbar .navbar-nav { background-color: #fff}

@@ -386,19 +386,6 @@ wheels = [
 ]
 
 [[package]]
-name = "django-bootstrap4"
-version = "25.3"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "beautifulsoup4" },
-    { name = "django" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/a4/4a/182c1ac79b94a618a90d9f8374274588ad3cc79b94fca72dfff86132afbf/django_bootstrap4-25.3.tar.gz", hash = "sha256:73495cc57843ecd18291181b5672a00145999eabbeba6e5488c49d6bfdc0366f", size = 43017 }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/6b/a4/c605729078438a4cab0cfd8c10b45229b04ee3a5db6a1c7b5d0f0b42c664/django_bootstrap4-25.3-py3-none-any.whl", hash = "sha256:0e0eea24bec0a7f18cab1dbefe56b6a5e278b0870b27993cf1677f85a5236dfd", size = 25503 },
-]
-
-[[package]]
 name = "django-bootstrap5"
 version = "25.3"
 source = { registry = "https://pypi.org/simple" }
@@ -1106,7 +1093,6 @@ dependencies = [
     { name = "dj-static" },
     { name = "django" },
     { name = "django-allauth" },
-    { name = "django-bootstrap4" },
     { name = "django-bootstrap5" },
     { name = "django-braces" },
     { name = "django-classy-tags" },
@@ -1155,7 +1141,6 @@ requires-dist = [
     { name = "dj-static", specifier = ">=0.0.6" },
     { name = "django", specifier = ">=6.0" },
     { name = "django-allauth", specifier = ">=65.13.1" },
-    { name = "django-bootstrap4", specifier = ">=25.3" },
     { name = "django-bootstrap5", specifier = ">=25.3" },
     { name = "django-braces", specifier = ">=1.17.0" },
     { name = "django-classy-tags", specifier = ">=4.1.0" },

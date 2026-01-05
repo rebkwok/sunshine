@@ -90,7 +90,6 @@ INSTALLED_APPS = (
     'allauth.account',
     'django_extensions',
     'storages',
-    'bootstrap4',
     'django_bootstrap5',
     'debug_toolbar',
     'dynamic_forms',

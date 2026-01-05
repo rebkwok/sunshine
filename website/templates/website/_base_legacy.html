@@ -1,5 +1,5 @@
 {% load static %}
-{% load bootstrap4 %}
+{% load django_bootstrap5 %}
 {% load cookielaw_tags %}
 
 
@@ -25,22 +25,22 @@
 <body>
 
         <!-- Fixed navbar -->
-        <div class="navbar-wrap">
-        <div class="navbar navbar-expand-sm navbar-dark navbar-fixed" role="navigation">
-        <a class="navbar-brand p-0" href="/"><img class="nav-logo" src="{% static 'website/images/logo_no_text.jpg' %}"></a>
-        <div>
-            <span class="d-inline d-sm-none">
-                <a class="btn btn-warning btn-sm p-2" href="{% url 'booking:shopping_basket' %}">
-                    <span><i class="fas fa-shopping-cart"></i> <span class="badge badge-light" id="cart_item_menu_count_xs">{{ cart_item_count }}</span></span>
-                </a>
-            </span>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
-          <span class="navbar-toggler-icon"></span>
+<div class="navbar-wrap">
+    <nav class="navbar navbar-expand-sm navbar-dark navbar-fixed">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="/"><img class="nav-logo" src="{% static 'website/images/logo_no_text.jpg' %}"></a>
+    <div>
+        <span class="d-inline d-sm-none">
+            <a class="btn btn-warning btn-sm p-2" href="{% url 'booking:shopping_basket' %}">
+                <span><i class="fas fa-shopping-cart"></i> <span class="badge badge-light" id="cart_item_menu_count_xs">{{ cart_item_count }}</span></span>
+            </a>
+        </span>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
         </button>
-        </div>
-
-        <div class="collapse navbar-collapse" id="navbarCollapse">
-          <ul class="nav navbar-nav mr-auto">
+    </div>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
             <li class="nav-item"><a class="nav-link{% if section == 'home' %} active{% endif %}" href="{% url 'website:home' %}">Home</a></li>
             <li class="nav-item"><a class="nav-link{% if section == 'timetable' %} active{% endif %}" href="{% url 'timetable:timetable' %}">Timetable</a></li>
             {% if membership_types %}
@@ -51,47 +51,46 @@
             {% endif %}
             <li class="nav-item"><a class="nav-link{% if section == 'booking' %} active{% endif %}" href="{% url 'booking:regular_session_list' %}">Book</a></li>
             <li class="nav-item"><a class="nav-link{% if section == 'contact' %} active{% endif %}" href="{% url 'website:contact' %}">Contact us</a></li>
-          </ul>
-
-         <ul class="nav navbar-nav pull-right">
-            {% if user.is_authenticated %}
-            <li class="d-none d-sm-inline">
+        </ul>
+        <ul class="navbar-nav">
+        {% if user.is_authenticated %}
+            <li class="nav-item">
                 <a class="btn btn-warning btn-sm p-2 mr-2" href="{% url 'booking:shopping_basket' %}">
-                  <span><i class="fas fa-shopping-cart"></i> <span class="badge badge-light" id="cart_item_menu_count">{{ cart_item_count }}</span></span>
+                <span><i class="fas fa-shopping-cart"></i> <span class="badge badge-light" id="cart_item_menu_count">{{ cart_item_count }}</span></span>
                 </a>
-              </li>
-            <li class="dropdown dropleft float-right">
-                <a href="#" class="dropdown-toggle" data-toggle="dropdown">My account<b class="caret"></b></a>
-                <ul class="dropdown-menu float-right pl-2">
-                    <li class="nav-item"><a class="account-menu-option" href="{% url 'accounts:profile' %}">Profile</a></li>
-                    <li class="nav-item"><a class="account-menu-option" href="{% url 'account_change_password' %}">Change password</a></li>
+            </li>
+            <li class="nav-item dropdown dropstart">
+                <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">My account<b class="caret"></b></a>
+                <ul class="dropdown-menu">
+                    <li class="dropdown-item"><a class="account-menu-option" href="{% url 'accounts:profile' %}">Profile</a></li>
+                    <li class="dropdown-item"><a class="account-menu-option" href="{% url 'account_change_password' %}">Change password</a></li>
                     <div class="dropdown-divider"></div>
-                    <li class="nav-item"><a class="account-menu-option" href="{% url 'booking:bookings' %}">Bookings</a></li>
-                    <li class="nav-item"><a class="account-menu-option" href="{% url 'booking:booking_history' %}">Booking history</a></li>
-                    <li class="nav-item"><a class="account-menu-option" href="{% url 'booking:user_memberships' %}">Memberships</a></li>
-                    <li class="nav-item"><a class="account-menu-option" href="{% url 'booking:transactions' %}">Payment history</a></li>
+                    <li class="dropdown-item"><a class="account-menu-option" href="{% url 'booking:bookings' %}">Bookings</a></li>
+                    <li class="dropdown-item"><a class="account-menu-option" href="{% url 'booking:booking_history' %}">Booking history</a></li>
+                    <li class="dropdown-item"><a class="account-menu-option" href="{% url 'booking:user_memberships' %}">Memberships</a></li>
+                    <li class="dropdown-item"><a class="account-menu-option" href="{% url 'booking:transactions' %}">Payment history</a></li>
                     <div class="dropdown-divider"></div>
-                    <li class="nav-item"><a class="account-menu-option" href="{% url 'account_logout' %}">Log out</a></li>
+                    <li class="dropdown-item"><a class="account-menu-option" href="{% url 'account_logout' %}">Log out</a></li>
 
                     {% if user.is_staff or user.is_superuser %}
                         <div class="dropdown-divider"></div>
-                        <li class="nav-item"><a class="account-menu-option" href="{% url 'studioadmin:regular_session_register_list' %}">Instructor Admin</a></li>
+                        <li class="dropdown-item"><a class="account-menu-option" href="{% url 'studioadmin:regular_session_register_list' %}">Instructor Admin</a></li>
                     {% endif %}
                     {% if user.is_superuser %}
-                        <li class="nav-item"><a class="account-menu-option" href="{% url 'admin:index' %}">Site Admin</a></li>
+                        <li class="dropdown-item"><a class="account-menu-option" href="{% url 'admin:index' %}">Site Admin</a></li>
                     {% endif %}
 
                 </ul>
             </li>
-            {% else %}
-            <li class="pull-right"><a href="{% url 'account_login' %}">Log in</a></li>
-            {% endif %}
-
-        </ul> 
-        </div>    
-
+        {% else %}
+            <li><a href="{% url 'account_login' %}">Log in</a></li>
+        {% endif %}
+        </ul>
     </div>
-    </div>
+  </div>
+</nav>
+
+</div>
 
 <div class="wrapper">
     <main role="main" class="container-fluid">
@@ -169,6 +168,7 @@
 
     <div id="fb-root"></div>
 
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.13.2/jquery-ui.min.js" integrity="sha512-57oZ/vW8ANMjR/KQ6Be9v/+/h6bq9/l3f0Oc7vn6qMqyhvPd1cvKBRWWpzu0QoneImqr2SkmO4MSqU+RpHom3Q==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>    <script src="{% static 'website/js/custom-v3.js' %}"></script>
     <script src="{% static 'website/js/ajax_csrf.js' %}"></script>
     <script type="text/javascript" src="{% static 'cookielaw/js/cookielaw.js' %}"></script>

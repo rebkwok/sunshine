@@ -32,6 +32,9 @@ def home(request):
 
 def home_legacy(request):
 
+    if "new-home-page" in request.GET:
+        return home(request)
+
     class_types = SessionType.objects.filter(display_on_site=True)
 
     return render(request, 'website/home_legacy.html', {'section': 'home', 'class_types': class_types})
