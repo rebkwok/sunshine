@@ -59,12 +59,12 @@
     {% if not day or not time %}
         <form class="filter-row" action="" method="get">
                 <div class="row">
-                    <div class="col-sm-2">
+                    <div class="col-12 col-sm">
                         <strong>Show {{ event_type_plural }} by: </strong>
                     </div>
-                    <div class="col-sm-2 filter">{{ form.name }}</div>
+                    <div class="col filter">{{ form.name }}</div>
                     <input type="hidden" name="page" value="{{ request.GET.page }}" />
-                    <div class="col-sm-1"><input class="btn btn-sunshine tra-sunshine-hover btn-xs" type="submit" value="Go" /></div>
+                    <div class="col"><input class="btn btn-sunshine tra-sunshine-hover btn-xs" type="submit" value="Go" /></div>
                 </div>
             </form>
             </br>
