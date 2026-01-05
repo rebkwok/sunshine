@@ -70,6 +70,16 @@ class UploadTimetableTests(TestCase):
         cls.user = User.objects.create_user(
             username='test', email='test@test.com', password='test'
         )
+    
+    def test_only_superuser(self):
+        self.client.force_login(self.staff_user)
+        resp = self.client.get(self.url)
+        assert resp.status_code == 302
+        assert resp.url == reverse("admin:index")
+
+        self.client.force_login(self.superuser)
+        resp = self.client.get(self.url)
+        assert resp.status_code == 200
 
     @patch('timetable.forms.timezone')
     def test_events_are_created(self, mock_tz):

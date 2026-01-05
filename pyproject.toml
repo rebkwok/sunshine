@@ -96,4 +96,4 @@ django-suit = { git = "https://github.com/rebkwok/django-suit.git", rev = "v2" }
 [tool.coverage.report]
     skip_empty = true
     skip_covered = true
-    fail_under = 98
+    fail_under = 99
