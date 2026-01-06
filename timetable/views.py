@@ -28,7 +28,7 @@ class TimetableListView(ListView):
     def _get_location_data(self):
         active_locations = TimetableSession.active_locations()
         venue_locations = Venue.location_choices().items()
-        
+
         if len(active_locations) > 1:
             default_tab = 0
         else:

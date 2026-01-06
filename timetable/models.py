@@ -28,8 +28,6 @@ class SessionType(models.Model):
     def clean(self):
         if self.display_on_site and not self.description:
             raise ValidationError("To display this session type on the 'what we offer' page, you also need to add a description")
-        
-        return super().clean()
 
 
 class Location(models.Model):
@@ -186,12 +184,7 @@ class TimetableSession(models.Model):
         return sorted(active_locations, key=lambda x: locations_in_order.index(x))
     
     def __str__(self):
-
-        return "{} ({}), {}, {} {}".format(
-            self.name, self.level, self.venue.abbreviation,
-            (dict(self.WEEKDAY_CHOICES))[self.session_day],
-            self.start_time.strftime('%H:%M')
-        )
+        return f"{self.name} ({self.level}), {self.venue.abbreviation}, {dict(self.WEEKDAY_CHOICES)[self.session_day]} {self.start_time.strftime('%H:%M')}"
     
     def save(self, *args, **kwargs):
         if self.show_on_timetable_page:

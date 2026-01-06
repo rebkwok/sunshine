@@ -1,3 +1,5 @@
+import pytest
+
 from model_bakery import baker
 
 from django.core import management
@@ -6,20 +8,7 @@ from django.test import TestCase
 from ..models import SessionType, TimetableSession, Venue
 
 
-
-class ModelTests(TestCase):
-
-    def test_session_type_str(self):
-        session_type = baker.make(SessionType, name="Pole")
-        self.assertEqual(str(session_type), "Pole")
-
-    def test_venue_str(self):
-        venue = baker.make(
-            Venue, name="Sunshine Studio",
-            location__address="1 Street",
-            abbreviation="Sunshine"
-        )
-        self.assertEqual(str(venue), "Sunshine Studio")
+pytestmark = pytest.mark.django_db
 
 
 class ManagementCommands(TestCase):

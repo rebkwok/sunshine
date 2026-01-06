@@ -1,4 +1,5 @@
 import pytz
+import pytest
 
 from datetime import datetime
 from datetime import timezone as dt_timezone
@@ -11,7 +12,10 @@ from django.urls import reverse
 from django.test import TestCase
 
 from booking.models import Event
-from timetable.models import TimetableSession, SessionType, Venue
+from timetable.models import TimetableSession, SessionType, Venue, Location
+
+
+pytestmark = pytest.mark.django_db
 
 
 class TimetableListViewTests(TestCase):
@@ -54,6 +58,32 @@ class TimetableListViewTests(TestCase):
         self.assertEqual(len(resp.context_data['timetable_sessions']), 4)
         for tt in resp.context_data['timetable_sessions']:
             self.assertEqual(tt.session_type, self.pole)
+
+
+def test_timetable_list_tab_(client):
+    location1 = baker.make(Location, name="l1")
+    location2 = baker.make(Location, name="l2")
+    ttsession1 = baker.make(TimetableSession, venue__location=location1)
+    ttsession2 = baker.make(TimetableSession, venue__location=location2, show_on_timetable_page=False)
+
+    # One active location, tab set to first location that's active (not 0, as all locations tab isn't shown)
+    resp =  client.get(reverse('timetable:timetable'))
+    assert resp.context_data['tab'] == 1
+
+    # non-int tab, default to whatever the default tab is
+    resp =  client.get(reverse('timetable:timetable') + "?tab=foo")
+    assert resp.context_data['tab'] == 1
+
+    ttsession2.show_on_timetable_page = True
+    ttsession2.save()
+
+    # Two active locations, tab set to 0
+    resp =  client.get(reverse('timetable:timetable'))
+    assert resp.context_data['tab'] == 0
+
+     # non-int tab, default to whatever the default tab is
+    resp =  client.get(reverse('timetable:timetable') + "?tab=foo")
+    assert resp.context_data['tab'] == 0
 
 
 class UploadTimetableTests(TestCase):

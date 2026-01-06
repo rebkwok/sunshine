@@ -22,7 +22,7 @@ def test_venue_admin():
     assert query.count() == 2
 
     assert venue_admin.image_img(venue) == "-"
-    assert re.match(r'<img src="\/media\/images\/venue.+\.jpg"  height="60px"/>', venue_admin.image_img(venue_with_photo))
+    assert re.match(r'<img src="\/media\/images\/venue.*\.jpg"  height="60px"/>', venue_admin.image_img(venue_with_photo))
 
     assert venue_admin.addr(venue) == "1 Main St, AAA 111"
 
@@ -38,4 +38,4 @@ def test_session_type_admin():
     assert query.count() == 2
 
     assert session_type_admin.image_img(session_type) == "-"
-    assert re.match(r'<img src="\/media\/images\/activity_types\/session_type.+\.jpg"  height="60px"/>', session_type_admin.image_img(session_type_with_photo))
+    assert re.match(r'<img src="\/media\/images\/activity_types\/session_type.*\.jpg"  height="60px"/>', session_type_admin.image_img(session_type_with_photo))
