@@ -14,5 +14,5 @@ urlpatterns = [
 
 if settings.LEGACY_HOMEPAGE:
     urlpatterns.insert(0, path('', home_legacy, name='home'))
-else:
+else:  # pragma: no cover
     urlpatterns.insert(0, path('', home, name='home'))

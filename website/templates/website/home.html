@@ -395,9 +395,12 @@
 										<!-- Team Member Photo -->
 										<div class="team-member-photo">
 											<div class="hover-overlay"> 
-
-												<img class="img-fluid" src="{{ team_member.photo.url }}" alt="team-member-foto">
-											
+												{% if team_member.photo %}
+													<img class="img-fluid" src="{{ team_member.photo.url }}" alt="team-member-foto">
+												{% else %}
+													{% comment %} logo as placeholder {% endcomment %}
+													<img class="img-fluid" src="{% static 'website/images/logo-icon.png' %}" alt="service-image" />
+												{% endif %}
 												<!-- Social Icons -->
 												<div class="tm-social clearfix">
 													<ul class="text-center clearfix">

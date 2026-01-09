@@ -14,6 +14,11 @@ from accounts.utils import has_active_data_privacy_agreement
 from booking.models import GiftVoucher, MembershipType, GiftVoucherType
 from stripe_payments.models import Seller
 
+@pytest.fixture(autouse=True)
+def media_root(settings, tmp_path):
+    settings.MEDIA_ROOT = str(tmp_path)
+    yield tmp_path
+
 
 # helper functions
 def make_disclaimer_content(**kwargs):
