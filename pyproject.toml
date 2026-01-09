@@ -21,7 +21,7 @@ dependencies = [
     "django-environ>=0.12.0",
     "django-extensions>=4.1",
     "django-object-actions>=5.0.0",
-    "django-ses[events]",
+    "django-ses[events]>=4.6.0",
     "django-suit",
     "dynamic-django-forms>=0.1.11",
     "envdir>=1.0.1",
@@ -50,7 +50,6 @@ dev = [
 
 [tool.uv.sources]
 django-suit = { git = "https://github.com/rebkwok/django-suit.git", rev = "v2" }
-django-ses = { git = "https://github.com/hesstobi/django-ses.git", rev = "1ab8edea0b93c47013f150ac4dc364c358709d41" }
 
 [tool.pytest]
     addopts = ["--reuse-db", "-n", "auto"]
