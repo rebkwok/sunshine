@@ -84,15 +84,7 @@ def process_contact_form(request, template_name):
         return HttpResponseRedirect(return_url)
 
     else:
-        if form.non_field_errors():
-            messages.error(
-                request,
-                mark_safe("There were errors in the following "
-                          "fields: {}".format(form.non_field_errors())
-                          )
-            )
-        else:
-            messages.error(request, 'Please correct the errors below')
+        messages.error(request, 'Please correct the errors below')
         return render(
             request, template_name, {'section': 'about', 'form': form}
         )
