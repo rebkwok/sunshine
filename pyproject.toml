@@ -77,6 +77,10 @@ django-suit = { git = "https://github.com/rebkwok/django-suit.git", rev = "v2" }
         "INVOICE_KEY=dummy",
     ]
 
+    filterwarnings = [
+        "ignore:cannot collect test class 'Testimonial':pytest.PytestCollectionWarning"
+    ]
+
 [tool.coverage.run]
     omit = [
         "venv/*",
@@ -96,4 +100,4 @@ django-suit = { git = "https://github.com/rebkwok/django-suit.git", rev = "v2" }
 [tool.coverage.report]
     skip_empty = true
     skip_covered = true
-    fail_under = 99
+    fail_under = 100
