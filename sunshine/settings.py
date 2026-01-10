@@ -379,7 +379,7 @@ else:  # pragma: no cover
         },
     }
 
-ADMINS = [("Becky Smith", SUPPORT_EMAIL)]
+ADMINS = [SUPPORT_EMAIL]
 
 
 from django.contrib import messages
