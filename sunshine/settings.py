@@ -14,6 +14,8 @@ import logging
 import os
 import sys
 
+from django.contrib import messages
+
 from .custom_logging import GroupWriteRotatingFileHandler, log_file_permissions
 
 logging.handlers.GroupWriteRotatingFileHandler = GroupWriteRotatingFileHandler
@@ -83,11 +85,12 @@ INSTALLED_APPS = (
     'django.contrib.postgres',
     'cookielaw',
     'crispy_forms',
-    'crispy_bootstrap4',
+    'crispy_bootstrap5',
     'allauth',
     'allauth.account',
     'django_extensions',
-    'bootstrap4',
+    'storages',
+    'django_bootstrap5',
     'debug_toolbar',
     'dynamic_forms',
     'django_object_actions',
@@ -174,7 +177,7 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'collected-static')
 
-MEDIA_URL = '/media/'
+MEDIA_URL = "/media/"  # note ignored if using S3 storage; should only be used in tests
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 
@@ -182,6 +185,84 @@ STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
 )
+
+# static files storages on S3 with django-storages
+STORAGES = {
+    "default": {
+        "BACKEND": "storages.backends.s3.S3Storage",
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
+    },
+}
+
+if TESTING or (env("LOCAL") and not env("LOCAL_S3", default=False)):
+    # use default storage backend in tests/local
+    STORAGES["default"]["BACKEND"] = "django.core.files.storage.FileSystemStorage"
+
+# for media storage with s3
+# Set up this domain as a bucket on S3
+# settings:
+# - ACLs disabled
+# - Block public access for ACLS only 
+# - default encryption
+# - bucket policy
+# s3:GetObject for all required folders individually - allow all
+# e.g. {
+    #     "Sid": "PublicGetObject",
+    #     "Effect": "Allow",
+    #     "Principal": "*",
+    #     "Action": "s3:GetObject",
+    #     "Resource": "arn:aws:s3:::media.sunshinefitness.co.uk/media/*"
+    # } 
+# Bucket management for IAM user
+# e.g.
+        # {
+        #     "Sid": "AllowUserManageBucket",
+        #     "Effect": "Allow",
+        #     "Principal": {
+        #         "AWS": "arn:aws:iam::xxxx:role/iam-role-name"
+        #     },
+        #     "Action": [
+        #         "s3:ListBucket",
+        #         "s3:GetBucketLocation",
+        #         "s3:ListBucketMultipartUploads",
+        #         "s3:ListBucketVersions"
+        #     ],
+        #     "Resource": "arn:aws:s3:::media.sunshinefitness.co.uk"
+        # }
+
+AWS_STORAGE_BUCKET_NAME = f"media.{DOMAIN}"
+
+
+if env("LOCAL", False) or env("LOCAL_S3", default=False):  # pragma: no cover
+    AWS_ACCESS_KEY_ID = env.str("AWS_ACCESS_KEY_ID")
+    AWS_SECRET_ACCESS_KEY = env.str("AWS_SECRET_ACCESS_KEY")
+
+# Disables signing of the S3 objects' URLs. When set to True it
+# will append authorization querystring to each URL.
+AWS_QUERYSTRING_AUTH = False
+
+# Do not allow overriding files on S3 as per Wagtail docs recommendation:
+# https://docs.wagtail.io/en/stable/advanced_topics/deploying.html#cloud-storage
+# Not having this setting may have consequences such as losing files.
+AWS_S3_FILE_OVERWRITE = False
+
+# Default ACL for new files should be "private" - not accessible to the
+# public. Images should be made available to public via the bucket policy,
+# where the documents should use wagtail-storages.
+AWS_DEFAULT_ACL = "private"
+
+# only if using cloudfront
+# Create cloudfront distribution for the S3 bucket
+# AWS_S3_CUSTOM_DOMAIN is the cloudfront domain xxxxx.cloudfront.net
+AWS_S3_CUSTOM_DOMAIN = env.str("AWS_S3_CUSTOM_DOMAIN", "")
+AWS_S3_REGION_NAME = "eu-west-1"
+
+# This settings lets you force using http or https protocol when generating
+# the URLs to the files. Set https as default (via env var).
+# https://github.com/jschneier/django-storages/blob/10d1929de5e0318dbd63d715db4bebc9a42257b5/storages/backends/s3boto3.py#L217
+AWS_S3_URL_PROTOCOL = env.str("AWS_S3_URL_PROTOCOL", "http:")
 
 TEMPLATES = [
     {
@@ -197,6 +278,8 @@ TEMPLATES = [
                 "django.template.context_processors.media",
                 "booking.context_processors.future_events",
                 "booking.context_processors.booking",
+                "booking.context_processors.feature_flags",
+                "timetable.context_processors.timetable",
             ),
             'debug': DEBUG,
         },
@@ -382,7 +465,6 @@ else:  # pragma: no cover
 ADMINS = [SUPPORT_EMAIL]
 
 
-from django.contrib import messages
 MESSAGE_TAGS = {
     messages.ERROR: 'danger'
 }
@@ -401,7 +483,7 @@ if TESTING or env('CI'):  # use local cache for tests
             'LOCATION': 'test-sunshine',
         }
     }
-else:
+else:  # pragma: no cover
     CACHES = {
         "default": {
             "BACKEND": 'django.core.cache.backends.filebased.FileBasedCache',
@@ -423,8 +505,8 @@ S3_LOG_BACKUP_PATH = "s3://backups.polefitstarlet.co.uk/sunshine_activitylogs"
 S3_LOG_BACKUP_ROOT_FILENAME = "sunshine_activity_logs_backup"
 
 # for crispy forms
-CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap4"
-CRISPY_TEMPLATE_PACK = "bootstrap4"
+CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
+CRISPY_TEMPLATE_PACK = "bootstrap5"
 USE_CRISPY = True
 # for dynamic disclaimer form
 DYNAMIC_FORMS_CUSTOM_JS = ""
@@ -438,3 +520,6 @@ INVOICE_KEY=env("INVOICE_KEY")
 
 CART_TIMEOUT_MINUTES = env("CART_TIMEOUT_MINUTES", default=15)
 MEMBERSHIP_AVAILABLE_EARLY_DAYS = env.int("MEMBERSHIP_AVAILABLE_EARLY_DAYS", default=10)
+
+# Feature flag for legacy homepage
+LEGACY_HOMEPAGE = env.bool("LEGACY_HOMEPAGE", default=True)

@@ -22,30 +22,32 @@ user = Recipe(User,
 # events; use defaults apart from dates
 # override when using recipes, eg. baker.make_recipe('future_event', cost=10)
 
+venue = Recipe(Venue, name='Test venue', abbreviation='test')
+
 future_EV = Recipe(
     Event, date=future, event_type='workshop', show_on_site=True, cost=10, email_studio_when_booked=True,
-    cancellation_fee=1.00
+    cancellation_fee=1.00, venue=foreign_key(venue)
 )
 
 # past event
 past_event = Recipe(
     Event, date=past, event_type='workshop', show_on_site=True, cost=10, email_studio_when_booked=True,
-    cancellation_fee=1.00
+    cancellation_fee=1.00, venue=foreign_key(venue)
 )
 
 future_PC = Recipe(
     Event, date=future, event_type='regular_session', show_on_site=True, cost=10, email_studio_when_booked=True,
-    cancellation_fee=1.00
+    cancellation_fee=1.00, venue=foreign_key(venue)
 )
 
 future_PV = Recipe(
     Event, date=future, event_type='private', show_on_site=True, cost=10, email_studio_when_booked=True,
-    cancellation_fee=1.00
+    cancellation_fee=1.00, venue=foreign_key(venue)
 )
 
 past_class = Recipe(
     Event, date=past, event_type='regular_session', show_on_site=True, cost=10, email_studio_when_booked=True,
-    cancellation_fee=1.00
+    cancellation_fee=1.00, venue=foreign_key(venue)
 )
 
 booking = Recipe(Booking)
@@ -53,8 +55,6 @@ booking = Recipe(Booking)
 past_booking = Recipe(Booking, event=foreign_key(past_event))
 
 waiting_list_user = Recipe(WaitingListUser)
-
-venue = Recipe(Venue, name='Test venue', abbreviation='test')
 
 mon_session = Recipe(
     TimetableSession, session_day=TimetableSession.MON, level='Level 1'

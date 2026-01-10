@@ -6,6 +6,12 @@ from .models import Event, GiftVoucherType, MembershipType
 from .views.views_utils import get_unpaid_gift_vouchers_from_session, total_unpaid_item_count
 
 
+def feature_flags(request):
+    return {
+        "legacy_homepage": settings.LEGACY_HOMEPAGE
+    }
+
+
 def future_events(request):
     future_events = Event.objects.filter(date__gt=timezone.now(), cancelled=False)
     return {
@@ -42,5 +48,5 @@ def booking(request):
         'gift_vouchers_available': GiftVoucherType.objects.filter(active=True),
         'cart_timeout_mins': settings.CART_TIMEOUT_MINUTES,
         'membership_types': MembershipType.objects.filter(active=True),
-        'single_class_cost': single_cost
+        'single_class_cost': single_cost,
     }

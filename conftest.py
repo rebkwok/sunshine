@@ -1,3 +1,5 @@
+import random
+from datetime import datetime, UTC
 from unittest.mock import Mock
 
 from model_bakery import baker
@@ -5,28 +7,99 @@ import pytest
 
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
+from django.utils import timezone
 
+from accounts.models import ArchivedDisclaimer, DisclaimerContent, OnlineDisclaimer, DataPrivacyPolicy, SignedDataPrivacy
+from accounts.utils import has_active_data_privacy_agreement
 from booking.models import GiftVoucher, MembershipType, GiftVoucherType
-from booking.tests.helpers import make_data_privacy_agreement, make_online_disclaimer, make_disclaimer_content
 from stripe_payments.models import Seller
+
+@pytest.fixture(autouse=True)
+def media_root(settings, tmp_path):
+    settings.MEDIA_ROOT = str(tmp_path)
+    yield tmp_path
+
+
+# helper functions
+def make_disclaimer_content(**kwargs):
+    defaults = {
+        "disclaimer_terms": f"test content {random.randint(0, 100000)}",
+        "form": [],
+        "version": None,
+        "is_draft": False
+    }
+    data = {**defaults, **kwargs}
+    return DisclaimerContent.objects.create(**data)
+
+
+def make_online_disclaimer(**kwargs):
+    if "version" not in kwargs:
+        kwargs["version"] = DisclaimerContent.current_version()
+    defaults = {
+        "health_questionnaire_responses": [],
+        "terms_accepted": True,
+        "date_of_birth": datetime(2000, 1, 1, tzinfo=UTC),
+        "phone": 123,
+        "emergency_contact_name": "test",
+        "emergency_contact_relationship": "test",
+        "emergency_contact_phone": "123",
+    }
+    data = {**defaults, **kwargs}
+    return OnlineDisclaimer.objects.create(**data)
+
+
+def make_archived_disclaimer(**kwargs):
+    if "version" not in kwargs:
+        kwargs["version"] = DisclaimerContent.current_version()
+    defaults = {
+        "name": "Test User",
+        "date_of_birth": datetime(1990, 6, 7, tzinfo=UTC),
+        "date_archived": timezone.now(),
+        "phone": "123455",
+        "health_questionnaire_responses": [],
+        "terms_accepted": True,
+        "emergency_contact_name": "test",
+        "emergency_contact_relationship": "test",
+        "emergency_contact_phone": "123",
+    }
+    data = {**defaults, **kwargs}
+    return ArchivedDisclaimer.objects.create(**data)
+
+
+def make_data_privacy_agreement(user):
+    if not has_active_data_privacy_agreement(user):
+        if DataPrivacyPolicy.current_version() == 0:
+            baker.make(DataPrivacyPolicy,content='Foo')
+        baker.make(
+            SignedDataPrivacy, user=user,
+            version=DataPrivacyPolicy.current_version()
+        )
+
 
 @pytest.fixture(autouse=True)
 def use_dummy_cache_backend(settings):
     settings.SKIP_NEW_ACCOUNT_EMAIL = True
 
 
-@pytest.fixture
-def configured_user():
-    user = User.objects.create_user(
-            username='test', 
-            first_name="Test", 
-            last_name="User", 
-            email='test@test.com', 
-            password='test'
-        )
+def configure_user(user):
     make_disclaimer_content()
     make_online_disclaimer(user=user)
     make_data_privacy_agreement(user)
+
+
+@pytest.fixture
+def user():
+    yield User.objects.create_user(
+        username='test', 
+        first_name="Test", 
+        last_name="User", 
+        email='test@test.com', 
+        password='test'
+    )
+
+@pytest.fixture
+def configured_user(user):
+    configure_user(user)
     yield user
 
 
@@ -39,6 +112,19 @@ def superuser():
         email='super@test.com', 
         password='test'
     )
+
+
+@pytest.fixture
+def instructor_user():
+    user = User.objects.create_user(
+            username='test_instructor', 
+            first_name="Test", 
+            last_name="User", 
+            email='instructor@test.com', 
+            password='test',
+            is_staff=True,
+        )
+    yield user
 
 
 @pytest.fixture
@@ -134,8 +220,9 @@ def get_mock_refund():
 def get_mock_webhook_event(seller, get_mock_payment_intent):
     def mock_webhook_event(**params):
         webhook_event_type = params.pop("webhook_event_type", "payment_intent.succeeded")
+        account = params.pop("account", seller.stripe_user_id)
         mock_event = Mock(
-            account=seller.stripe_user_id,
+            account=account,
             data=Mock(object=get_mock_payment_intent(webhook_event_type, **params)), type=webhook_event_type
         )
         return mock_event

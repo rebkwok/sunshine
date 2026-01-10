@@ -3,6 +3,7 @@ from dateutil.relativedelta import relativedelta
 
 from django import forms
 from django.contrib.auth.models import User
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.html import mark_safe, linebreaks
 
@@ -110,7 +111,6 @@ BASE_DISCLAIMER_FORM_WIDGETS = {
 class DisclaimerForm(forms.ModelForm):
 
     terms_accepted = forms.BooleanField(
-        validators=[account_validators.validate_confirm],
         required=True,
         widget=forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         label='Please tick to accept terms.'
@@ -151,6 +151,14 @@ class DisclaimerForm(forms.ModelForm):
                         last_value = getattr(last_disclaimer, field_name)
                         self.fields[field_name].initial = last_value
         self.helper = FormHelper()
+        back_url = reverse('accounts:profile')
+
+        # Add a cancel button if we're updating a disclaimer
+        buttons = [Submit('submit', 'Save', css_class="btn-sunshine btn-xs tra-sunshine-hover")]
+        if self.instance.id:
+            buttons.append(
+                HTML(f'<a class="btn  btn-xs btn-color-01 tra-01-hover" href="{back_url}">Cancel</a>')
+            )
         self.helper.layout = Layout(
             HTML("<h3>Your details</h3>"),
             "phone",
@@ -170,7 +178,7 @@ class DisclaimerForm(forms.ModelForm):
             "password",
             Hidden("user", self.user.id),
             Hidden("version", self.disclaimer_content.version),
-            Submit('submit', 'Save', css_class="btn-warning")
+            *buttons,
         )
 
     class Meta:
@@ -206,12 +214,14 @@ class DisclaimerContactUpdateForm(forms.ModelForm):
         self.fields["phone"].label = "Contact phone number"
 
         self.helper = FormHelper()
+        back_url = reverse('accounts:profile')
         self.helper.layout = Layout(
             "phone",
             "emergency_contact_name",
             "emergency_contact_phone",
             "emergency_contact_relationship",
-            Submit('submit', 'Save', css_class="btn btn-success")
+            Submit('submit', 'Save', css_class="btn btn-green tra-green-hover"),
+            HTML(f'<a class="btn btn-color-01 tra-01-hover" href="{back_url}">Cancel</a>')
         )
 
     class Meta:

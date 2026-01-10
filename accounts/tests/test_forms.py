@@ -1,22 +1,23 @@
 # -*- coding: utf-8 -*-
+import json
 from datetime import datetime
 from model_bakery import baker
 
-from django.test import TestCase, override_settings
-from django.contrib.auth.models import User, Group
-from django.core.cache import cache
+import pytest
+
+from django.test import TestCase
+from django.contrib.auth.models import User
 from django.urls import reverse
-from django.utils import timezone
 
-from ..admin import CookiePolicyAdminForm, DataPrivacyPolicyAdminForm
-from ..forms import DataPrivacyAgreementForm, SignupForm, DisclaimerForm
-from ..models import CookiePolicy, DataPrivacyPolicy, SignedDataPrivacy
-
-
-from booking.tests.helpers import TestSetupMixin, make_disclaimer_content, make_online_disclaimer
+from ..admin import CookiePolicyAdminForm, DataPrivacyPolicyAdminForm, DisclaimerContentAdminForm
+from ..forms import DataPrivacyAgreementForm, SignupForm
+from ..models import CookiePolicy, DataPrivacyPolicy, SignedDataPrivacy, DisclaimerContent
 
 
-class SignUpFormTests(TestSetupMixin, TestCase):
+from conftest import make_disclaimer_content
+
+
+class SignUpFormTests(TestCase):
 
     @classmethod
     def setUpTestData(cls):
@@ -174,3 +175,149 @@ class DataPrivacyPolicyAdminFormTests(TestCase):
                 'update policy content'
             ]
         )
+
+
+@pytest.mark.django_db
+def test_disclaimer_content_admin_form_new():
+    # Creating a new disclaimer
+    form = DisclaimerContentAdminForm()
+    # version not required, we set it automatically if not provided
+    assert not form.fields["version"].required
+    # no existing disclaimer, default to v 1.0
+    assert not DisclaimerContent.objects.exists()
+    assert form.fields['version'].initial == 1.0 
+
+
+@pytest.mark.django_db
+def test_disclaimer_content_admin_form_existing_draft():
+    content = make_disclaimer_content(is_draft=True)
+    form = DisclaimerContentAdminForm(instance=content)
+    assert form.fields["version"].required is False
+    # custom initial/help text not set for an existing instance
+    assert not form.fields['version'].initial
+    assert not form.fields['version'].help_text
+
+
+@pytest.mark.django_db
+def test_disclaimer_content_admin_form_new_with_previous_version():
+    content = make_disclaimer_content()
+    assert content.version == 1.0
+    # Creating a new disclaimer
+    form = DisclaimerContentAdminForm()
+    # version not required, we set it automatically if not provided
+    assert not form.fields["version"].required
+    # existing disclaimer, default to next major version
+    assert form.fields['version'].help_text == f'Current version is 1.0.  Leave blank for next major version (2.0)' 
+
+
+@pytest.mark.django_db
+def test_disclaimer_content_admin_form_new_with_previous_version():
+    content = make_disclaimer_content()
+    assert content.version == 1.0
+    # Creating a new disclaimer
+    form = DisclaimerContentAdminForm()
+    # version not required, we set it automatically if not provided
+    assert not form.fields["version"].required
+    # existing disclaimer, default to next major version
+    assert form.fields['version'].help_text == f'Current version is 1.0.  Leave blank for next major version (2.0)' 
+
+
+@pytest.mark.django_db
+def test_disclaimer_content_admin_form_valid():
+    # Creating a new disclaimer
+    form = DisclaimerContentAdminForm(
+        data={"is_draft": False, "disclaimer_terms": "terms", "issue_date": datetime.today()}
+    )
+    # no version is valid as field not required
+    assert form.is_valid()
+
+    # but can also provide arbitrary version
+    form = DisclaimerContentAdminForm(
+        data={"is_draft": False, "disclaimer_terms": "terms", "issue_date": datetime.today(), "version": 3.8}
+    )
+    assert form.is_valid()
+
+
+@pytest.mark.django_db
+def test_disclaimer_content_admin_form_bad_version():
+    content = make_disclaimer_content()
+    assert content.version == 1.0
+    # Creating a new disclaimer
+    form = DisclaimerContentAdminForm(
+        data={"is_draft": False, "version": 1.0, "disclaimer_terms": "terms", "issue_date": datetime.today()}
+    )
+    assert not form.is_valid()
+    assert form.errors == {'version': ['New version must increment current version (must be greater than 1.0)']}
+
+
+@pytest.mark.django_db
+def test_disclaimer_content_admin_form_content_must_change_no_questionnaire():
+    content = make_disclaimer_content(disclaimer_terms="terms")
+    assert content.version == 1.0
+    # Creating a new disclaimer
+    form = DisclaimerContentAdminForm(
+        data={"is_draft": False, "version": 2.0, "disclaimer_terms": "terms", "issue_date": datetime.today()}
+    )
+    assert not form.is_valid()
+    assert form.non_field_errors() == ['No changes made from previous version; new version must update disclaimer content']
+
+
+@pytest.mark.django_db
+def test_disclaimer_content_admin_form_content_must_change():
+    questionnaire_form = [
+        {
+            'type': 'text',
+            'required': False,
+            'label': 'Say something',
+            'name': 'text-1',
+            'subtype': 'text'
+        },
+    ]
+    content = make_disclaimer_content(disclaimer_terms="terms", form=questionnaire_form)
+    assert content.version == 1.0
+    
+    # no changes to form or terms
+    form = DisclaimerContentAdminForm(
+        data={
+            "is_draft": False, 
+            "version": 2.0, 
+            "disclaimer_terms":  "terms", 
+            "issue_date": datetime.today(),
+            "form": json.dumps(questionnaire_form)
+        }
+    )
+    assert not form.is_valid()
+    assert form.non_field_errors() == ['No changes made from previous version; new version must update disclaimer content']
+
+    # changes to form
+    new_questionnaire_form = [
+        {
+            'type': 'text',
+            'required': False,
+            'label': 'Say another thing',
+            'name': 'text-1',
+            'subtype': 'text'
+        },
+    ]
+    form = DisclaimerContentAdminForm(
+        data={
+            "is_draft": False, 
+            "version": 2.0, 
+            "disclaimer_terms":  "terms", 
+            "issue_date": datetime.today(),
+            "form": json.dumps(new_questionnaire_form)
+        }
+    )
+    assert form.is_valid()
+
+    # changes to terms
+    form = DisclaimerContentAdminForm(
+        data={
+            "is_draft": False, 
+            "version": 2.0, 
+            "disclaimer_terms":  "new terms", 
+            "issue_date": datetime.today(),
+            "form": json.dumps(questionnaire_form)
+        }
+    )
+    assert form.is_valid()

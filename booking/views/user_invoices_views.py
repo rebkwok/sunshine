@@ -18,3 +18,8 @@ class UserInvoiceListView(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         return Invoice.objects.filter(paid=True, username=self.request.user.email)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['section'] = "account"
+        return context

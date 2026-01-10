@@ -12,18 +12,18 @@ from django.urls import reverse
 from django.test import override_settings, TestCase
 from django.utils import timezone
 
-from booking.tests.helpers import make_data_privacy_agreement
+from conftest import make_data_privacy_agreement
 from stripe_payments.models import Invoice
 
 from ..models import Event, Booking, GiftVoucher, Membership, WaitingListUser
-from .helpers import TestSetupMixin
 
 
-class BookingToggleAjaxViewTests(TestSetupMixin, TestCase):
+class BookingToggleAjaxViewTests(TestCase):
 
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()
+        cls.user = baker.make_recipe("booking.user", email="test@test.com", password="test")
         cls.event = baker.make_recipe(
             'booking.future_PC', email_studio_when_booked=True, cost=5, max_participants=3
         )
@@ -32,13 +32,13 @@ class BookingToggleAjaxViewTests(TestSetupMixin, TestCase):
     def setUp(self):
         super().setUp()
         make_data_privacy_agreement(self.user)
+        self.client.force_login(self.user)
 
     def test_create_booking(self):
         """
         Test creating a booking
         """
         self.assertEqual(Booking.objects.all().count(), 0)
-        self.client.login(username=self.user.username, password='test')
         resp = self.client.post(self.url)
         self.assertEqual(Booking.objects.all().count(), 1)
         self.assertEqual(resp.context['alert_message']['message'], 'Added to basket.')
@@ -54,7 +54,6 @@ class BookingToggleAjaxViewTests(TestSetupMixin, TestCase):
             Membership, user=self.user, paid=True, month=self.event.date.month, year=self.event.date.year
         )
         assert not Booking.objects.all().exists()
-        self.client.login(username=self.user.username, password='test')
         resp = self.client.post(self.url)
         assert resp.context['alert_message']['message'] == 'Booked.'
         assert Booking.objects.first().paid
@@ -78,7 +77,6 @@ class BookingToggleAjaxViewTests(TestSetupMixin, TestCase):
         )
         url = reverse('booking:toggle_booking', args=[event.id])
         self.assertEqual(Booking.objects.all().count(), 0)
-        self.client.login(username=self.user.username, password='test')
         self.client.post(url)
         self.assertEqual(Booking.objects.all().count(), 1)
         # email to student only
@@ -95,8 +93,6 @@ class BookingToggleAjaxViewTests(TestSetupMixin, TestCase):
         # cached property
         event = Event.objects.get(id=self.event.id)
         self.assertEqual(event.spaces_left, 0)
-
-        self.client.login(username=self.user.username, password='test')
         # try to book for event
         resp = self.client.post(self.url)
         self.assertEqual(resp.status_code, 400)
@@ -107,8 +103,6 @@ class BookingToggleAjaxViewTests(TestSetupMixin, TestCase):
         """
         event = baker.make_recipe('booking.future_EV', max_participants=3, cancelled=True, cost=5)
         url = reverse('booking:toggle_booking', args=[event.id])
-
-        self.client.login(username=self.user.username, password='test')
         # try to book for event
         resp = self.client.post(url)
         self.assertEqual(resp.status_code, 400)
@@ -121,8 +115,6 @@ class BookingToggleAjaxViewTests(TestSetupMixin, TestCase):
         booking = baker.make_recipe(
             'booking.booking', event=self.event, user=self.user, status='CANCELLED'
         )
-
-        self.client.login(username=self.user.username, password='test')
         # try to book again
         resp = self.client.post(self.url)
 
@@ -152,7 +144,6 @@ class BookingToggleAjaxViewTests(TestSetupMixin, TestCase):
         self.assertIsNone(booking.date_rebooked)
 
         # try to book again
-        self.client.login(username=self.user.username, password='test')
         resp = self.client.post(url)
         booking.refresh_from_db()
         self.assertEqual('OPEN', booking.status)
@@ -175,7 +166,7 @@ class BookingToggleAjaxViewTests(TestSetupMixin, TestCase):
         baker.make(WaitingListUser, event=self.event)
         baker.make(WaitingListUser, user=self.user)
         self.assertEqual(Booking.objects.all().count(), 0)
-        self.client.login(username=self.user.username, password='test')
+        self.client.force_login(self.user)
 
         self.client.post(self.url)
         self.assertEqual(Booking.objects.all().count(), 1)
@@ -186,8 +177,6 @@ class BookingToggleAjaxViewTests(TestSetupMixin, TestCase):
     def test_create_booking_with_membership(self):
         event = baker.make_recipe('booking.future_PC')
         url = reverse('booking:toggle_booking', args=[event.id])
-        self.client.login(username=self.user.username, password='test')
-
         membership = baker.make(
             Membership, user=self.user, paid=True, 
             month=event.date.month, year=event.date.year
@@ -671,12 +660,16 @@ class BookingToggleAjaxViewTests(TestSetupMixin, TestCase):
         self.assertEqual(resp.content.decode('utf-8'), "Action forbidden until outstanding cancellation fees have been resolved")
 
 
-class AjaxTests(TestSetupMixin, TestCase):
+class AjaxTests(TestCase):
 
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = baker.make_recipe("booking.user", email="test@test.com", password="test")        
+    
     def setUp(self):
         super().setUp()
         self.event = baker.make_recipe('booking.future_PC', max_participants=3)
-        self.client.login(username=self.user.username, password='test')
+        self.client.force_login(self.user)
 
     def test_update_bookings_count_spaces(self):
         url = reverse('booking:update_booking_count', args=[self.event.id])
@@ -795,10 +788,14 @@ class AjaxTests(TestSetupMixin, TestCase):
         )
 
 
-class AjaxCartItemDeleteView(TestSetupMixin, TestCase):
+class AjaxCartItemDeleteView(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = baker.make_recipe("booking.user", email="test@test.com", password="test")
 
     def setUp(self):
-        self.client.login(username=self.user.username, password="test")
+        self.client.force_login(self.user)
 
     def test_delete_booking(self):
         booking = baker.make_recipe(

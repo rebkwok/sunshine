@@ -1,0 +1,31 @@
+{% extends 'website/_base.html' %}
+
+{% load i18n static %}
+
+{% block head_title %}
+{% endblock head_title %}
+
+{% block extra_head %}
+{% endblock extra_head %}
+
+{% block anon_banner %}{% endblock %}
+
+{% block body %}
+
+    {% block title %}
+        {% include "website/includes/header.html" with title="Your Account" %}
+    {% endblock %}
+
+    {% block content_class %}class="container mt-20"{% endblock %}
+    {% block content %}{% endblock content %}
+
+{% endblock body %}
+
+{% block extra_body %}
+{% endblock extra_body %}
+
+{% block extrascripts %}
+    <script type="text/javascript" src={% static 'accounts/allauth-mod.js' %}></script>
+{% endblock %}
+
+        

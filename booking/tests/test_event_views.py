@@ -12,18 +12,19 @@ from django.utils import timezone
 from django.test import TestCase
 
 from booking.models import Event, Booking, WaitingListUser, Workshop 
-from booking.tests.helpers import TestSetupMixin, format_content, make_online_disclaimer
+from conftest import make_online_disclaimer
 
 
-class EventListViewTests(TestSetupMixin, TestCase):
+class EventListViewTests(TestCase):
 
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()
+        cls.user = baker.make_recipe("booking.user", password="test")
         make_online_disclaimer(user=cls.user)
-        cls.events = baker.make_recipe('booking.future_EV', _quantity=3)
-        venue = baker.make_recipe('booking.venue')
-        cls.reg_class1 = baker.make_recipe('booking.future_PC', name='Class 1')
+        venue = baker.make_recipe('booking.venue', location__name="venue", order=100)
+        cls.events = baker.make_recipe('booking.future_EV', venue=venue, _quantity=3)
+        cls.reg_class1 = baker.make_recipe('booking.future_PC', name='Class 1', venue=venue)
         cls.reg_class2 = baker.make_recipe('booking.future_PC', name='Class 2', venue=venue)
         cls.regular_classes = [cls.reg_class1, cls.reg_class2]
         cls.classes_url = reverse("booking:regular_session_list")
@@ -31,7 +32,7 @@ class EventListViewTests(TestSetupMixin, TestCase):
         cls.private_url = reverse("booking:private_list")
 
     def setUp(self):
-        self.client.login(username=self.user.username, password='test')
+        self.client.force_login(self.user)
 
     def test_event_list(self):
         """
@@ -54,21 +55,81 @@ class EventListViewTests(TestSetupMixin, TestCase):
         assert resp.context_data['event_type'] == "private"
 
     def test_event_list_pagination(self):
-        baker.make_recipe('booking.future_EV', _quantity=20)
-        assert Workshop.objects.count() == 23
+        baker.make_recipe('booking.future_EV', venue__location__name="loc1", venue__order=200, _quantity=25)
+        assert Workshop.objects.count() == 28
+
+        # default (unused) paginator
         resp = self.client.get(self.workshops_url)
         assert resp.context_data["page_obj"].paginator.num_pages == 2
         assert resp.context_data["page_obj"].number == 1
         assert len(resp.context_data["events"]) == 20
 
         resp = self.client.get(self.workshops_url + "?page=2")
-        assert len(resp.context_data["events"]) == 3
+        assert len(resp.context_data["events"]) == 8
         assert resp.context_data["page_obj"].number == 2
 
         # bad page, returns first page
         resp = self.client.get(self.workshops_url  + "?page=3")
         assert len(resp.context_data["events"]) == 20
         assert resp.context_data["page_obj"].number == 1
+
+        # location paginators
+        # tab1 has 3 items, always returns p1
+        resp = self.client.get(self.workshops_url + "?page=1&tab=1")
+        venue_paginator = resp.context_data["location_events"][1]["queryset"]
+        assert venue_paginator.paginator.count == 3
+        assert venue_paginator.number == 1
+
+        loc1_paginator = resp.context_data["location_events"][2]["queryset"]
+        assert len(loc1_paginator.object_list) == 20
+        assert loc1_paginator.paginator.count == 25
+        assert loc1_paginator.number == 1
+
+        resp = self.client.get(self.workshops_url + "?page=2&tab=1")
+        venue_paginator = resp.context_data["location_events"][1]["queryset"]
+        assert venue_paginator.paginator.count == 3
+        assert venue_paginator.number == 1
+
+        loc1_paginator = resp.context_data["location_events"][2]["queryset"]
+        assert len(loc1_paginator.object_list) == 20
+        assert loc1_paginator.paginator.count == 25
+        assert loc1_paginator.number == 1
+
+        # tab2 has 25 items
+        resp = self.client.get(self.workshops_url + "?page=2&tab=2")
+        venue_paginator = resp.context_data["location_events"][1]["queryset"]
+        assert venue_paginator.paginator.count == 3
+        assert venue_paginator.number == 1
+
+        loc1_paginator = resp.context_data["location_events"][2]["queryset"]
+        assert len(loc1_paginator.object_list) == 5
+        assert loc1_paginator.paginator.count == 25
+        assert loc1_paginator.number == 2
+
+        # page out of range, returns last page
+        resp = self.client.get(self.workshops_url + "?page=10&tab=2")
+        loc1_paginator = resp.context_data["location_events"][2]["queryset"]
+        assert len(loc1_paginator.object_list) == 5
+        assert loc1_paginator.paginator.count == 25
+        assert loc1_paginator.number == 2
+
+        # page negative, returns last page
+        resp = self.client.get(self.workshops_url + "?page=-10&tab=2")
+        loc1_paginator = resp.context_data["location_events"][2]["queryset"]
+        assert len(loc1_paginator.object_list) == 5
+        assert loc1_paginator.paginator.count == 25
+        assert loc1_paginator.number == 2
+
+        # page not a number, returns first page
+        resp = self.client.get(self.workshops_url + "?page=foo0&tab=2")
+        loc1_paginator = resp.context_data["location_events"][2]["queryset"]
+        assert len(loc1_paginator.object_list) == 20
+        assert loc1_paginator.paginator.count == 25
+        assert loc1_paginator.number == 1
+
+        # tab not a number, returns first tab
+        resp = self.client.get(self.workshops_url + "?page=2&tab=foo")
+        assert resp.context_data["tab"] == 0
 
     def test_event_list_past_event(self):
         """
@@ -180,12 +241,6 @@ class EventListViewTests(TestSetupMixin, TestCase):
         assert len(resp.context_data['events']) == 1
         assert resp.context_data['events'][0] == self.reg_class1
 
-    def test_event_list_with_venue(self):
-        url = self.classes_url + '?venue=test'
-        resp = self.client.get(url)
-        assert len(resp.context_data['events']) == 1
-        assert resp.context_data['events'][0] == self.reg_class2
-
     def test_event_list_with_name_and_level(self):
         url = self.classes_url + '?name=Class 1&level=Level 1'
         resp = self.client.get(url)
@@ -195,6 +250,31 @@ class EventListViewTests(TestSetupMixin, TestCase):
         resp = self.client.get(url)
         assert len(resp.context_data['events']) == 1
         assert resp.context_data['events'][0] == event
+
+    def test_event_list_with_tab(self):
+        assert Event.objects.filter(event_type="regular_session").count() == 2
+        baker.make_recipe('booking.future_PC', venue__location__name="loc1", venue__order=200, _quantity=10)
+        baker.make_recipe('booking.future_PC', venue__location__name="loc2", venue__order=300, _quantity=15)
+        assert Event.objects.filter(event_type="regular_session").count() == 27
+        resp = self.client.get(self.classes_url)
+
+        # paginated at 20
+        assert len(resp.context_data['events']) == 20
+
+        # tab 0 by default
+        assert resp.context_data['tab'] == 0
+
+        # paginated locations
+        location_events = resp.context_data["location_events"]
+        assert len(location_events) == 4  # all, venue, loc1, loc2 
+        # all locations, paginated at 20
+        assert len(location_events[0]["queryset"]) == 20
+        assert len(location_events[1]["queryset"]) == 2
+        assert len(location_events[2]["queryset"]) == 10
+        assert len(location_events[3]["queryset"]) == 15
+        
+
+       
 
     @patch('booking.views.event_views.timezone.now')
     def test_event_list_with_name_day_and_time(self, mock_now):
@@ -311,17 +391,18 @@ class EventListViewTests(TestSetupMixin, TestCase):
         assert self.reg_class1.bookings.count() == 1
 
 
-class EventDetailViewTests(TestSetupMixin, TestCase):
+class EventDetailViewTests(TestCase):
 
     @classmethod
     def setUpTestData(cls):
+        cls.user = baker.make_recipe("booking.user", password="test")
         super(EventDetailViewTests, cls).setUpTestData()
         make_online_disclaimer(user=cls.user)
         baker.make_recipe('booking.future_EV', _quantity=3)
 
     def setUp(self):
         self.event = baker.make_recipe('booking.future_EV')
-        self.client.login(username=self.user.username, password='test')
+        self.client.force_login(self.user)
 
     def url(self, event=None):
         event = event or self.event
@@ -395,7 +476,7 @@ class EventDetailViewTests(TestSetupMixin, TestCase):
         assert resp.status_code == 404
 
         # still can't get if not show on site and logged in as normal user
-        self.client.login(username=self.user.username, password='test')
+        self.client.force_login(self.user)
         resp = self.client.get(self.url())
         assert resp.status_code == 404
 
@@ -444,7 +525,7 @@ class EventDetailViewTests(TestSetupMixin, TestCase):
         resp = self.client.get(self.url())
 
         # show cancellation period and due date text
-        assert 'Cancellation is allowed up to 24 hours prior to the workshop' in format_content(resp.rendered_content)
+        assert 'Cancellation is allowed up to 24 hours prior to the workshop' in resp.rendered_content
 
     def test_cancellation_information_displayed_cancellation_not_allowed(self):
         """
@@ -465,11 +546,11 @@ class EventDetailViewTests(TestSetupMixin, TestCase):
 
         # don't show cancellation period and due date text
         assert 'Cancellation is allowed up to 12 hours prior to the workshop ' \
-            not in format_content(resp.rendered_content)
+            not in resp.rendered_content
         booking_info = "Bookings are final and non-refundable; if you cancel your " \
                         "booking you will not be eligible for any refund or credit."
         
-        assert booking_info in format_content(resp.rendered_content)
+        assert booking_info in resp.rendered_content
 
     def test_past_event(self):
         past_event = baker.make_recipe('booking.past_event')
