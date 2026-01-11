@@ -46,14 +46,14 @@ var processMembershipPurchaseRequest = function()  {
                   doBooking();
                     $jq(this).dialog('close');
                 },
-                "class": "btn btn-success"
+                "class": "btn btn-sunshine"
             },
             {
                 text: "Go back",
                 click: function () {
                     $jq(this).dialog('close');
                 },
-                "class": "btn btn-dark"
+                 "class": "btn btn-black"
             }
         ]
     })

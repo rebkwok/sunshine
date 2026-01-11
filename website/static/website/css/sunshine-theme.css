@@ -611,6 +611,12 @@ a.btn {
   border-color: #fff!important;
 }
 
+.btn-black, .black-color .btn-black {
+  color: #fff;
+  background-color: #000;
+  border-color: #000!important;
+}
+
 .btn-cherry, 
 .scroll .btn-cherry, 
 .white-color .btn-cherry,
@@ -666,17 +672,14 @@ a.btn {
   border-color: #009933!important;
 }
 
-.btn-sunshine, 
+.btn-sunshine,
+.sunshine-color .btn-sunshine 
 .scroll .btn-sunshine, 
-.white-color .btn-sunshine,
-.sunshine-hover:hover, 
-.scroll .sunshine-hover:hover, 
-.white-color .sunshine-hover:hover {
+.white-color .btn-sunshine {
   color: #fff!important;
   background-color: #ffcc01;
   border-color: #ffcc01!important;
 }
-
 
 .btn-sunshine.disabled {
   color: #9b9292!important;
@@ -688,6 +691,14 @@ a.btn {
 /*------------------------------------------*/
 /*  Button Hover
 /*------------------------------------------*/
+
+.sunshine-hover:hover, 
+.scroll .sunshine-hover:hover, 
+.white-color .sunshine-hover:hover {
+  color: #fff!important;
+  background-color: #ffcc01!important;
+  border-color: #ffcc01!important;
+}
 
 .black-hover:hover, 
 .scroll .black-hover:hover, 

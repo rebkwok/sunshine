@@ -31,7 +31,8 @@ span.active > .btn-admin-menu{
     font-weight: normal;
 }
 
-.table-center {
+.table-center, 
+table.dataTable > thead > tr > th.table-center {
     text-align: center;
 }
 

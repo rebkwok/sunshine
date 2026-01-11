@@ -29,6 +29,9 @@
   details.membership > summary {
     display: block;
   }
+  details.membership summary::-webkit-details-marker {
+  display: none;
+}
 
   .errorlist {
     list-style: none;
@@ -75,8 +78,8 @@
 
 /*Cookie law banner*/
 div#CookielawBanner {
-    background-color: rgba(255, 0, 0, 0.1);
-    padding: 5px;
+    background-image: linear-gradient(to bottom, rgba(146, 3, 3, 0.5), rgba(255, 0, 0, 0.1));
+    padding: 85px 5px 5px 5px;
     font-size: smaller;
     border: solid 1px rgba(255, 0, 0, 0.5);
     margin: 5px;

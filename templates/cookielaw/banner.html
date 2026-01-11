@@ -2,10 +2,10 @@
 
 <div id="CookielawBanner">
     <div class="row">
-        <div class="col-12"><h5>{% trans "Cookie Policy" %}</h5></div>
+        <div class="col-12"><h5>{% trans "Cookie Policy" %} {{ section }} </h5></div>
         <div class="col-12">
         This site uses <em>only</em> strictly necessary cookies that are essential for the operation of the website. View our
-            <a href="{% url 'cookie_policy' %}">cookie policy</a> or full <a href="{% url 'data_privacy_policy' %}">data privacy policy</a>.
+            <a href="{% url 'cookie_policy' %}" style="color: red;">cookie policy</a> or full <a  style="color: red;" href="{% url 'data_privacy_policy' %}">data privacy policy</a>.
         </div>
         <div class="col-12"> You can block cookies by activating the setting on your browser that allows you to refuse
             the setting of all or some cookies. However, if you use your browser settings to block
@@ -13,7 +13,7 @@
             of our site.
         </div>
         <div class="col-12">
-            <a class="btn  btn-sunshine tra-sunshine-hover btn-cookie pull-right" href="javascript:Cookielaw.accept();">{% trans "I agree" %}</a>
+            <a class="btn btn-sunshine btn-warning tra-sunshine-hover btn-cookie pull-right" href="javascript:Cookielaw.accept();">{% trans "I agree" %}</a>
         </div>
 
     </div>
