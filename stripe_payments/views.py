@@ -140,20 +140,25 @@ def stripe_webhook(request):
 
         payment_intent = event_object
         invoice = get_invoice_from_payment_intent(payment_intent, raise_immediately=True)
-        error = None
-        if event.type == "payment_intent.succeeded":
-            _process_completed_stripe_payment(payment_intent, invoice, request=request)
-        elif event.type == "payment_intent.refunded":
-            send_processed_refund_emails(invoice)
-        elif event.type == "payment_intent.payment_failed":
-            error = f"Failed payment intent id: {payment_intent.id}; invoice id {invoice.invoice_id}; " \
-                    f"error {payment_intent.last_payment_error}"
-        elif event.type == "payment_intent.requires_action":
-            error = f"Payment intent requires action: id {payment_intent.id}; invoice id {invoice.invoice_id}"
-        if error:
-            logger.error(error)
-            send_failed_payment_emails(error=error)
-            return HttpResponse(error, status=200)
+        # invoice can be None; this means there was no invoice info in the payment intent
+        # metadata, which isn't an error; it's probably a transaction that happened outside
+        # of the system. If we got invoice info but couldn't find a matching invoice, this IS
+        # raised as an exception and will be handles bellow
+        if invoice is not None:
+            error = None
+            if event.type == "payment_intent.succeeded":
+                _process_completed_stripe_payment(payment_intent, invoice, request=request)
+            elif event.type == "payment_intent.refunded":
+                send_processed_refund_emails(invoice)
+            elif event.type == "payment_intent.payment_failed":
+                error = f"Failed payment intent id: {payment_intent.id}; invoice id {invoice.invoice_id}; " \
+                        f"error {payment_intent.last_payment_error}"
+            elif event.type == "payment_intent.requires_action":
+                error = f"Payment intent requires action: id {payment_intent.id}; invoice id {invoice.invoice_id}"
+            if error:
+                logger.error(error)
+                send_failed_payment_emails(error=error)
+                return HttpResponse(error, status=200)
     except Exception as e:  # log anything else
         logger.error(e)
         send_failed_payment_emails(error=e)

@@ -483,12 +483,12 @@ def test_webhook_exceptions(mock_webhook, client):
 
 
 @patch("stripe_payments.views.stripe.Webhook")
-def test_webhook_exception_invalid_invoice_signature(
+def test_webhook_exception_no_invoice_signature(
     mock_webhook, get_mock_webhook_event, client, invoice, membership
 ):
-    # invalid invoice signature
+    # Correct invoice id; no invoice signature
     metadata = {
-        "invoice_id": "bar",
+        "invoice_id": "foo",
         **invoice.items_metadata(),
     }
     mock_webhook.construct_event.return_value = get_mock_webhook_event(metadata=metadata)
@@ -502,15 +502,15 @@ def test_webhook_exception_invalid_invoice_signature(
     assert len(mail.outbox) == 1
     assert mail.outbox[0].to == [settings.SUPPORT_EMAIL]
     assert "WARNING: Something went wrong with a payment!" in mail.outbox[0].subject
-    assert "Error: Error processing stripe payment intent mock-intent-id; could not find invoice" \
+    assert "Could not verify invoice signature: payment intent mock-intent-id; invoice id foo" \
             in mail.outbox[0].body
 
 
 @patch("stripe_payments.views.stripe.Webhook")
-def test_webhook_exception_retrieving_invoice(
+def test_webhook_exception_invalid_invoice_signature(
     mock_webhook, get_mock_webhook_event, client, invoice, membership
 ):
-    # invalid invoice signature
+    # Correct invoice id; invalid invoice signature
     metadata = {
         "invoice_id": "foo",
         "invoice_signature": "foo",
@@ -527,16 +527,20 @@ def test_webhook_exception_retrieving_invoice(
     assert len(mail.outbox) == 1
     assert mail.outbox[0].to == [settings.SUPPORT_EMAIL]
     assert "WARNING: Something went wrong with a payment!" in mail.outbox[0].subject
-    assert "Error: Could not verify invoice signature: payment intent mock-intent-id; invoice id foo" \
+    assert "Could not verify invoice signature: payment intent mock-intent-id; invoice id foo" \
             in mail.outbox[0].body
 
 
 @patch("stripe_payments.views.stripe.Webhook")
-def test_webhook_exception_no_invoice(
+def test_webhook_exception_retrieving_invoice(
     mock_webhook, get_mock_webhook_event, client, invoice, membership
 ):
-    # invalid invoice signature
-    metadata = invoice.items_metadata()
+    # invalid invoice ID
+    metadata = {
+        "invoice_id": "bar",
+        "invoice_signature": invoice.signature(),
+        **invoice.items_metadata(),
+    }
     mock_webhook.construct_event.return_value = get_mock_webhook_event(metadata=metadata)
     resp = client.post(webhook_url, data={}, HTTP_STRIPE_SIGNATURE="foo")
     assert resp.status_code == 200
@@ -548,8 +552,19 @@ def test_webhook_exception_no_invoice(
     assert len(mail.outbox) == 1
     assert mail.outbox[0].to == [settings.SUPPORT_EMAIL]
     assert "WARNING: Something went wrong with a payment!" in mail.outbox[0].subject
-    assert "Error: Error processing stripe payment intent mock-intent-id; no invoice id" \
+    assert "Error processing stripe payment intent mock-intent-id; could not find invoice matching id from metadata 'bar'" \
             in mail.outbox[0].body
+
+
+@patch("stripe_payments.views.stripe.Webhook")
+def test_webhook_no_invoice_metadata(
+    mock_webhook, get_mock_webhook_event, client
+):
+    # no invoice info in metadata; not an error
+    mock_webhook.construct_event.return_value = get_mock_webhook_event(metadata={})
+    resp = client.post(webhook_url, data={}, HTTP_STRIPE_SIGNATURE="foo")
+    assert resp.status_code == 200
+    assert len(mail.outbox) == 0
 
 
 @patch("stripe_payments.views.stripe.Webhook")

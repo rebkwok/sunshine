@@ -15,12 +15,14 @@ logger = logging.getLogger(__name__)
 
 
 def get_invoice_from_payment_intent(payment_intent, raise_immediately=False):
-    # Don't raise the exception here so we don't expose it to the user; leave it for the webhook
+    # Don't raise exception shere so we don't expose it to the user; leave it for the webhook
     invoice_id = payment_intent.metadata.get("invoice_id")
     if not invoice_id:
-        if raise_immediately:
-            raise StripeProcessingError(f"Error processing stripe payment intent {payment_intent.id}; no invoice id")
-        return None
+        #  No invoice id in the metadata is unlikely to be an error; more likely it's a payment not made via the
+        # site.
+        logger.warning("No invoice ID found for stripe payment intent %s", payment_intent.id)
+        return 
+
     try:
         invoice = Invoice.objects.get(invoice_id=invoice_id)
         if not invoice.username:
@@ -31,10 +33,10 @@ def get_invoice_from_payment_intent(payment_intent, raise_immediately=False):
             invoice.save()
         return invoice
     except Invoice.DoesNotExist:
-        logger.error("Error processing stripe payment intent %s; could not find invoice", payment_intent.id)
+        error_msg = f"Error processing stripe payment intent {payment_intent.id}; could not find invoice matching id from metadata '{invoice_id}'"
+        logger.error(error_msg)
         if raise_immediately:
-            raise StripeProcessingError(f"Error processing stripe payment intent {payment_intent.id}; could not find invoice")
-        return None
+            raise StripeProcessingError(error_msg)
 
 
 def check_stripe_data(payment_intent, invoice):
