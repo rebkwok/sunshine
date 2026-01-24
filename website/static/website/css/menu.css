@@ -1311,6 +1311,9 @@ body.wsactive {
   margin: 24px 70px 0 0;
 }
 
+.desktop-cart {
+  display: none !important;
+}
 
 /* ================== Mobile Overlay/Drawer CSS ================== */
 

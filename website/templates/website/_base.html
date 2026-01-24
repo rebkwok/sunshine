@@ -144,6 +144,17 @@
                                                     <div class="container">
                                                         <div class="row">
 
+                                                            <!-- MEGAMENU LINKS - ADMIN -->
+                                                            {% if user.is_staff or user.is_superuser %}
+                                                                <ul class="col-md-12 col-lg-4 link-list">
+                                                                    <li class="title txt-color-01"><p>Admin</p></li>
+                                                                    <li class="fst-li"><a href="{% url 'studioadmin:regular_session_register_list' %}">Instructor Admin</a></li>
+                                                                    {% if user.is_staff %}
+                                                                        <li><a href="{% url 'admin:index' %}">Site admin</a></li>
+                                                                    {% endif %}
+                                                                </ul>
+                                                            {% endif %}
+
                                                             <!-- MEGAMENU LINKS -->
                                                             <ul class="col-md-12 col-lg-4 link-list">
                                                                 <li class="title txt-color-01"><p>Account</p></li>
@@ -160,17 +171,6 @@
                                                                 <li><a href="{% url 'booking:user_memberships' %}">Memberships</a></li>
                                                                 <li><a href="{% url 'booking:transactions' %}">Payment History</a></li>			              
                                                             </ul>
-
-                                                            <!-- MEGAMENU LINKS - ADMIN -->
-                                                            {% if user.is_staff or user.is_superuser %}
-                                                                <ul class="col-md-12 col-lg-4 link-list">
-                                                                    <li class="title txt-color-01"><p>Admin</p></li>
-                                                                    <li class="fst-li"><a href="{% url 'studioadmin:regular_session_register_list' %}">Instructor Admin</a></li>
-                                                                    {% if user.is_staff %}
-                                                                        <li><a href="{% url 'admin:index' %}">Site admin</a></li>
-                                                                    {% endif %}	              
-                                                                </ul>
-                                                            {% endif %}		
                         
                                                         </div>  <!-- End row -->	
                                                     </div>  <!-- End container -->	
@@ -180,7 +180,7 @@
 
                                         <!-- HEADER BUTTON  -->
                                         {% if user.is_authenticated %}
-                                            <li class="nl-simple" aria-haspopup="true">
+                                            <li class="nl-simple desktop-cart" aria-haspopup="true">
                                                 <a href="{% url 'booking:shopping_basket' %}" class="btn btn-sunshine tra-sunshine-hover last-link p-2">
                                                     <i class="fas fa-shopping-basket me-0"></i> <span id="cart_item_menu_count">{{ cart_item_count }}</span>
                                                     </a>
