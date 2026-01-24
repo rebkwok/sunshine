@@ -52,14 +52,12 @@ var toggleBooking = function()  {
                       doTheAjax();
                       $jq(this).dialog('close');
                   },
-                  "class": "btn btn-sunshine"
               },
               {
                   text: "Go back",
                   click: function () {
                       $jq(this).dialog('close');
                   },
-                  "class": "btn btn-black"
               }
           ]
       })
