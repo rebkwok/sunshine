@@ -388,9 +388,11 @@ p.p-xl { font-size: 1.25rem; }     /* 20px */
 /*  LINK SETTINGS
 /*------------------------------------------*/
 
+
 a {
-  color: #ffcc01;
-  text-decoration: none;
+  color: #473900;
+  text-decoration: underline 2px;
+  text-decoration-color: #ffcc01;
   font-weight: 500;
   -webkit-transition: all 400ms ease-in-out;
   -moz-transition: all 400ms ease-in-out;
@@ -400,7 +402,8 @@ a {
 }
 
 a:hover {
-  text-decoration: underline 1px;
+  text-decoration: none;
+  color: #FF4D01;
 }
 
 a:focus {
@@ -475,9 +478,9 @@ ol.digit-list p {
   font-weight: 500;
   padding: 13px 26px;
   border: 1px solid transparent;
-  -webkit-border-radius: 2px;
-  -moz-border-radius: 2px;
-  border-radius: 2px;  
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  border-radius: 4px;  
   -webkit-transition: all 400ms ease-in-out;
   -moz-transition: all 400ms ease-in-out;
   -o-transition: all 400ms ease-in-out;
@@ -592,14 +595,14 @@ a.btn {
 .btn-tra-sunshine, 
 .scroll .btn-tra-sunshine, 
 .white-color .btn-tra-sunshine,
-.tra-sunshine-hover:hover, 
+.tra-sunshine-hover:hover,
 .scroll .tra-sunshine-hover:hover, 
 .white-color .tra-sunshine-hover:hover {
-  color: #ffcc01!important;
-  background-color: transparent;
+  color: #473900!important;
+  background-color: transparent!important;
   border-color: #ffcc01!important;
+  border-width: 2px;
 }
-
 
 /*------------------------------------------*/
 /*  Button Color
@@ -673,10 +676,11 @@ a.btn {
 }
 
 .btn-sunshine,
-.sunshine-color .btn-sunshine 
+.sunshine-color .btn-sunshine,
+.btn-sunshine:hover,
 .scroll .btn-sunshine, 
 .white-color .btn-sunshine {
-  color: #fff!important;
+  color: #473900;
   background-color: #ffcc01;
   border-color: #ffcc01!important;
 }
@@ -695,7 +699,7 @@ a.btn {
 .sunshine-hover:hover, 
 .scroll .sunshine-hover:hover, 
 .white-color .sunshine-hover:hover {
-  color: #fff!important;
+  color: #473900!important;
   background-color: #ffcc01!important;
   border-color: #ffcc01!important;
 }
@@ -5221,6 +5225,13 @@ p.foo-email a {
   margin-bottom: 0;
 }
 
+.bottom-footer-list li a {
+  text-decoration: none;
+}
+.bottom-footer-list li a:hover {
+  color: black;
+}
+
 .bg-brown .bottom-footer-list li * {
   color: rgba(255, 248, 245, .7);
 }
@@ -5660,12 +5671,10 @@ ul.blog-category-list > li a:hover:before {
 .badge {
   border: none;
   background-color: transparent;
-  border: 1px solid #ffcc01;
   -webkit-border-radius: 4px;
   -moz-border-radius: 4px;
   -o-border-radius: 4px;
   border-radius: 4px;
-  margin-bottom: 10px;
   padding: 10px 15px;
   margin-right: 4px;
   -webkit-transition: all 450ms ease-in-out;
@@ -5688,6 +5697,8 @@ ul.blog-category-list > li a:hover:before {
 
 .badge.badge-sunshine {
   background-color: #ffcc01;
+  border: 1px solid #ffcc01;
+  color: #473900;
 }
 
 .badge.badge-dark {

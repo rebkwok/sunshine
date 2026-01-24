@@ -50,9 +50,9 @@
                         <div class="ms-2 mt-2" >No classes at this location</div>
                         {% else %}
                             <div class="panel" style="background-color: rgba(230,230,230,0.6);">
-                                    <table class="table">
+                                    <table class="table table-striped">
                                         <thead>
-                                        <tr class="table-secondary">
+                                        <tr class="table-dark">
                                             <th scope="col"></th>
                                             <th scope="col">Day</th>
                                             <th scope="col">Time</th>
@@ -72,7 +72,7 @@
                                             <td class="timetable-row">{{ session.start_time|time:"H:i" }}-{{ session.end_time|time:"H:i" }}</td>
                                             <td class="table-center timetable-row">
                                                 {% if session.category %}
-                                                    <span class="badge rounded-pill text-bg-{{ session.category.colour }}">
+                                                    <span class="badge badge-pill rounded-pill text-bg-{{ session.category.colour }}">
                                                 {% endif %}
                                                     {{ session.name }} {% if session.members_only %}(Members only){% endif %}
                                                 </span></td>
