@@ -115,10 +115,12 @@ var toggleBooking = function()  {
             }
 
         if (result.booked == true) {
-            $jq('#table-row-event-' + event_id).addClass('table-row-booked');
+            $jq('#table-row-event-' + event_id).removeClass('table-light');
+            $jq('#table-row-event-' + event_id).addClass('table-warning');
         }
         else {
-            $jq('#table-row-event-' + event_id).removeClass('table-row-booked');
+            $jq('#table-row-event-' + event_id).removeClass('table-warning');
+            $jq('#table-row-event-' + event_id).addClass('table-light');
         }
         $jq('#cart_item_menu_count').text(result.cart_item_menu_count);
         $jq('#cart_item_menu_count_xs').text(result.cart_item_menu_count);

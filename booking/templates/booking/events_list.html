@@ -106,7 +106,7 @@
                                         {% get_booking event user as booking %}
 
                                         <tr scope="row" id="table-row-event-{{ event.id }}"
-                                            class="table-light table-row-transparent {% if event.cancelled %}expired{% elif event.id in booked_events %}table-row-booked{% endif %}">
+                                            class="{% if event.cancelled %}expired{% elif event.id in booked_events %}table-warning{% else %}table-light{% endif %}">
                                             {% if user.is_authenticated %}
                                                 {% if event.id in staff_only_events %}
                                                     <td class="table-center table-book-btn-col">VISIBLE TO STAFF ONLY</td>

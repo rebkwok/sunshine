@@ -5706,6 +5706,11 @@ ul.blog-category-list > li a:hover:before {
   border-color: #51504d;
 }
 
+tr.expired > td > span.badge.badge-dark {
+  background-color: #bfbebb !important;
+  border-color: #bfbebb;
+}
+
 .badge.badge-green {
   background-color: #009933;
   border-color: #009933;
