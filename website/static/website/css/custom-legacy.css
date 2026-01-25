@@ -27,6 +27,11 @@ main {
     /* top margin to add some spacing under fixed navbar */
     margin-top: 15px;
 }
+
+a {
+  text-decoration: none;
+}
+
 .footer {
 width: 100%;
 /* fixed height of the footer */
