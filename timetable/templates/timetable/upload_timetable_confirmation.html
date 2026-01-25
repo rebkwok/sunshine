@@ -1,20 +1,14 @@
-{% extends "admin/base.html" %}
-{% load static %}
-
-{% block extrastyle %}
-<link href="{% static 'website/css/admin-extra.css' %}" rel="stylesheet">
-{% endblock %}
+{% extends "timetable/timetable_admin_base.html" %}
 
 {% block content %}
 
-<div class="container-fluid row admin-center">
+<div class="container-fluid">
 
-<div class="small-margin extra-top-margin container-fluid row">
-    <div class="col-sm-11">
+    <div>
         <div>
-            <h4>Classes uploaded from the current timetable</h4>
-            <p><strong>Start date:</strong> {{ start_date | date:"D d F Y"}}</p>
-            <p><strong>End date:</strong> {{ end_date | date:"D d F Y"}}</p>
+            <h2>Classes uploaded from the current timetable</h2>
+            <p><strong>Start date:</strong> {{ start_date | date:"D d F Y"}}<br/>
+            <strong>End date:</strong> {{ end_date | date:"D d F Y"}}</p>
 
             {% if duplicate_classes %}
                 <h3 style="color: red;">WARNING: The following duplicate classes were found!</h3>
@@ -45,10 +39,9 @@
                 {% endfor %}
                 </ul>
             {% endif %}
-
+            <a class="btn btn-success" href={% url "admin:booking_regularclass_changelist" %}>View classes</a>
         </div>
     </div>
 </div>
 
-</div>
 {% endblock %}

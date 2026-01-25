@@ -1,0 +1,24 @@
+{% extends "admin/base.html" %}
+{% load static %}
+{% load bootstrap4 %}
+
+{% block extrastyle %}
+{{ block.super }}
+  <link rel="stylesheet" type="text/css" href="{% static 'timetable/css/jquery.datetimepicker.css' %}"/ >
+{% endblock %}
+
+{% block nav-breadcrumbs %}{% endblock %}
+
+{% block extrabody %}
+    <script src="{% static 'timetable/js/jquery.js' %}"></script>
+    <script src="{% static 'timetable/js/moment.min.js' %}"></script>
+    <script src="{% static 'timetable/js/jquery.are-you-sure.js' %}"></script>
+    <script src="{% static 'timetable/js/jquery.datetimepicker.js' %}"></script>
+    <script src="{% static 'timetable/js/timetable.js' %}"></script>
+
+    <script type="text/javascript">
+        var xpath = "//a[contains(text(),'Timetable')]";
+        var matchingElement = document.evaluate(xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+        matchingElement.parentElement.classList.add("active");
+    </script>    
+{% endblock %}

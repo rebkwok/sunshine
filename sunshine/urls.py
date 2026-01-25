@@ -40,5 +40,5 @@ if settings.DEBUG:  # pragma: no cover
     urlpatterns.append(path('__debug__/', include(debug_toolbar.urls)))
 
 admin.autodiscover()
-admin.site.site_header = "Sunshine Fitness Admin"
+admin.site.site_header = "Sunshine Fitness"
 admin.site.enable_nav_sidebar = False

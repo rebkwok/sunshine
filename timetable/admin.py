@@ -79,7 +79,11 @@ class TimetableSessionAdmin(admin.ModelAdmin):
         if not request.user.is_superuser:
             return redirect(reverse("admin:index"))
         
-        context = {'current_app': self.admin_site.name, 'available_apps': self.admin_site.get_app_list(request)}
+        context = {
+            'current_app': self.admin_site.name,
+            'available_apps': self.admin_site.get_app_list(request),
+            'site_header': "Sunshine Fitness"
+        }
 
         if request.method == 'POST':
             form = UploadTimetableForm(request.POST)
