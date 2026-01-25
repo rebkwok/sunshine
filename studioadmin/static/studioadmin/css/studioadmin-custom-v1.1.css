@@ -1,0 +1,134 @@
+/* From Django6 - Hide the skip to content link */
+.skip-to-content-link {
+    position: absolute;
+    top: -999px;
+    margin: 5px;
+    padding: 5px;
+    background: var(--body-bg);
+    z-index: 1;
+}
+
+.skip-to-content-link:focus {
+    left: 0px;
+    top: 0px;
+}
+
+
+#footer {
+  display: none;
+}
+
+div.admin-menu {
+  margin-top: -5px;
+  margin-left: -5px;
+  margin-bottom: 0;
+}
+.btn-admin-menu {
+    color: #fff;
+    background-color: dimgrey;
+    border-color: dimgrey;
+    margin-bottom: 5px;
+}
+
+span.active > .btn-admin-menu{
+    background-color: #000;
+    border-width: 3px;
+    border-bottom-style: ridge;
+}
+
+.studioadmin-help {
+  font-weight: lighter;
+  font-style: italic;
+  font-size: x-small;
+}
+.studioadmin-help.small {
+    font-size: small;
+    font-weight: normal;
+}
+
+.table-center, 
+table.dataTable > thead > tr > th.table-center {
+    text-align: center;
+}
+
+.badge-admin-waiting-list {
+  padding-bottom: 4px;
+  min-width: 40px;
+}
+
+.expired td, .expired td a {
+    color: #BDBDBD;
+}
+
+tr > td.table-center.register-index {
+    padding-right: 0;
+    padding-left: 0;
+	  vertical-align: middle;
+}
+
+.btn.btn-attended, .btn.btn-noshow {
+  padding-left: 5px;
+  padding-right: 5px;
+  line-height: 1.1;
+  width: 3.7em;
+  border-radius: 10px;
+  border-color: grey;
+}
+
+.expired .btn-attended {
+  border-color: lightgrey;
+  color: lightgrey;
+}
+
+.expired .btn-noshow {
+  border-color: lightgrey;
+  color: lightgrey;
+}
+
+.btn.btn-alph-filter {
+    padding-left: 3px;
+    padding-right: 3px;
+    padding-top: 0px;
+    padding-bottom: 0px;
+    margin-left: 0;
+    margin-right: 0;
+}
+
+.btn.btn-alph-filter.btn-unselected {
+    background-color:dimgrey;
+    color: white;
+}
+
+#user-search-form {
+  margin-bottom: 5px;
+}
+
+span.fees .fees-due a, .expired td span.fees .fees-due a {
+  font-weight: bold;
+  color: red;
+}
+
+button.btn-remove-fee {
+  margin-top: 1px;
+}
+
+label.btn-fee-payment {
+  margin-top: 1px;
+  min-width: 60px;
+}
+
+@media (max-width: 600px) {
+  .table-wrap {
+       max-width: 100px;
+    }
+}
+
+.header {
+    max-width: 100%;
+}
+
+
+div.dataTables_wrapper div.dataTables_paginate {
+    justify-content: flex-start !important;
+    text-align: left !important;
+}
