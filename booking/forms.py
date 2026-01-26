@@ -79,27 +79,9 @@ def get_names(event_type='regular_session'):
     return callable
 
 
-def get_venues(event_type='regular_session'):
-
-    def callable():
-        VENUE_CHOICES = list(set(
-            Event.objects.select_related('venue')
-            .filter(event_type=event_type, date__gte=timezone.now()).order_by('venue')
-            .values_list('venue__abbreviation', 'venue__abbreviation')
-        ))
-        VENUE_CHOICES.insert(0, ('all', 'All locations'))
-        return tuple(VENUE_CHOICES)
-
-    return callable
-
-
 class EventsFilter(forms.Form):
 
     name = forms.ChoiceField(
-        choices=(0,0),
-        widget=forms.Select(attrs={'class': 'form-control input-xs'})
-    )
-    venue = forms.ChoiceField(
         choices=(0,0),
         widget=forms.Select(attrs={'class': 'form-control input-xs'})
     )
@@ -110,11 +92,8 @@ class EventsFilter(forms.Form):
         initial = kwargs.get('initial')
 
         self.fields['name'].choices = get_names(event_type=event_type)
-        self.fields['venue'].choices = get_venues(event_type)
         if initial:
             self.fields['name'].initial = initial.get('name', 'all')
-            self.fields['venue'].initial = initial.get('venue', 'all')
-
 
 
 class ItemVoucherForm(forms.ModelForm):
@@ -212,7 +191,7 @@ class GiftVoucherForm(forms.ModelForm):
         if self.instance.id:
             submit_button = Submit('submit', 'Update')
         else:
-            submit_button = Submit('submit', 'Add to cart') if user is not None else Submit('submit', 'Checkout as guest')
+            submit_button = Submit('submit', 'Add to cart', css_class="btn btn-sunshine tra-sunshine-hover") if user is not None else Submit('submit', 'Checkout as guest', css_class="btn btn-sunshine tra-sunshine-hover")
 
         self.helper.layout = Layout(
             "gift_voucher_type",

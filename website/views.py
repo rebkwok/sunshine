@@ -1,3 +1,5 @@
+import random
+
 from django.urls import reverse
 from django.conf import settings
 from django.shortcuts import render, HttpResponseRedirect
@@ -5,23 +7,41 @@ from django.contrib import messages
 from django.utils.safestring import mark_safe
 
 from booking.email_helpers import send_email
-from timetable.models import SessionType
+from timetable.models import Location, Venue, SessionType
 from website.forms import ContactForm
+from .models import GalleryImage, Testimonial, TeamMember
 
 
 def home(request):
+    images = GalleryImage.objects.filter(display_on_homepage=True)
+    testimonials = list(Testimonial.objects.all())
+    random.shuffle(testimonials)
 
-    class_types = SessionType.objects.filter(regular_session=True)
+    return render(
+        request, 
+        'website/home.html', 
+        {
+            'section': 'about',
+            'gallery_images': images,
+            'gallery_categories': set(images.values_list("category__name", flat=True)) - {None},
+            'testimonials': testimonials,
+            'team_members': TeamMember.objects.all()
+        }
+    )
 
-    return render(request, 'website/home.html', {'section': 'home', 'class_types': class_types})
 
+def home_legacy(request):
 
-def demo(request):
-    return render(request, 'website/demos/index.html')
+    if "new-home-page" in request.GET:
+        return home(request)
+
+    class_types = SessionType.objects.filter(display_on_site=True)
+
+    return render(request, 'website/home_legacy.html', {'section': 'home', 'class_types': class_types})
 
 
 def faq(request):
-    return render(request, 'website/faq.html')
+    return render(request, 'website/faq.html', {'section': 'about'})
 
 
 def process_contact_form(request, template_name):
@@ -64,21 +84,13 @@ def process_contact_form(request, template_name):
         return HttpResponseRedirect(return_url)
 
     else:
-        if form.non_field_errors():
-            messages.error(
-                request,
-                mark_safe("There were errors in the following "
-                          "fields: {}".format(form.non_field_errors())
-                          )
-            )
-        else:
-            messages.error(request, 'Please correct the errors below')
+        messages.error(request, 'Please correct the errors below')
         return render(
-            request, template_name, {'section': 'contact', 'form': form}
+            request, template_name, {'section': 'about', 'form': form}
         )
 
 
-def contact_form(request, template_name='website/contact_form.html'):
+def contact(request, template_name='website/contact_us.html'):
     if request.method == 'POST':
         return process_contact_form(request, template_name)
 
@@ -98,10 +110,24 @@ def contact_form(request, template_name='website/contact_form.html'):
     })
 
     return render(
-        request, template_name, {'section': 'contact', 'form': form}
+        request, template_name, {'section': 'about', 'form': form}
     )
 
 
-def contact(request):
-    return contact_form(request, template_name='website/contact_us.html')
+def session_types(request):
+    return render(
+        request, 'website/session_types.html', {'section': 'about', "session_types": SessionType.objects.filter(display_on_site=True)}
+    )
 
+
+def venues(request):
+    locations_in_order = Venue.distinct_locations_in_order()
+    locations = {}
+    for location_name in locations_in_order:
+        location = Location.objects.get(name=location_name)
+        if location.venues.filter(display_on_site=True):
+            locations[location] = location.venues.filter(display_on_site=True)
+
+    return render(
+        request, 'website/venues.html', {'section': 'about', "locations": locations}
+    )

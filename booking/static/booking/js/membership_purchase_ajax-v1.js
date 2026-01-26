@@ -46,14 +46,12 @@ var processMembershipPurchaseRequest = function()  {
                   doBooking();
                     $jq(this).dialog('close');
                 },
-                "class": "btn btn-success"
             },
             {
                 text: "Go back",
                 click: function () {
                     $jq(this).dialog('close');
                 },
-                "class": "btn btn-dark"
             }
         ]
     })
@@ -65,9 +63,10 @@ var processMembershipPurchaseRequest = function()  {
       var processResult = function(
         result, status, jqXHR)  {
         //console.log("sf result='" + result + "', status='" + status + "', jqXHR='" + jqXHR + "'");
-
+        console.log(result.cart_item_menu_count);  
         $jq("#loader_" + membership_type_id  + '_' + month + '_' + year).removeClass("fa fa-spinner fa-spin").hide();
         $jq('#membership_type_' + membership_type_id + '_' + month + '_' + year).html(result.html);
+        $jq('#cart_item_menu_count-xs').text(result.cart_item_menu_count);
         $jq('#cart_item_menu_count').text(result.cart_item_menu_count);
       };
 

@@ -13,7 +13,7 @@ from stripe import InvalidRequestError
 from booking.models import (
     Booking, Event, TotalVoucher, ItemVoucher, MembershipType, Membership
 )
-from .helpers import TestSetupMixin, make_disclaimer_content, make_data_privacy_agreement, make_online_disclaimer
+from conftest import make_disclaimer_content, make_data_privacy_agreement, make_online_disclaimer
 from stripe_payments.models import Invoice, Seller
 
 
@@ -23,7 +23,7 @@ class ShoppingBasketMixin:
         make_disclaimer_content()
         make_data_privacy_agreement(self.user)
         make_online_disclaimer(user=self.user)
-        self.client.login(username=self.user.username, password="test")
+        self.client.force_login(self.user)
         self.membership_type = baker.make(MembershipType, name="4 per month", number_of_classes=4, cost=20)
         future = timezone.now() + timedelta(1)
         past = timezone.now() - timedelta(1)
@@ -33,12 +33,13 @@ class ShoppingBasketMixin:
         self.private = baker.make(Event, event_type="private", cost=30, date=future)
 
 
-class ShoppingBasketViewTests(ShoppingBasketMixin, TestSetupMixin, TestCase):
+class ShoppingBasketViewTests(ShoppingBasketMixin, TestCase):
 
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()
         cls.url = reverse('booking:shopping_basket')
+        cls.user = baker.make_recipe("booking.user", password="test")
 
     def test_not_logged_in(self):
         self.client.logout()
@@ -46,6 +47,14 @@ class ShoppingBasketViewTests(ShoppingBasketMixin, TestSetupMixin, TestCase):
         assert resp.status_code == 302
         assert resp.url == f"{reverse('account_login')}?next={self.url}"
     
+    def test_no_data_privacy_agreement(self):
+        user = baker.make_recipe("booking.user")
+        make_online_disclaimer(user=user)
+        self.client.force_login(user)
+        resp = self.client.get(self.url)
+        assert resp.status_code == 302
+        assert resp.url == f"{reverse('accounts:data_privacy_review')}?next={self.url}"
+
     def test_not_logged_in_gift_voucher(self):
         self.client.logout()
         gift_voucher = baker.make_recipe("booking.gift_voucher_10")
@@ -105,7 +114,7 @@ class ShoppingBasketViewTests(ShoppingBasketMixin, TestSetupMixin, TestCase):
         assert list(resp.context_data["unpaid_membership_info"]) == [
             {"membership": membership, "original_cost": 20, "voucher_applied": {"code": None, "discounted_cost": None}}
         ]
-        assert list(resp.context_data["unpaid_booking_info"]) == [
+        assert sorted(resp.context_data["unpaid_booking_info"], key=lambda x: x["original_cost"]) == [
             {"booking": booking1, "original_cost": 10, "voucher_applied": {"code": None, "discounted_cost": None}},
             {"booking": booking2, "original_cost": 20, "voucher_applied": {"code": None, "discounted_cost": None}},
             {"booking": booking3, "original_cost": 30, "voucher_applied": {"code": None, "discounted_cost": None}}
@@ -143,9 +152,9 @@ class ShoppingBasketViewTests(ShoppingBasketMixin, TestSetupMixin, TestCase):
         resp = self.client.get(self.url)
         self.user.refresh_from_db()
         assert self.user.bookings.count() == 2
-        assert [
+        assert {
             unpaid["booking"] for unpaid in resp.context_data["unpaid_booking_info"]
-        ] == [rebooking, checkedout_booking]
+         } == {rebooking, checkedout_booking}
 
     def test_voucher_application(self):
         voucher = baker.make(ItemVoucher, code="test", discount=50)
@@ -180,7 +189,7 @@ class ShoppingBasketViewTests(ShoppingBasketMixin, TestSetupMixin, TestCase):
         assert resp.context_data["total_cost"] == 60
 
         resp = self.client.post(self.url, data={"add_voucher_code": "add_voucher_code", "code": "test"})
-        assert list(resp.context_data["unpaid_booking_info"]) == [
+        assert sorted(resp.context_data["unpaid_booking_info"], key=lambda x: x["original_cost"]) == [
             {"booking": booking1, "original_cost": 10, "voucher_applied": {"code": "test", "discounted_cost": 5}},
             {"booking": booking2, "original_cost": 20, "voucher_applied": {"code": None, "discounted_cost": None}},
             {"booking": booking3, "original_cost": 30, "voucher_applied": {"code": "test", "discounted_cost": 25}}
@@ -556,7 +565,7 @@ class ShoppingBasketViewTests(ShoppingBasketMixin, TestSetupMixin, TestCase):
             {"membership": memberships[1], "original_cost": 20, "voucher_applied": {"code": "test", "discounted_cost": 10}}
 
         ]
-        assert list(resp.context_data["unpaid_booking_info"]) == [
+        assert sorted(resp.context_data["unpaid_booking_info"], key=lambda x: x["original_cost"]) == [
             {"booking": regular_booking, "original_cost": 10, "voucher_applied": {"code": None, "discounted_cost": None}},
             {"booking": private_booking, "original_cost": 30, "voucher_applied": {"code": None, "discounted_cost": None}}
 
@@ -572,7 +581,7 @@ class ShoppingBasketViewTests(ShoppingBasketMixin, TestSetupMixin, TestCase):
             {"membership": memberships[1], "original_cost": 20, "voucher_applied": {"code": "test", "discounted_cost": 10}}
 
         ]
-        assert list(resp.context_data["unpaid_booking_info"]) == [
+        assert sorted(resp.context_data["unpaid_booking_info"], key=lambda x: x["original_cost"]) == [
             {"booking": regular_booking, "original_cost": 10, "voucher_applied": {"code": "foo", "discounted_cost": 9}},
             {"booking": private_booking, "original_cost": 30, "voucher_applied": {"code": None, "discounted_cost": None}}
 
@@ -599,15 +608,16 @@ class ShoppingBasketViewTests(ShoppingBasketMixin, TestSetupMixin, TestCase):
         assert "Submit" in resp.rendered_content
 
 
-class GuestShoppingBasketTests(TestSetupMixin, TestCase):
+class GuestShoppingBasketTests(TestCase):
 
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()
+        cls.user = baker.make_recipe("booking.user", password="test")
         cls.url = reverse("booking:guest_shopping_basket")
 
     def test_with_logged_in_user_no_purchases(self):
-        self.client.login(username=self.user.username, password="test")
+        self.client.force_login(self.user)
         resp = self.client.get(self.url)
         assert resp.status_code == 302
         assert resp.url == reverse("booking:shopping_basket")
@@ -662,12 +672,13 @@ class GuestShoppingBasketTests(TestSetupMixin, TestCase):
         ]
 
 
-class StripeCheckoutTests(ShoppingBasketMixin, TestSetupMixin, TestCase):
+class StripeCheckoutTests(ShoppingBasketMixin, TestCase):
 
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()
         cls.url = reverse('booking:stripe_checkout')
+        cls.user = baker.make_recipe("booking.user", password="test")
 
     def get_mock_payment_intent(self, **params):
         defaults = {

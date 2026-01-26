@@ -6,7 +6,15 @@
 {% include 'booking/includes/ajax_head.html' %}
 {% endblock %}
 
+{% block title %}
+    {% include "website/includes/header.html" with title="Membership Details" %}
+{% endblock %}
+
 {% block content %}
+
+<section>
+
+    <div class="container mt-20">
 
         <div class="list-group mb-2">
             <div class="list-group-item list-group-item-dark pt-1 pb-1">Membership: {{ membership }}</div>
@@ -26,6 +34,8 @@
                     {% endif %}
             </div>
         </div>
-        <a class="btn btn-outline-dark btn-sm" href="{{ request.META.HTTP_REFERER }}">Back</a>
+        <a class="btn btn-color-01 tra-01-hover btn-sm" href="{{ request.META.HTTP_REFERER }}">Back</a>
 
+    </div>
+</section>
 {% endblock content %}

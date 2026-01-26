@@ -52,14 +52,12 @@ var toggleBooking = function()  {
                       doTheAjax();
                       $jq(this).dialog('close');
                   },
-                  "class": "btn btn-success"
               },
               {
                   text: "Go back",
                   click: function () {
                       $jq(this).dialog('close');
                   },
-                  "class": "btn btn-dark"
               }
           ]
       })
@@ -108,19 +106,21 @@ var toggleBooking = function()  {
       //console.log("sf result='" + result + "', status='" + status + "', jqXHR='" + jqXHR + "'");
           $jq('#booking_count_' + event_id).html(result.booking_count);
             if (result.full === true) {
-                $jq('#booking_count_' + event_id).removeClass('badge-success');
-                $jq('#booking_count_' + event_id).addClass('badge-default');
+                $jq('#booking_count_' + event_id).removeClass('badge-green');
+                $jq('#booking_count_' + event_id).addClass('badge-dark');
             }
             else {
-                $jq('#booking_count_' + event_id).removeClass('badge-default');
-                $jq('#booking_count_' + event_id).addClass('badge-success');
+                $jq('#booking_count_' + event_id).removeClass('badge-dark');
+                $jq('#booking_count_' + event_id).addClass('badge-green');
             }
 
         if (result.booked == true) {
-            $jq('#table-row-event-' + event_id).addClass('table-row-booked');
+            $jq('#table-row-event-' + event_id).removeClass('table-light');
+            $jq('#table-row-event-' + event_id).addClass('table-warning');
         }
         else {
-            $jq('#table-row-event-' + event_id).removeClass('table-row-booked');
+            $jq('#table-row-event-' + event_id).removeClass('table-warning');
+            $jq('#table-row-event-' + event_id).addClass('table-light');
         }
         $jq('#cart_item_menu_count').text(result.cart_item_menu_count);
         $jq('#cart_item_menu_count_xs').text(result.cart_item_menu_count);
@@ -141,6 +141,7 @@ var toggleBooking = function()  {
             $jq('#booked-' + event_id + '-' + 'row').addClass('expired');
         }
         $jq('#cart_item_menu_count').text(result.cart_item_menu_count);
+        $jq('#cart_item_menu_count_xs').text(result.cart_item_menu_count);
    };
 
     var processFailure = function(

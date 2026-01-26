@@ -2,29 +2,34 @@ import datetime
 
 from django.core.management.base import BaseCommand
 
-from ...models import Category, Venue, SessionType, TimetableSession
+from ...models import Category, Location, Venue, SessionType, TimetableSession
 
 
 class Command(BaseCommand):
 
     def handle(self, *args, **options):
-
-        studio, _ = Venue.objects.get_or_create(
+        
+        location, _ = Location.objects.get_or_create(
             name='Sunshine Fitness Studio',
             address='Moray Institute, Kelty',
             postcode='KY4 OAQ',
-            abbreviation="Fitness Studio"
+        )
+        studio, _ = Venue.objects.get_or_create(
+            name='Sunshine Fitness Studio',
+            abbreviation="Fitness Studio",
+            location=location
         )
         
         tbc, _ = Venue.objects.get_or_create(
             name="Venue TBC",
-            abbreviation="TBC"
+            abbreviation="TBC",
+            location=location,
         )
 
         polefit, new = SessionType.objects.update_or_create(
-            name='Pole Fitness', regular_session=True, index=1,
+            name='Pole Fitness', display_on_site=True, order=100,
             defaults={
-                "info": """
+                "description": """
                 Pole dancing has gained popularity as a form of exercise with increased awareness of the benefits
                 to general strength and fitness. This form of exercise increases core and general body strength by 
                 using the body itself as resistance, while 
@@ -33,9 +38,9 @@ class Command(BaseCommand):
         )
 
         stretch, _ = SessionType.objects.update_or_create(
-            name='Stretching',  regular_session=True, index=5,
+            name='Stretching',  display_on_site=True, order=500,
             defaults={
-                "info": """
+                "description": """
                 Stretching will help improve flexibilty and benefit your progression in pole tricks. 
                 There are many benefits to stretching and learning to do it properly is key.  Stretching 
                 can help to reduce muscle tension, increase range of movement in the joints, enhance muscular 
@@ -46,9 +51,9 @@ class Command(BaseCommand):
         )
 
         general_fitness, _ = SessionType.objects.update_or_create(
-            name='General Fitness Classes', regular_session=True, index=3,
+            name='General Fitness Classes', display_on_site=True, order=300,
             defaults={
-                "info": """
+                "description": """
                     We offer a variety of more traditional fitness classes including Legs, Bums and Tums, 
                     Kettle Bells, Circuits and Gym Training, an all over body workout which uses equipment 
                     such as dumbbells, barbells and kettle bells, helps you learn the correct techniques and 

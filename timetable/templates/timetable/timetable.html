@@ -1,91 +1,96 @@
 {% extends "website/_base.html" %}
 {% load customtags %}
 
+{% block navscroll %}scroll{% endblock %}
+
+{% block title %}
+    {% include "website/includes/header.html" with title="Timetable" %}
+{% endblock %}
+
 {% block content %}
 
-    <div class="page-header" >
-        <h1>
-            Timetable
-        </h1>
+<section>
+    <div class="container mt-20">	
+        <span id="costs">
+        {% include 'website/includes/membership.html' %}
+        </span>
+        {% if future_events.privates %}
+        <p>
+            <strong>Looking for private lessons? <a href="{% url 'booking:private_list' %}">Check available times and book here</a></strong>
+        </p>
+        {% endif %}
+        {% if timetable_sessions %}
+
+            <form class="filter-row" action="" method="get">
+                <div class="row">
+                    <div class="col-12 col-sm">
+                        <strong>Show classes by: </strong>
+                    </div>
+                    <div class="col filter">{{ form.filtered_session_type }}</div>
+                    <div class="col"><input class="btn  btn-sunshine tra-sunshine-hover btn-xs" type="submit" value="Go" /></div>
+                </div>
+            </form>
+            </br>
+
+            {% if location_events|length > 1 %}
+            <ul class="nav nav-tabs" id="timetableTab" role="tablist">
+                {% for location in location_events %}
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link {% if tab == location.index %}active{% endif %}" id="nav-tab-{{ location.index }}" data-bs-toggle="tab" data-bs-target="#nav-{{ location.index }}" type="button" role="tab" aria-controls="nav-{{ location.index }}" aria-selected={% if tab == location.index %}"true"{% else %}"false"{% endif %}>{{ location.location }}</button>
+                </li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+
+
+            <div class="tab-content" id="timetableTabContent">
+                {% for location in location_events %} 
+                    <div class="tab-pane fade {% if tab == location.index %}show active{% endif %}" id="nav-{{ location.index }}" role="tabpanel" aria-labelledby="nav-tab-{{ location.index }}" tabindex="0">
+                        {% if not location.queryset %}
+                        <div class="ms-2 mt-2" >No classes at this location</div>
+                        {% else %}
+                            <div class="panel" style="background-color: rgba(230,230,230,0.6);">
+                                    <table class="table table-striped">
+                                        <thead>
+                                        <tr class="table-dark">
+                                            <th scope="col"></th>
+                                            <th scope="col">Day</th>
+                                            <th scope="col">Time</th>
+                                            <th scope="col" class="table-center">Class</th>
+                                            <th scope="col">Level</th>
+                                            <th scope="col">Venue</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        {% for session in location.queryset %}
+                                        <tr scope="row" class="table-light">
+                                            <td class="table-center timetable-row">
+                                                <a href="{% url 'booking:regular_session_list' %}?name={{session.name}}&level={{session.level}}&venue={{session.venue.abbreviation}}&day={{session.session_day}}&time={{session.start_time|date:'H:i'}}">
+                                                <div class="btn btn-sunshine btn-xs tra-sunshine-hover"><span class="text-dark">View Dates</span></div></a>
+                                            </td>
+                                            <td class="timetable-row">{{ session.session_day|format_day }}</td>
+                                            <td class="timetable-row">{{ session.start_time|time:"H:i" }}-{{ session.end_time|time:"H:i" }}</td>
+                                            <td class="table-center timetable-row">
+                                                {% if session.category %}
+                                                    <span class="badge badge-pill rounded-pill text-bg-{{ session.category.colour }}">
+                                                {% endif %}
+                                                    {{ session.name }} {% if session.members_only %}(Members only){% endif %}
+                                                </span></td>
+                                            <td class="timetable-row session-level-td">{{ session.level }}</td>
+                                            <td class="timetable-row">{{ session.venue.abbreviation }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                        </tbody>
+                                    </table>
+                            </div>
+                        {% endif%}
+                    </div>
+                {% endfor %}
+            </div>
+
+        {% else %}
+            <h4>Timetable not currently available</h4>
+        {% endif %}
     </div>
-
-    <span id="costs">
-    {% include 'website/includes/membership.html' %}
-    </span>
-    {% if future_events.privates %}
-    <p>
-        <strong>Looking for private lessons? <a href="{% url 'booking:private_list' %}">Check available times and book here</a></strong>
-    </p>
-    {% endif %}
-    {% if timetable_sessions %}
-
-        <form class="filter-row" action="" method="get">
-            <div class="row">
-                <div class="col-sm-2">
-                    <strong>Show classes by: </strong>
-                </div>
-                <div class="col-sm-2 filter">{{ form.filtered_session_type }}</div>
-                <div class="col-sm-2 filter">{{ form.filtered_venue }}</div>
-                <div class="col-sm-1"><input class="btn btn-warning btn-sm pt-0 pb-0" type="submit" value="Go" /></div>
-            </div>
-        </form>
-        </br>
-
-        <div>
-            <div class="panel" style="background-color: rgba(230,230,230,0.6);">
-                <div class="table-responsive">
-                    <table class="table">
-                        <thead>
-                        <tr class="table-heading">
-                            <th></th>
-                            <th>Day</th>
-                            <th>Time</th>
-                            <th class="table-center">Class</th>
-                            {% comment %} <th class="table-center">Cost
-                                <span data-toggle="tooltip" title="Drop-in Cost for members/non-members">
-                                    <i class="fas fa-info-circle"></i>
-                                </span>
-                            </th> {% endcomment %}
-                            <th>Level</th>
-                            <th>Venue</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {% for session in timetable_sessions %}
-                        <tr>
-                            <td class="table-center timetable-row">
-                                <a href="{% url 'booking:regular_session_list' %}?name={{session.name}}&level={{session.level}}&venue={{session.venue.abbreviation}}&day={{session.session_day}}&time={{session.start_time|date:'H:i'}}">
-                                <div class="btn btn-warning btn-sm pt-0 pb-0"><span class="text-dark">View Dates</span></div></a>
-                            </td>
-                            <td class="timetable-row">{{ session.session_day|format_day }}</td>
-                            <td class="timetable-row">{{ session.start_time|time:"H:i" }} - {{ session.end_time|time:"H:i" }}</td>
-                            <td class="table-center timetable-row">
-                                {% if session.category %}
-                                    <span class="badge badge-pill badge-{{ session.category.colour }}">
-                                {% endif %}
-                                    {{ session.name }} {% if session.members_only %}(Members only){% endif %}
-                                </span></td>
-                            {% comment %} <td class="table-center timetable-row">
-                                {% if session.members_only %}
-                                Membership only
-                                {% else %}
-                                £ {{ session.cost | format_cost }}
-                                {% endif %}
-                            </td> {% endcomment %}
-                            <td class="timetable-row session-level-td">{{ session.level }}</td>
-                            <td class="timetable-row">{{ session.venue.abbreviation }}</td>
-                        </tr>
-                        {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-    {% else %}
-        <h4>Timetable not currently available</h4>
-    {% endif %}
-</div>
-
-
+</section>
 {% endblock %}

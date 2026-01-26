@@ -1,178 +1,316 @@
 {% load static %}
-{% load bootstrap4 %}
+{% load django_bootstrap5 %}
 {% load cookielaw_tags %}
 
-
 <!DOCTYPE html>
-<head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>Sunshine Fitness</title>
 
-        <link rel="icon" type="image/jpg" href="{% static 'website/images/logo_no_text.jpg' %}">
-        <link rel="shortcut icon" href="{% static 'website/images/favicon.ico' %}" type="image/vnd.microsoft.icon">
+<html lang="en">
+	<head>
 
-        <!-- Bootstrap core CSS -->
-        {% bootstrap_css %}
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+		<meta name="description" content="Sunshine Fitness"/>
+		<meta name="keywords" content="Fitness, Pole Dance, Pole Fitness">	
+		<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+				
+  		<!-- SITE TITLE -->
+		<title>Sunshine Fitness</title>
+							
+		<!-- FAVICON AND TOUCH ICONS -->
+		<link rel="shortcut icon" href='{% static "website/images/favicon.ico" %}' type="image/x-icon">
+		<link rel="icon" href='{% static "website/images/favicon.ico" %}' type="image/x-icon">
+		<link rel="apple-touch-icon" href='{% static "website/images/apple-touch-icon.png" %}'>
+		<link rel="icon" href='{% static "website/images/apple-touch-icon.png" %}' type="image/x-icon">
 
-        <link href="{% static 'website/css/custom-v5.css' %}" rel="stylesheet">
-          <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
-          <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.13.2/themes/base/jquery-ui.min.css" integrity="sha512-ELV+xyi8IhEApPS/pSj66+Jiw+sOT1Mqkzlh8ExXihe4zfqbWkxPRi8wptXIO9g73FSlhmquFlUOuMSoXz5IRw==" crossorigin="anonymous" referrerpolicy="no-referrer" />         
-          <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.13.2/themes/base/theme.min.css" integrity="sha512-hbs/7O+vqWZS49DulqH1n2lVtu63t3c3MTAn0oYMINS5aT8eIAbJGDXgLt6IxDHcWyzVTgf9XyzZ9iWyVQ7mCQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-          {% block extrahead %}{% endblock %}
+		<!-- GOOGLE FONTS -->
+		<link href="https://fonts.googleapis.com/css2?family=Lustria&display=swap" rel="stylesheet">
+		<link href="https://fonts.googleapis.com/css2?family=Alex+Brush&display=swap" rel="stylesheet">	
+		<link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" rel="stylesheet">
 
-    </head>
-<body>
+		<!-- Bootstrap core CSS -->
+         {% bootstrap_css %}
 
-        <!-- Fixed navbar -->
-        <div class="navbar-wrap">
-        <div class="navbar navbar-expand-sm navbar-dark navbar-fixed" role="navigation">
-        <a class="navbar-brand p-0" href="/"><img class="nav-logo" src="{% static 'website/images/logo_no_text.jpg' %}"></a>
-        <div>
-            <span class="d-inline d-sm-none">
-                <a class="btn btn-warning btn-sm p-2" href="{% url 'booking:shopping_basket' %}">
-                    <span><i class="fas fa-shopping-cart"></i> <span class="badge badge-light" id="cart_item_menu_count_xs">{{ cart_item_count }}</span></span>
-                </a>
-            </span>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
-          <span class="navbar-toggler-icon"></span>
-        </button>
-        </div>
+        <!-- Custom CSS --> 
+           <link href="{% static 'website/css/custom-ng-v1.css' %}" rel="stylesheet">
+           <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
+           <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.13.2/themes/base/jquery-ui.min.css" integrity="sha512-ELV+xyi8IhEApPS/pSj66+Jiw+sOT1Mqkzlh8ExXihe4zfqbWkxPRi8wptXIO9g73FSlhmquFlUOuMSoXz5IRw==" crossorigin="anonymous" referrerpolicy="no-referrer" />         
+           <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.13.2/themes/base/theme.min.css" integrity="sha512-hbs/7O+vqWZS49DulqH1n2lVtu63t3c3MTAn0oYMINS5aT8eIAbJGDXgLt6IxDHcWyzVTgf9XyzZ9iWyVQ7mCQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+           {% block extrahead %}{% endblock %}
 
-        <div class="collapse navbar-collapse" id="navbarCollapse">
-          <ul class="nav navbar-nav mr-auto">
-            <li class="nav-item"><a class="nav-link{% if section == 'home' %} active{% endif %}" href="{% url 'website:home' %}">Home</a></li>
-            <li class="nav-item"><a class="nav-link{% if section == 'timetable' %} active{% endif %}" href="{% url 'timetable:timetable' %}">Timetable</a></li>
-            {% if membership_types %}
-            <li class="nav-item"><a class="nav-link{% if section == 'membership' %} active{% endif %}" href="{% url 'booking:membership_purchase' %}">Memberships</a>
-            {% endif %}
-            {% if gift_vouchers_available %}
-                <li class="nav-item"><a class="nav-link{% if section == 'gift_voucher' %} active{% endif %}" href="{% url 'booking:buy_gift_voucher' %}">Gift Vouchers</a>
-            {% endif %}
-            <li class="nav-item"><a class="nav-link{% if section == 'booking' %} active{% endif %}" href="{% url 'booking:regular_session_list' %}">Book</a></li>
-            <li class="nav-item"><a class="nav-link{% if section == 'contact' %} active{% endif %}" href="{% url 'website:contact' %}">Contact us</a></li>
-          </ul>
+		<!-- FONT ICONS -->
+		<link href="https://use.fontawesome.com/releases/v5.11.0/css/all.css" rel="stylesheet" crossorigin="anonymous">		
+		<link href='{% static "website/css/flaticon.css" %}' rel="stylesheet">
 
-         <ul class="nav navbar-nav pull-right">
-            {% if user.is_authenticated %}
-            <li class="d-none d-sm-inline">
-                <a class="btn btn-warning btn-sm p-2 mr-2" href="{% url 'booking:shopping_basket' %}">
-                  <span><i class="fas fa-shopping-cart"></i> <span class="badge badge-light" id="cart_item_menu_count">{{ cart_item_count }}</span></span>
-                </a>
-              </li>
-            <li class="dropdown dropleft float-right">
-                <a href="#" class="dropdown-toggle" data-toggle="dropdown">My account<b class="caret"></b></a>
-                <ul class="dropdown-menu float-right pl-2">
-                    <li class="nav-item"><a class="account-menu-option" href="{% url 'accounts:profile' %}">Profile</a></li>
-                    <li class="nav-item"><a class="account-menu-option" href="{% url 'account_change_password' %}">Change password</a></li>
-                    <div class="dropdown-divider"></div>
-                    <li class="nav-item"><a class="account-menu-option" href="{% url 'booking:bookings' %}">Bookings</a></li>
-                    <li class="nav-item"><a class="account-menu-option" href="{% url 'booking:booking_history' %}">Booking history</a></li>
-                    <li class="nav-item"><a class="account-menu-option" href="{% url 'booking:user_memberships' %}">Memberships</a></li>
-                    <li class="nav-item"><a class="account-menu-option" href="{% url 'booking:transactions' %}">Payment history</a></li>
-                    <div class="dropdown-divider"></div>
-                    <li class="nav-item"><a class="account-menu-option" href="{% url 'account_logout' %}">Log out</a></li>
+		<!-- PLUGINS STYLESHEET -->
+		<link href='{% static "website/css/menu.css" %}' rel="stylesheet">	
+		<link id="effect" href='{% static "website/css/dropdown-effects/fade-down.css" %}' media="all" rel="stylesheet">
+		<link href='{% static "website/css/tweenmax.css" %}' rel="stylesheet">	
+		<link href='{% static "website/css/magnific-popup.css" %}' rel="stylesheet">	
+		<link href='{% static "website/css/owl.carousel.min.css" %}' rel="stylesheet">
+		<link href='{% static "website/css/flexslider.css" %}' rel="stylesheet">
+		<link href='{% static "website/css/owl.theme.default.min.css" %}' rel="stylesheet">
+	
+		<!-- TEMPLATE CSS -->
+		<link href='{% static "website/css/sunshine-theme.css" %}' rel="stylesheet">
 
-                    {% if user.is_staff or user.is_superuser %}
-                        <div class="dropdown-divider"></div>
-                        <li class="nav-item"><a class="account-menu-option" href="{% url 'studioadmin:regular_session_register_list' %}">Instructor Admin</a></li>
+		<!-- RESPONSIVE CSS -->
+		<link href='{% static "website/css/responsive.css" %}' rel="stylesheet">
+        
+	</head>
+
+	<body>
+
+		{% comment %} {% block preloader %}{% endblock %} {% endcomment %}
+
+
+		<!-- PAGE CONTENT
+		============================================= -->	
+		<div id="page" class="page">
+
+            <div class="main-content">
+                <!-- HEADER
+                ============================================= -->
+                <header id="header" class="header tra-menu navbar-light">
+                    <div class="header-wrapper">
+
+
+                        <!-- MOBILE HEADER -->
+                        <div class="wsmobileheader clearfix">	  	
+                            <span class="smllogo">
+                                <a href="/"><img src='{% static "website/images/logo.jpg" %}' width="50" height="50" alt="mobile-logo"/></a>
+                                <span class="mobile-cart">
+                                    <a href="{% url 'booking:shopping_basket' %}" class="btn btn-tra-sunshine sunshine-hover p-2">
+                                        <i class="fas fa-shopping-basket me-0"></i> <span id="cart_item_menu_count_xs">{{ cart_item_count }}</span>
+                                    </a>
+                                </span>
+                            </span>
+
+                            <a id="wsnavtoggle" class="wsanimated-arrow"><span></span></a>	
+                        </div>
+
+
+                        <!-- NAVIGATION MENU -->
+                        <div class="wsmainfull menu clearfix {% block navscroll %}scroll{% endblock %}">
+                            <div class="wsmainwp clearfix">
+
+
+                                <!-- LOGO IMAGE -->
+                                <div class="desktoplogo"><a href="/" class="logo-black"><img src='{% static "website/images/logo-transparent.png" %}' width="50" height="50" alt="header-logo"></a></div>
+                                <div class="desktoplogo"><a href="/" class="logo-white"><img src='{% static "website/images/SunshineLogo-transparent-white.png" %}' width="auto" height="100" alt="header-logo"></a></div>
+
+
+                                <!-- MAIN MENU -->
+                                <nav class="wsmenu clearfix">
+                                    <ul class="wsmenu-list">
+
+                                        <!-- DROPDOWN MENU -->
+                                        {% if not legacy_homepage %}
+                                            <li aria-haspopup="true" id="nav-about"><a href="/">About <span class="wsarrow"></span></a>
+                                                <ul class="sub-menu">
+                                                    <li aria-haspopup="true"><a href="{% url 'website:session_types' %}">What we offer</a></li>
+                                                    <li aria-haspopup="true"><a href="{% url 'website:venues' %}">Venues</a></li>
+                                                    <li aria-haspopup="true"><a href="{% url 'website:faq' %}">FAQ</a></li>
+                                                    <li aria-haspopup="true"><a href="{% url 'website:contact' %}">Contact us</a></li>
+                                                </ul>
+                                            </li>	<!-- END DROPDOWN MENU -->
+                                        {% endif %}
+                                        
+                                        <!-- Dropdown for timetables only if >1 location -->
+                                        {% if timetable_locations|length > 1 %}
+                                            <!-- DROPDOWN MENU -->
+                                            <li aria-haspopup="true" id="nav-timetable"><a href="{% url 'timetable:timetable' %}">Timetable <span class="wsarrow"></span></a>
+                                                <ul class="sub-menu">
+                                                    {% for tab, location in timetable_locations %}
+                                                        <li aria-haspopup="true"><a href="{% url 'timetable:timetable' %}?tab={{ tab }}">{{ location}}</a></li>
+                                                    {% endfor %}		      
+                                                </ul>
+                                            </li>	<!-- END DROPDOWN MENU -->
+                                        {% else %}
+                                                <li id="nav-timetable" class="nl-simple" aria-haspopup="true"><a href="{% url 'timetable:timetable' %}">Timetable</a></li>
+                                        {% endif %}
+
+                                        <li id="nav-membership" class="nl-simple" aria-haspopup="true"><a href="{% url 'booking:membership_purchase' %}">Memberships</a></li>
+                                        <li id="nav-booking" class="nl-simple" aria-haspopup="true"><a href="{% url 'booking:regular_session_list' %}">Book a class</a></li>
+                                        {% if gift_vouchers_available %}
+                                            <li id="nav-gift_voucher" class="nl-simple" aria-haspopup="true"><a href="{% url 'booking:buy_gift_voucher' %}">Gift Vouchers</a>
+                                        {% endif %}
+
+                                        {% if user.is_anonymous %}
+                                            <li id="nav-login" class="nl-simple" aria-haspopup="true"><a href="{% url 'account_login' %}">Login</a></li>
+                                        {% else %}
+                                            <!-- MEGAMENU -->
+                                            <li id="nav-account" aria-haspopup="true"><a href="#">My Account <span class="wsarrow"></span></a>
+                                                <div class="wsmegamenu w-70 clearfix">
+                                                    <div class="container">
+                                                        <div class="row">
+
+                                                            <!-- MEGAMENU LINKS - ADMIN -->
+                                                            {% if user.is_staff or user.is_superuser %}
+                                                                <ul class="col-md-12 col-lg-4 link-list">
+                                                                    <li class="title txt-color-01"><p>Admin</p></li>
+                                                                    <li class="fst-li"><a href="{% url 'studioadmin:regular_session_register_list' %}">Instructor Admin</a></li>
+                                                                    {% if user.is_staff %}
+                                                                        <li><a href="{% url 'admin:index' %}">Site admin</a></li>
+                                                                    {% endif %}
+                                                                </ul>
+                                                            {% endif %}
+
+                                                            <!-- MEGAMENU LINKS -->
+                                                            <ul class="col-md-12 col-lg-4 link-list">
+                                                                <li class="title txt-color-01"><p>Account</p></li>
+                                                                <li class="fst-li"><a href="{% url 'accounts:profile' %}">Profile</a></li>
+                                                                <li><a href="{% url 'account_change_password' %}">Change password</a></li>
+                                                                <li><a href="{% url 'account_logout' %}">Logout</a></li>
+                                                            </ul>
+
+                                                            <!-- MEGAMENU LINKS -->
+                                                            <ul class="col-md-12 col-lg-4 link-list">
+                                                                <li class="title txt-color-01"><p>Activity</p></li>
+                                                                <li class="fst-li"><a href="{% url 'booking:bookings' %}">Bookings</a></li>					                 
+                                                                <li><a href="{% url 'booking:booking_history' %}">Booking History</a></li>
+                                                                <li><a href="{% url 'booking:user_memberships' %}">Memberships</a></li>
+                                                                <li><a href="{% url 'booking:transactions' %}">Payment History</a></li>			              
+                                                            </ul>
+                        
+                                                        </div>  <!-- End row -->	
+                                                    </div>  <!-- End container -->	
+                                                </div>  <!-- End wsmegamenu -->	
+                                            </li>	<!-- END MEGAMENU -->
+                                        {% endif %}
+
+                                        <!-- HEADER BUTTON  -->
+                                        {% if user.is_authenticated %}
+                                            <li class="nl-simple desktop-cart" aria-haspopup="true">
+                                                <a href="{% url 'booking:shopping_basket' %}" class="btn btn-sunshine tra-sunshine-hover last-link p-2">
+                                                    <i class="fas fa-shopping-basket me-0"></i> <span id="cart_item_menu_count">{{ cart_item_count }}</span>
+                                                    </a>
+                                                
+                                                </a>
+                                            </li>
+                                        {% endif %}
+
+
+                                        <!-- HEADER SOCIAL LINKS 															
+                                        <li class="nl-simple txt-color-03 header-socials clearfix" aria-haspopup="true">
+                                            <span><a href="#" class="ico-facebook"><i class="fab fa-facebook-f"></i></a></span>
+                                            <span><a href="#" class="ico-twitter"><i class="fab fa-twitter"></i></a></span>
+                                            <span><a href="#" class="ico-instagram"><i class="fab fa-instagram"></i></a></span>
+                                            <span><a href="#" class="ico-dribbble"><i class="fab fa-yelp"></i></a></span>	
+                                        </li> -->
+                                        
+
+                                    </ul>
+                                </nav>	<!-- END MAIN MENU -->
+
+                            </div>
+                        </div>	<!-- END NAVIGATION MENU -->
+
+
+                    </div>     <!-- End header-wrapper -->
+                </header>	<!-- END HEADER -->
+
+                {% cookielaw_banner %}
+
+                {% block title %}{% endblock %}
+                {% block anon_banner %}
+                    {% if user.is_anonymous %}
+                        <div class="message-container">
+                            <div class="message alert alert-anon p-4 mt-0">
+                                <div><span class="fas fa-sun"></span> <a href={% url 'account_login' %}?next={{request.get_full_path|urlencode }}>Log in</a> to book a class! <span class="fas fa-sun"></span></div>
+                            </div>
+                        </div>
                     {% endif %}
-                    {% if user.is_superuser %}
-                        <li class="nav-item"><a class="account-menu-option" href="{% url 'admin:index' %}">Site Admin</a></li>
+                {% endblock anon_banner %}
+                
+                {% block messages %}
+                    {% if messages %}
+                        <div class="message-container">
+                            {% for message in messages %}
+                            <div {% if message.tags and message.tags == 'error' %}
+                                        class="message alert alert-danger"
+                                {% elif message.tags %}
+                                        class="message alert alert-{{ message.tags }}"
+                                {% endif %}>
+                                {% if 'safe' in message.tags %}
+                                    {{ message|safe }}
+                                {% else %}
+                                    {{ message }}
+                                {% endif %}</div>
+                            {% endfor %}
+                        </div>
                     {% endif %}
-
-                </ul>
-            </li>
-            {% else %}
-            <li class="pull-right"><a href="{% url 'account_login' %}">Log in</a></li>
-            {% endif %}
-
-        </ul> 
-        </div>    
-
-    </div>
-    </div>
-
-<div class="wrapper">
-    <main role="main" class="container-fluid">
-
-        {% cookielaw_banner %}
-
-        {% block anon_banner %}
-            {% if user.is_anonymous %}
-                <div class="mb-4">
-                    <div class="message alert alert-anon p-4">
-                        <div><span class="fas fa-sun"></span> <a href={% url 'account_login' %}?next={{request.get_full_path|urlencode }}>Log in</a> to book a class! <span class="fas fa-sun"></span></div>
-                    </div>
+                {% endblock %}
+                
+                <div {% block content_class %}{% endblock %}>
+                {% block content %}{% endblock content %}
                 </div>
-            {% endif %}
-        {% endblock anon_banner %}
-
-        {% if messages %}
-            <div class="extra-top-margin col-12">
-                {% for message in messages %}
-                <div {% if message.tags and message.tags == 'error' %}
-                            class="message alert alert-danger"
-                     {% elif message.tags %}
-                            class="message alert alert-{{ message.tags }}"
-                     {% endif %}>
-                    {% if 'safe' in message.tags %}
-                        {{ message|safe }}
-                    {% else %}
-                        {{ message }}
-                    {% endif %}</div>
-                {% endfor %}
+                
             </div>
-        {% endif %}
-
-        <div class="container-fluid">
-        {% block content %}
-        <p>You need to define a content block!</p>
-        {% endblock %}
-        </div>
-
-
-    </main> 
-    </div>
-
-    <footer class="footer">
-            <span class="divider"></span>
-
-        <div class="container-fluid">
-            <div class="row footer_box">
-                <div class="col-4 float-left">
-                    <div class="footer-fb">
-                    <a href="https://www.facebook.com/sunshinefitnessfife">
-                        <span class="fab fa-facebook-square"></span>
-                    </a>
-                    <a href="https://www.instagram.com/sunshinefitnessfife">
-                        <span class="fab fa-instagram"></span>
-                    </a>
-                    </div>
-                    <div class="footer-credit"><a href="{% url 'data_privacy_policy' %}">Data Privacy Policy</a></div>
-                </div>
-                <div class="col-4 text-center">
-		            <a class="footer-link" href="{% url 'website:contact' %}">Contact us</a> | <a href="{% url 'website:faq' %}">FAQ</a>
-                </div>
-                <div class="col-4 float-right">
-                        <div class="footer-credit float-right">Site developed by <a href="https://twitter.com/rebkwok" target="_blank" style="color: #0B0B61">Becky Smith</a></div>
-                </div>
-
-            </div>
-        </div>
-    </footer>
-
-</body>
+			
+			<!-- FOOTER-1
+			============================================= -->
+            <footer id="footer-1" class="bg-color-01 footer division">
+				<div class="container">
+                    
+                    {% block extra_footer %}
+                    {% endblock %}
 
 
-    {% bootstrap_javascript jquery=3 %}
+					<!-- BOTTOM FOOTER -->
+					<div class="bottom-footer txt-color-05">
+						<div class="row d-flex align-items-center">
 
-    <div id="fb-root"></div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.13.2/jquery-ui.min.js" integrity="sha512-57oZ/vW8ANMjR/KQ6Be9v/+/h6bq9/l3f0Oc7vn6qMqyhvPd1cvKBRWWpzu0QoneImqr2SkmO4MSqU+RpHom3Q==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>    <script src="{% static 'website/js/custom-v3.js' %}"></script>
-    <script src="{% static 'website/js/ajax_csrf.js' %}"></script>
-    <script type="text/javascript" src="{% static 'cookielaw/js/cookielaw.js' %}"></script>
+							<!-- BOTTOM FOOTER LINKS -->
+							<div>
+								<ul class="bottom-footer-list text-right clearfix">
+									<li><p class="first-list-link"><a href="https://www.facebook.com/profile.php?id=100078690747041"><i class="fab fa-facebook-f"></i> Facebook</a></p></li>	
+                                    <li><p class="list-link"><a href="https://www.instagram.com/sunshine_fife/"><i class="fab fa-instagram"></i> Instagram</a></p></li>
+                                    <li><p class="list-link"><a href="{% url 'website:faq' %}">FAQ</a></p></li>
+                                    <li><p class="list-link"><a href="{% url 'data_privacy_policy' %}">Data Privacy Policy</a></p></li>
+                                    <li><p class="last-li"><a href="{% url 'website:contact' %}">Contact</a></p></li>
+                                </ul>
+							</div>
 
-    {% block extrascripts %}{% endblock %}
 
-</html>
+						</div>  <!-- End row -->
+					</div>	<!-- END BOTTOM FOOTER -->
+
+
+				</div>	   <!-- End container -->										
+			</footer>	<!-- END FOOTER-1 -->
+
+		</div>	<!-- END PAGE CONTENT -->
+
+
+
+
+		<!-- EXTERNAL SCRIPTS
+		============================================= -->
+        <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+        {% bootstrap_javascript %}
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.13.2/jquery-ui.min.js" integrity="sha512-57oZ/vW8ANMjR/KQ6Be9v/+/h6bq9/l3f0Oc7vn6qMqyhvPd1cvKBRWWpzu0QoneImqr2SkmO4MSqU+RpHom3Q==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>    
+
+		<!-- Custom Script -->		
+        <script src="{% static 'website/js/custom-v3.js' %}"></script>
+        <script src="{% static 'website/js/ajax_csrf.js' %}"></script>
+        <script type="text/javascript" src="{% static 'cookielaw/js/cookielaw.js' %}"></script>
+        <script src='{% static "website/js/menu.js" %}'></script>	
+
+        <script>
+            jQuery(document).ready(function($) {
+                $.fn.bootstrapBtn = $.fn.button.noConflict();
+                var section_id = "#nav-{{ section }}"
+                var active_section = $(section_id)
+                console.log(section_id);
+                active_section.addClass("active")
+            });
+        </script>
+
+        {% block extrascripts %}{% endblock %}
+
+	</body>
+
+
+
+</html>	

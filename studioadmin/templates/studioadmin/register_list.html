@@ -16,8 +16,8 @@
     </div>
     <div class="row">
     {% if events %}
-        <table class="table table-responsive table-striped order-column" id="sortedRegisterTable">
-                <thead class="thead-dark">
+        <table class="table table-striped order-column" id="sortedRegisterTable">
+                <thead class="table-dark">
                 <tr>
                     <th>Date</th>
                     <th>{% if type == 'workshop' %}Workshop{% else %}Class{% endif %}<br/>
@@ -35,7 +35,7 @@
                         <a href="{% url 'studioadmin:event_register' event.slug %}">{{ event.name }}</a>
                     </td>
                     <td class="table-center">
-                        <span class="badge badge-pill badge-admin-waiting-list {% if event.spaces_left == 0 %}badge-secondary{% else %}badge-success{% endif %}">
+                        <span class="badge rounded-pill badge-admin-waiting-list {% if event.spaces_left == 0 %}bg-secondary{% else %}bg-success{% endif %}">
                         {{ event|bookings_count }}{% if event.max_participants %}/{{ event.max_participants }}{% endif %}</td>
                         </span>
                     <td class="table-center">

@@ -1,57 +1,683 @@
 {% extends 'website/_base.html' %}
+
 {% load static %}
 
-{% block bg_class %}plain_bg{%  endblock %}
+{% block anon_banner %}{% endblock %}
+
+{% block preloader %}
+<!-- PRELOADER SPINNER
+		============================================= -->	
+		<div id="loader-wrapper">
+			<div id="loading">
+				<div class="cssload-loader">
+					<div class="fancy-spinner">
+					  	<div class="ring"></div>
+					  	<div class="ring"></div>
+					  	<div class="dot"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+{% endblock %}
+
+
+{% block navscroll %}{% endblock %}
+
+<!-- no messages on homepage -->	
+{% block messages %}
+	{% for message in messages %}
+		<span style="display: none;">{{ message }}</span>
+	{% endfor %}
+{% endblock %}
 
 {% block content %}
 
-<div class="container">
-
-        <div class="row">
-			<div class="col-12">
-                <h1 class="page-header">Sunshine Fitness</h1>
-            </div>
-            <div class="col-12">
-            <img class="img-fluid" src="{% static 'website/images/double_logo.jpg' %}" />
-            </div>
-            <div class="col-12">
-                <p>
-                    At Sunshine Fitness we offer fitness classes, personal training, one to ones and pride ourselves on bringing you
-                    the highest quality pole dancing classes from the beautiful Sunshine Pole Studio. We run an all-inclusive,
-                    safe environment, with a "come as you are" ethos!
-                </p>
-
-                <h2>Follow us</h2>
-                <p><a href="https://www.instagram.com/sunshinefitnessfife">
-                    <span class="text-warning fab fa-instagram fa-2x mr-2"></span> 
-                </a>
-                <a href="https://www.facebook.com/sunshinefitnessfife">
-                    <span class="text-primary fab fa-facebook fa-2x"></span>
-                </a></p>
-                <p>#SunshineFitnessFife</p>
+	<!-- HERO-12
+	============================================= -->	
+	<section id="hero-12" class="hero-section bg-video video-play">
+		<div class="bg-fixed hero-overlay division">
+			<div class="container">	
+				<div class="row">	
 
 
-                <hr>
-                <h2>Classes</h2>
-                <p>Check out the <a href="{% url 'timetable:timetable' %}">timetable</a>, <a href={% url 'booking:regular_session_list' %}>book a class</a> or <a href="{% url 'website:contact' %}">contact us</a> for any other enquires.</p>
-                {% if future_events.privates %}
-                <p>Private lessons are also available; check available times and book <a href="{% url 'booking:private_list' %}">here</a>.<p>
-                <hr>    
-                {% endif %}
-                {% if class_types %}
-                    {% for class_type in class_types %}
-                        <h3>{{ class_type.name }}</h3>
-                        <p>{{ class_type.info }}
-                    {% endfor %}
+					<!-- TEXT ROTATOR -->
+					<div class="col-md-12 text-center">
+						<div class="hero-txt-rotator">											
+							<ul class="slides white-color">
 
-                {% endif %}
-                <hr>
 
-                {% include 'website/includes/membership.html' %}
+								<!-- SLIDE #1 -->
+								<li class="caption">
+									<div class="caption-txt">
+										
+										<!-- Title -->
+										<h2>Sunshine Fitness</h2>
 
+										<!-- Text -->
+										<p>Pole and fitness studio based in Fife</p>
+
+										<!-- Button -->
+										<a href="{% url 'website:session_types' %}" class="btn btn-md btn-sunshine tra-white-hover">Discover More</a>											
+									</div>
+								</li>	  <!-- END SLIDE #1 -->
+
+
+								<!-- SLIDE #2 -->
+								<li class="caption">
+									<div class="caption-txt">
+										
+										<!-- Title -->
+										<h2>Pole Dance</h2>
+
+										<!-- Text -->
+										<p>Feugiat primis ligula gravida auctor egestas augue viverra mauri tortor in iaculis a 
+											placerat eugiat mauris ipsum integer odio velna
+										</p>
+
+										<!-- Button -->
+										<a href="{% url 'timetable:timetable' %}" class="btn btn-md btn-sunshine tra-white-hover">Timetable</a>
+											
+									</div>
+								</li>	  <!-- END SLIDE #2 -->
+
+
+								<!-- SLIDE #3 -->
+								<li class="caption">
+									<div class="caption-txt">
+										
+										<!-- Title -->
+										<h2>Workshops</h2>
+
+										<!-- Text -->
+										<p>Feugiat primis ligula gravida auctor egestas augue viverra mauri tortor in iaculis a 
+											placerat eugiat mauris ipsum integer odio velna
+										</p>
+
+										<!-- Button -->
+										<a href="{% url 'booking:workshop_list' %}" class="btn btn-md btn-sunshine tra-white-hover">Book Now</a>
+											
+									</div>
+								</li>	  <!-- END SLIDE #3 -->	
+
+
+							</ul>
+						</div>
+					</div>	<!-- END TEXT ROTATOR -->
+			
+			
+				</div>    <!-- End row -->
+			</div>     <!-- End container -->
+		</div>	   <!-- End Hero Overlay -->	
+	</section>	<!-- END HERO-12 -->
+
+	
+	<!-- SERVICES-10
+	============================================= -->
+	<section id="services-10" class="bg-color-01 wide-60 services-section division">
+		<div class="container">
+
+
+			<!-- SECTION TITLE -->	
+			<div class="row">	
+				<div class="col-lg-10 offset-lg-1">
+					<div class="section-title mb-60 text-center">	
+
+						<!-- Transparent Header -->	
+						<h2 class="tra-header txt-sunshine">Welcome To</h2>	
+
+						<!-- Title 	-->	
+						<h3 class="h3-xl txt-color-01">Sunshine Fitness</h3>		
+
+						<!-- Text -->	
+						<p class="p-lg txt-color-05">Pole and fitness studio based in Kelty, Fife.
+						</p>
+							
+					</div>	
+				</div>
+			</div>
+
+
+			<!-- SERVICES-10 WRAPPER -->
+			<div class="sbox-10-wrapper">
+				<div class="row">
+
+
+					<!-- SERVICE BOX #1 -->
+					<div class="col-md-6 col-lg-3">
+						<div class="sbox-10 bg-white text-center">
+							
+							<!-- Image -->
+							<div class="sbox-10-img">
+								<div class="hover-overlay"> 
+									<img class="img-fluid" src="{% static 'website/images/logo-icon.png' %}" height="50px" alt="service-image" />	
+								</div>
+							</div>
+
+							<!-- Text -->
+							<div class="sbox-10-txt">
+
+								<!-- Title -->
+								<h5 class="h5-sm txt-color-01">What we offer</h5>
+
+								<!-- Text -->	
+								<p class="txt-color-05">Pole classes and more</p>	
+
+								<!-- Button -->
+								<a href="{% url 'website:session_types' %}" class="btn p-sm btn-tra-sunshine sunshine-hover">Find Out More</a> 
+
+							</div>
+
+						</div>							
+					</div>
+
+
+					<!-- SERVICE BOX #2 -->
+					<div class="col-md-6 col-lg-3">
+						<div class="sbox-10 bg-white text-center">
+							
+							<!-- Image -->
+							<div class="sbox-10-img">
+								<div class="hover-overlay"> 
+									<img class="img-fluid" src="{% static 'website/images/logo-icon1.png' %}" alt="service-image" />	
+								</div>
+							</div>
+
+							<!-- Text -->
+							<div class="sbox-10-txt">
+
+											
+								<!-- Title -->
+								<h5 class="h5-sm txt-color-01">Timetable</h5>
+
+								<!-- Text -->	
+								<p class="txt-color-05">Regular scheduled classes</p>		
+
+								<!-- Button -->
+								<a href="{% url 'timetable:timetable' %}" class="btn p-sm btn-tra-sunshine sunshine-hover">View now</a> 
+
+							</div>						
+						
+						</div>							
+					</div>
+
+
+					<!-- SERVICE BOX #3 -->
+					<div class="col-md-6 col-lg-3">
+						<div class="sbox-10 bg-white text-center">
+							
+							<!-- Image -->
+							<div class="sbox-10-img">
+								<div class="hover-overlay"> 
+									<img class="img-fluid" src="{% static 'website/images/logo-icon.png' %}" alt="service-image" />	
+								</div>
+							</div>
+
+							<!-- Text -->
+							<div class="sbox-10-txt">
+
+								<!-- Title -->
+								<h5 class="h5-sm txt-color-01">Venues</h5>
+
+								<!-- Text -->	
+								<p class="txt-color-05">Where we are</p>	
+
+								<!-- Button -->
+								<a href="{% url 'website:venues' %}" class="btn p-sm btn-tra-sunshine sunshine-hover">Find Out More</a> 	
+
+							</div>
+
+						</div>							
+					</div>	
+
+
+					<!-- SERVICE BOX #4 -->
+					<div class="col-md-6 col-lg-3">
+						<div class="sbox-10 bg-white text-center">
+							
+							<!-- Image -->
+							<div class="sbox-10-img">
+								<div class="hover-overlay"> 
+									<img class="img-fluid" src="{% static 'website/images/logo-icon1.png' %}" alt="service-image" />	
+								</div>
+							</div>
+
+							<!-- Text -->
+							<div class="sbox-10-txt">
+
+								<!-- Title -->
+								<h5 class="h5-sm txt-color-01">Memberships</h5>
+
+								<!-- Text -->	
+								<p class="txt-color-05">Monthly memberships</p>		
+
+								<!-- Button -->
+								<a href="{% url 'booking:membership_purchase' %}" class="btn p-sm btn-tra-sunshine sunshine-hover">Find Out More</a> 		
+
+							</div>
+
+						</div>							
+					</div>
+
+
+				</div>  <!-- End row -->	
+			</div>	<!-- END SERVICES-10 WRAPPER -->
+
+
+		</div>	   <!-- End container -->
+	</section>	<!-- END SERVICES-10 -->
+
+
+	<!-- ABOUT-2
+	============================================= -->
+	<section id="about-2" class="bg-color-01 wide-60 about-section division">
+		<div class="container">
+			<div class="row d-flex align-items-center m-row">
+
+
+				<!-- TEXT BLOCK -->	
+				<div class="col-md-8 col-lg-7 m-bottom">
+					<div class="txt-block left-column pc-15 mb-40">
+
+						<!-- Title -->	
+						<h3 class="h3-md txt-color-01">About us</h3>
+
+						<!-- Text -->
+						<p class="txt-color-05">At Sunshine Fitness we offer fitness classes, personal training, one to ones and pride ourselves on bringing you the highest quality pole dancing classes from the beautiful Sunshine Pole Studio. We run an all-inclusive, safe environment, with a "come as you are" ethos! 
+						</p>
+
+						<!-- List -->	
+						<ul class="txt-list txt-color-05">
+
+							<li class="list-item">
+								<i class="fas fa-genderless"></i>
+								<p>Fringilla risus nec, luctus mauris  orci auctor purus euismod at pretium purus
+									pretium ligula rutrum tempor sapien
+								</p>
+							</li>
+
+							<li class="list-item">
+								<i class="fas fa-genderless"></i>
+								<p>Nemo ipsam egestas volute turpis dolores ut aliquam quaerat sodales sapien
+									undo pretium purus
+								</p>
+							</li>
+
+						</ul>
+
+					</div>
+				</div>	<!-- END TEXT BLOCK -->	
+
+
+				<!-- IMAGE BLOCK -->
+				<div class="col-md-4 col-lg-5 m-top">
+					<div class="img-block img-rounded right-column pc-15 mb-40">
+						<img class="img-fluid" src="{% static 'website/images/studio.jpg' %}" alt="about-image">
+					</div>
+				</div>
+
+
+			</div>	  <!-- End row -->	
+		</div>	   <!-- End container -->
+	</section>	<!-- END ABOUT-2 -->
+
+
+	<!-- SERVICES-1
+	============================================= -->
+	<section id="services-1" class="bg-color-02 wide-60 services-section division">
+		<div class="container">
+
+
+			<!-- SECTION TITLE -->	
+			<div class="row">	
+				<div class="col-lg-10 offset-lg-1">
+					<div class="section-title mb-60 text-center">	
+
+						<!-- Transparent Header -->	
+						<h2 class="tra-header txt-sunshine">Our ethos</h2>	
+
+						<!-- Title 	-->	
+						<h3 class="h3-xl txt-color-01">Come as you are</h3>	
+
+						<!-- Text -->	
+						<p class="p-lg txt-color-05">This means you do not need to shave, lose weight, gain fitness or strength or change
+							in any way to attend our classes. Sunshine is for absolutely anyone and we are a safe and inclusive environment
+							for you to be 100% your authentic self.
+						</p>
+							
+					</div>	
+				</div>
+			</div>
+
+
+		</div>	   <!-- End container -->
+	</section>	<!-- END SERVICES-1 -->
+
+
+
+
+			<!-- TEAM-1
+			============================================= -->
+			<section id="team-1" class="bg-color-01 wide-60 team-section division">
+				<div class="container">
+
+
+					<!-- SECTION TITLE -->	
+					<div class="row">	
+						<div class="col-lg-10 offset-lg-1">
+							<div class="section-title mb-60 text-center">	
+
+								<!-- Transparent Header -->	
+								<h2 class="tra-header txt-color-02">Our Team</h2>	
+
+								<!-- Title 	-->	
+								<h3 class="h3-xl txt-color-01">Meet the team</h3>	
+
+								<!-- Text -->	
+								<p class="p-lg txt-color-05">Aliquam a augue suscipit, luctus neque purus ipsum neque undo dolor 
+								   primis libero tempus, blandit a cursus varius at magna tempor
+								</p>
+									
+							</div>	
+						</div>
+					</div>
+
+
+					<!-- TEAM MEMBERS WRAPPER -->
+			 		<div class="tm-wrapper">
+						<div class="row">	
+
+							{% for team_member in team_members %}
+
+							<!-- TEAM MEMBER #1 -->
+								<div class="col-md-6 col-lg-3">	
+									<div class="team-member">
+
+										<!-- Team Member Photo -->
+										<div class="team-member-photo">
+											<div class="hover-overlay"> 
+												{% if team_member.photo %}
+													<img class="img-fluid" src="{{ team_member.photo.url }}" alt="team-member-foto">
+												{% else %}
+													{% comment %} logo as placeholder {% endcomment %}
+													<img class="img-fluid" src="{% static 'website/images/logo-icon.png' %}" alt="service-image" />
+												{% endif %}
+												<!-- Social Icons -->
+												<div class="tm-social clearfix">
+													<ul class="text-center clearfix">
+														{% if team_member.facebook %}																	
+														<li><a href="{{ team_member.facebook }}" class="ico-facebook"><i class="fab fa-facebook-f"></i></a></li>
+														{% endif %}
+														{% if team_member.instagram %}
+														<li><a href="{{ team_member.instagram }}" class="ico-instagram"><i class="fab fa-instagram"></i></a></li>
+														{% endif %}
+													</ul>
+												</div>	
+
+											</div>
+										</div>
+
+										<!-- Team Member Meta -->		
+										<div class="tm-meta">
+											<h6 class="h6-lg txt-color-01">{{ team_member.name }}</h6>
+											<span class="txt-color-06">{{ team_member.role }}</span>
+											<span class="txt-color-01 bio">{{ team_member.bio | linebreaks }}</span>
+										</div>
+
+									</div>
+								</div>
+							{% endfor %}
+
+
+						</div>	<!-- End row -->
+					</div>	<!-- END TEAM MEMBERS WRAPPER -->
+
+
+				</div>	   <!-- End container -->	
+			</section>	<!-- END TEAM-1 -->
+
+
+
+
+	<!-- GALLERY-1
+	============================================= -->
+	<section id="gallery-1" class="bg-color-01 wide-100 gallery-section division">
+		<div class="container">
+
+
+			<!-- SECTION TITLE -->	
+			<div class="row">	
+				<div class="col-lg-10 offset-lg-1">
+					<div class="section-title mb-60 text-center">	
+
+						<!-- Transparent Header -->	
+						<h2 class="tra-header txt-sunshine">A snapshot of Sunshine</h2>	
+
+						<!-- Title 	-->	
+						<h3 class="h3-xl txt-color-01">Gallery</h3>	
+
+						<!-- Text -->	
+						<p class="p-lg txt-color-05">
+						</p>
+							
+					</div>	
+				</div>
+			</div>
+
+
+			<!-- GALLERY FILTERING BUTTONS -->
+			<div class="row">
+				<div class="col-md-12 text-center">
+					<div class="masonry-filter mb-40">
+						<button data-filter="*" class="is-checked">All</button>
+						{% for category in gallery_categories %}
+							<button data-filter=".{{ category|lower }}">{{ category }}</button>
+						{% endfor %}
+					</div>
+				</div>
+			</div>
+
+
+			<!-- GALLERY IMAGES HOLDER -->
+			<div class="row">	
+				<div class="col-md-12 gallery-items-list">
+					<div class="masonry-wrap grid-loaded">
+
+						{% for gallery_image in gallery_images %}
+						<!-- IMAGE -->
+						<div class="masonry-item {{ gallery_image.category|lower }}">
+							<div class="hover-overlay"> 
+
+								<!-- Image -->
+								<img class="img-fluid" src="{{ gallery_image.photo.url }}" alt="gallery-image" />			
+								<div class="item-overlay"></div>
+
+								<!-- Image Description -->
+								<div class="image-description white-color">
+									<div class="image-data">
+
+										<!-- Image Link -->
+										<h5 class="h5-sm"><a class="image-link" href="{{ gallery_image.photo.url }}">{{ gallery_image.caption_title }}</a></h5>		
+
+										<!-- Project Meta -->
+										{% if gallery_image.caption_subtitle %}
+											<p>{{ gallery_image.caption_subtitle }}</p>
+										{% endif %}	
+									</div>																										 
+								</div> 
+
+							</div>
+						</div>	<!-- END IMAGE -->	
+						{% endfor %}
+
+					</div>
+				</div>	
+			</div>	 <!-- END GALLERY IMAGES HOLDER -->
+
+
+		</div>	   <!-- End container -->	
+	</section>	<!-- END GALLERY-1 -->
+
+
+	<!-- TESTIMONIALS-1
+	============================================= -->
+	<section id="testimonials" class="bg-color-02 wide-100 reviews-section division">
+		<div class="container">
+
+
+			<!-- SECTION TITLE -->	
+			<div class="row">	
+				<div class="col-lg-10 offset-lg-1">
+					<div class="section-title mb-60 text-center">	
+
+						<!-- Transparent Header -->	
+						<h2 class="tra-header txt-sunshine">Testimonials</h2>	
+
+						<!-- Title 	-->	
+						<h3 class="h3-xl txt-color-01">What Our Students Say</h3>	
+
+						<!-- Text -->	
+						<p class="p-lg txt-color-05">Read some reviews from our students below.
+						</p>
+							
+					</div>	
+				</div>
+			</div>
+		
+			
+			<!-- TESTIMONIALS CONTENT -->
+			<div class="row">
+				<div class="col-md-12">					
+					<div class="owl-carousel owl-theme reviews-wrapper">
+
+						{% for testimonial in testimonials %}
+				
+							<!-- TESTIMONIAL #1 -->
+							<div class="review-1">
+								
+								<!-- Testimonial Author Avatar -->
+								<div class="testimonial-avatar">
+									<img src="{% static 'website/images/logo-round.png' %}" alt="testimonial-avatar">
+								</div>
+
+								<!-- Testimonial Author -->
+								<div class="author-data txt-color-01">
+									<h6 class="h6-sm">{{ testimonial.display_name }}</h6>	
+									{% if testimonial.occupation %}
+										<p class="p-sm" >{{ testimonial.occupation }}</p>
+									{% endif %}
+								</div>
+																								
+								<!-- Testimonial Text -->
+								<div class="review-1-txt txt-color-05">
+									<p>{{ testimonial.review }}</p>															
+								</div>	
+														
+							</div>
+						
+						{% endfor %}
+					
+					</div>
+				</div>									
+			</div>	<!-- END TESTIMONIALS CONTENT --> 
+					
+				
+		</div>	   <!-- End container -->
+	</section>	 <!-- END TESTIMONIALS-1 -->
+
+{% endblock content %}
+
+{% block extra_footer %}
+	<!-- FOOTER CONTENT -->
+	<div class="row">
+
+
+		<!-- FOOTER INFO -->
+		<div class="col-md-6 col-lg-4 col-xl-5">
+			<div class="footer-info mb-40">
+
+				<!-- For Retina Ready displays take a image with double the amount of pixels that your image will be 
+				displayed (e.g 408 x 120  pixels) -->
+				<img src='{% static "website/images/logo-transparent.png" %}' width="100" height="100" alt="footer-logo">
+
+				<!-- Footer Contacts -->
+				<div class="footer-contacts txt-color-05 mt-25">
+
+					<!-- Address -->
+					<p>Moray Institute</p>
+					<p>92 Main Street</p>
+					<p>Kelty</p>
+					<p>KY4 OAQ</p> 
+
+					<!-- Email -->
+					<p class="foo-email">E: <a href="mailto:sunshinefitnessfife@gmail.com">sunshinefitnessfife@gmail.com.</a></p>
+
+				</div>
+
+			</div>	
+		</div>	
+
+
+		<!-- FOOTER LINKS -->
+		<div class="col-md-3 col-lg-3">
+			<div class="footer-links mb-40">
+			
+				<!-- Title -->
+				<h6 class="h6-lg txt-color-01">About Us</h6>
+
+				<!-- Footer Links -->
+				<ul class="clearfix txt-color-05">
+					<li><p><a href="{% url 'website:contact' %}">Contact Us</a></p></li>	
+					<li><p><a href="#testimonials">Testimonials</a></p></li>	
+				</ul>
+
+			</div>
 		</div>
-    </div>
 
-</div>  <!-- container-fluid -->
 
+		<!-- FOOTER LINKS -->
+		<div class="col-md-3 col-lg-3">
+			<div class="footer-links mb-40">
+			
+				<!-- Title -->
+				<h6 class="h6-lg txt-color-01">Useful Links</h6>
+
+				<!-- Footer List -->
+				<ul class="clearfix txt-color-05">									
+					<li><p><a href="{% url 'website:venues' %}">Location</a></p></li>																	
+					<li><p><a href="{% url 'website:faq' %}">Help & FAQs</a></p></li>
+					<li><p><a href="{% url 'timetable:timetable' %}">Timetable</a></p></li>
+					<li><p><a href="{% url 'booking:membership_purchase' %}">Membership</a></p></li>	
+					<li><p><a href="{% url 'booking:regular_session_list' %}">Book a class</a></p></li>						
+				</ul>
+
+			</div>
+		</div>
+
+
+	</div>	  <!-- END FOOTER CONTENT -->
+{% endblock %}
+
+{% block extrascripts %}
+	<script src='{% static "website/js/home.js" %}'></script>
+	<script src='{% static "website/js/modernizr.custom.js" %}'></script>
+	<script src='{% static "website/js/jquery.easing.js" %}'></script>
+	<script src='{% static "website/js/jquery.appear.js" %}'></script>
+	<script src='{% static "website/js/materialize.js" %}'></script>
+	<script src='{% static "website/js/tweenmax.min.js" %}'></script>	
+	<script src='{% static "website/js/slideshow.js" %}'></script>	
+	<script src='{% static "website/js/jquery.vide.min.js" %}'></script>
+	<script src='{% static "website/js/imagesloaded.pkgd.min.js" %}'></script>
+	<script src='{% static "website/js/isotope.pkgd.min.js" %}'></script>
+	<script src='{% static "website/js/jquery.flexslider.js" %}'></script>
+	<script src='{% static "website/js/owl.carousel.min.js" %}'></script>
+	<script src='{% static "website/js/jquery.magnific-popup.min.js" %}'></script>
+
+	<script>
+		jQuery(document).ready(function($) {
+			$('.video-play').vide('{% static "website/images/video/sunshine" %}', {
+				posterType: "png",
+				playbackRate: 0.75,
+			});
+		});
+	</script>
 {% endblock %}

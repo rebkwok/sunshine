@@ -51,30 +51,30 @@
         </div>
     </div>
     <hr>
-            <div class="text-muted">
-                <div class="col-12">
-                    <a href="javascript:window.print()" id="print-button" alt="print this page" class="btn btn-outline-warning">Print voucher</a>
-                </div>
+    <div class="text-muted ml-10">
+        <div class="col-12">
+            <a href="javascript:window.print()" id="print-button" alt="print this page" class="btn btn-tra-sunshine sunshine-hover">Print voucher</a>
+        </div>
 
-                <div class="col-12">
-                    <h5>Voucher Instructions</h5>
-                    <ol>
-                        <li>Log in to <a href="sunshinefitness.co.uk">sunshinefitness.co.uk</a></li>
-                        {% if voucher.membership_types.exists %}
-                        <li>Go to Memberships and select {% if voucher.membership_types.count > 1 %}a{% else %}the{% endif %} membership type listed above</li>
-                        {% endif %}
-                        {% if voucher.event_types %}
-                        <li>Go to Book and add items to shopping basket</li>
-                        {% endif %}
-                        {% if not voucher.membership_types and not voucher.event_types %}
-                            <li>Go to Memberships or Book to add items to shopping basket</li>
-                            <li>Note that no change is given from vouchers</li>
-                        {% endif %}
-                        <li>On the Shopping Basket page, enter your voucher code and click Apply</li>
-                        <li>If you are only purchasing items covered by the voucher type/amount, the total will now be £0. Click Submit to complete your purchase.</li>
-                    </ol>
-                </div>
+        <div class="col-12">
+            <h5>Voucher Instructions</h5>
+            <ol>
+                <li>Log in to <a href="sunshinefitness.co.uk">sunshinefitness.co.uk</a></li>
+                {% if voucher.membership_types.exists %}
+                <li>Go to Memberships and select {% if voucher.membership_types.count > 1 %}a{% else %}the{% endif %} membership type listed above</li>
+                {% endif %}
+                {% if voucher.event_types %}
+                <li>Go to Book and add items to shopping basket</li>
+                {% endif %}
+                {% if not voucher.membership_types and not voucher.event_types %}
+                    <li>Go to Memberships or Book to add items to shopping basket</li>
+                    <li>Note that no change is given from vouchers</li>
+                {% endif %}
+                <li>On the Shopping Basket page, enter your voucher code and click Apply</li>
+                <li>If you are only purchasing items covered by the voucher type/amount, the total will now be £0. Click Submit to complete your purchase.</li>
+            </ol>
+        </div>
 
-            </div>
     </div>
+</div>
 {% endblock %}

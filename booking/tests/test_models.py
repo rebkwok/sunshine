@@ -4,12 +4,12 @@ from datetime import timezone as dt_timezone
 
 from unittest.mock import patch
 
+from dateutil.relativedelta import relativedelta
+
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 from django.utils import timezone
-from django.urls import reverse
-from soupsieve import match
 
 import pytest
 
@@ -494,6 +494,7 @@ def test_membership(membership_type):
     future_membership = baker.make(Membership, membership_type=membership_type, month=future.month, year=future.year)
     
     assert str(past_membership) == "test - February 2022"
+    assert past_membership.str_with_abbreviated_month() ==  "test - Feb 2022"
     assert past_membership.start_date() == datetime(2022, 2, 1, tzinfo=dt_timezone.utc)
     assert past_membership.expiry_date() == datetime(2022, 2, 28, tzinfo=dt_timezone.utc)
     assert past_membership.month_str == "February"
@@ -635,6 +636,27 @@ def test_gift_voucher_type_str(gift_voucher_types):
     assert str(gift_voucher_types["total"]) == "Voucher - £10.00"
     assert str(gift_voucher_types["membership_2"]) == "Membership - test - £20.00"
     assert str(gift_voucher_types["membership_4"]) == "Membership - test4 - £40.00"
+
+
+@pytest.mark.django_db 
+def test_gift_voucher_properties(gift_voucher_types):
+    gift_voucher = baker.make(
+        GiftVoucher, 
+        gift_voucher_type=gift_voucher_types["regular_session"],
+    )
+    voucher = gift_voucher.voucher
+    voucher.name = "User 1"
+    voucher.message = "For you"
+    voucher.save()
+    assert gift_voucher.recipient_name == "User 1"
+    assert gift_voucher.message == "For you"
+    assert gift_voucher.start_date == datetime.today().strftime("%d-%b-%Y")
+    assert not gift_voucher.expiry_date
+
+    gift_voucher.activate()
+    assert gift_voucher.start_date == datetime.today().strftime("%d-%b-%Y")
+    assert gift_voucher.expiry_date == (datetime.today() + relativedelta(months=6)).strftime("%d-%b-%Y")
+
 
 
 @pytest.mark.django_db 

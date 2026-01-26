@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import pytz
 from datetime import datetime, timedelta
 from datetime import timezone as dt_timezone
 
@@ -10,12 +9,12 @@ from django.contrib.auth.models import User
 from django.core import mail
 from django.urls import reverse
 from django.utils import timezone
-from django.test import TestCase
+from django.test import RequestFactory, TestCase
 
 from booking.models import Event, WaitingListUser
 from studioadmin.views.register import process_event_booking_updates
 from studioadmin.forms import AddRegisterBookingForm
-from .helpers import format_content, TestPermissionMixin
+from .helpers import TestPermissionMixin
 
 
 class EventRegisterListViewTests(TestPermissionMixin, TestCase):
@@ -87,19 +86,12 @@ class EventRegisterListViewTests(TestPermissionMixin, TestCase):
         self.assertEqual(len(resp.context_data['events']), 5)
 
     def test_event_register_list_shows_correct_booking_count(self):
-        event = baker.make_recipe('booking.future_PC')
+        event = baker.make_recipe('booking.future_PC', max_participants=5)
         baker.make_recipe('booking.booking', event=event, _quantity=2)
         baker.make_recipe('booking.booking', event=event, status='CANCELLED')
         baker.make_recipe('booking.booking', event=event, no_show=True)
         resp = self.client.get(self.url)
-        self.assertIn(
-            '{} {} 2'.format(
-                event.date.astimezone(
-                    pytz.timezone('Europe/London')
-                ).strftime('%a %d %b, %H:%M'), event.name
-            ),
-            format_content(resp.rendered_content)
-        )
+        assert "2/5" in resp.rendered_content
 
     @patch("studioadmin.views.register.timezone")
     def test_register_shows_event_dates_in_local_time(self, mock_tz):
@@ -117,7 +109,7 @@ class RegisterViewTests(TestPermissionMixin, TestCase):
         super().setUpTestData()
         cls.pc = baker.make_recipe('booking.future_PC', max_participants=3)
         cls.pc_no_max = baker.make_recipe('booking.future_PC')
-        cls.ev = baker.make_recipe('booking.future_EV', max_participants=3)
+        cls.ev = baker.make_recipe('booking.future_EV', max_participants=3, cancellation_fee=1.00)
         cls.pc_url = reverse('studioadmin:event_register', args=(cls.pc.slug,))
         cls.pc_no_max_url = reverse('studioadmin:event_register', args=(cls.pc_no_max.slug,))
         cls.ev_url = reverse('studioadmin:event_register', args=(cls.ev.slug,))
@@ -210,7 +202,23 @@ class RegisterViewTests(TestPermissionMixin, TestCase):
             sorted([booking.id for booking in resp.context_data['bookings']]),
             sorted([booking.id for booking in open_bookings + cancelled_bookings])
         )
-
+    
+    def test_register_cancellation_fee_unpaid(self):
+        baker.make_recipe(
+            'booking.booking', status='OPEN', event=self.ev, cancellation_fee_incurred=True
+        )
+        resp = self.client.get(self.ev_url)
+        assert "£1.00" in resp.rendered_content
+        assert "Paid" not in resp.rendered_content
+    
+    def test_register_cancellation_fee_paid(self):
+        baker.make_recipe(
+            'booking.booking', status='OPEN', event=self.ev, cancellation_fee_incurred=True, cancellation_fee_paid=True
+        )
+        resp = self.client.get(self.ev_url)
+        assert "£1.00" not in resp.rendered_content
+        assert "Paid" in resp.rendered_content
+        
 
 class RegisterAjaxAddBookingViewsTests(TestPermissionMixin, TestCase):
 
@@ -299,7 +307,7 @@ class RegisterAjaxAddBookingViewsTests(TestPermissionMixin, TestCase):
         baker.make_recipe('booking.booking', user=self.user, event=self.pc, status='OPEN')
 
         # try to process the form
-        request = self.factory.get(self.pc_url)
+        request = RequestFactory().get("/")
         process_event_booking_updates(form, self.pc, request)
 
         mock_messages.assert_called_once_with(request, 'Open booking for this user already exists')
@@ -344,6 +352,7 @@ class RegisterAjaxDisplayUpdateTests(TestPermissionMixin, TestCase):
     def setUpTestData(cls):
         super().setUpTestData()
         cls.pc = baker.make_recipe('booking.future_PC', max_participants=3)
+        cls.pc_with_fee = baker.make_recipe('booking.future_PC', max_participants=3, cancellation_fee=1.00)
 
     def setUp(self):
         super().setUp()
@@ -499,5 +508,17 @@ class RegisterAjaxDisplayUpdateTests(TestPermissionMixin, TestCase):
         self.booking.refresh_from_db()
         self.assertFalse(self.booking.attended)
         self.assertTrue(self.booking.no_show)
+    
+    def test_ajax_toggle_attended_cancellation_fee(self):
+        booking_with_fee_unpaid = baker.make_recipe('booking.booking', event=self.pc_with_fee, cancellation_fee_incurred=True)
+        booking_with_fee_paid = baker.make_recipe('booking.booking', event=self.pc_with_fee, cancellation_fee_incurred=True, cancellation_fee_paid=True)
+        
+        url = reverse('studioadmin:ajax_toggle_attended', args=(booking_with_fee_unpaid.id,))
+        resp = self.client.post(url, {'attendance': 'attended'}).json()
+        assert resp["attended"]
+        assert resp["this_booking_fee_text"] == "£1.00"
 
-
+        url = reverse('studioadmin:ajax_toggle_attended', args=(booking_with_fee_paid.id,))
+        resp = self.client.post(url, {'attendance': 'attended'}).json()
+        assert resp["attended"]
+        assert resp["this_booking_fee_text"] == "Paid"

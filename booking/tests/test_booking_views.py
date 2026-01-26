@@ -1,30 +1,21 @@
 # -*- coding: utf-8 -*-
-from datetime import datetime
-from unittest.mock import Mock, patch
 from model_bakery import baker
 
-from django.conf import settings
-from django.core import mail
+from django.contrib.auth.models import User
 from django.urls import reverse
-from django.test import TestCase, RequestFactory
-from django.contrib.messages.storage.fallback import FallbackStorage
-from django.utils import timezone
+from django.test import TestCase
 
 from accounts.models import DataPrivacyPolicy
 
-from activitylog.models import ActivityLog
-
-from booking.models import Event, Booking, WaitingListUser
-from booking.views import BookingListView, BookingHistoryListView
-from booking.tests.helpers import _create_session, TestSetupMixin
+from booking.models import Booking, WaitingListUser
 
 
-
-class BookingListViewTests(TestSetupMixin, TestCase):
+class BookingListViewTests(TestCase):
 
     @classmethod
     def setUpTestData(cls):
         super(BookingListViewTests, cls).setUpTestData()
+        cls.user = baker.make(User)
         cls.regular_sessions = baker.make_recipe('booking.future_PC', _quantity=3)
         cls.events = baker.make_recipe('booking.future_EV', _quantity=2)
         baker.make_recipe('booking.past_booking', user=cls.user)
@@ -32,7 +23,7 @@ class BookingListViewTests(TestSetupMixin, TestCase):
 
     def setUp(self):
         super(BookingListViewTests, self).setUp()
-        self.client.login(username=self.user.username, password='test')
+        self.client.force_login(self.user)
         self.regular_sessions_bookings = [
             baker.make_recipe('booking.booking', user=self.user, event=event) for event in self.regular_sessions
         ]
@@ -142,11 +133,12 @@ class BookingListViewTests(TestSetupMixin, TestCase):
         assert 'id="join_waiting_list_button_disabled"' in resp.rendered_content
 
 
-class BookingHistoryListViewTests(TestSetupMixin, TestCase):
+class BookingHistoryListViewTests(TestCase):
 
     @classmethod
     def setUpTestData(cls):
         super(BookingHistoryListViewTests, cls).setUpTestData()
+        cls.user = baker.make(User)
         event = baker.make_recipe('booking.future_PC')
         cls.booking = baker.make_recipe(
             'booking.booking', user=cls.user, event=event
@@ -154,13 +146,6 @@ class BookingHistoryListViewTests(TestSetupMixin, TestCase):
         cls.past_booking = baker.make_recipe(
             'booking.past_booking', user=cls.user
         )
-
-    def _get_response(self, user):
-        url = reverse('booking:booking_history')
-        request = self.factory.get(url)
-        request.user = user
-        view = BookingHistoryListView.as_view()
-        return view(request)
 
     def test_login_required(self):
         """
@@ -174,7 +159,9 @@ class BookingHistoryListViewTests(TestSetupMixin, TestCase):
         """
         Test that only past bookings are listed)
         """
-        resp = self._get_response(self.user)
+        url = reverse('booking:booking_history')
+        self.client.force_login(self.user)
+        resp = self.client.get(url)
 
         assert Booking.objects.all().count() == 2
         assert resp.status_code == 200
@@ -190,7 +177,9 @@ class BookingHistoryListViewTests(TestSetupMixin, TestCase):
         )
         # check there are now 3 bookings
         assert Booking.objects.all().count() == 3
-        resp = self._get_response(self.user)
+        url = reverse('booking:booking_history')
+        self.client.force_login(another_user)
+        resp = self.client.get(url)
 
         #  listing should still only show this user's past bookings
         assert resp.context_data['bookings'].count() == 1

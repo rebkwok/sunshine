@@ -449,6 +449,48 @@ def test_webhook_with_matching_invoice_and_block(
 
 
 @patch("stripe_payments.views.stripe.Webhook")
+def test_webhook_with_mismatched_seller(
+    mock_webhook, get_mock_webhook_event, client, invoice
+):
+    metadata = {
+        "invoice_id": "foo",
+        "invoice_signature": invoice.signature(),
+        **invoice.items_metadata(),
+    }
+    mock_webhook.construct_event.return_value = get_mock_webhook_event(metadata=metadata, account="unk")
+
+    resp = client.post(webhook_url, data={}, HTTP_STRIPE_SIGNATURE="foo")
+    assert resp.status_code == 200
+    assert resp.content.decode() == "Ignored: Mismatched seller account"
+
+
+@patch("stripe_payments.views.stripe.Webhook")
+def test_webhook_with_no_account_on_event(
+    mock_webhook, get_mock_payment_intent, client, invoice, seller
+):
+    metadata = {
+        "invoice_id": "foo",
+        "invoice_signature": invoice.signature(),
+        **invoice.items_metadata(),
+    }
+    mock_event = Mock(
+        data=Mock(object=get_mock_payment_intent("payment_intent.succeeded", metadata=metadata)),
+        type="payment_intent.succeeded",
+        spec=["data", "type"]
+    )
+
+    # This will raise an error in the webhook which we catch, log and ignore
+    with pytest.raises(AttributeError):
+        mock_event.account
+
+    mock_webhook.construct_event.return_value = mock_event
+
+    resp = client.post(webhook_url, data={}, HTTP_STRIPE_SIGNATURE="foo")
+    assert resp.status_code == 200
+    assert resp.content.decode() == ""
+
+
+@patch("stripe_payments.views.stripe.Webhook")
 def test_webhook_already_processed(
     mock_webhook, get_mock_webhook_event, client, invoice, membership
 ):

@@ -2,7 +2,7 @@ from decimal import Decimal
 from math import floor
 import json
 
-from django.contrib import admin, messages
+from django.contrib import admin
 from django import forms
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import User
@@ -13,6 +13,7 @@ from accounts.models import (
     CookiePolicy, DataPrivacyPolicy, SignedDataPrivacy, DisclaimerContent, OnlineDisclaimer, ArchivedDisclaimer,
     has_active_disclaimer, has_expired_disclaimer
 )
+from accounts.utils import format_questionnaire_responses_to_html
 
 
 class PolicyAdminFormMixin:
@@ -131,11 +132,22 @@ class DisclaimerContentAdminForm(forms.ModelForm):
 
         # check content has changed
         current_content = DisclaimerContent.current()
+
+        # no form content in either
+        has_changed = True
         if current_content and current_content.disclaimer_terms == new_disclaimer_terms:
-            if current_content.form == json.loads(new_health_questionnaire):
-                self.add_error(
-                    None, 'No changes made from previous version; new version must update disclaimer content'
-                )
+            if not new_health_questionnaire and not current_content.form:
+                has_changed = False
+            else: 
+                if new_health_questionnaire:
+                    new_health_questionnaire = json.loads(new_health_questionnaire)
+
+                if current_content.form == new_health_questionnaire:
+                    has_changed = False
+        if not has_changed:
+            self.add_error(
+                None, 'No changes made from previous version; new version must update disclaimer content'
+            )
 
     class Meta:
         model = DisclaimerContent
@@ -147,17 +159,17 @@ class DisclaimerContentAdmin(admin.ModelAdmin):
     form = DisclaimerContentAdminForm
     add_form_template = "accounts/admin/admin_disclaimer_content_change_form.html"
     change_form_template = "accounts/admin/admin_disclaimer_content_change_form.html"
+    default_fields = ["disclaimer_terms", "version", "form", "is_draft", 'issue_date']
     actions = []
     
     def has_delete_permission(self, request, obj=None):
         return False
  
     def get_fields(self, request, obj=None):
-        if obj:
-            if not obj.is_draft:
-                self.fields = ("note", "version", "disclaimer_terms", "health_questionnaire_questions", 'issue_date')
-            else:
-                self.fields = ("disclaimer_terms", "version", "form", "is_draft", 'issue_date')
+        if obj and not obj.is_draft:
+            self.fields = ["note", "version", "disclaimer_terms", "health_questionnaire_questions", 'issue_date']
+        else:
+            self.fields = self.default_fields
         return super().get_fields(request, obj)
     
     def has_change_permission(self, request, obj=None):
@@ -196,21 +208,7 @@ class OnlineDisclaimerAdmin(admin.ModelAdmin):
         return False
 
     def health_questionnaire(self, obj):
-        responses = []
-        if not obj.health_questionnaire_responses:
-            health_questionnaire_responses = {}
-        else:
-            health_questionnaire_responses = obj.health_questionnaire_responses
-
-        args = []
-        for question, response in health_questionnaire_responses.items():
-            if isinstance(response, list):
-                response = ", ".join(response)
-            responses.append("<strong>{}</strong><br/>{}")
-            args.extend([question, response])
-        if responses:
-            return format_html("<br/>".join(responses), *args)
-        return ""
+        return format_questionnaire_responses_to_html(obj.health_questionnaire_responses)
 
 
 class ArchivedDisclaimerAdmin(OnlineDisclaimerAdmin):

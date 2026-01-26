@@ -2,32 +2,26 @@
     <form class="form-horizontal" method="post" action="">
         {% csrf_token %}
 
-        <div class="form-group-sm col-12">
-
+        <div class="ms-4">
             {% for field in form %}
                 {% if field.name == 'cc' or field.name == 'data_privacy_accepted' %}
-            <div class="form-group cbox">
-                <label class="control-label col-sm-3">{% if field.field.required %}<span class="required">*{{ field.label }}</span>{% else %}{{ field.label }}{% endif %}</label>
-                <div class="col-sm-9 cbox">
-                        {{ field }}<label for='{{ field.name }}_id'></label><span class="help-text">  {{ field.help_text }}</span>
-                </div>
-                {% if field.errors %}<div class="col-sm-9 col-sm-offset-3 help-text" style="color: red;">{% for err in field.errors %}{{ err }}{% endfor %}</div>{% endif %}
+                    <div>
+                        <label class="form-label col-sm-3">{% if field.field.required %}<span class="required">*{{ field.label }}</span>{% else %}{{ field.label }}{% endif %}</label>
+                        <div class="col-sm-9">
+                                {{ field }}<label for='{{ field.name }}_id'></label><span class="form-text">  {{ field.help_text }}</span>
+                        </div>
+                        {% if field.errors %}<div class="col-sm-9 col-sm-offset-3 help-text" style="color: red;">{% for err in field.errors %}{{ err }}{% endfor %}</div>{% endif %}
 
-            </div>
+                    </div>
                 {% else %}
-                <div class="form-group">
-                    <label class="control-label col-sm-3">{% if field.field.required %}<span class="required">*{{ field.label }}</span>{% else %}{{ field.label }}{% endif %}</label>
-                    <div class="col-sm-9">{{ field }}<p class="help-text">{{ field.help_text }}</p></div>
+                <div>
+                    <label class="form-label col-sm-3">{% if field.field.required %}<span class="required">*{{ field.label }}</span>{% else %}{{ field.label }}{% endif %}</label>
+                    <div class="col-sm-9">{{ field }}<p class="form-text">{{ field.help_text }}</p></div>
                     {% if field.errors %}<div class="col-sm-9 col-sm-offset-3 help-text" style="color: red;">{% for err in field.errors %}{{ err }}{% endfor %}</div>{% endif %}
-
                 </div>
                 {% endif %}
             {% endfor %}
-        <div class="form-group">
-            <div class="col-sm-offset-3 col-sm-9">
-                <button type="submit" class="btn btn-warning">Send Email</button>
-            </div>
-        </div>
+            <button type="submit" class="btn  btn-sunshine tra-sunshine-hover mb-2">Send Email</button>
         </div>
     </form>
 </div>

@@ -32,8 +32,12 @@ class MembershipListView(DataPolicyAgreementRequiredMixin, LoginRequiredMixin, L
     def get_context_data(self, **kwargs):
         # Call the base implementation first to get a context
         context = super().get_context_data(**kwargs)
+        context["section"] = "membership"
         if self.request.GET.get("include-expired"):
             context["show_all"] = True
+            context["title"] = "Active Memberships"
+        else:
+            context["title"] = "Memberships"
         return context
 
 
@@ -42,3 +46,9 @@ class MembershipDetailView(DataPolicyAgreementRequiredMixin, LoginRequiredMixin,
     model = Membership
     template_name = 'booking/membership_detail.html'
     context_object_name = "membership"
+
+    def get_context_data(self, **kwargs):
+        # Call the base implementation first to get a context
+        context = super().get_context_data(**kwargs)
+        context["section"] = "membership"
+        return context

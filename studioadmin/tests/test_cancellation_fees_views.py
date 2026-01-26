@@ -51,7 +51,7 @@ class CancellationFeesListViewTests(TestPermissionMixin, TestCase):
 
         resp = self.client.get(self.url)
         soup = BeautifulSoup(resp.content, 'html.parser')
-        fees = soup.findAll("span", {"class": "fees-due"})
+        fees = soup.find_all("span", {"class": "fees-due"})
         self.assertEqual(len(fees), 2)
 
         fees_links = [
@@ -63,6 +63,14 @@ class CancellationFeesListViewTests(TestPermissionMixin, TestCase):
         for user in [self.user, user]:
             self.assertIn(f"/instructor-admin/fees/{self.user.id}/", fees_links)
             self.assertIn(f"£{user.outstanding_fees_total()}", fees_text)
+
+    def test_long_user_email_abbreviated(self):
+        user = baker.make_recipe('booking.user', email="averylongemailaddress@example.com")
+        baker.make_recipe('booking.booking', event__cancellation_fee=1.00, user=user, cancellation_fee_incurred=True, _quantity=4)
+        resp = self.client.get(self.url)
+        content = resp.content.decode()
+        assert "averylongemailaddress@..." in content
+        assert "mailto:averylongemailaddress@example.com" in content
 
 
 class UserCancellationFeesListViewTests(TestPermissionMixin, TestCase):

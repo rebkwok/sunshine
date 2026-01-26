@@ -1,18 +1,29 @@
 {% extends 'website/_base.html' %}
 {% load static accounttags %}
 
+{% block title %}
+    {% if updating %}
+        {% include "website/includes/header.html" with title="Updating Disclaimer" %}
+    {% else %}
+        {% include "website/includes/header.html" with title="Disclaimer" %}
+    {% endif %}
+{% endblock %}
+
+
 {% block content %}
-<div class="container row">
+<div class="container mt-20">
     <div class="panel panel-transparent">
     <div class="panel-body">
 
     <h2>Disclaimer Form for {{ user.first_name }} {{ user.last_name }}</h2>
-   {% if disclaimer %}
+   {% if disclaimer and not updating %}
             <p>You have already completed a disclaimer.</p>
 
            <p>If you have any additional questions or concerns about the data you have provided, please contact <a href="mailto:{{ studio_email }}">{{ studio_email }}</a>.</p>
     {% else %}
-
+        {% if updating %}
+            <p>Previously completed on {% if form.instance.date_updated %}{{ form.instance.date_updated|date:'d M Y' }}{% else %}{{ form.instance.date|date:'d M Y' }}{% endif %}</p>
+        {% endif %}
        {% include 'accounts/disclaimer_form_content.html' %}
            <p>If you have any additional questions or concerns, please contact <a href="mailto:{{ studio_email }}">{{ studio_email }}</a>.</p>
 
