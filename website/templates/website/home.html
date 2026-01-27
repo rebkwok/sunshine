@@ -70,9 +70,9 @@
 										<h2>Pole Dance</h2>
 
 										<!-- Text -->
-										<p>Feugiat primis ligula gravida auctor egestas augue viverra mauri tortor in iaculis a 
+										{% comment %} <p>Feugiat primis ligula gravida auctor egestas augue viverra mauri tortor in iaculis a 
 											placerat eugiat mauris ipsum integer odio velna
-										</p>
+										</p> {% endcomment %}
 
 										<!-- Button -->
 										<a href="{% url 'timetable:timetable' %}" class="btn btn-md btn-sunshine tra-white-hover">Timetable</a>
@@ -86,15 +86,15 @@
 									<div class="caption-txt">
 										
 										<!-- Title -->
-										<h2>Workshops</h2>
+										<h2 >Classes & Workshops</h2>
 
 										<!-- Text -->
-										<p>Feugiat primis ligula gravida auctor egestas augue viverra mauri tortor in iaculis a 
+										{% comment %} <p>Feugiat primis ligula gravida auctor egestas augue viverra mauri tortor in iaculis a 
 											placerat eugiat mauris ipsum integer odio velna
-										</p>
+										</p> {% endcomment %}
 
 										<!-- Button -->
-										<a href="{% url 'booking:workshop_list' %}" class="btn btn-md btn-sunshine tra-white-hover">Book Now</a>
+										<a href="{% url 'booking:regular_session_list' %}" class="btn btn-md btn-sunshine tra-white-hover">Book Now</a>
 											
 									</div>
 								</li>	  <!-- END SLIDE #3 -->	
@@ -286,7 +286,7 @@
 						</p>
 
 						<!-- List -->	
-						<ul class="txt-list txt-color-05">
+						{% comment %} <ul class="txt-list txt-color-05">
 
 							<li class="list-item">
 								<i class="fas fa-genderless"></i>
@@ -300,7 +300,7 @@
 								<p>Nemo ipsam egestas volute turpis dolores ut aliquam quaerat sodales sapien
 									undo pretium purus
 								</p>
-							</li>
+							</li> {% endcomment %}
 
 						</ul>
 
@@ -354,6 +354,7 @@
 
 
 
+	{% if team_members %}
 
 			<!-- TEAM-1
 			============================================= -->
@@ -435,8 +436,9 @@
 				</div>	   <!-- End container -->	
 			</section>	<!-- END TEAM-1 -->
 
-
-
+	{% endif %}
+	
+	{% if gallery_images %}
 
 	<!-- GALLERY-1
 	============================================= -->
@@ -517,7 +519,9 @@
 		</div>	   <!-- End container -->	
 	</section>	<!-- END GALLERY-1 -->
 
+	{% endif %}
 
+	{% if testimonials %}
 	<!-- TESTIMONIALS-1
 	============================================= -->
 	<section id="testimonials" class="bg-color-02 wide-100 reviews-section division">
@@ -583,6 +587,8 @@
 				
 		</div>	   <!-- End container -->
 	</section>	 <!-- END TESTIMONIALS-1 -->
+
+	{% endif %}
 
 {% endblock content %}
 
