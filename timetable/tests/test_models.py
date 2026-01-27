@@ -32,12 +32,6 @@ def test_venue_str():
     assert str(venue) == "Sunshine Studio"
 
 
-def test_venue_display_on_site_requires_descriptiom():
-    venue = baker.make(Venue, name="Studio", display_on_site=True, description=None)
-    with pytest.raises(exceptions.ValidationError, match="add a description"):
-        venue.clean()
-
-
 def test_location_str():
     location = baker.make(Location, name="foo")
     assert str(location) == "foo"

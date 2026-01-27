@@ -41,10 +41,12 @@
                             <div class="txt-block left-column pc-15 mb-40">
 
                                 <!-- Title -->	
-                                <h3 class="h3-md txt-color-01">{{ venue }}</h3>
+                                <h4 class="h4-md txt-color-01">{{ venue }}</h4>
 
                                 <!-- Text -->
+                                 {% if venue.description %}
                                 <p class="txt-color-05">{{ venue.description | linebreaks }}</p>
+                                {% endif %}
 
                             </div>
                         </div>	<!-- END TEXT BLOCK -->	
@@ -59,10 +61,12 @@
                             <div class="txt-block left-column pc-15 mb-40">
 
                                 <!-- Title -->	
-                                <h3 class="h3-md txt-color-01">{{ venue }}</h3>
+                                <h4 class="h4-md txt-color-01">{{ venue }}</h4>
 
                                 <!-- Text -->
+                                 {% if venue.description %}
                                 <p class="txt-color-05">{{ venue.description | linebreaks }}</p>
+                                {% endif %}
 
                             </div>
                         </div>	<!-- END TEXT BLOCK -->	

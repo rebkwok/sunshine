@@ -81,10 +81,6 @@ class Venue(models.Model):
     class Meta:
         ordering = ("order", "location")
 
-    def clean(self):
-        if self.display_on_site and not self.description:
-            raise ValidationError("In order to display this venue on the Venues page of the website, please add a description.")
-
     @classmethod
     def distinct_locations_in_order(cls):
         locations_with_order = cls.objects.distinct("order", "location").values_list("location__name", flat=True)
