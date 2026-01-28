@@ -91,7 +91,7 @@
                     {% else %}
                         {% include 'booking/includes/events_pagination.html' with page_obj=location.queryset tab=location.index %}
                     
-                        <div class="panel panel-transparent">
+                        <div class="panel panel-transparent" style="background-color: rgba(230,230,230,0.6); overflow-x: scroll;">
                                 <table class="table table-striped">
                                     <tr class="table-dark">
                                         <th scope="col" class="table-center table-book-btn-col"></th>

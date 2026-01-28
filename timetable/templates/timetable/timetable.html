@@ -9,8 +9,8 @@
 
 {% block content %}
 
-<section>
-    <div class="container mt-20">	
+<section class="container container-fluid">
+    <div class=" mt-20">	
         <span id="costs">
         {% include 'website/includes/membership.html' %}
         </span>
@@ -49,8 +49,8 @@
                         {% if not location.queryset %}
                         <div class="ms-2 mt-2" >No classes at this location</div>
                         {% else %}
-                            <div class="panel" style="background-color: rgba(230,230,230,0.6);">
-                                    <table class="table table-striped">
+                            <div class="panel" style="background-color: rgba(230,230,230,0.6); overflow-x: scroll;">
+                                    <table class="table table-responsive table-striped">
                                         <thead>
                                         <tr class="table-dark">
                                             <th scope="col"></th>
