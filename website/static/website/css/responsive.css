@@ -1025,7 +1025,7 @@
   .bottom-footer-list p:after { padding-left: 7px; }
 
   /* Page Hero */
-  .page-hero-section { padding-top: 60px; padding-bottom: 60px; }
+  /* .page-hero-section { padding-top: 60px; padding-bottom: 60px; } */
   .page-hero-section h2 { margin-bottom: 15px; }
   .page-hero-section p { padding: 0; }
 
