@@ -83,3 +83,8 @@ def show_booking_button(booking):
 @register.filter
 def has_available_membership(event, user):
     return event.get_available_user_membership(user) is not None
+
+
+@register.filter
+def nb_date(date):
+    return mark_safe(date.strftime("%a %d&nbsp;%b %H:%M"))

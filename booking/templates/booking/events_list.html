@@ -150,7 +150,7 @@
                                                 <a class='btn btn-sunshine tra-sunshine-hover' href="{% url 'account_login' %}?next={{request.get_full_path|urlencode }}">Log in to book</a>
                                             </td>
                                             {% endif %}
-                                            <td class="table-center">{{ event.date | date:"D d M H:i" }}</td>
+                                            <td class="table-center">{{ event.date | nb_date }}</td>
                                             <td class="table-center"><a href="{% url 'booking:event_detail' event.slug %}">{{ event.name }}</a></td>
                                             <td class="table-center">{{ event.venue.abbreviation }}</td>
                                             <td class="table-center">£{{ event.cost }}</td>
