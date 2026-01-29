@@ -102,11 +102,9 @@ class BaseEventListView(ListView):
     def _get_location_data(self):
         active_locations = Event.active_locations()
         venue_locations = Venue.location_choices().items()
-        
-        if len(active_locations) > 1:
-            default_tab = 0
-        else:
-            default_tab = next(k for k, v in venue_locations if v == active_locations[0])
+        default_tab = 0
+        if len(active_locations) == 1:
+           default_tab = next(k for k, v in venue_locations if v == active_locations[0])
         
         tab = self.request.GET.get('tab', default_tab)
 
