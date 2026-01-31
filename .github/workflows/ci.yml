@@ -43,6 +43,11 @@ jobs:
 
       - name: psycopg2 prerequisites
         run: sudo apt-get install libpq-dev
+      
+      - name: Check
+        run: |
+          uv run ruff check
+
 
       - name: Run tests
         env:

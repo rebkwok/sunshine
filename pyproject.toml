@@ -49,6 +49,7 @@ dev = [
     "pytest-env>=1.2.0",
     "pytest-freezer>=0.4.9",
     "pytest-xdist>=3.8.0",
+    "ruff>=0.14.14",
 ]
 
 [tool.uv.sources]
