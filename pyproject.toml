@@ -75,6 +75,7 @@ django-suit = { git = "https://github.com/rebkwok/django-suit.git", rev = "v2" }
         "STRIPE_SECRET_KEY=dummy",
         "STRIPE_ENDPOINT_SECRET=dummy",
         "INVOICE_KEY=dummy",
+        "LEGACY_HOMEPAGE=True",
     ]
 
     filterwarnings = [
