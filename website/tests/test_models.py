@@ -20,6 +20,10 @@ def test_gallery_image_str():
     gallery_im = baker.make(GalleryImage, category=gallery_cat)
     assert str(gallery_im) == "Test cat - "
 
-    image_file = SimpleUploadedFile(name="image.jpg", content=b'test', content_type="image/jpeg")
-    gallery_im_with_photo = baker.make(GalleryImage, category=gallery_cat, photo=image_file)
+    image_file = SimpleUploadedFile(
+        name="image.jpg", content=b"test", content_type="image/jpeg"
+    )
+    gallery_im_with_photo = baker.make(
+        GalleryImage, category=gallery_cat, photo=image_file
+    )
     re.match(r"Test cat - images\/gallery\/image.*\.jpg", str(gallery_im_with_photo))

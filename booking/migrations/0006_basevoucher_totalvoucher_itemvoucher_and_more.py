@@ -7,55 +7,169 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('stripe_payments', '0002_stripe_refund_and_more'),
-        ('booking', '0005_membershiptype_membership_and_more'),
+        ("stripe_payments", "0002_stripe_refund_and_more"),
+        ("booking", "0005_membershiptype_membership_and_more"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='BaseVoucher',
+            name="BaseVoucher",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('code', models.CharField(max_length=255, unique=True)),
-                ('discount', models.PositiveIntegerField(blank=True, help_text='Discount value as a % of the purchased item cost. Enter a number between 1 and 100', null=True, verbose_name='Percentage discount')),
-                ('discount_amount', models.DecimalField(blank=True, decimal_places=2, help_text='Discount as an exact amount off the purchased item cost', max_digits=6, null=True, verbose_name='Exact discount amount (£)')),
-                ('start_date', models.DateTimeField(default=booking.models._start_of_today)),
-                ('expiry_date', models.DateTimeField(blank=True, null=True)),
-                ('max_vouchers', models.PositiveIntegerField(blank=True, help_text='Maximum uses across all users', null=True, verbose_name='Maximum available vouchers')),
-                ('max_per_user', models.PositiveIntegerField(blank=True, help_text='Maximum times this voucher can be used by a single user', null=True, verbose_name='Maximum uses per user')),
-                ('is_gift_voucher', models.BooleanField(default=False)),
-                ('activated', models.BooleanField(default=True)),
-                ('name', models.CharField(blank=True, help_text='Name of recipient', max_length=255, null=True)),
-                ('message', models.TextField(blank=True, help_text='Message (max 500 characters)', max_length=500, null=True)),
-                ('purchaser_email', models.EmailField(blank=True, max_length=254, null=True)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("code", models.CharField(max_length=255, unique=True)),
+                (
+                    "discount",
+                    models.PositiveIntegerField(
+                        blank=True,
+                        help_text="Discount value as a % of the purchased item cost. Enter a number between 1 and 100",
+                        null=True,
+                        verbose_name="Percentage discount",
+                    ),
+                ),
+                (
+                    "discount_amount",
+                    models.DecimalField(
+                        blank=True,
+                        decimal_places=2,
+                        help_text="Discount as an exact amount off the purchased item cost",
+                        max_digits=6,
+                        null=True,
+                        verbose_name="Exact discount amount (£)",
+                    ),
+                ),
+                (
+                    "start_date",
+                    models.DateTimeField(default=booking.models._start_of_today),
+                ),
+                ("expiry_date", models.DateTimeField(blank=True, null=True)),
+                (
+                    "max_vouchers",
+                    models.PositiveIntegerField(
+                        blank=True,
+                        help_text="Maximum uses across all users",
+                        null=True,
+                        verbose_name="Maximum available vouchers",
+                    ),
+                ),
+                (
+                    "max_per_user",
+                    models.PositiveIntegerField(
+                        blank=True,
+                        help_text="Maximum times this voucher can be used by a single user",
+                        null=True,
+                        verbose_name="Maximum uses per user",
+                    ),
+                ),
+                ("is_gift_voucher", models.BooleanField(default=False)),
+                ("activated", models.BooleanField(default=True)),
+                (
+                    "name",
+                    models.CharField(
+                        blank=True,
+                        help_text="Name of recipient",
+                        max_length=255,
+                        null=True,
+                    ),
+                ),
+                (
+                    "message",
+                    models.TextField(
+                        blank=True,
+                        help_text="Message (max 500 characters)",
+                        max_length=500,
+                        null=True,
+                    ),
+                ),
+                (
+                    "purchaser_email",
+                    models.EmailField(blank=True, max_length=254, null=True),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='TotalVoucher',
+            name="TotalVoucher",
             fields=[
-                ('basevoucher_ptr', models.OneToOneField(auto_created=True, on_delete=django.db.models.deletion.CASCADE, parent_link=True, primary_key=True, serialize=False, to='booking.basevoucher')),
+                (
+                    "basevoucher_ptr",
+                    models.OneToOneField(
+                        auto_created=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        parent_link=True,
+                        primary_key=True,
+                        serialize=False,
+                        to="booking.basevoucher",
+                    ),
+                ),
             ],
-            bases=('booking.basevoucher',),
+            bases=("booking.basevoucher",),
         ),
         migrations.CreateModel(
-            name='ItemVoucher',
+            name="ItemVoucher",
             fields=[
-                ('basevoucher_ptr', models.OneToOneField(auto_created=True, on_delete=django.db.models.deletion.CASCADE, parent_link=True, primary_key=True, serialize=False, to='booking.basevoucher')),
-                ('event_types', django.contrib.postgres.fields.ArrayField(base_field=models.CharField(choices=[('workshop', 'Workshop'), ('regular_session', 'Regular Timetabled Session'), ('private', 'Private Lesson')], max_length=20), blank=True, default=list, null=True, size=None)),
-                ('membership_types', models.ManyToManyField(blank=True, to='booking.membershiptype')),
+                (
+                    "basevoucher_ptr",
+                    models.OneToOneField(
+                        auto_created=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        parent_link=True,
+                        primary_key=True,
+                        serialize=False,
+                        to="booking.basevoucher",
+                    ),
+                ),
+                (
+                    "event_types",
+                    django.contrib.postgres.fields.ArrayField(
+                        base_field=models.CharField(
+                            choices=[
+                                ("workshop", "Workshop"),
+                                ("regular_session", "Regular Timetabled Session"),
+                                ("private", "Private Lesson"),
+                            ],
+                            max_length=20,
+                        ),
+                        blank=True,
+                        default=list,
+                        null=True,
+                        size=None,
+                    ),
+                ),
+                (
+                    "membership_types",
+                    models.ManyToManyField(blank=True, to="booking.membershiptype"),
+                ),
             ],
-            bases=('booking.basevoucher',),
+            bases=("booking.basevoucher",),
         ),
         migrations.AddField(
-            model_name='booking',
-            name='voucher',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='bookings', to='booking.itemvoucher'),
+            model_name="booking",
+            name="voucher",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="bookings",
+                to="booking.itemvoucher",
+            ),
         ),
         migrations.AddField(
-            model_name='membership',
-            name='voucher',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='memberships', to='booking.itemvoucher'),
+            model_name="membership",
+            name="voucher",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="memberships",
+                to="booking.itemvoucher",
+            ),
         ),
     ]

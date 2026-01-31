@@ -4,18 +4,17 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('timetable', '0010_add_default_location'),
+        ("timetable", "0010_add_default_location"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='venue',
-            name='address',
+            model_name="venue",
+            name="address",
         ),
         migrations.RemoveField(
-            model_name='venue',
-            name='postcode',
+            model_name="venue",
+            name="postcode",
         ),
     ]

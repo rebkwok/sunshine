@@ -18,11 +18,16 @@ def setup_invoices():
         Invoice, memberships=baker.make(Membership, paid=False, _quantity=1), paid=False
     )
     # unpaid invoice with booking
-    invoice2 = baker.make(Invoice, bookings=baker.make(Booking, paid=False, _quantity=1), paid=False)
+    invoice2 = baker.make(
+        Invoice, bookings=baker.make(Booking, paid=False, _quantity=1), paid=False
+    )
     # unpaid invoice with gift vouchers
     invoice3 = baker.make(
         Invoice,
-        gift_vouchers=baker.make(GiftVoucher, gift_voucher_type__discount_amount=10, paid=False, _quantity=1), paid=False
+        gift_vouchers=baker.make(
+            GiftVoucher, gift_voucher_type__discount_amount=10, paid=False, _quantity=1
+        ),
+        paid=False,
     )
     # paid invoice, no booking, membership or gift vouchers
     invoice4 = baker.make(Invoice, paid=True)
@@ -40,9 +45,12 @@ def test_delete_unpaid_unused_invoices(setup_invoices):
     baker.make(StripePaymentIntent, invoice=invoice5)
     assert Invoice.objects.count() == 5
     assert StripePaymentIntent.objects.count() == 5
-    management.call_command('delete_unused_invoices')
+    management.call_command("delete_unused_invoices")
     activitylog = ActivityLog.objects.latest("id")
-    assert activitylog.log == f'1 unpaid unused invoice(s) deleted: invoice_ids {invoice5.invoice_id}'
+    assert (
+        activitylog.log
+        == f"1 unpaid unused invoice(s) deleted: invoice_ids {invoice5.invoice_id}"
+    )
     assert Invoice.objects.count() == 4
     assert StripePaymentIntent.objects.count() == 4
 
@@ -52,12 +60,12 @@ def test_delete_unpaid_unused_invoice_no_payment_intent(setup_invoices):
     baker.make(Invoice, paid=False)
     assert Invoice.objects.count() == 5
     assert StripePaymentIntent.objects.count() == 4
-    management.call_command('delete_unused_invoices')
+    management.call_command("delete_unused_invoices")
     assert Invoice.objects.count() == 4
     assert StripePaymentIntent.objects.count() == 4
 
 
 def test_no_invoices_to_delete(setup_invoices):
     assert Invoice.objects.count() == 4
-    management.call_command('delete_unused_invoices')
+    management.call_command("delete_unused_invoices")
     assert Invoice.objects.count() == 4

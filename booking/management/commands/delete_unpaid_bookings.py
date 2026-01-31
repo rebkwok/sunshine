@@ -26,14 +26,14 @@ logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
-    help = 'Cleanup unpaid bookings that have expired'
+    help = "Cleanup unpaid bookings that have expired"
 
     def handle(self, *args, **options):
         # delete old nothing-to-cancel logs
-        cron_log_msg = 'CRON: booking cleanup run; nothing to delete'
+        cron_log_msg = "CRON: booking cleanup run; nothing to delete"
         ActivityLog.objects.filter(log=cron_log_msg).delete()
         event_ids_from_expired_bookings = Booking.cleanup_expired_bookings()
         email_waiting_lists(event_ids_from_expired_bookings)
-        
+
         if not event_ids_from_expired_bookings:
             ActivityLog.objects.create(log=cron_log_msg)

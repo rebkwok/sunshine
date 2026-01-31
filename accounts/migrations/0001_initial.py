@@ -8,7 +8,6 @@ import dynamic_forms.models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
@@ -17,93 +16,181 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='ArchivedDisclaimer',
+            name="ArchivedDisclaimer",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('date', models.DateTimeField(default=django.utils.timezone.now)),
-                ('version', models.DecimalField(decimal_places=1, max_digits=100)),
-                ('emergency_contact_name', models.CharField(max_length=255)),
-                ('emergency_contact_relationship', models.CharField(max_length=255)),
-                ('emergency_contact_phone', models.CharField(max_length=255)),
-                ('health_questionnaire_responses', dynamic_forms.models.ResponseField()),
-                ('terms_accepted', models.BooleanField()),
-                ('name', models.CharField(max_length=255)),
-                ('date_updated', models.DateTimeField(blank=True, null=True)),
-                ('date_archived', models.DateTimeField(default=django.utils.timezone.now)),
-                ('date_of_birth', models.DateField(verbose_name='date of birth')),
-                ('phone', models.CharField(blank=True, max_length=255, null=True)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("date", models.DateTimeField(default=django.utils.timezone.now)),
+                ("version", models.DecimalField(decimal_places=1, max_digits=100)),
+                ("emergency_contact_name", models.CharField(max_length=255)),
+                ("emergency_contact_relationship", models.CharField(max_length=255)),
+                ("emergency_contact_phone", models.CharField(max_length=255)),
+                (
+                    "health_questionnaire_responses",
+                    dynamic_forms.models.ResponseField(),
+                ),
+                ("terms_accepted", models.BooleanField()),
+                ("name", models.CharField(max_length=255)),
+                ("date_updated", models.DateTimeField(blank=True, null=True)),
+                (
+                    "date_archived",
+                    models.DateTimeField(default=django.utils.timezone.now),
+                ),
+                ("date_of_birth", models.DateField(verbose_name="date of birth")),
+                ("phone", models.CharField(blank=True, max_length=255, null=True)),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
         migrations.CreateModel(
-            name='CookiePolicy',
+            name="CookiePolicy",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('content', models.TextField()),
-                ('version', models.DecimalField(decimal_places=1, max_digits=100, unique=True)),
-                ('issue_date', models.DateTimeField(default=django.utils.timezone.now)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("content", models.TextField()),
+                (
+                    "version",
+                    models.DecimalField(decimal_places=1, max_digits=100, unique=True),
+                ),
+                ("issue_date", models.DateTimeField(default=django.utils.timezone.now)),
             ],
             options={
-                'verbose_name_plural': 'Cookie Policies',
+                "verbose_name_plural": "Cookie Policies",
             },
         ),
         migrations.CreateModel(
-            name='DataPrivacyPolicy',
+            name="DataPrivacyPolicy",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('content', models.TextField()),
-                ('version', models.DecimalField(decimal_places=1, max_digits=100, unique=True)),
-                ('issue_date', models.DateTimeField(default=django.utils.timezone.now)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("content", models.TextField()),
+                (
+                    "version",
+                    models.DecimalField(decimal_places=1, max_digits=100, unique=True),
+                ),
+                ("issue_date", models.DateTimeField(default=django.utils.timezone.now)),
             ],
             options={
-                'verbose_name_plural': 'Data Privacy Policies',
+                "verbose_name_plural": "Data Privacy Policies",
             },
         ),
         migrations.CreateModel(
-            name='DisclaimerContent',
+            name="DisclaimerContent",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('disclaimer_terms', models.TextField()),
-                ('version', models.DecimalField(decimal_places=1, max_digits=100, unique=True)),
-                ('issue_date', models.DateTimeField(default=django.utils.timezone.now)),
-                ('form', dynamic_forms.models.FormField(blank=True, null=True, verbose_name='health questionnaire')),
-                ('is_draft', models.BooleanField(default=False)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("disclaimer_terms", models.TextField()),
+                (
+                    "version",
+                    models.DecimalField(decimal_places=1, max_digits=100, unique=True),
+                ),
+                ("issue_date", models.DateTimeField(default=django.utils.timezone.now)),
+                (
+                    "form",
+                    dynamic_forms.models.FormField(
+                        blank=True, null=True, verbose_name="health questionnaire"
+                    ),
+                ),
+                ("is_draft", models.BooleanField(default=False)),
             ],
         ),
         migrations.CreateModel(
-            name='OnlineDisclaimer',
+            name="OnlineDisclaimer",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('date', models.DateTimeField(default=django.utils.timezone.now)),
-                ('version', models.DecimalField(decimal_places=1, max_digits=100)),
-                ('phone', models.CharField(max_length=255)),
-                ('date_of_birth', models.DateField()),
-                ('emergency_contact_name', models.CharField(max_length=255)),
-                ('emergency_contact_relationship', models.CharField(max_length=255)),
-                ('emergency_contact_phone', models.CharField(max_length=255)),
-                ('health_questionnaire_responses', dynamic_forms.models.ResponseField()),
-                ('terms_accepted', models.BooleanField()),
-                ('date_updated', models.DateTimeField(blank=True, null=True)),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='online_disclaimer', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("date", models.DateTimeField(default=django.utils.timezone.now)),
+                ("version", models.DecimalField(decimal_places=1, max_digits=100)),
+                ("phone", models.CharField(max_length=255)),
+                ("date_of_birth", models.DateField()),
+                ("emergency_contact_name", models.CharField(max_length=255)),
+                ("emergency_contact_relationship", models.CharField(max_length=255)),
+                ("emergency_contact_phone", models.CharField(max_length=255)),
+                (
+                    "health_questionnaire_responses",
+                    dynamic_forms.models.ResponseField(),
+                ),
+                ("terms_accepted", models.BooleanField()),
+                ("date_updated", models.DateTimeField(blank=True, null=True)),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="online_disclaimer",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='SignedDataPrivacy',
+            name="SignedDataPrivacy",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('date_signed', models.DateTimeField(default=django.utils.timezone.now)),
-                ('version', models.DecimalField(decimal_places=1, max_digits=100)),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='data_privacy_agreement', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "date_signed",
+                    models.DateTimeField(default=django.utils.timezone.now),
+                ),
+                ("version", models.DecimalField(decimal_places=1, max_digits=100)),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="data_privacy_agreement",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Signed Data Privacy Agreement',
-                'unique_together': {('user', 'version')},
+                "verbose_name": "Signed Data Privacy Agreement",
+                "unique_together": {("user", "version")},
             },
         ),
         migrations.AddIndex(
-            model_name='onlinedisclaimer',
-            index=models.Index(fields=['user'], name='accounts_on_user_id_03aad6_idx'),
+            model_name="onlinedisclaimer",
+            index=models.Index(fields=["user"], name="accounts_on_user_id_03aad6_idx"),
         ),
     ]

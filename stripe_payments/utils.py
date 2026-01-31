@@ -1,7 +1,6 @@
 import logging
 from django.conf import settings
 from django.contrib.sites.models import Site
-from django.urls import reverse
 import stripe
 
 from activitylog.models import ActivityLog
@@ -20,8 +19,10 @@ def get_invoice_from_payment_intent(payment_intent, raise_immediately=False):
     if not invoice_id:
         #  No invoice id in the metadata is unlikely to be an error; more likely it's a payment not made via the
         # site.
-        logger.warning("No invoice ID found for stripe payment intent %s", payment_intent.id)
-        return 
+        logger.warning(
+            "No invoice ID found for stripe payment intent %s", payment_intent.id
+        )
+        return
 
     try:
         invoice = Invoice.objects.get(invoice_id=invoice_id)
@@ -43,11 +44,12 @@ def check_stripe_data(payment_intent, invoice):
     signature = payment_intent.metadata.get("invoice_signature")
     if signature != invoice.signature():
         raise StripeProcessingError(
-            f"Could not verify invoice signature: payment intent {payment_intent.id}; invoice id {invoice.invoice_id}")
+            f"Could not verify invoice signature: payment intent {payment_intent.id}; invoice id {invoice.invoice_id}"
+        )
 
     if payment_intent.amount != int(invoice.amount * 100):
         raise StripeProcessingError(
-            f"Invoice amount is not correct: payment intent {payment_intent.id} ({payment_intent.amount/100}); "
+            f"Invoice amount is not correct: payment intent {payment_intent.id} ({payment_intent.amount / 100}); "
             f"invoice id {invoice.invoice_id} ({invoice.amount})"
         )
 
@@ -85,13 +87,13 @@ def process_refund(request, booking):
             )
         except StripePaymentIntent.DoesNotExist:
             # send warning email to tech support
-            send_invalid_request_email(
-                request, booking, "Payment intent not found"
-            )
+            send_invalid_request_email(request, booking, "Payment intent not found")
         else:
             stripe.api_key = settings.STRIPE_SECRET_KEY
-            seller = Seller.objects.filter(site=Site.objects.get_current(request)).first()
-            
+            seller = Seller.objects.filter(
+                site=Site.objects.get_current(request)
+            ).first()
+
             # get the amount to refund from the metadata (in) pence)
             amount = payment_intent.metadata.get(f"booking_{booking.id}_cost_in_p")
             if amount is None:
@@ -103,12 +105,17 @@ def process_refund(request, booking):
                 try:
                     refund = stripe.Refund.create(
                         amount=int(amount),
-                        metadata={"booking_id": booking.id, "cancelled_by": request.user.email},
+                        metadata={
+                            "booking_id": booking.id,
+                            "cancelled_by": request.user.email,
+                        },
                         payment_intent=payment_intent.payment_intent_id,
                         reason="requested_by_customer",
                         stripe_account=seller.stripe_user_id,
                     )
-                    StripeRefund.create_from_refund_obj(refund, payment_intent, booking.id)
+                    StripeRefund.create_from_refund_obj(
+                        refund, payment_intent, booking.id
+                    )
                     refunded = True
                     ActivityLog.objects.create(
                         log=f"Refund for booking {booking.id} (user {booking.user.username}) processed"

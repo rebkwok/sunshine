@@ -4,20 +4,23 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('timetable', '0004_auto_20211028_1630'),
+        ("timetable", "0004_auto_20211028_1630"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='sessiontype',
-            name='info',
-            field=models.TextField(blank=True, null=True, verbose_name='description'),
+            model_name="sessiontype",
+            name="info",
+            field=models.TextField(blank=True, null=True, verbose_name="description"),
         ),
         migrations.AlterField(
-            model_name='sessiontype',
-            name='regular_session',
-            field=models.BooleanField(default=True, help_text='Tick this box to list this class type and its description on the homepage', verbose_name='display class'),
+            model_name="sessiontype",
+            name="regular_session",
+            field=models.BooleanField(
+                default=True,
+                help_text="Tick this box to list this class type and its description on the homepage",
+                verbose_name="display class",
+            ),
         ),
     ]

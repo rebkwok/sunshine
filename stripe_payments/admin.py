@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.urls import reverse
-from django.utils.safestring import mark_safe 
+from django.utils.safestring import mark_safe
 
 from booking.models import Booking, Membership, GiftVoucher
 from stripe_payments.models import Invoice, Seller, StripeRefund, StripePaymentIntent
@@ -12,7 +12,7 @@ class BookingInline(admin.TabularInline):
     model = Booking
     extra = 0
     can_delete = False
-    
+
     def has_add_permission(self, request, obj):  # pragma: no cover
         return False
 
@@ -23,7 +23,7 @@ class MembershipInline(admin.TabularInline):
     model = Membership
     extra = 0
     can_delete = False
-    
+
     def has_add_permission(self, request, obj):  # pragma: no cover
         return False
 
@@ -34,35 +34,47 @@ class GiftVoucherInline(admin.TabularInline):
     model = GiftVoucher
     extra = 0
     can_delete = False
-    
+
     def has_add_permission(self, request, obj):  # pragma: no cover
         return False
-    
+
 
 @admin.register(Invoice)
 class InvoiceAdmin(admin.ModelAdmin):
-    list_display = ("invoice_id", "pi", "get_username", "display_amount", "paid", "items")
+    list_display = (
+        "invoice_id",
+        "pi",
+        "get_username",
+        "display_amount",
+        "paid",
+        "items",
+    )
 
     fields = (
-        "invoice_id", "username", 
-        "amount", "date_created", "paid", "date_paid",
-        "total_voucher_code", "payment_intent_ids"
+        "invoice_id",
+        "username",
+        "amount",
+        "date_created",
+        "paid",
+        "date_paid",
+        "total_voucher_code",
+        "payment_intent_ids",
     )
     readonly_fields = fields
-    search_fields = (
-        'invoice_id', 'username'
-    )
+    search_fields = ("invoice_id", "username")
     list_filter = ("paid", "username")
 
     inlines = (BookingInline, MembershipInline, GiftVoucherInline)
 
     def get_username(self, obj):
         return obj.username
+
     get_username.short_description = "Email"
     get_username.admin_order_field = "username"
 
     def display_amount(self, obj):
         return f"£{obj.amount}"
+
     display_amount.short_description = "amount"
     display_amount.admin_order_field = "amount"
 
@@ -71,10 +83,15 @@ class InvoiceAdmin(admin.ModelAdmin):
             pi = obj.payment_intents.first()
             return mark_safe(
                 '<a href="{}">{}</a>'.format(
-                reverse("admin:stripe_payments_stripepaymentintent_change", args=(pi.pk,)),
-                pi.payment_intent_id
-            ))
+                    reverse(
+                        "admin:stripe_payments_stripepaymentintent_change",
+                        args=(pi.pk,),
+                    ),
+                    pi.payment_intent_id,
+                )
+            )
         return ""
+
     pi.short_description = "Payment Intent"
 
     def items(self, obj):
@@ -84,14 +101,17 @@ class InvoiceAdmin(admin.ModelAdmin):
 @admin.register(StripePaymentIntent)
 class StripePaymentIntentAdmin(admin.ModelAdmin):
     list_display = ("payment_intent_id", "inv", "username", "status", "items")
-    exclude = ("client_secret","seller")
+    exclude = ("client_secret", "seller")
     fields = (
-        "payment_intent_id", "amount", "description", "status", "invoice",
-        "metadata", "currency" 
+        "payment_intent_id",
+        "amount",
+        "description",
+        "status",
+        "invoice",
+        "metadata",
+        "currency",
     )
-    search_fields = (
-        'payment_intent_id', 'invoice__invoice_id', 'invoice__username'
-    )
+    search_fields = ("payment_intent_id", "invoice__invoice_id", "invoice__username")
     list_filter = ("status", "invoice__username")
     readonly_fields = fields
 
@@ -101,9 +121,11 @@ class StripePaymentIntentAdmin(admin.ModelAdmin):
     def inv(self, obj):
         return mark_safe(
             '<a href="{}">{}</a>'.format(
-            reverse("admin:stripe_payments_invoice_change", args=(obj.invoice.pk,)),
-            obj.invoice.invoice_id
-        ))
+                reverse("admin:stripe_payments_invoice_change", args=(obj.invoice.pk,)),
+                obj.invoice.invoice_id,
+            )
+        )
+
     inv.short_description = "Invoice"
 
     def items(self, obj):
@@ -123,33 +145,45 @@ class StripeRefundAdmin(admin.ModelAdmin):
     list_display = ("refund_id", "pi", "inv", "username", "status", "booking")
 
     fields = (
-        "refund_id", "payment_intent", "invoice", "booking_id", "amount", "status", 
-        "reason", "metadata", "currency" 
+        "refund_id",
+        "payment_intent",
+        "invoice",
+        "booking_id",
+        "amount",
+        "status",
+        "reason",
+        "metadata",
+        "currency",
     )
-    search_fields = (
-        'payment_intent_id', 'invoice__invoice_id', 'invoice__username'
-    )
+    search_fields = ("payment_intent_id", "invoice__invoice_id", "invoice__username")
     list_filter = ("status", "invoice__username")
     readonly_fields = fields
     exclude = ("seller",)
 
     def username(self, obj):
         return obj.invoice.username
-    
+
     def inv(self, obj):
         return mark_safe(
             '<a href="{}">{}</a>'.format(
-            reverse("admin:stripe_payments_invoice_change", args=(obj.invoice.pk,)),
-            obj.invoice.invoice_id
-        ))
+                reverse("admin:stripe_payments_invoice_change", args=(obj.invoice.pk,)),
+                obj.invoice.invoice_id,
+            )
+        )
+
     inv.short_description = "Original Invoice"
 
     def pi(self, obj):
         return mark_safe(
             '<a href="{}">{}</a>'.format(
-            reverse("admin:stripe_payments_stripepaymentintent_change", args=(obj.payment_intent.pk,)),
-            obj.payment_intent.payment_intent_id
-        ))
+                reverse(
+                    "admin:stripe_payments_stripepaymentintent_change",
+                    args=(obj.payment_intent.pk,),
+                ),
+                obj.payment_intent.payment_intent_id,
+            )
+        )
+
     pi.short_description = "Payment Intent"
 
     def booking(self, obj):
@@ -158,13 +192,13 @@ class StripeRefundAdmin(admin.ModelAdmin):
             if booking:
                 return mark_safe(
                     '<a href="{}">{}</a>'.format(
-                    reverse("admin:booking_booking_change", args=(obj.booking_id,)),
-                    booking.event
-                ))
+                        reverse("admin:booking_booking_change", args=(obj.booking_id,)),
+                        booking.event,
+                    )
+                )
         except Booking.DoesNotExist:
             return f"{obj.booking_id} (deleted)"
 
 
 @admin.register(Seller)
-class SellerAdmin(admin.ModelAdmin):
-    ...
+class SellerAdmin(admin.ModelAdmin): ...

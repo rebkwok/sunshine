@@ -7,10 +7,13 @@ def calculate_user_cart_total(
     unpaid_memberships=(),
     unpaid_bookings=(),
     unpaid_gift_vouchers=(),
-    total_voucher=None
+    total_voucher=None,
 ):
     membership_cost = sum(
-        [unpaid_membership.cost_with_voucher for unpaid_membership in unpaid_memberships]
+        [
+            unpaid_membership.cost_with_voucher
+            for unpaid_membership in unpaid_memberships
+        ]
     )
     booking_cost = sum(
         [unpaid_booking.cost_with_voucher for unpaid_booking in unpaid_bookings]
@@ -23,7 +26,7 @@ def calculate_user_cart_total(
     if total_voucher:
         if total_voucher.discount:
             percentage_to_pay = Decimal((100 - total_voucher.discount) / 100)
-            return (cart_total * percentage_to_pay).quantize(Decimal('.01'))
+            return (cart_total * percentage_to_pay).quantize(Decimal(".01"))
         else:
             if total_voucher.discount_amount > cart_total:
                 cart_total = 0

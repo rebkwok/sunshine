@@ -14,82 +14,95 @@ from django.urls import reverse
 
 from activitylog.models import ActivityLog
 import booking.admin as admin
-from booking.email_helpers import email_waiting_lists
-from booking.models import Event, Booking, GiftVoucher, ItemVoucher, Membership, MembershipType, Private, TotalVoucher, Workshop, RegularClass
+from booking.models import (
+    Event,
+    Booking,
+    GiftVoucher,
+    ItemVoucher,
+    Membership,
+    MembershipType,
+    Private,
+    TotalVoucher,
+    Workshop,
+    RegularClass,
+)
 from stripe_payments.models import Invoice, StripeRefund
 
 
 class EventAdminTests(TestCase):
-
     def test_event_date_list_filter(self):
-        baker.make_recipe('booking.past_event', name='past')
-        baker.make_recipe('booking.future_EV', name='future')
+        baker.make_recipe("booking.past_event", name="past")
+        baker.make_recipe("booking.future_EV", name="future")
 
         filter = admin.EventDateListFilter(
-            None, {'date': ['past']}, Event, admin.EventAdmin
+            None, {"date": ["past"]}, Event, admin.EventAdmin
         )
         event = filter.queryset(None, Event.objects.all())[0]
-        assert event.name == 'past'
+        assert event.name == "past"
 
         # default value
-        filter = admin.EventDateListFilter(
-            None, {}, Event, admin.EventAdmin
-        )
+        filter = admin.EventDateListFilter(None, {}, Event, admin.EventAdmin)
         events = filter.queryset(None, Event.objects.all())
         assert len(events), 1
         event = events[0]
-        assert event.name == 'future'
+        assert event.name == "future"
 
-        filter = admin.EventDateListFilter(
-            None, {}, Event, admin.EventAdmin
-        )
+        filter = admin.EventDateListFilter(None, {}, Event, admin.EventAdmin)
         event = filter.queryset(None, Event.objects.all())[0]
-        assert event.name == 'future'
+        assert event.name == "future"
 
         filter = admin.EventDateListFilter(
-            None, {'date': ["all"]}, Event, admin.EventAdmin
+            None, {"date": ["all"]}, Event, admin.EventAdmin
         )
         events = filter.queryset(None, Event.objects.all())
         assert len(events) == 2
 
     def test_get_cancelled_status_display(self):
-        event = baker.make_recipe('booking.future_EV')
+        event = baker.make_recipe("booking.future_EV")
         ev_admin = admin.EventAdmin(Event, AdminSite())
         ev_query = ev_admin.get_queryset(None)[0]
-        assert ev_admin.status(ev_query) == 'OPEN'
+        assert ev_admin.status(ev_query) == "OPEN"
 
         event.cancelled = True
         event.save()
         ev_query = ev_admin.get_queryset(None)[0]
-        assert ev_admin.status(ev_query) == 'CANCELLED'
+        assert ev_admin.status(ev_query) == "CANCELLED"
 
     def test_spaces_left_display(self):
-        event = baker.make_recipe('booking.future_EV', max_participants=5)
-        baker.make_recipe('booking.booking', event=event, _quantity=3)
+        event = baker.make_recipe("booking.future_EV", max_participants=5)
+        baker.make_recipe("booking.booking", event=event, _quantity=3)
 
         ev_admin = admin.EventAdmin(Event, AdminSite())
         ev_query = ev_admin.get_queryset(None)[0]
         assert ev_admin.get_spaces_left(ev_query) == 2
 
     def test_event_date_display(self):
-        event = baker.make_recipe('booking.future_EV', date=datetime(2019, 1, 23, 18, 0, tzinfo=dt_timezone.utc))
-        baker.make_recipe('booking.booking', event=event, _quantity=3)
+        event = baker.make_recipe(
+            "booking.future_EV",
+            date=datetime(2019, 1, 23, 18, 0, tzinfo=dt_timezone.utc),
+        )
+        baker.make_recipe("booking.booking", event=event, _quantity=3)
 
         ev_admin = admin.EventAdmin(Event, AdminSite())
         ev_query = ev_admin.get_queryset(None)[0]
-        assert ev_admin.get_date(ev_query) == 'Wed 23 Jan 2019 18:00 (GMT)'
+        assert ev_admin.get_date(ev_query) == "Wed 23 Jan 2019 18:00 (GMT)"
 
         # BST datetime
         event.date = datetime(2019, 7, 23, 17, 0, tzinfo=dt_timezone.utc)
         event.save()
         ev_query = ev_admin.get_queryset(None)[0]
-        assert ev_admin.get_date(ev_query) == 'Tue 23 Jul 2019 18:00 (BST)'
+        assert ev_admin.get_date(ev_query) == "Tue 23 Jul 2019 18:00 (BST)"
 
     def test_cancel_event_action(self):
-        event = baker.make_recipe('booking.future_EV', max_participants=5)
+        event = baker.make_recipe("booking.future_EV", max_participants=5)
         for i in range(3):
-            baker.make_recipe('booking.booking', event=event, user__email='test{}@test.test'.format(i), paid=True)
-        assert event.bookings.filter(status='OPEN').count() == 3
+            baker.make_recipe(
+                "booking.booking",
+                event=event,
+                user__email="test{}@test.test".format(i),
+                paid=True,
+            )
+        assert event.bookings.filter(status="OPEN").count() == 3
 
         ev_admin = admin.EventAdmin(Event, AdminSite())
         request = Mock()
@@ -97,20 +110,25 @@ class EventAdminTests(TestCase):
         event.refresh_from_db()
         assert event.cancelled
         for booking in event.bookings.all():
-            assert booking.status == 'CANCELLED'
+            assert booking.status == "CANCELLED"
 
         # emails sent to 3 open bookings
-        assert len(mail.outbox) ==  3
+        assert len(mail.outbox) == 3
 
     def test_cancel_event_action_booking_with_membership(self):
-        event = baker.make_recipe('booking.future_EV', max_participants=5)
-        membership = baker.make_recipe('booking.membership', paid=True, user__email='member@test.test')
+        event = baker.make_recipe("booking.future_EV", max_participants=5)
+        membership = baker.make_recipe(
+            "booking.membership", paid=True, user__email="member@test.test"
+        )
         membership_booking = baker.make_recipe(
-            'booking.booking', event=event, user=membership.user, 
-            membership=membership, paid=True
+            "booking.booking",
+            event=event,
+            user=membership.user,
+            membership=membership,
+            paid=True,
         )
         assert membership_booking.membership == membership
-        assert event.bookings.filter(status='OPEN').count() == 1
+        assert event.bookings.filter(status="OPEN").count() == 1
 
         ev_admin = admin.EventAdmin(Event, AdminSite())
         request = Mock()
@@ -121,10 +139,13 @@ class EventAdminTests(TestCase):
         # emails sent to 1 open booking
         assert len(mail.outbox) == 1
         email = mail.outbox[0]
-        assert email.to == ['member@test.test']
-        assert "Credit for this Workshop has been returned to your membership" in email.body
+        assert email.to == ["member@test.test"]
+        assert (
+            "Credit for this Workshop has been returned to your membership"
+            in email.body
+        )
         membership_booking.refresh_from_db()
-        assert membership_booking.status == 'CANCELLED'
+        assert membership_booking.status == "CANCELLED"
         assert not membership_booking.paid
         assert membership_booking.membership is None
 
@@ -132,17 +153,22 @@ class EventAdminTests(TestCase):
     def test_cancel_event_action_booking_with_stripe(self, mock_process_refund):
         mock_process_refund.return_value = True
 
-        event = baker.make_recipe('booking.future_EV', max_participants=5)
+        event = baker.make_recipe("booking.future_EV", max_participants=5)
         invoice = baker.make(
-            Invoice, paid=True, username='member@test.test',
+            Invoice,
+            paid=True,
+            username="member@test.test",
             invoice_id="inv123",
-            stripe_payment_intent_id="pi_123"
+            stripe_payment_intent_id="pi_123",
         )
         booking = baker.make_recipe(
-            'booking.booking', event=event, user__email=invoice.username, 
-            paid=True, invoice=invoice
+            "booking.booking",
+            event=event,
+            user__email=invoice.username,
+            paid=True,
+            invoice=invoice,
         )
-        assert event.bookings.filter(status='OPEN').count() == 1
+        assert event.bookings.filter(status="OPEN").count() == 1
 
         ev_admin = admin.EventAdmin(Event, AdminSite())
         request = Mock()
@@ -153,10 +179,10 @@ class EventAdminTests(TestCase):
         # emails sent to 1 open booking
         assert len(mail.outbox) == 1
         email = mail.outbox[0]
-        assert email.to == ['member@test.test']
+        assert email.to == ["member@test.test"]
         assert "Your refund for this Workshop is being processed" in email.body
         booking.refresh_from_db()
-        assert booking.status == 'CANCELLED'
+        assert booking.status == "CANCELLED"
         assert not booking.paid
         assert booking.membership is None
 
@@ -165,11 +191,20 @@ class EventAdminTests(TestCase):
         mock_process_refund.assert_called_with(request, booking)
 
     def test_cancel_event_action_cancelled_bookings(self):
-        event = baker.make_recipe('booking.future_EV', max_participants=5)
+        event = baker.make_recipe("booking.future_EV", max_participants=5)
         for i in range(3):
-            baker.make_recipe('booking.booking', event=event, user__email='test{}@test.test'.format(i))
-        baker.make_recipe('booking.booking', event=event, no_show=True, user__email='test3@test.test')
-        baker.make_recipe('booking.booking', event=event, status='CANCELLED', user__email='test4@test.test')
+            baker.make_recipe(
+                "booking.booking", event=event, user__email="test{}@test.test".format(i)
+            )
+        baker.make_recipe(
+            "booking.booking", event=event, no_show=True, user__email="test3@test.test"
+        )
+        baker.make_recipe(
+            "booking.booking",
+            event=event,
+            status="CANCELLED",
+            user__email="test4@test.test",
+        )
 
         ev_admin = admin.EventAdmin(Event, AdminSite())
         request = Mock()
@@ -177,17 +212,24 @@ class EventAdminTests(TestCase):
         event.refresh_from_db()
         assert event.cancelled
 
-        assert event.bookings.filter(status='CANCELLED').count() == 4
-        assert event.bookings.filter(status='OPEN', no_show=True).count() == 1
+        assert event.bookings.filter(status="CANCELLED").count() == 4
+        assert event.bookings.filter(status="OPEN", no_show=True).count() == 1
 
         # emails sent to 3 open bookings
         assert len(mail.outbox) == 3
 
     def test_cancel_event_action_cancelled_bookings_only(self):
-        event = baker.make_recipe('booking.future_EV', max_participants=5)
-        baker.make_recipe('booking.booking', event=event, no_show=True, user__email='test3@test.test')
-        baker.make_recipe('booking.booking', event=event, status='CANCELLED', user__email='test4@test.test')
-        assert event.bookings.filter(status='OPEN', no_show=False).count() == 0
+        event = baker.make_recipe("booking.future_EV", max_participants=5)
+        baker.make_recipe(
+            "booking.booking", event=event, no_show=True, user__email="test3@test.test"
+        )
+        baker.make_recipe(
+            "booking.booking",
+            event=event,
+            status="CANCELLED",
+            user__email="test4@test.test",
+        )
+        assert event.bookings.filter(status="OPEN", no_show=False).count() == 0
 
         ev_admin = admin.EventAdmin(Event, AdminSite())
         request = Mock()
@@ -199,8 +241,8 @@ class EventAdminTests(TestCase):
         assert len(mail.outbox) == 0
 
     def test_cancel_event_action_no_bookings(self):
-        event = baker.make_recipe('booking.future_EV', max_participants=5)
-        assert event.bookings.filter(status='OPEN').count() == 0
+        event = baker.make_recipe("booking.future_EV", max_participants=5)
+        assert event.bookings.filter(status="OPEN").count() == 0
 
         ev_admin = admin.EventAdmin(Event, AdminSite())
         request = Mock()
@@ -211,8 +253,8 @@ class EventAdminTests(TestCase):
         assert len(mail.outbox) == 0
 
     def test_cannot_cancel_past_event_with_booking(self):
-        event = baker.make_recipe('booking.past_event')
-        baker.make_recipe('booking.booking', event=event, user__email='test@test.test')
+        event = baker.make_recipe("booking.past_event")
+        baker.make_recipe("booking.booking", event=event, user__email="test@test.test")
 
         ev_admin = admin.EventAdmin(Event, AdminSite())
         request = Mock()
@@ -225,14 +267,18 @@ class EventAdminTests(TestCase):
 
     def test_uncancel_event_action(self):
         assert not ActivityLog.objects.exists()
-        event = baker.make_recipe('booking.future_EV', max_participants=5)
+        event = baker.make_recipe("booking.future_EV", max_participants=5)
         for i in range(3):
             baker.make_recipe(
-                'booking.booking', event=event, user__email='test{}@test.test'.format(i), paid=False, status="CANCELLED"
+                "booking.booking",
+                event=event,
+                user__email="test{}@test.test".format(i),
+                paid=False,
+                status="CANCELLED",
             )
         event.cancelled = True
         event.save()
-        assert event.bookings.filter(status='CANCELLED').count() == 3
+        assert event.bookings.filter(status="CANCELLED").count() == 3
 
         ev_admin = admin.EventAdmin(Event, AdminSite())
         request = Mock()
@@ -240,15 +286,15 @@ class EventAdminTests(TestCase):
         event.refresh_from_db()
         assert not event.cancelled
         for booking in event.bookings.all():
-            assert booking.status == 'CANCELLED'
+            assert booking.status == "CANCELLED"
 
         # emails sent to 3 open bookings
-        assert len(mail.outbox) ==  0
+        assert len(mail.outbox) == 0
         assert "was uncancelled by admin user" in ActivityLog.objects.latest("id").log
 
     def test_cannot_uncancel_past_event_with_cancelled_booking(self):
         assert not ActivityLog.objects.exists()
-        event = baker.make_recipe('booking.past_event', cancelled=True)
+        event = baker.make_recipe("booking.past_event", cancelled=True)
         ev_admin = admin.EventAdmin(Event, AdminSite())
         request = Mock()
         ev_admin.uncancel_event(request, Event.objects.filter(id=event.id))
@@ -258,17 +304,22 @@ class EventAdminTests(TestCase):
 
     def test_cannot_uncancel_uncancelled_event(self):
         assert not ActivityLog.objects.exists()
-        event = baker.make_recipe('booking.future_EV', cancelled=False)
+        event = baker.make_recipe("booking.future_EV", cancelled=False)
         ev_admin = admin.EventAdmin(Event, AdminSite())
         request = Mock()
         ev_admin.uncancel_event(request, Event.objects.filter(id=event.id))
         event.refresh_from_db()
         assert not event.cancelled
         assert not ActivityLog.objects.exists()
-    
+
     def test_cannot_cancel_past_event_with_cancelled_booking(self):
-        event = baker.make_recipe('booking.past_event')
-        baker.make_recipe('booking.booking', event=event, user__email='test@test.test', status='CANCELLED')
+        event = baker.make_recipe("booking.past_event")
+        baker.make_recipe(
+            "booking.booking",
+            event=event,
+            user__email="test@test.test",
+            status="CANCELLED",
+        )
 
         ev_admin = admin.EventAdmin(Event, AdminSite())
         request = Mock()
@@ -284,23 +335,22 @@ class EventAdminTests(TestCase):
         ev_admin = admin.EventAdmin(Event, AdminSite())
         request = Mock(GET=[])
         actions = ev_admin.get_actions(request)
-        assert list(actions.keys()) == ['cancel_event', 'uncancel_event']
+        assert list(actions.keys()) == ["cancel_event", "uncancel_event"]
 
     def test_form_venue_not_deleteable(self):
-        event = baker.make_recipe('booking.future_EV', max_participants=5)
+        event = baker.make_recipe("booking.future_EV", max_participants=5)
         ev_admin = admin.EventAdmin(Event, AdminSite())
         request = Mock()
         form = ev_admin.get_form(request, obj=event)
-        assert not form.base_fields['venue'].widget.can_delete_related
+        assert not form.base_fields["venue"].widget.can_delete_related
 
 
 class EventProxyAdminTests(TestCase):
-
     @classmethod
     def setUpTestData(cls):
-        cls.workshops = baker.make_recipe('booking.future_EV', _quantity=2)
-        cls.regularclasses = baker.make_recipe('booking.future_PC', _quantity=3)
-        cls.privates = baker.make_recipe('booking.future_PV', _quantity=4)
+        cls.workshops = baker.make_recipe("booking.future_EV", _quantity=2)
+        cls.regularclasses = baker.make_recipe("booking.future_PC", _quantity=3)
+        cls.privates = baker.make_recipe("booking.future_PV", _quantity=4)
 
     def test_queryset_workshops(self):
         workshop_admin = admin.WorkshopAdmin(Workshop, AdminSite())
@@ -319,63 +369,73 @@ class EventProxyAdminTests(TestCase):
         ws_admin = admin.WorkshopAdmin(Workshop, AdminSite())
         request = Mock()
         form = ws_admin.get_form(request, obj=self.workshops[0])
-        assert form.base_fields['cost'].help_text == ''
+        assert form.base_fields["cost"].help_text == ""
 
         regclass_admin = admin.RegularClassAdmin(RegularClass, AdminSite())
         request = Mock()
         form = regclass_admin.get_form(request, obj=self.regularclasses[0])
-        assert form.base_fields['cost'].help_text == '(non-membership cost)'
+        assert form.base_fields["cost"].help_text == "(non-membership cost)"
 
         private_admin = admin.PrivateAdmin(Private, AdminSite())
         request = Mock()
         form = private_admin.get_form(request, obj=self.privates[0])
-        assert form.base_fields['cost'].help_text == ''
+        assert form.base_fields["cost"].help_text == ""
 
     def test_status_labels(self):
         superuser = User.objects.create_superuser(
-            username='superuser', password='test', email='super@test.com'
+            username="superuser", password="test", email="super@test.com"
         )
-        self.client.login(username=superuser.username, password='test')
-        resp = self.client.get(reverse('admin:booking_workshop_changelist'))
-        assert 'Workshop Status'in resp.rendered_content
-        assert 'Class Status' not in resp.rendered_content
-        assert 'Event Status' not in resp.rendered_content
+        self.client.login(username=superuser.username, password="test")
+        resp = self.client.get(reverse("admin:booking_workshop_changelist"))
+        assert "Workshop Status" in resp.rendered_content
+        assert "Class Status" not in resp.rendered_content
+        assert "Event Status" not in resp.rendered_content
 
-        resp = self.client.get(reverse('admin:booking_regularclass_changelist'))
-        assert 'Class Status' in resp.rendered_content
-        assert 'Workshop Status' not in  resp.rendered_content
-        assert 'Event Status' not in  resp.rendered_content
+        resp = self.client.get(reverse("admin:booking_regularclass_changelist"))
+        assert "Class Status" in resp.rendered_content
+        assert "Workshop Status" not in resp.rendered_content
+        assert "Event Status" not in resp.rendered_content
 
-        resp = self.client.get(reverse('admin:booking_private_changelist'))
-        assert 'Class Status'in resp.rendered_content
-        assert 'Workshop Status' not in  resp.rendered_content
-        assert 'Event Status' not in resp.rendered_content
+        resp = self.client.get(reverse("admin:booking_private_changelist"))
+        assert "Class Status" in resp.rendered_content
+        assert "Workshop Status" not in resp.rendered_content
+        assert "Event Status" not in resp.rendered_content
 
     def test_cancel_labels(self):
         superuser = User.objects.create_superuser(
-            username='superuser', password='test', email='super@test.com'
+            username="superuser", password="test", email="super@test.com"
         )
-        self.client.login(username=superuser.username, password='test')
-        resp = self.client.get(reverse('admin:booking_workshop_change', args=[self.workshops[0].id]))
-        assert 'Cancel workshop' in resp.rendered_content
-        assert 'Cancel class' not in  resp.rendered_content
-        assert 'Cancel event' not in  resp.rendered_content
+        self.client.login(username=superuser.username, password="test")
+        resp = self.client.get(
+            reverse("admin:booking_workshop_change", args=[self.workshops[0].id])
+        )
+        assert "Cancel workshop" in resp.rendered_content
+        assert "Cancel class" not in resp.rendered_content
+        assert "Cancel event" not in resp.rendered_content
 
-        resp = self.client.get(reverse('admin:booking_regularclass_change', args=[self.regularclasses[0].id]))
-        assert 'Cancel class' in resp.rendered_content
-        assert 'Cancel workshop' not in  resp.rendered_content
-        assert 'Cancel event' not in  resp.rendered_content
+        resp = self.client.get(
+            reverse(
+                "admin:booking_regularclass_change", args=[self.regularclasses[0].id]
+            )
+        )
+        assert "Cancel class" in resp.rendered_content
+        assert "Cancel workshop" not in resp.rendered_content
+        assert "Cancel event" not in resp.rendered_content
 
-        resp = self.client.get(reverse('admin:booking_private_change', args=[self.privates[0].id]))
-        assert 'Cancel class' in  resp.rendered_content
-        assert 'Cancel workshop' not in resp.rendered_content
-        assert 'Cancel event' not in  resp.rendered_content
+        resp = self.client.get(
+            reverse("admin:booking_private_change", args=[self.privates[0].id])
+        )
+        assert "Cancel class" in resp.rendered_content
+        assert "Cancel workshop" not in resp.rendered_content
+        assert "Cancel event" not in resp.rendered_content
 
     def test_cancel_workshop_action(self):
-        event = baker.make_recipe('booking.future_EV', max_participants=5)
+        event = baker.make_recipe("booking.future_EV", max_participants=5)
         for i in range(3):
-            baker.make_recipe('booking.booking', event=event, user__email='test{}@test.test'.format(i))
-        assert event.bookings.filter(status='OPEN').count() == 3
+            baker.make_recipe(
+                "booking.booking", event=event, user__email="test{}@test.test".format(i)
+            )
+        assert event.bookings.filter(status="OPEN").count() == 3
 
         ev_admin = admin.WorkshopAdmin(Workshop, AdminSite())
         request = Mock()
@@ -383,23 +443,27 @@ class EventProxyAdminTests(TestCase):
         event.refresh_from_db()
         assert event.cancelled
         for booking in event.bookings.all():
-            assert booking.status == 'CANCELLED'
+            assert booking.status == "CANCELLED"
 
         # emails sent to 3 open bookings
         assert len(mail.outbox) == 3
 
     def test_uncancel_workshop_action(self):
-        event = baker.make_recipe('booking.future_EV', max_participants=5, cancelled=False)
+        event = baker.make_recipe(
+            "booking.future_EV", max_participants=5, cancelled=False
+        )
         ev_admin = admin.WorkshopAdmin(Workshop, AdminSite())
         request = Mock()
         ev_admin.uncancel_event(request, Workshop.objects.filter(id=event.id))
         assert not event.cancelled
 
     def test_cancel_event_action(self):
-        event = baker.make_recipe('booking.future_PC', max_participants=5)
+        event = baker.make_recipe("booking.future_PC", max_participants=5)
         for i in range(3):
-            baker.make_recipe('booking.booking', event=event, user__email='test{}@test.test'.format(i))
-        assert event.bookings.filter(status='OPEN').count() == 3
+            baker.make_recipe(
+                "booking.booking", event=event, user__email="test{}@test.test".format(i)
+            )
+        assert event.bookings.filter(status="OPEN").count() == 3
 
         ev_admin = admin.RegularClassAdmin(RegularClass, AdminSite())
         request = Mock()
@@ -407,16 +471,18 @@ class EventProxyAdminTests(TestCase):
         event.refresh_from_db()
         assert event.cancelled
         for booking in event.bookings.all():
-            assert booking.status == 'CANCELLED'
+            assert booking.status == "CANCELLED"
 
         # emails sent to 3 open bookings
         assert len(mail.outbox) == 3
 
     def test_cancel_private_action(self):
-        event = baker.make_recipe('booking.future_PV', max_participants=5)
+        event = baker.make_recipe("booking.future_PV", max_participants=5)
         for i in range(3):
-            baker.make_recipe('booking.booking', event=event, user__email='test{}@test.test'.format(i))
-        assert event.bookings.filter(status='OPEN').count() == 3
+            baker.make_recipe(
+                "booking.booking", event=event, user__email="test{}@test.test".format(i)
+            )
+        assert event.bookings.filter(status="OPEN").count() == 3
 
         ev_admin = admin.PrivateAdmin(Private, AdminSite())
         request = Mock()
@@ -424,13 +490,15 @@ class EventProxyAdminTests(TestCase):
         event.refresh_from_db()
         assert event.cancelled
         for booking in event.bookings.all():
-            assert booking.status == 'CANCELLED'
+            assert booking.status == "CANCELLED"
 
         # emails sent to 3 open bookings
         assert len(mail.outbox) == 3
 
     def test_uncancel_private_action(self):
-        event = baker.make_recipe('booking.future_PV', max_participants=5, cancelled=False)
+        event = baker.make_recipe(
+            "booking.future_PV", max_participants=5, cancelled=False
+        )
         ev_admin = admin.PrivateAdmin(Private, AdminSite())
         request = Mock()
         ev_admin.uncancel_event(request, Private.objects.filter(id=event.id))
@@ -441,23 +509,37 @@ class EventProxyAdminTests(TestCase):
         ev_admin = admin.RegularClassAdmin(RegularClass, AdminSite())
         request = Mock(GET=[])
         actions = ev_admin.get_actions(request)
-        assert list(actions.keys()) == ["cancel_event", "uncancel_event", "toggle_members_only"]
+        assert list(actions.keys()) == [
+            "cancel_event",
+            "uncancel_event",
+            "toggle_members_only",
+        ]
 
     def test_uncancel_regular_class_action(self):
-        event = baker.make_recipe('booking.future_PC', max_participants=5, cancelled=False)
+        event = baker.make_recipe(
+            "booking.future_PC", max_participants=5, cancelled=False
+        )
         ev_admin = admin.RegularClassAdmin(RegularClass, AdminSite())
         request = Mock()
         ev_admin.uncancel_event(request, RegularClass.objects.filter(id=event.id))
         assert not event.cancelled
 
     def test_toggle_members_only_action(self):
-        event = baker.make_recipe('booking.future_PC', max_participants=5, members_only=False)
-        event1 = baker.make_recipe('booking.future_PC', max_participants=5, members_only=True)
-        event2 = baker.make_recipe('booking.future_PC', max_participants=5, members_only=True)
+        event = baker.make_recipe(
+            "booking.future_PC", max_participants=5, members_only=False
+        )
+        event1 = baker.make_recipe(
+            "booking.future_PC", max_participants=5, members_only=True
+        )
+        event2 = baker.make_recipe(
+            "booking.future_PC", max_participants=5, members_only=True
+        )
 
         ev_admin = admin.RegularClassAdmin(RegularClass, AdminSite())
         request = Mock()
-        ev_admin.toggle_members_only(request, RegularClass.objects.filter(id__in=[event.id, event1.id]))
+        ev_admin.toggle_members_only(
+            request, RegularClass.objects.filter(id__in=[event.id, event1.id])
+        )
         for ev in [event, event1, event2]:
             ev.refresh_from_db()
 
@@ -469,55 +551,51 @@ class EventProxyAdminTests(TestCase):
 
 
 class BookingAdminTests(TestCase):
-
     @classmethod
     def setUpTestData(cls):
         cls.user = baker.make_recipe(
-            'booking.user', first_name="Test", last_name="User",
-            username="testuser"
+            "booking.user", first_name="Test", last_name="User", username="testuser"
         )
 
     def test_booking_date_list_filter(self):
-        past_event = baker.make_recipe('booking.past_event', name='past')
-        future_event = baker.make_recipe('booking.future_EV', name='future')
-        baker.make_recipe('booking.booking', user=self.user, event=past_event)
-        baker.make_recipe('booking.booking', user=self.user, event=future_event)
+        past_event = baker.make_recipe("booking.past_event", name="past")
+        future_event = baker.make_recipe("booking.future_EV", name="future")
+        baker.make_recipe("booking.booking", user=self.user, event=past_event)
+        baker.make_recipe("booking.booking", user=self.user, event=future_event)
 
         datefilter = admin.BookingDateListFilter(
-            None, {'event__date': ['past']}, Booking, admin.BookingAdmin
+            None, {"event__date": ["past"]}, Booking, admin.BookingAdmin
         )
         qs = datefilter.queryset(None, Booking.objects.all())
         assert qs.count() == 1
-        assert qs.first().event.name == 'past'
+        assert qs.first().event.name == "past"
 
         # no filter parameters returns default (upcoming)
-        datefilter = admin.BookingDateListFilter(
-            None, {}, Booking, admin.BookingAdmin
-        )
+        datefilter = admin.BookingDateListFilter(None, {}, Booking, admin.BookingAdmin)
         qs = datefilter.queryset(None, Booking.objects.all())
         assert qs.count() == 1
-        assert qs.first().event.name == 'future'
+        assert qs.first().event.name == "future"
 
         datefilter = admin.BookingDateListFilter(
-            None, {'event__date': ['all']}, Booking, admin.BookingAdmin
+            None, {"event__date": ["all"]}, Booking, admin.BookingAdmin
         )
         bookings = datefilter.queryset(None, Booking.objects.all())
         assert bookings.count() == 2
 
     def test_booking_admin_display(self):
-        event = baker.make_recipe('booking.future_EV', cost=6)
+        event = baker.make_recipe("booking.future_EV", cost=6)
 
         booking = baker.make_recipe(
-            'booking.booking', user=self.user, event=event, paid=True
+            "booking.booking", user=self.user, event=event, paid=True
         )
 
         booking_admin = admin.BookingAdmin(Booking, AdminSite())
         booking_query = booking_admin.get_queryset(None)[0]
-        
+
         assert booking_admin.event_name(booking_query) == booking.event.name
         assert booking_admin.get_date(booking_query) == booking.event.date
-        assert booking_admin.get_user(booking_query) == 'Test User (testuser)'
-        assert booking_admin.get_cost(booking_query) == u"\u00A3{}.00".format(event.cost)
+        assert booking_admin.get_user(booking_query) == "Test User (testuser)"
+        assert booking_admin.get_cost(booking_query) == "\u00a3{}.00".format(event.cost)
         assert booking_admin.refunded(booking_query) == "-"
 
         baker.make(StripeRefund, booking_id=booking.id)
@@ -526,20 +604,20 @@ class BookingAdminTests(TestCase):
     def test_booking_user_filter_choices(self):
         # test that user filter shows formatted choices ordered by first name
         user = baker.make_recipe(
-            'booking.user', first_name='Donald', last_name='Duck',
-            username='dd')
+            "booking.user", first_name="Donald", last_name="Duck", username="dd"
+        )
         userfilter = admin.UserFilter(None, {}, Booking, admin.BookingAdmin)
         assert userfilter.lookup_choices == [
-            (user.id, 'Donald Duck (dd)'),
-            (self.user.id, 'Test User (testuser)')
+            (user.id, "Donald Duck (dd)"),
+            (self.user.id, "Test User (testuser)"),
         ]
 
     def test_booking_user_filter(self):
         user = baker.make_recipe(
-            'booking.user', first_name='Donald', last_name='Duck',
-            username='dd')
-        baker.make_recipe('booking.booking', user=self.user, _quantity=5)
-        baker.make_recipe('booking.booking', user=user, _quantity=5)
+            "booking.user", first_name="Donald", last_name="Duck", username="dd"
+        )
+        baker.make_recipe("booking.booking", user=self.user, _quantity=5)
+        baker.make_recipe("booking.booking", user=user, _quantity=5)
 
         userfilter = admin.UserFilter(None, {}, Booking, admin.BookingAdmin)
         result = userfilter.queryset(None, Booking.objects.all())
@@ -547,10 +625,12 @@ class BookingAdminTests(TestCase):
         # with no filter parameters, return all
         assert Booking.objects.count() == 10
         assert result.count() == 10
-        assert [booking.id for booking in result] == [booking.id for booking in Booking.objects.all()]
+        assert [booking.id for booking in result] == [
+            booking.id for booking in Booking.objects.all()
+        ]
 
         userfilter = admin.UserFilter(
-            None, {'user': [self.user.id]}, Booking, admin.BookingAdmin
+            None, {"user": [self.user.id]}, Booking, admin.BookingAdmin
         )
         result = userfilter.queryset(None, Booking.objects.all())
         assert result.count() == 5
@@ -560,25 +640,26 @@ class BookingAdminTests(TestCase):
 
 
 class ItemVoucherAdminTests(TestCase):
-
     def test_get_valid_for_display(self):
         membership_type = baker.make(MembershipType, name="test membership")
-        voucher = baker.make(ItemVoucher, event_types=["workshop", "private"], discount=10)
+        voucher = baker.make(
+            ItemVoucher, event_types=["workshop", "private"], discount=10
+        )
         voucher.membership_types.add(membership_type)
         voucher_admin = admin.ItemVoucherAdmin(ItemVoucher, AdminSite())
         voucher_query = voucher_admin.get_queryset(None)[0]
-        assert voucher_admin.valid_for(voucher_query) == 'Membership - test membership, Workshop booking, Private Lesson booking'
-    
+        assert (
+            voucher_admin.valid_for(voucher_query)
+            == "Membership - test membership, Workshop booking, Private Lesson booking"
+        )
+
 
 class TotalVoucherAdminTests(TestCase):
-
     def test_get_queryset(self):
         voucher = baker.make(TotalVoucher, discount=10, is_gift_voucher=False)
         baker.make(TotalVoucher, discount=10, is_gift_voucher=True)
         voucher_admin = admin.TotalVoucherAdmin(TotalVoucher, AdminSite())
-        assert [
-            v.id for v in voucher_admin.get_queryset(None)
-        ] == [voucher.id]
+        assert [v.id for v in voucher_admin.get_queryset(None)] == [voucher.id]
 
 
 @pytest.mark.django_db
@@ -586,12 +667,16 @@ def test_get_gift_voucher_display(membership_gift_voucher, total_gift_voucher):
     total_gift_voucher.activate()
 
     gift_voucher_admin = admin.GiftVoucherAdmin(GiftVoucher, AdminSite())
-    membership_gift_voucher_query = gift_voucher_admin.get_queryset(None).filter(id=membership_gift_voucher.id)[0]
+    membership_gift_voucher_query = gift_voucher_admin.get_queryset(None).filter(
+        id=membership_gift_voucher.id
+    )[0]
     assert gift_voucher_admin.activated(membership_gift_voucher_query) is False
 
-    total_gift_voucher_query = gift_voucher_admin.get_queryset(None).filter(id=total_gift_voucher.id)[0]
+    total_gift_voucher_query = gift_voucher_admin.get_queryset(None).filter(
+        id=total_gift_voucher.id
+    )[0]
     assert gift_voucher_admin.activated(total_gift_voucher_query) is True
-    
+
     assert gift_voucher_admin.link(total_gift_voucher_query) == (
         f'<a href="{total_gift_voucher.get_voucher_url()}">{total_gift_voucher.slug}</a>'
     )
@@ -610,6 +695,8 @@ def test_activate_gift_voucher(membership_gift_voucher):
 
 @pytest.mark.django_db
 def test_membership_admin_month(configured_user):
-    membership = baker.make_recipe("booking.membership", user=configured_user, paid=True, month=2, year=2025)
+    membership = baker.make_recipe(
+        "booking.membership", user=configured_user, paid=True, month=2, year=2025
+    )
     membership_admin = admin.MembershipAdmin(Membership, AdminSite())
     assert membership_admin.get_month(membership) == "February"

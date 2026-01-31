@@ -4,19 +4,18 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('timetable', '0006_alter_timetablesession_show_on_timetable_page'),
+        ("timetable", "0006_alter_timetablesession_show_on_timetable_page"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='timetablesession',
-            name='alt_cost',
+            model_name="timetablesession",
+            name="alt_cost",
         ),
         migrations.AlterField(
-            model_name='timetablesession',
-            name='cost',
+            model_name="timetablesession",
+            name="cost",
             field=models.DecimalField(decimal_places=2, default=8, max_digits=8),
         ),
     ]

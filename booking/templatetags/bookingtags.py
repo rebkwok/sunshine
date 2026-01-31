@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from django.conf import settings
 from django import template
 from django.utils.safestring import mark_safe
 
@@ -10,8 +9,8 @@ from booking.models import Booking
 register = template.Library()
 
 HOURS_CONVERSION = {
-    'weeks': 7 * 24,
-    'days': 24,
+    "weeks": 7 * 24,
+    "days": 24,
 }
 
 
@@ -20,10 +19,10 @@ def format_cancellation(value):
     """
     Convert cancellation period in hours into formatted text
     """
-    weeks = value // HOURS_CONVERSION['weeks']
-    weeks_remainder = value % HOURS_CONVERSION['weeks']
-    days = weeks_remainder // HOURS_CONVERSION['days']
-    hours = weeks_remainder % HOURS_CONVERSION['days']
+    weeks = value // HOURS_CONVERSION["weeks"]
+    weeks_remainder = value % HOURS_CONVERSION["weeks"]
+    days = weeks_remainder // HOURS_CONVERSION["days"]
+    hours = weeks_remainder % HOURS_CONVERSION["days"]
 
     if value <= 24:
         return "{} hour{}".format(value, plural_format(value))
@@ -38,7 +37,7 @@ def format_cancellation(value):
             days,
             plural_format(days),
             hours,
-            plural_format(hours)
+            plural_format(hours),
         )
 
 

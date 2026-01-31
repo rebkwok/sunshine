@@ -5,7 +5,6 @@ from allauth.account.models import EmailAddress
 
 
 class Command(BaseCommand):
-
     def handle(self, *args, **options):
         superuser = User.objects.filter(username="admin", password="admin")
         if not superuser.exists():

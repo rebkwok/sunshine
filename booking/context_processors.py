@@ -3,13 +3,14 @@ from django.conf import settings
 from django.utils import timezone
 
 from .models import Event, GiftVoucherType, MembershipType
-from .views.views_utils import get_unpaid_gift_vouchers_from_session, total_unpaid_item_count
+from .views.views_utils import (
+    get_unpaid_gift_vouchers_from_session,
+    total_unpaid_item_count,
+)
 
 
 def feature_flags(request):
-    return {
-        "legacy_homepage": settings.LEGACY_HOMEPAGE
-    }
+    return {"legacy_homepage": settings.LEGACY_HOMEPAGE}
 
 
 def future_events(request):
@@ -17,7 +18,9 @@ def future_events(request):
     return {
         "future_events": {
             "workshops": future_events.filter(event_type="workshop").exists(),
-            "regular_sessions": future_events.filter(event_type="regular_session").exists(),
+            "regular_sessions": future_events.filter(
+                event_type="regular_session"
+            ).exists(),
             "privates": future_events.filter(event_type="private").exists(),
         },
         "studio_email": settings.DEFAULT_STUDIO_EMAIL,
@@ -37,16 +40,16 @@ def booking(request):
 
     regular_classes = Event.objects.filter(event_type="regular_session")
     if regular_classes.exists():
-        single_cost = regular_classes.latest('id').cost
+        single_cost = regular_classes.latest("id").cost
     else:
         single_cost = Decimal(8)
 
     return {
         # 'use_cdn': not settings.DEBUG or settings.USE_CDN,
-        'studio_email': settings.DEFAULT_STUDIO_EMAIL,
-        'cart_item_count': cart_item_count,
-        'gift_vouchers_available': GiftVoucherType.objects.filter(active=True),
-        'cart_timeout_mins': settings.CART_TIMEOUT_MINUTES,
-        'membership_types': MembershipType.objects.filter(active=True),
-        'single_class_cost': single_cost,
+        "studio_email": settings.DEFAULT_STUDIO_EMAIL,
+        "cart_item_count": cart_item_count,
+        "gift_vouchers_available": GiftVoucherType.objects.filter(active=True),
+        "cart_timeout_mins": settings.CART_TIMEOUT_MINUTES,
+        "membership_types": MembershipType.objects.filter(active=True),
+        "single_class_cost": single_cost,
     }

@@ -8,7 +8,11 @@ class Command(BaseCommand):
     help = "Delete unused invoices (no items and unpaid)"
 
     def handle(self, *args, **options):
-        unused_invoices = [invoice for invoice in Invoice.objects.filter(paid=False) if invoice.item_count() == 0]
+        unused_invoices = [
+            invoice
+            for invoice in Invoice.objects.filter(paid=False)
+            if invoice.item_count() == 0
+        ]
         if unused_invoices:
             log = f"{len(unused_invoices)} unpaid unused invoice(s) deleted: invoice_ids {','.join([invoice.invoice_id for invoice in unused_invoices])}"
             for invoice in unused_invoices:

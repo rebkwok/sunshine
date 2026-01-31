@@ -1,4 +1,3 @@
-from decimal import Decimal
 import json
 import logging
 
@@ -14,22 +13,31 @@ from activitylog.models import ActivityLog
 from .emails import send_failed_payment_emails, send_processed_refund_emails
 from .exceptions import StripeProcessingError
 from .models import Seller, StripePaymentIntent
-from .utils import get_invoice_from_payment_intent, check_stripe_data, process_invoice_items
+from .utils import (
+    get_invoice_from_payment_intent,
+    check_stripe_data,
+    process_invoice_items,
+)
 
 logger = logging.getLogger(__name__)
 
 
-def _process_completed_stripe_payment(payment_intent, invoice, seller=None, request=None):
+def _process_completed_stripe_payment(
+    payment_intent, invoice, seller=None, request=None
+):
     if not invoice.paid:
         logger.info("Updating items to paid for invoice %s", invoice.invoice_id)
         check_stripe_data(payment_intent, invoice)
         logger.info("Stripe check OK")
         process_invoice_items(invoice, payment_method="Stripe", request=request)
         # update/create the django model PaymentIntent - this is just for records
-        StripePaymentIntent.update_or_create_payment_intent_instance(payment_intent, invoice, seller)
+        StripePaymentIntent.update_or_create_payment_intent_instance(
+            payment_intent, invoice, seller
+        )
     else:
         logger.info(
-            "Payment Intents signal received for invoice %s; already processed", invoice.invoice_id
+            "Payment Intents signal received for invoice %s; already processed",
+            invoice.invoice_id,
         )
 
 
@@ -41,21 +49,27 @@ def stripe_payment_complete(request):
         send_failed_payment_emails(
             payment_intent=None, error=f"POST: {str(request.POST)}"
         )
-        return render(request, 'stripe_payments/non_valid_payment.html')
+        return render(request, "stripe_payments/non_valid_payment.html")
 
     payload = json.loads(payload)
     logger.info("Processing payment intent from payload %s", payload)
     stripe.api_key = settings.STRIPE_SECRET_KEY
     seller = Seller.objects.filter(site=Site.objects.get_current(request)).first()
     stripe_account = seller.stripe_user_id
-    payment_intent = stripe.PaymentIntent.retrieve(payload["id"], stripe_account=stripe_account)
+    payment_intent = stripe.PaymentIntent.retrieve(
+        payload["id"], stripe_account=stripe_account
+    )
     failed = False
 
     if payment_intent.status == "succeeded":
-        invoice = get_invoice_from_payment_intent(payment_intent, raise_immediately=False)
+        invoice = get_invoice_from_payment_intent(
+            payment_intent, raise_immediately=False
+        )
         if invoice is not None:
             try:
-                _process_completed_stripe_payment(payment_intent, invoice, seller, request=request)
+                _process_completed_stripe_payment(
+                    payment_intent, invoice, seller, request=request
+                )
             except StripeProcessingError as e:
                 error = f"Error processing Stripe payment: {e}"
                 logger.error(e)
@@ -81,20 +95,22 @@ def stripe_payment_complete(request):
             del request.session["total_voucher_code"]
         context.update({"total_voucher_code": invoice.total_voucher_code})
 
-        return render(request, 'stripe_payments/valid_payment.html', context)
+        return render(request, "stripe_payments/valid_payment.html", context)
     else:
         send_failed_payment_emails(payment_intent=payment_intent, error=error)
-        return render(request, 'stripe_payments/non_valid_payment.html')
+        return render(request, "stripe_payments/non_valid_payment.html")
 
 
 @csrf_exempt
 def stripe_webhook(request):
     stripe.api_key = settings.STRIPE_SECRET_KEY
     payload = request.body
-    sig_header = request.META['HTTP_STRIPE_SIGNATURE']
+    sig_header = request.META["HTTP_STRIPE_SIGNATURE"]
 
     try:
-        event = stripe.Webhook.construct_event(payload, sig_header, settings.STRIPE_ENDPOINT_SECRET)
+        event = stripe.Webhook.construct_event(
+            payload, sig_header, settings.STRIPE_ENDPOINT_SECRET
+        )
     except ValueError as e:
         # Invalid payload
         logger.error(e)
@@ -110,9 +126,14 @@ def stripe_webhook(request):
         for connected_account in connected_accounts:
             seller = Seller.objects.filter(stripe_user_id=connected_account.id)
             if not seller.exists():
-                logger.error(f"Stripe account has no associated seller on this site %s", connected_account.id)
+                logger.error(
+                    "Stripe account has no associated seller on this site %s",
+                    connected_account.id,
+                )
                 # return 200 so we don't keep trying. The error log will trigger an email to support.
-                return HttpResponse("Stripe account has no associated seller on this site", status=200)
+                return HttpResponse(
+                    "Stripe account has no associated seller on this site", status=200
+                )
         return HttpResponse(status=200)
 
     elif event.type == "account.application.deauthorized":
@@ -122,12 +143,16 @@ def stripe_webhook(request):
             if seller.stripe_user_id not in connected_account_ids:
                 seller.site = None
                 seller.save()
-                logger.info(f"Stripe account disconnected: %s", seller.stripe_user_id)
-                ActivityLog.objects.create(log=f"Stripe account disconnected: {seller.stripe_user_id}")
+                logger.info("Stripe account disconnected: %s", seller.stripe_user_id)
+                ActivityLog.objects.create(
+                    log=f"Stripe account disconnected: {seller.stripe_user_id}"
+                )
         return HttpResponse(status=200)
 
     try:
-        site_seller = Seller.objects.filter(site=Site.objects.get_current(request)).first()
+        site_seller = Seller.objects.filter(
+            site=Site.objects.get_current(request)
+        ).first()
         try:
             # This try block is presumably here for a reason, but not sure what it is. I think
             # this could only raise an AttributeError, and then we log and proceed
@@ -141,7 +166,9 @@ def stripe_webhook(request):
                 return HttpResponse("Ignored: Mismatched seller account", status=200)
 
         payment_intent = event_object
-        invoice = get_invoice_from_payment_intent(payment_intent, raise_immediately=True)
+        invoice = get_invoice_from_payment_intent(
+            payment_intent, raise_immediately=True
+        )
         # invoice can be None; this means there was no invoice info in the payment intent
         # metadata, which isn't an error; it's probably a transaction that happened outside
         # of the system. If we got invoice info but couldn't find a matching invoice, this IS
@@ -149,12 +176,16 @@ def stripe_webhook(request):
         if invoice is not None:
             error = None
             if event.type == "payment_intent.succeeded":
-                _process_completed_stripe_payment(payment_intent, invoice, request=request)
+                _process_completed_stripe_payment(
+                    payment_intent, invoice, request=request
+                )
             elif event.type == "payment_intent.refunded":
                 send_processed_refund_emails(invoice)
             elif event.type == "payment_intent.payment_failed":
-                error = f"Failed payment intent id: {payment_intent.id}; invoice id {invoice.invoice_id}; " \
-                        f"error {payment_intent.last_payment_error}"
+                error = (
+                    f"Failed payment intent id: {payment_intent.id}; invoice id {invoice.invoice_id}; "
+                    f"error {payment_intent.last_payment_error}"
+                )
             elif event.type == "payment_intent.requires_action":
                 error = f"Payment intent requires action: id {payment_intent.id}; invoice id {invoice.invoice_id}"
             if error:

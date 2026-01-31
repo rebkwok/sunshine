@@ -19,6 +19,7 @@ from stripe_payments.models import Seller
 
 log = logging.getLogger(__name__)
 
+
 # Decorator for django models that contain readonly fields.
 def has_readonly_fields(original_class):
     def store_read_only_fields(sender, instance, **kwargs):
@@ -48,17 +49,18 @@ def has_readonly_fields(original_class):
                 raise ValueError("Field %s is read only." % field_name)
 
     models.signals.post_init.connect(
-        store_read_only_fields, original_class, weak=False) # for load
+        store_read_only_fields, original_class, weak=False
+    )  # for load
     models.signals.post_save.connect(
-        store_read_only_fields, original_class, weak=False) # for save
-    models.signals.pre_save.connect(
-        check_read_only_fields, original_class, weak=False)
+        store_read_only_fields, original_class, weak=False
+    )  # for save
+    models.signals.pre_save.connect(check_read_only_fields, original_class, weak=False)
     return original_class
 
 
 @has_readonly_fields
 class CookiePolicy(models.Model):
-    read_only_fields = ('content', 'version', 'issue_date')
+    read_only_fields = ("content", "version", "issue_date")
 
     content = models.TextField()
     version = models.DecimalField(unique=True, decimal_places=1, max_digits=100)
@@ -76,30 +78,29 @@ class CookiePolicy(models.Model):
 
     @classmethod
     def current(cls):
-        return CookiePolicy.objects.order_by('version').last()
+        return CookiePolicy.objects.order_by("version").last()
 
     def __str__(self):
-        return 'Cookie Policy - Version {}'.format(self.version)
+        return "Cookie Policy - Version {}".format(self.version)
 
     def save(self, **kwargs):
-
         if not self.id:
             current = CookiePolicy.current()
             if current and current.content == self.content:
-                raise ValidationError('No changes made to content; not saved')
+                raise ValidationError("No changes made to content; not saved")
 
         if not self.id and not self.version:
             # if no version specified, go to next major version
             self.version = floor((CookiePolicy.current_version() + 1))
         super().save(**kwargs)
         ActivityLog.objects.create(
-            log='CookiePolicy version {} created'.format(self.version)
+            log="CookiePolicy version {} created".format(self.version)
         )
 
 
 @has_readonly_fields
 class DataPrivacyPolicy(models.Model):
-    read_only_fields = ('content', 'version', 'issue_date')
+    read_only_fields = ("content", "version", "issue_date")
 
     content = models.TextField()
     version = models.DecimalField(unique=True, decimal_places=1, max_digits=100)
@@ -117,42 +118,41 @@ class DataPrivacyPolicy(models.Model):
 
     @classmethod
     def current(cls):
-        return DataPrivacyPolicy.objects.order_by('version').last()
+        return DataPrivacyPolicy.objects.order_by("version").last()
 
     def __str__(self):
-        return 'Data Privacy Policy - Version {}'.format(self.version)
+        return "Data Privacy Policy - Version {}".format(self.version)
 
     def save(self, **kwargs):
-
         if not self.id:
             current = DataPrivacyPolicy.current()
             if current and current.content == self.content:
-                raise ValidationError('No changes made to content; not saved')
+                raise ValidationError("No changes made to content; not saved")
 
         if not self.id and not self.version:
             # if no version specified, go to next major version
             self.version = floor((DataPrivacyPolicy.current_version() + 1))
         super().save(**kwargs)
         ActivityLog.objects.create(
-            log='Data Privacy Policy version {} created'.format(self.version)
+            log="Data Privacy Policy version {} created".format(self.version)
         )
 
 
 class SignedDataPrivacy(models.Model):
-    read_only_fields = ('date_signed', 'version')
+    read_only_fields = ("date_signed", "version")
 
     user = models.ForeignKey(
-        User, related_name='data_privacy_agreement', on_delete=models.CASCADE
+        User, related_name="data_privacy_agreement", on_delete=models.CASCADE
     )
     date_signed = models.DateTimeField(default=timezone.now)
     version = models.DecimalField(decimal_places=1, max_digits=100)
 
     class Meta:
-        unique_together = ('user', 'version')
+        unique_together = ("user", "version")
         verbose_name = "Signed Data Privacy Agreement"
 
     def __str__(self):
-        return '{} - V{}'.format(self.user.username, self.version)
+        return "{} - V{}".format(self.user.username, self.version)
 
     @property
     def is_active(self):
@@ -163,14 +163,16 @@ class SignedDataPrivacy(models.Model):
         cache.delete(active_data_privacy_cache_key(self.user))
         if not self.id:
             ActivityLog.objects.create(
-                log="Signed data privacy policy agreement created: {}".format(self.__str__())
+                log="Signed data privacy policy agreement created: {}".format(
+                    self.__str__()
+                )
             )
         super().save(**kwargs)
 
 
 @has_readonly_fields
 class DisclaimerContent(models.Model):
-    read_only_fields = ('disclaimer_terms', 'version', 'issue_date', 'form')
+    read_only_fields = ("disclaimer_terms", "version", "issue_date", "form")
     disclaimer_terms = models.TextField()
     version = models.DecimalField(unique=True, decimal_places=1, max_digits=100)
     issue_date = models.DateTimeField(default=timezone.now)
@@ -190,20 +192,26 @@ class DisclaimerContent(models.Model):
 
     @classmethod
     def current(cls):
-        return DisclaimerContent.objects.filter(is_draft=False).order_by('version').last()
+        return (
+            DisclaimerContent.objects.filter(is_draft=False).order_by("version").last()
+        )
 
     @property
     def status(self):
         return "draft" if self.is_draft else "published"
 
     def __str__(self):
-        return f'Disclaimer Terms & PARQ - Version {self.version} ({self.status})'
+        return f"Disclaimer Terms & PARQ - Version {self.version} ({self.status})"
 
     def save(self, **kwargs):
         if not self.id:
             current = DisclaimerContent.current()
-            if current and current.disclaimer_terms == self.disclaimer_terms and current.form == self.form:
-                raise ValidationError('No changes made to content; not saved')
+            if (
+                current
+                and current.disclaimer_terms == self.disclaimer_terms
+                and current.form == self.form
+            ):
+                raise ValidationError("No changes made to content; not saved")
 
         if not self.id and not self.version:
             # if no version specified, go to next major version
@@ -214,13 +222,13 @@ class DisclaimerContent(models.Model):
             self.issue_date = timezone.now()
         super().save(**kwargs)
         ActivityLog.objects.create(
-            log='Disclaimer Terms & PARQ version {} created'.format(self.version)
+            log="Disclaimer Terms & PARQ version {} created".format(self.version)
         )
 
 
 @has_readonly_fields
 class BaseOnlineDisclaimer(models.Model):
-    read_only_fields = ('date', 'version')
+    read_only_fields = ("date", "version")
     date = models.DateTimeField(default=timezone.now)
     version = models.DecimalField(decimal_places=1, max_digits=100)
 
@@ -241,9 +249,8 @@ class BaseOnlineDisclaimer(models.Model):
 
 @has_readonly_fields
 class OnlineDisclaimer(BaseOnlineDisclaimer):
-
     user = models.ForeignKey(
-        User, related_name='online_disclaimer', on_delete=models.CASCADE
+        User, related_name="online_disclaimer", on_delete=models.CASCADE
     )
 
     date_updated = models.DateTimeField(null=True, blank=True)
@@ -254,74 +261,80 @@ class OnlineDisclaimer(BaseOnlineDisclaimer):
         ]
 
     def __str__(self):
-        return '{} {} ({}) - V{} - {}'.format(
+        return "{} {} ({}) - V{} - {}".format(
             self.user.first_name,
             self.user.last_name,
             self.user.username,
             self.version,
-            self.date.astimezone(pytz.timezone('Europe/London')).strftime('%d %b %Y, %H:%M'))
+            self.date.astimezone(pytz.timezone("Europe/London")).strftime(
+                "%d %b %Y, %H:%M"
+            ),
+        )
 
     @property
     def is_active(self):
         # Disclaimer is active if it was signed <1 yr ago AND it is the current version
         date_signed = self.date_updated if self.date_updated else self.date
-        return self.version == DisclaimerContent.current_version() and (date_signed + timedelta(days=365)) > timezone.now()
+        return (
+            self.version == DisclaimerContent.current_version()
+            and (date_signed + timedelta(days=365)) > timezone.now()
+        )
 
     def save(self, **kwargs):
         if not self.id:
             # Can't create a new disclaimer if an active one already exists (we can end up here when
             # a user double-clicks the save button)
             if has_active_disclaimer(self.user):
-                log.info(f"{self.user} aleady has active disclaimer, not creating another")
+                log.info(
+                    f"{self.user} aleady has active disclaimer, not creating another"
+                )
                 return
-            ActivityLog.objects.create(
-                log=f"Online disclaimer created: {self}"
-            )
+            ActivityLog.objects.create(log=f"Online disclaimer created: {self}")
             # delete the cache keys to force re-cache on next retrieval
             cache.delete(active_disclaimer_cache_key(self.user))
             cache.delete(expired_disclaimer_cache_key(self.user))
         else:
             self.date_updated = timezone.now()
-            ActivityLog.objects.create(
-                    log=f"Online disclaimer updated: {self}"
-                )
+            ActivityLog.objects.create(log=f"Online disclaimer updated: {self}")
         super().save(**kwargs)
 
 
 class ArchivedDisclaimer(BaseOnlineDisclaimer):
-
     name = models.CharField(max_length=255)
     date_updated = models.DateTimeField(null=True, blank=True)
     date_archived = models.DateTimeField(default=timezone.now)
-    date_of_birth = models.DateField(verbose_name='date of birth')
+    date_of_birth = models.DateField(verbose_name="date of birth")
     phone = models.CharField(max_length=255, null=True, blank=True)
 
     def __str__(self):
-        return '{} - V{} - {} (archived {})'.format(
+        return "{} - V{} - {} (archived {})".format(
             self.name,
             self.version,
-            self.date.astimezone(pytz.timezone('Europe/London')).strftime('%d %b %Y, %H:%M'),
-            self.date_archived.astimezone(pytz.timezone('Europe/London')).strftime('%d %b %Y, %H:%M')
+            self.date.astimezone(pytz.timezone("Europe/London")).strftime(
+                "%d %b %Y, %H:%M"
+            ),
+            self.date_archived.astimezone(pytz.timezone("Europe/London")).strftime(
+                "%d %b %Y, %H:%M"
+            ),
         )
 
 
 # CACHING
 
+
 def active_disclaimer_cache_key(user):
-    return f'user_{user.id}_active_disclaimer_v{DisclaimerContent.current_version()}'
+    return f"user_{user.id}_active_disclaimer_v{DisclaimerContent.current_version()}"
 
 
 def expired_disclaimer_cache_key(user):
-    return 'user_{}_expired_disclaimer'.format(user.id)
+    return "user_{}_expired_disclaimer".format(user.id)
 
 
 def has_active_disclaimer(user):
     key = active_disclaimer_cache_key(user)
     has_disclaimer = cache.get(key)
     if has_disclaimer is None:
-        has_disclaimer = any(
-            od.is_active for od in user.online_disclaimer.all()
-        )
+        has_disclaimer = any(od.is_active for od in user.online_disclaimer.all())
         cache.set(key, has_disclaimer, timeout=600)
     else:
         has_disclaimer = bool(cache.get(key))
@@ -347,5 +360,6 @@ def has_expired_disclaimer(user):
 @property
 def is_seller(self):
     return Seller.objects.filter(user=self).exists()
+
 
 User.add_to_class("is_seller", is_seller)

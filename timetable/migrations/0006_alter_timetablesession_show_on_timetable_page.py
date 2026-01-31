@@ -4,15 +4,17 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('timetable', '0005_auto_20211103_1033'),
+        ("timetable", "0005_auto_20211103_1033"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='timetablesession',
-            name='show_on_timetable_page',
-            field=models.BooleanField(default=True, help_text='Display this session on the website timetable page (note: private lessons are never displayed on the timetable page)'),
+            model_name="timetablesession",
+            name="show_on_timetable_page",
+            field=models.BooleanField(
+                default=True,
+                help_text="Display this session on the website timetable page (note: private lessons are never displayed on the timetable page)",
+            ),
         ),
     ]

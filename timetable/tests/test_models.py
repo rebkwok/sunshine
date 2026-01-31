@@ -4,7 +4,6 @@ import pytest
 from model_bakery import baker
 
 from django.core import exceptions
-from django.test import TestCase
 
 from ..models import SessionType, Category, Location, Venue, TimetableSession
 
@@ -18,16 +17,19 @@ def test_session_type_str():
 
 
 def test_session_type_display_on_site_requires_descriptiom():
-    session_type = baker.make(SessionType, name="Pole", display_on_site=True, description=None)
+    session_type = baker.make(
+        SessionType, name="Pole", display_on_site=True, description=None
+    )
     with pytest.raises(exceptions.ValidationError, match="add a description"):
         session_type.clean()
 
 
 def test_venue_str():
     venue = baker.make(
-        Venue, name="Sunshine Studio",
+        Venue,
+        name="Sunshine Studio",
         location__address="1 Street",
-        abbreviation="Sunshine"
+        abbreviation="Sunshine",
     )
     assert str(venue) == "Sunshine Studio"
 
@@ -44,12 +46,12 @@ def test_category_str():
 
 def test_timetable_session_str():
     ttsession = baker.make(
-        TimetableSession, 
-        name="Pole", 
-        level="All levels", 
-        venue__abbreviation="Studio", 
-        session_day="01MO", 
-        start_time=time(13, 0), 
+        TimetableSession,
+        name="Pole",
+        level="All levels",
+        venue__abbreviation="Studio",
+        session_day="01MO",
+        start_time=time(13, 0),
     )
     assert str(ttsession) == "Pole (All levels), Studio, Monday 13:00"
 
@@ -61,17 +63,19 @@ def test_timetable_session_str():
         ("private class", True, False),
         ("Other class", True, True),
         ("Other class", False, False),
-    ]
+    ],
 )
-def test_timetable_session_never_show_private_on_timetable(session_type_name, show_on_timetable, expected):
+def test_timetable_session_never_show_private_on_timetable(
+    session_type_name, show_on_timetable, expected
+):
     ttsession = baker.make(
         TimetableSession,
         session_type__name=session_type_name,
-        name="Class", 
-        level="All levels", 
-        venue__abbreviation="Studio", 
-        session_day="01MO", 
+        name="Class",
+        level="All levels",
+        venue__abbreviation="Studio",
+        session_day="01MO",
         start_time=time(13, 0),
-        show_on_timetable_page=show_on_timetable
+        show_on_timetable_page=show_on_timetable,
     )
     assert ttsession.show_on_timetable_page == expected

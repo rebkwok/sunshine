@@ -5,63 +5,170 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='MembershipCategory',
+            name="MembershipCategory",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=255)),
-                ('description', models.TextField(blank=True, null=True)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=255)),
+                ("description", models.TextField(blank=True, null=True)),
             ],
         ),
         migrations.CreateModel(
-            name='SessionType',
+            name="SessionType",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('index', models.PositiveIntegerField(blank=True, null=True)),
-                ('name', models.CharField(max_length=255)),
-                ('info', models.TextField(null=True, verbose_name='session description')),
-                ('regular_session', models.BooleanField(default=True, help_text='Tick this box to list this class type and its description on the homepage', verbose_name='display session')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("index", models.PositiveIntegerField(blank=True, null=True)),
+                ("name", models.CharField(max_length=255)),
+                (
+                    "info",
+                    models.TextField(null=True, verbose_name="session description"),
+                ),
+                (
+                    "regular_session",
+                    models.BooleanField(
+                        default=True,
+                        help_text="Tick this box to list this class type and its description on the homepage",
+                        verbose_name="display session",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'class',
-                'verbose_name_plural': 'classes',
+                "verbose_name": "class",
+                "verbose_name_plural": "classes",
             },
         ),
         migrations.CreateModel(
-            name='Venue',
+            name="Venue",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(default='Venue TBC', max_length=255)),
-                ('address', models.CharField(blank=True, max_length=255, null=True)),
-                ('postcode', models.CharField(blank=True, max_length=255, null=True)),
-                ('abbreviation', models.CharField(default='', max_length=20)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(default="Venue TBC", max_length=255)),
+                ("address", models.CharField(blank=True, max_length=255, null=True)),
+                ("postcode", models.CharField(blank=True, max_length=255, null=True)),
+                ("abbreviation", models.CharField(default="", max_length=20)),
             ],
         ),
         migrations.CreateModel(
-            name='TimetableSession',
+            name="TimetableSession",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('level', models.CharField(default='All levels', max_length=255)),
-                ('session_day', models.CharField(choices=[('01MO', 'Monday'), ('02TU', 'Tuesday'), ('03WE', 'Wednesday'), ('04TH', 'Thursday'), ('05FR', 'Friday'), ('06SA', 'Saturday'), ('07SU', 'Sunday')], max_length=4)),
-                ('start_time', models.TimeField()),
-                ('end_time', models.TimeField()),
-                ('name', models.CharField(default='', max_length=255)),
-                ('cost', models.DecimalField(decimal_places=2, default=7, help_text='Cost for non-members', max_digits=8)),
-                ('alt_cost', models.DecimalField(blank=True, decimal_places=2, help_text='Cost for additional session for members', max_digits=8, null=True, verbose_name='Member cost')),
-                ('max_participants', models.PositiveIntegerField(default=12)),
-                ('cancellation_fee', models.DecimalField(decimal_places=2, default=1.0, max_digits=8)),
-                ('members_only', models.BooleanField(default=False, help_text='Classes are only available to students with memberships')),
-                ('show_on_timetable_page', models.BooleanField(default=True, help_text='Display this session on the website timetable page')),
-                ('membership_category', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='timetable.membershipcategory')),
-                ('session_type', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='timetable.sessiontype')),
-                ('venue', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='timetable.venue')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("level", models.CharField(default="All levels", max_length=255)),
+                (
+                    "session_day",
+                    models.CharField(
+                        choices=[
+                            ("01MO", "Monday"),
+                            ("02TU", "Tuesday"),
+                            ("03WE", "Wednesday"),
+                            ("04TH", "Thursday"),
+                            ("05FR", "Friday"),
+                            ("06SA", "Saturday"),
+                            ("07SU", "Sunday"),
+                        ],
+                        max_length=4,
+                    ),
+                ),
+                ("start_time", models.TimeField()),
+                ("end_time", models.TimeField()),
+                ("name", models.CharField(default="", max_length=255)),
+                (
+                    "cost",
+                    models.DecimalField(
+                        decimal_places=2,
+                        default=7,
+                        help_text="Cost for non-members",
+                        max_digits=8,
+                    ),
+                ),
+                (
+                    "alt_cost",
+                    models.DecimalField(
+                        blank=True,
+                        decimal_places=2,
+                        help_text="Cost for additional session for members",
+                        max_digits=8,
+                        null=True,
+                        verbose_name="Member cost",
+                    ),
+                ),
+                ("max_participants", models.PositiveIntegerField(default=12)),
+                (
+                    "cancellation_fee",
+                    models.DecimalField(decimal_places=2, default=1.0, max_digits=8),
+                ),
+                (
+                    "members_only",
+                    models.BooleanField(
+                        default=False,
+                        help_text="Classes are only available to students with memberships",
+                    ),
+                ),
+                (
+                    "show_on_timetable_page",
+                    models.BooleanField(
+                        default=True,
+                        help_text="Display this session on the website timetable page",
+                    ),
+                ),
+                (
+                    "membership_category",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="timetable.membershipcategory",
+                    ),
+                ),
+                (
+                    "session_type",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="timetable.sessiontype",
+                    ),
+                ),
+                (
+                    "venue",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="timetable.venue",
+                    ),
+                ),
             ],
         ),
     ]

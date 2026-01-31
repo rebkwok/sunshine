@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("timetable", "0007_remove_timetablesession_alt_cost_and_more"),
     ]

@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
-from cmath import log
 from decimal import Decimal
-from importlib.metadata import metadata
 import logging
 
 from django.conf import settings
@@ -9,7 +7,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.sites.models import Site
 from django.contrib import messages
 from django.template.response import TemplateResponse
-from django.shortcuts import get_object_or_404, render, HttpResponseRedirect
+from django.shortcuts import HttpResponseRedirect
 from django.views.decorators.http import require_http_methods
 from django.http import JsonResponse
 from django.urls import reverse
@@ -22,23 +20,23 @@ from stripe_payments.models import Invoice, Seller, StripePaymentIntent
 from ..models import Booking, ItemVoucher, Membership, TotalVoucher
 from ..utils import calculate_user_cart_total, full_name
 from .views_utils import (
-    data_privacy_required, 
+    data_privacy_required,
     get_unpaid_bookings,
     get_unpaid_memberships,
     get_unpaid_gift_vouchers,
     redirect_to_voucher_cart,
-    get_unpaid_gift_vouchers_from_session
+    get_unpaid_gift_vouchers_from_session,
 )
 from .voucher_utils import (
     validate_voucher_for_user,
     validate_total_voucher_for_checkout_user,
     validate_voucher_for_unpaid_item,
     validate_voucher_for_items_in_cart,
-    validate_voucher_properties, 
+    validate_voucher_properties,
     get_valid_applied_voucher_info,
-    _verify_item_vouchers, 
-    _get_and_verify_total_vouchers, 
-    VoucherValidationError
+    _verify_item_vouchers,
+    _get_and_verify_total_vouchers,
+    VoucherValidationError,
 )
 
 
@@ -49,13 +47,14 @@ def guest_shopping_basket(request):
     if request.user.is_authenticated:
         return HttpResponseRedirect(reverse("booking:shopping_basket"))
 
-    template_name = 'booking/shopping_basket.html'
+    template_name = "booking/shopping_basket.html"
     gift_vouchers = get_unpaid_gift_vouchers_from_session(request)
     unpaid_gift_voucher_info = [
         {
             "gift_voucher": gift_voucher,
             "cost": gift_voucher.gift_voucher_type.cost,
-        } for gift_voucher in gift_vouchers
+        }
+        for gift_voucher in gift_vouchers
     ]
     total = calculate_user_cart_total(unpaid_gift_vouchers=gift_vouchers)
 
@@ -67,21 +66,17 @@ def guest_shopping_basket(request):
         "unpaid_gift_voucher_info": unpaid_gift_voucher_info,
         "unpaid_merchandise": [],
         "total_cost_without_total_voucher": total,
-        "total_cost": total
+        "total_cost": total,
     }
 
-    return TemplateResponse(
-        request,
-        template_name,
-        context
-    )
+    return TemplateResponse(request, template_name, context)
 
 
 @data_privacy_required
 @redirect_to_voucher_cart
 @login_required
 def shopping_basket_view(request):
-    template_name = 'booking/shopping_basket.html'
+    template_name = "booking/shopping_basket.html"
 
     context = {}
     unpaid_memberships = get_unpaid_memberships(request.user)
@@ -89,7 +84,7 @@ def shopping_basket_view(request):
     unpaid_bookings = get_unpaid_bookings(request.user)
     unpaid_booking_ids = unpaid_bookings.values_list("id", flat=True)
     unpaid_gift_vouchers = get_unpaid_gift_vouchers(request.user)
-        
+
     if request.method == "POST":
         code = request.POST.get("code")
         # remove any extraneous whitespace
@@ -130,14 +125,24 @@ def shopping_basket_view(request):
                     # check overall user validation, not specific to the block user
                     validate_voucher_properties(voucher)
                     if voucher_type == "item":
-                        validate_voucher_for_items_in_cart(voucher, unpaid_memberships, unpaid_bookings)
+                        validate_voucher_for_items_in_cart(
+                            voucher, unpaid_memberships, unpaid_bookings
+                        )
                         # validate for user
                         validate_voucher_for_user(voucher, request.user)
-                        for item_type, item_set in [("membership", unpaid_memberships), ("booking", unpaid_bookings)]:
+                        for item_type, item_set in [
+                            ("membership", unpaid_memberships),
+                            ("booking", unpaid_bookings),
+                        ]:
                             for item in item_set:
                                 if voucher.check_item(item):
                                     try:
-                                        validate_voucher_for_unpaid_item(item_type, item, voucher, check_voucher_properties=False)
+                                        validate_voucher_for_unpaid_item(
+                                            item_type,
+                                            item,
+                                            voucher,
+                                            check_voucher_properties=False,
+                                        )
                                         # Passed all validation checks; apply it
                                         item.voucher = voucher
                                         item.save()
@@ -145,7 +150,9 @@ def shopping_basket_view(request):
                                         _add_voucher_error_to_list(user_voucher_error)
                     else:
                         try:
-                            validate_total_voucher_for_checkout_user(voucher, request.user)
+                            validate_total_voucher_for_checkout_user(
+                                voucher, request.user
+                            )
                             request.session["total_voucher_code"] = voucher.code
                         except VoucherValidationError as user_voucher_error:
                             _add_voucher_error_to_list(user_voucher_error)
@@ -178,7 +185,7 @@ def shopping_basket_view(request):
         }
         for membership in unpaid_memberships
     ]
-        # calculate the unpaid booking costs
+    # calculate the unpaid booking costs
     unpaid_booking_info = [
         {
             "booking": booking,
@@ -199,52 +206,59 @@ def shopping_basket_view(request):
     # We do this AFTER generating the voucher applied costs, as that may have modified some used vouchers if they weren't valid
     applied_voucher_codes_and_discount = set(
         list(
-            Membership.objects.filter(id__in=unpaid_membership_ids, voucher__isnull=False)
-                .order_by("voucher__code")
-                .distinct("voucher__code")
-                .values_list("voucher__code", "voucher__discount", "voucher__discount_amount")
-        ) + 
-        list(
+            Membership.objects.filter(
+                id__in=unpaid_membership_ids, voucher__isnull=False
+            )
+            .order_by("voucher__code")
+            .distinct("voucher__code")
+            .values_list(
+                "voucher__code", "voucher__discount", "voucher__discount_amount"
+            )
+        )
+        + list(
             Booking.objects.filter(id__in=unpaid_booking_ids, voucher__isnull=False)
-                .order_by("voucher__code")
-                .distinct("voucher__code")
-                .values_list("voucher__code", "voucher__discount", "voucher__discount_amount")
+            .order_by("voucher__code")
+            .distinct("voucher__code")
+            .values_list(
+                "voucher__code", "voucher__discount", "voucher__discount_amount"
+            )
         )
     )
 
     total_voucher_code = request.session.get("total_voucher_code")
     if total_voucher_code:
         total_voucher = TotalVoucher.objects.get(code=total_voucher_code)
-        applied_voucher_codes_and_discount.add((total_voucher.code, total_voucher.discount, total_voucher.discount_amount))
+        applied_voucher_codes_and_discount.add(
+            (total_voucher.code, total_voucher.discount, total_voucher.discount_amount)
+        )
     else:
         total_voucher = None
 
-    context.update({
-        "unpaid_items": unpaid_booking_info or unpaid_membership_info or unpaid_gift_voucher_info,
-        "unpaid_booking_info": unpaid_booking_info,
-        "applied_voucher_codes_and_discount": applied_voucher_codes_and_discount,
-        "unpaid_membership_info": unpaid_membership_info,
-        "unpaid_gift_voucher_info": unpaid_gift_voucher_info,
-        "total_cost_without_total_voucher": calculate_user_cart_total(unpaid_memberships, unpaid_bookings, unpaid_gift_vouchers),
-        "total_cost": calculate_user_cart_total(unpaid_memberships, unpaid_bookings, unpaid_gift_vouchers, total_voucher)
-    })
-
-    return TemplateResponse(
-        request,
-        template_name,
-        context
+    context.update(
+        {
+            "unpaid_items": unpaid_booking_info
+            or unpaid_membership_info
+            or unpaid_gift_voucher_info,
+            "unpaid_booking_info": unpaid_booking_info,
+            "applied_voucher_codes_and_discount": applied_voucher_codes_and_discount,
+            "unpaid_membership_info": unpaid_membership_info,
+            "unpaid_gift_voucher_info": unpaid_gift_voucher_info,
+            "total_cost_without_total_voucher": calculate_user_cart_total(
+                unpaid_memberships, unpaid_bookings, unpaid_gift_vouchers
+            ),
+            "total_cost": calculate_user_cart_total(
+                unpaid_memberships, unpaid_bookings, unpaid_gift_vouchers, total_voucher
+            ),
+        }
     )
+
+    return TemplateResponse(request, template_name, context)
 
 
 def _check_items_and_get_updated_invoice(request):
     total = Decimal(request.POST.get("cart_total"))
 
-    checked = {
-        "total": total,
-        "invoice": None,
-        "redirect": False,
-        "redirect_url": None
-    }
+    checked = {"total": total, "invoice": None, "redirect": False, "redirect_url": None}
 
     if request.user.is_authenticated:
         unpaid_memberships = get_unpaid_memberships(request.user)
@@ -253,7 +267,9 @@ def _check_items_and_get_updated_invoice(request):
 
         if not (unpaid_memberships or unpaid_bookings or unpaid_gift_vouchers):
             messages.warning(request, "Your cart is empty")
-            checked.update({"redirect": True, "redirect_url": reverse("booking:shopping_basket")})
+            checked.update(
+                {"redirect": True, "redirect_url": reverse("booking:shopping_basket")}
+            )
             return checked
 
         _verify_item_vouchers(unpaid_memberships, unpaid_bookings)
@@ -265,19 +281,28 @@ def _check_items_and_get_updated_invoice(request):
         unpaid_gift_vouchers = get_unpaid_gift_vouchers_from_session(request)
         if not unpaid_gift_vouchers:
             messages.warning(request, "Your cart is empty")
-            checked.update({"redirect": True, "redirect_url": reverse("booking:guest_shopping_basket")})
+            checked.update(
+                {
+                    "redirect": True,
+                    "redirect_url": reverse("booking:guest_shopping_basket"),
+                }
+            )
             return checked
 
     checked_total = calculate_user_cart_total(
         unpaid_memberships=unpaid_memberships,
         unpaid_bookings=unpaid_bookings,
         unpaid_gift_vouchers=unpaid_gift_vouchers,
-        total_voucher=total_voucher
+        total_voucher=total_voucher,
     )
 
     if total != checked_total:
-        messages.error(request, "Some cart items changed; please refresh the page and try again")
-        checked.update({"redirect": True, "redirect_url": reverse("booking:shopping_basket")})
+        messages.error(
+            request, "Some cart items changed; please refresh the page and try again"
+        )
+        checked.update(
+            {"redirect": True, "redirect_url": reverse("booking:shopping_basket")}
+        )
         return checked
 
     for unpaid_booking in unpaid_bookings:
@@ -293,12 +318,16 @@ def _check_items_and_get_updated_invoice(request):
     unpaid_membership_ids = {membership.id for membership in unpaid_memberships}
     unpaid_booking_ids = {booking.id for booking in unpaid_bookings}
     unpaid_gift_voucher_ids = {gift_voucher.id for gift_voucher in unpaid_gift_vouchers}
+
     def _get_matching_invoice(invoices):
         for invoice in invoices:
             if (
-                {membership.id for membership in invoice.memberships.all()} == unpaid_membership_ids \
-                and {booking.id for booking in invoice.bookings.all()} == unpaid_booking_ids \
-                and {gift_voucher.id for gift_voucher in invoice.gift_vouchers.all()} == unpaid_gift_voucher_ids\
+                {membership.id for membership in invoice.memberships.all()}
+                == unpaid_membership_ids
+                and {booking.id for booking in invoice.bookings.all()}
+                == unpaid_booking_ids
+                and {gift_voucher.id for gift_voucher in invoice.gift_vouchers.all()}
+                == unpaid_gift_voucher_ids
             ):
                 return invoice
 
@@ -313,8 +342,12 @@ def _check_items_and_get_updated_invoice(request):
 
     if invoice is None:
         invoice = Invoice.objects.create(
-            invoice_id=Invoice.generate_invoice_id(), amount=Decimal(total), username=username,
-            total_voucher_code=total_voucher.code if total_voucher is not None else None
+            invoice_id=Invoice.generate_invoice_id(),
+            amount=Decimal(total),
+            username=username,
+            total_voucher_code=total_voucher.code
+            if total_voucher is not None
+            else None,
         )
         for membership in unpaid_memberships:
             membership.invoice = invoice
@@ -329,7 +362,9 @@ def _check_items_and_get_updated_invoice(request):
         # If an invoice with the expected items is found, make sure its total is current and any total voucher
         # is updated
         invoice.amount = Decimal(total)
-        invoice.total_voucher_code = total_voucher.code if total_voucher is not None else None
+        invoice.total_voucher_code = (
+            total_voucher.code if total_voucher is not None else None
+        )
         invoice.save()
 
     checked.update({"invoice": invoice})
@@ -359,12 +394,14 @@ def _check_items_and_get_updated_invoice(request):
             msg.append("Your classes/workshops are now booked.")
 
         messages.success(request, f"Voucher applied successfully. {'; '.join(msg)}")
-        checked.update({"redirect": True, "redirect_url": reverse("booking:regular_session_list")})
+        checked.update(
+            {"redirect": True, "redirect_url": reverse("booking:regular_session_list")}
+        )
 
     return checked
 
 
-@require_http_methods(['POST'])
+@require_http_methods(["POST"])
 def stripe_checkout(request):
     """
     Called when clicking on checkout from the shopping basket page
@@ -390,13 +427,16 @@ def stripe_checkout(request):
         total_as_int = int(total * 100)
 
         payment_intent_data = {
-            "payment_method_types": ['card'],
+            "payment_method_types": ["card"],
             "amount": total_as_int,
-            "currency": 'gbp',
+            "currency": "gbp",
             "stripe_account": stripe_account,
             "description": f"{full_name(request.user) if request.user.is_authenticated else ''}-invoice#{invoice.invoice_id}",
             "metadata": {
-                "invoice_id": invoice.invoice_id, "invoice_signature": invoice.signature(), **invoice.items_metadata()},
+                "invoice_id": invoice.invoice_id,
+                "invoice_signature": invoice.signature(),
+                **invoice.items_metadata(),
+            },
         }
 
         if not invoice.stripe_payment_intent_id:
@@ -409,11 +449,14 @@ def stripe_checkout(request):
                     payment_intent_id=invoice.stripe_payment_intent_id
                 )
             except StripePaymentIntent.DoesNotExist:
-                logger.info("Payment intent obj %s not found, retrieving from stripe", invoice.stripe_payment_intent_id)
+                logger.info(
+                    "Payment intent obj %s not found, retrieving from stripe",
+                    invoice.stripe_payment_intent_id,
+                )
                 payment_intent_obj = stripe.PaymentIntent.retrieve(
                     invoice.stripe_payment_intent_id, stripe_account=stripe_account
                 )
-            
+
             try:
                 if payment_intent_obj.metadata != payment_intent_data["metadata"]:
                     logger.info("Resetting metadata")
@@ -421,11 +464,14 @@ def stripe_checkout(request):
                     # otherwise deleted items will not be removed
                     unset_metadata = {k: "" for k in payment_intent_obj.metadata}
                     stripe.PaymentIntent.modify(
-                        invoice.stripe_payment_intent_id, metadata=unset_metadata, stripe_account=stripe_account
+                        invoice.stripe_payment_intent_id,
+                        metadata=unset_metadata,
+                        stripe_account=stripe_account,
                     )
                 logger.info("Updating payment intent")
                 payment_intent = stripe.PaymentIntent.modify(
-                    invoice.stripe_payment_intent_id, **payment_intent_data,
+                    invoice.stripe_payment_intent_id,
+                    **payment_intent_data,
                 )
             except stripe.error.InvalidRequestError as error:
                 payment_intent = stripe.PaymentIntent.retrieve(
@@ -437,18 +483,25 @@ def stripe_checkout(request):
                 else:
                     context.update({"preprocessing_error": True})
                 logger.error(
-                    "Error processing checkout for invoice: %s, payment intent: %s (%s)", invoice.invoice_id, payment_intent.id, str(error)
+                    "Error processing checkout for invoice: %s, payment intent: %s (%s)",
+                    invoice.invoice_id,
+                    payment_intent.id,
+                    str(error),
                 )
         # update/create the django model PaymentIntent - this isjust for records
-        StripePaymentIntent.update_or_create_payment_intent_instance(payment_intent, invoice, seller)
+        StripePaymentIntent.update_or_create_payment_intent_instance(
+            payment_intent, invoice, seller
+        )
 
-        context.update({
-            "client_secret": payment_intent.client_secret,
-            "stripe_account": stripe_account,
-            "stripe_api_key": settings.STRIPE_PUBLISHABLE_KEY,
-            "cart_items": invoice.items_dict(),
-            "cart_total": total,
-         })
+        context.update(
+            {
+                "client_secret": payment_intent.client_secret,
+                "stripe_account": stripe_account,
+                "stripe_api_key": settings.STRIPE_PUBLISHABLE_KEY,
+                "cart_items": invoice.items_dict(),
+                "cart_total": total,
+            }
+        )
     return TemplateResponse(request, "booking/checkout.html", context)
 
 
@@ -468,6 +521,6 @@ def check_total(request):
         unpaid_memberships=unpaid_memberships,
         unpaid_bookings=unpaid_bookings,
         unpaid_gift_vouchers=unpaid_gift_vouchers,
-        total_voucher=total_voucher
+        total_voucher=total_voucher,
     )
     return JsonResponse({"total": checked})

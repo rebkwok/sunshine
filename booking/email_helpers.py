@@ -11,11 +11,17 @@ from booking.utils import host_from_request
 
 
 def send_email(
-        request,
-        subject, ctx, template_txt, template_html=None,
-        prefix=settings.ACCOUNT_EMAIL_SUBJECT_PREFIX, to_list=None,
-        from_email=settings.DEFAULT_FROM_EMAIL, cc_list=None,
-        bcc_list=None, reply_to_list=None
+    request,
+    subject,
+    ctx,
+    template_txt,
+    template_html=None,
+    prefix=settings.ACCOUNT_EMAIL_SUBJECT_PREFIX,
+    to_list=None,
+    from_email=settings.DEFAULT_FROM_EMAIL,
+    cc_list=None,
+    bcc_list=None,
+    reply_to_list=None,
 ):
     to_list = to_list or []
     bcc_list = bcc_list or []
@@ -24,33 +30,22 @@ def send_email(
     if request:
         domain = request.get_host()
         host = host_from_request(request)
-        ctx.update({'domain': domain, 'host': host})
+        ctx.update({"domain": domain, "host": host})
     else:
         domain = Site.objects.get_current().domain
         ctx.update({"domain": domain, "host": f"https://{domain}"})
 
     msg = EmailMultiAlternatives(
-        '{}{}'.format(
-            '{} '.format(prefix) if prefix else '', subject
-        ),
-        get_template(
-            template_txt).render(
-                ctx
-            ),
+        "{}{}".format("{} ".format(prefix) if prefix else "", subject),
+        get_template(template_txt).render(ctx),
         from_email=from_email,
         to=to_list,
         bcc=bcc_list,
         cc=cc_list,
-        reply_to=reply_to_list
-        )
+        reply_to=reply_to_list,
+    )
     if template_html:
-        msg.attach_alternative(
-            get_template(
-                template_html).render(
-                    ctx
-                ),
-            "text/html"
-        )
+        msg.attach_alternative(get_template(template_html).render(ctx), "text/html")
     msg.send(fail_silently=False)
 
 
@@ -63,15 +58,17 @@ def send_waiting_list_email(event, users, host=None):
         # find first matching autobook email user (who doesn't already have an open booking)
         if email in user_emails:
             auto_book_user = User.objects.get(email=email)
-            booking, new = Booking.objects.get_or_create(event=event, user=auto_book_user)
+            booking, new = Booking.objects.get_or_create(
+                event=event, user=auto_book_user
+            )
 
             # new or not, delete from waiting list and remove from user_emails
             WaitingListUser.objects.filter(user=auto_book_user, event=event).delete()
             user_emails.remove(auto_book_user.email)
 
             if not new:  # for existing bookings, reopen if cancelled
-                if booking.status == 'CANCELLED' or booking.no_show:
-                    booking.status = 'OPEN'
+                if booking.status == "CANCELLED" or booking.no_show:
+                    booking.status = "OPEN"
                     booking.no_show = False
                     booking.save()
                 else:  # already booked and open, no need to autobook or send email
@@ -79,57 +76,58 @@ def send_waiting_list_email(event, users, host=None):
 
             if auto_book_user is not None:
                 ActivityLog.objects.create(
-                    log='Booking autocreated for User {}, {}'.format(
+                    log="Booking autocreated for User {}, {}".format(
                         auto_book_user.username, event
                     )
                 )
                 ActivityLog.objects.create(
-                    log='User {} removed from waiting list '
-                        'for {}'.format(auto_book_user.username, event)
+                    log="User {} removed from waiting list for {}".format(
+                        auto_book_user.username, event
+                    )
                 )
                 break  # stop if we find an autobook user; we've now filled the space
 
     ctx = {
-        'event': event,
-        'host': host,
-        'domain': settings.DOMAIN,
-        "studio_email": settings.DEFAULT_STUDIO_EMAIL
+        "event": event,
+        "host": host,
+        "domain": settings.DOMAIN,
+        "studio_email": settings.DEFAULT_STUDIO_EMAIL,
     }
     if auto_book_user:
         # send email to auto_book_users
         msg = EmailMultiAlternatives(
-            '{} You have been booked into {}'.format(settings.ACCOUNT_EMAIL_SUBJECT_PREFIX, event),
-            get_template('booking/email/autobook_email.txt').render(ctx),
+            "{} You have been booked into {}".format(
+                settings.ACCOUNT_EMAIL_SUBJECT_PREFIX, event
+            ),
+            get_template("booking/email/autobook_email.txt").render(ctx),
             settings.DEFAULT_FROM_EMAIL,
             to=[auto_book_user.email],
             reply_to=[settings.DEFAULT_STUDIO_EMAIL],
         )
         msg.attach_alternative(
-            get_template('booking/email/autobook_email.html').render(ctx),
-            "text/html"
+            get_template("booking/email/autobook_email.html").render(ctx), "text/html"
         )
         msg.send(fail_silently=False)
 
     if user_emails and event.spaces_left:
         # send email to rest of waiting list
         msg = EmailMultiAlternatives(
-            '{} {} - space now available'.format(settings.ACCOUNT_EMAIL_SUBJECT_PREFIX, event),
-            get_template('booking/email/waiting_list_email.txt').render(ctx),
+            "{} {} - space now available".format(
+                settings.ACCOUNT_EMAIL_SUBJECT_PREFIX, event
+            ),
+            get_template("booking/email/waiting_list_email.txt").render(ctx),
             settings.DEFAULT_FROM_EMAIL,
             bcc=user_emails,
         )
         msg.attach_alternative(
-            get_template(
-                'booking/email/waiting_list_email.html').render(ctx),
-            "text/html"
+            get_template("booking/email/waiting_list_email.html").render(ctx),
+            "text/html",
         )
         msg.send(fail_silently=False)
 
         ActivityLog.objects.create(
-            log='Waiting list email sent to user(s) {} for '
-            'event {}'.format(
-                ', '.join([user.username for user in users]),
-                event
+            log="Waiting list email sent to user(s) {} for event {}".format(
+                ", ".join([user.username for user in users]), event
             )
         )
 
@@ -155,5 +153,5 @@ def send_gift_voucher_email(gift_voucher, request=None):
         subject="Gift Voucher purchased",
         template_html="booking/email/gift_voucher.html",
         template_txt="booking/email/gift_voucher.txt",
-        to_list=[gift_voucher.voucher.purchaser_email]
+        to_list=[gift_voucher.voucher.purchaser_email],
     )

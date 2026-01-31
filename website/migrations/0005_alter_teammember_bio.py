@@ -4,15 +4,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('website', '0004_teammember_facebook_teammember_instagram'),
+        ("website", "0004_teammember_facebook_teammember_instagram"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='teammember',
-            name='bio',
-            field=models.TextField(help_text='Max 500 characters', max_length=500),
+            model_name="teammember",
+            name="bio",
+            field=models.TextField(help_text="Max 500 characters", max_length=500),
         ),
     ]

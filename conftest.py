@@ -9,10 +9,17 @@ from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
 from django.utils import timezone
 
-from accounts.models import ArchivedDisclaimer, DisclaimerContent, OnlineDisclaimer, DataPrivacyPolicy, SignedDataPrivacy
+from accounts.models import (
+    ArchivedDisclaimer,
+    DisclaimerContent,
+    OnlineDisclaimer,
+    DataPrivacyPolicy,
+    SignedDataPrivacy,
+)
 from accounts.utils import has_active_data_privacy_agreement
 from booking.models import GiftVoucher, MembershipType, GiftVoucherType
 from stripe_payments.models import Seller
+
 
 @pytest.fixture(autouse=True)
 def media_root(settings, tmp_path):
@@ -26,7 +33,7 @@ def make_disclaimer_content(**kwargs):
         "disclaimer_terms": f"test content {random.randint(0, 100000)}",
         "form": [],
         "version": None,
-        "is_draft": False
+        "is_draft": False,
     }
     data = {**defaults, **kwargs}
     return DisclaimerContent.objects.create(**data)
@@ -69,10 +76,9 @@ def make_archived_disclaimer(**kwargs):
 def make_data_privacy_agreement(user):
     if not has_active_data_privacy_agreement(user):
         if DataPrivacyPolicy.current_version() == 0:
-            baker.make(DataPrivacyPolicy,content='Foo')
+            baker.make(DataPrivacyPolicy, content="Foo")
         baker.make(
-            SignedDataPrivacy, user=user,
-            version=DataPrivacyPolicy.current_version()
+            SignedDataPrivacy, user=user, version=DataPrivacyPolicy.current_version()
         )
 
 
@@ -90,12 +96,13 @@ def configure_user(user):
 @pytest.fixture
 def user():
     yield User.objects.create_user(
-        username='test', 
-        first_name="Test", 
-        last_name="User", 
-        email='test@test.com', 
-        password='test'
+        username="test",
+        first_name="Test",
+        last_name="User",
+        email="test@test.com",
+        password="test",
     )
+
 
 @pytest.fixture
 def configured_user(user):
@@ -106,24 +113,24 @@ def configured_user(user):
 @pytest.fixture
 def superuser():
     yield User.objects.create_superuser(
-        username='test_superuser', 
-        first_name="Super", 
-        last_name="User", 
-        email='super@test.com', 
-        password='test'
+        username="test_superuser",
+        first_name="Super",
+        last_name="User",
+        email="super@test.com",
+        password="test",
     )
 
 
 @pytest.fixture
 def instructor_user():
     user = User.objects.create_user(
-            username='test_instructor', 
-            first_name="Test", 
-            last_name="User", 
-            email='instructor@test.com', 
-            password='test',
-            is_staff=True,
-        )
+        username="test_instructor",
+        first_name="Test",
+        last_name="User",
+        email="instructor@test.com",
+        password="test",
+        is_staff=True,
+    )
     yield user
 
 
@@ -149,10 +156,16 @@ def gift_voucher_types(membership_type, membership_type_4):
     baker.make_recipe("booking.future_PV")
     yield {
         "total": baker.make(GiftVoucherType, discount_amount=10, active=True),
-        "regular_session": baker.make(GiftVoucherType, event_type="regular_session", active=True),
+        "regular_session": baker.make(
+            GiftVoucherType, event_type="regular_session", active=True
+        ),
         "private": baker.make(GiftVoucherType, event_type="private", active=True),
-        "membership_2": baker.make(GiftVoucherType, membership_type=membership_type, active=True),
-        "membership_4": baker.make(GiftVoucherType, membership_type=membership_type_4, active=True),
+        "membership_2": baker.make(
+            GiftVoucherType, membership_type=membership_type, active=True
+        ),
+        "membership_4": baker.make(
+            GiftVoucherType, membership_type=membership_type_4, active=True
+        ),
     }
 
 
@@ -166,7 +179,9 @@ def membership_gift_voucher(configured_user, gift_voucher_types):
 
 @pytest.fixture
 def event_gift_voucher(configured_user, gift_voucher_types):
-    gv = baker.make(GiftVoucher, gift_voucher_type=gift_voucher_types["regular_session"])
+    gv = baker.make(
+        GiftVoucher, gift_voucher_type=gift_voucher_types["regular_session"]
+    )
     gv.voucher.purchaser_email = configured_user.email
     gv.voucher.save()
     yield gv
@@ -191,12 +206,15 @@ def get_mock_payment_intent():
             "metadata": {},
             "currency": "gbp",
             "client_secret": "secret",
-            "charges": Mock(data=[{"billing_details": {"email": "stripe-payer@test.com"}}])
+            "charges": Mock(
+                data=[{"billing_details": {"email": "stripe-payer@test.com"}}]
+            ),
         }
         options = {**defaults, **params}
         if webhook_event_type == "payment_intent.payment_failed":
-            options["last_payment_error"] = {'error': 'an error'}
+            options["last_payment_error"] = {"error": "an error"}
         return Mock(**options)
+
     return payment_intent
 
 
@@ -213,17 +231,22 @@ def get_mock_refund():
         }
         options = {**defaults, **params}
         return Mock(**options)
+
     return refund
 
 
 @pytest.fixture
 def get_mock_webhook_event(seller, get_mock_payment_intent):
     def mock_webhook_event(**params):
-        webhook_event_type = params.pop("webhook_event_type", "payment_intent.succeeded")
+        webhook_event_type = params.pop(
+            "webhook_event_type", "payment_intent.succeeded"
+        )
         account = params.pop("account", seller.stripe_user_id)
         mock_event = Mock(
             account=account,
-            data=Mock(object=get_mock_payment_intent(webhook_event_type, **params)), type=webhook_event_type
+            data=Mock(object=get_mock_payment_intent(webhook_event_type, **params)),
+            type=webhook_event_type,
         )
         return mock_event
+
     return mock_webhook_event

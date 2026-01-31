@@ -8,104 +8,234 @@ import django_extensions.db.fields
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('timetable', '0001_initial'),
+        ("timetable", "0001_initial"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Event',
+            name="Event",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=255)),
-                ('event_type', models.CharField(choices=[('workshop', 'Workshop'), ('regular_session', 'Regular Timetabled Session')], default='workshop', max_length=255)),
-                ('description', models.TextField(blank=True, default='')),
-                ('date', models.DateTimeField()),
-                ('max_participants', models.PositiveIntegerField(default=12)),
-                ('contact_email', models.EmailField(default='sunshinefitnessfife@gmail.com', max_length=254)),
-                ('cost', models.DecimalField(decimal_places=2, max_digits=8)),
-                ('show_on_site', models.BooleanField(default=False, help_text='Display this event/workshop on the website (if unticked, it will still be displayed for staff users for preview)')),
-                ('cancellation_period', models.PositiveIntegerField(default=24)),
-                ('email_studio_when_booked', models.BooleanField(default=False)),
-                ('slug', django_extensions.db.fields.AutoSlugField(blank=True, editable=False, max_length=40, populate_from=['name', 'date'], unique=True)),
-                ('allow_booking_cancellation', models.BooleanField(default=True)),
-                ('paypal_email', models.EmailField(help_text='Email for the paypal account to be used for payment.  Check this carefully!', max_length=254)),
-                ('cancelled', models.BooleanField(default=False)),
-                ('cancellation_fee', models.DecimalField(decimal_places=2, default=1.0, max_digits=8)),
-                ('members_only', models.BooleanField(default=False, help_text='Classes are only available to students with memberships')),
-                ('venue', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to='timetable.venue')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=255)),
+                (
+                    "event_type",
+                    models.CharField(
+                        choices=[
+                            ("workshop", "Workshop"),
+                            ("regular_session", "Regular Timetabled Session"),
+                        ],
+                        default="workshop",
+                        max_length=255,
+                    ),
+                ),
+                ("description", models.TextField(blank=True, default="")),
+                ("date", models.DateTimeField()),
+                ("max_participants", models.PositiveIntegerField(default=12)),
+                (
+                    "contact_email",
+                    models.EmailField(
+                        default="sunshinefitnessfife@gmail.com", max_length=254
+                    ),
+                ),
+                ("cost", models.DecimalField(decimal_places=2, max_digits=8)),
+                (
+                    "show_on_site",
+                    models.BooleanField(
+                        default=False,
+                        help_text="Display this event/workshop on the website (if unticked, it will still be displayed for staff users for preview)",
+                    ),
+                ),
+                ("cancellation_period", models.PositiveIntegerField(default=24)),
+                ("email_studio_when_booked", models.BooleanField(default=False)),
+                (
+                    "slug",
+                    django_extensions.db.fields.AutoSlugField(
+                        blank=True,
+                        editable=False,
+                        max_length=40,
+                        populate_from=["name", "date"],
+                        unique=True,
+                    ),
+                ),
+                ("allow_booking_cancellation", models.BooleanField(default=True)),
+                (
+                    "paypal_email",
+                    models.EmailField(
+                        help_text="Email for the paypal account to be used for payment.  Check this carefully!",
+                        max_length=254,
+                    ),
+                ),
+                ("cancelled", models.BooleanField(default=False)),
+                (
+                    "cancellation_fee",
+                    models.DecimalField(decimal_places=2, default=1.0, max_digits=8),
+                ),
+                (
+                    "members_only",
+                    models.BooleanField(
+                        default=False,
+                        help_text="Classes are only available to students with memberships",
+                    ),
+                ),
+                (
+                    "venue",
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to="timetable.venue",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Workshop/Class',
-                'verbose_name_plural': 'Workshops/Classes',
-                'ordering': ['-date'],
+                "verbose_name": "Workshop/Class",
+                "verbose_name_plural": "Workshops/Classes",
+                "ordering": ["-date"],
             },
         ),
         migrations.CreateModel(
-            name='WaitingListUser',
+            name="WaitingListUser",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('date_joined', models.DateTimeField(default=django.utils.timezone.now)),
-                ('event', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='waitinglistusers', to='booking.event')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='waitinglists', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "date_joined",
+                    models.DateTimeField(default=django.utils.timezone.now),
+                ),
+                (
+                    "event",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="waitinglistusers",
+                        to="booking.event",
+                    ),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="waitinglists",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'waiting list',
-                'verbose_name_plural': 'waiting list',
+                "verbose_name": "waiting list",
+                "verbose_name_plural": "waiting list",
             },
         ),
         migrations.CreateModel(
-            name='Booking',
+            name="Booking",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('booking_reference', models.CharField(max_length=22)),
-                ('paid', models.BooleanField(default=False, help_text='Payment has been made by user')),
-                ('date_booked', models.DateTimeField(default=django.utils.timezone.now)),
-                ('date_rebooked', models.DateTimeField(blank=True, null=True)),
-                ('status', models.CharField(choices=[('OPEN', 'Open'), ('CANCELLED', 'Cancelled')], default='OPEN', max_length=255)),
-                ('attended', models.BooleanField(default=False, help_text='Attended this event')),
-                ('no_show', models.BooleanField(default=False, help_text='Booked but did not attend OR cancelled after allowed cancellation period')),
-                ('reminder_sent', models.BooleanField(default=False)),
-                ('cancellation_fee_incurred', models.BooleanField(default=False)),
-                ('cancellation_fee_paid', models.BooleanField(default=False)),
-                ('date_cancelled', models.DateTimeField(blank=True, null=True)),
-                ('event', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='bookings', to='booking.event')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='bookings', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("booking_reference", models.CharField(max_length=22)),
+                (
+                    "paid",
+                    models.BooleanField(
+                        default=False, help_text="Payment has been made by user"
+                    ),
+                ),
+                (
+                    "date_booked",
+                    models.DateTimeField(default=django.utils.timezone.now),
+                ),
+                ("date_rebooked", models.DateTimeField(blank=True, null=True)),
+                (
+                    "status",
+                    models.CharField(
+                        choices=[("OPEN", "Open"), ("CANCELLED", "Cancelled")],
+                        default="OPEN",
+                        max_length=255,
+                    ),
+                ),
+                (
+                    "attended",
+                    models.BooleanField(default=False, help_text="Attended this event"),
+                ),
+                (
+                    "no_show",
+                    models.BooleanField(
+                        default=False,
+                        help_text="Booked but did not attend OR cancelled after allowed cancellation period",
+                    ),
+                ),
+                ("reminder_sent", models.BooleanField(default=False)),
+                ("cancellation_fee_incurred", models.BooleanField(default=False)),
+                ("cancellation_fee_paid", models.BooleanField(default=False)),
+                ("date_cancelled", models.DateTimeField(blank=True, null=True)),
+                (
+                    "event",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="bookings",
+                        to="booking.event",
+                    ),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="bookings",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='RegularClass',
-            fields=[
-            ],
+            name="RegularClass",
+            fields=[],
             options={
-                'verbose_name_plural': 'regular classes',
-                'proxy': True,
-                'indexes': [],
-                'constraints': [],
+                "verbose_name_plural": "regular classes",
+                "proxy": True,
+                "indexes": [],
+                "constraints": [],
             },
-            bases=('booking.event',),
+            bases=("booking.event",),
         ),
         migrations.CreateModel(
-            name='Workshop',
-            fields=[
-            ],
+            name="Workshop",
+            fields=[],
             options={
-                'proxy': True,
-                'indexes': [],
-                'constraints': [],
+                "proxy": True,
+                "indexes": [],
+                "constraints": [],
             },
-            bases=('booking.event',),
+            bases=("booking.event",),
         ),
         migrations.AddIndex(
-            model_name='event',
-            index=models.Index(fields=['date', 'event_type'], name='booking_eve_date_8f664b_idx'),
+            model_name="event",
+            index=models.Index(
+                fields=["date", "event_type"], name="booking_eve_date_8f664b_idx"
+            ),
         ),
         migrations.AlterUniqueTogether(
-            name='booking',
-            unique_together={('user', 'event')},
+            name="booking",
+            unique_together={("user", "event")},
         ),
     ]

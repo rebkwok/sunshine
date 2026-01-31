@@ -4,11 +4,10 @@ from logging import handlers
 from pathlib import Path
 
 
-class GroupWriteRotatingFileHandler(handlers.RotatingFileHandler):  
-
+class GroupWriteRotatingFileHandler(handlers.RotatingFileHandler):
     """
     For use in Django, in settings.py
-    
+
     from .custom_logging import GroupWriteRotatingFileHandler
 
     logging.handlers.GroupWriteRotatingFileHandler = GroupWriteRotatingFileHandler
@@ -25,8 +24,8 @@ class GroupWriteRotatingFileHandler(handlers.RotatingFileHandler):
                 'formatter': 'verbose'
             },
         ...
-    """  
-    
+    """
+
     def doRollover(self):
         """
         Override base class method to make the new log file group writable.

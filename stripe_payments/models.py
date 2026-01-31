@@ -1,9 +1,7 @@
-from importlib.metadata import metadata
 from os import environ
 
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
-from django.conf import settings
 from django.db import models
 from django.utils import timezone
 
@@ -23,7 +21,10 @@ class Invoice(models.Model):
     paid = models.BooleanField(default=False)
     date_paid = models.DateTimeField(null=True, blank=True)
     total_voucher_code = models.CharField(
-        max_length=255, null=True, blank=True, help_text="Voucher applied to invoice total"
+        max_length=255,
+        null=True,
+        blank=True,
+        help_text="Voucher applied to invoice total",
     )
 
     class Meta:
@@ -40,17 +41,23 @@ class Invoice(models.Model):
         return invoice_id
 
     def signature(self):
-        return sha512((self.invoice_id + environ["INVOICE_KEY"]).encode("utf-8")).hexdigest()
+        return sha512(
+            (self.invoice_id + environ["INVOICE_KEY"]).encode("utf-8")
+        ).hexdigest()
 
     @property
     def payment_intent_ids(self):
-        return ", ".join(self.payment_intents.values_list("payment_intent_id", flat=True))
+        return ", ".join(
+            self.payment_intents.values_list("payment_intent_id", flat=True)
+        )
 
     def items_summary(self):
         return {
             "bookings": [str(booking.event) for booking in self.bookings.all()],
             "memberships": [str(mem) for mem in self.memberships.all()],
-            "gift_vouchers": [str(gift_voucher) for gift_voucher in self.gift_vouchers.all()]
+            "gift_vouchers": [
+                str(gift_voucher) for gift_voucher in self.gift_vouchers.all()
+            ],
         }
 
     def items_dict(self):
@@ -59,31 +66,34 @@ class Invoice(models.Model):
             if item.voucher:
                 cost_str = f"{cost_str} (voucher applied: {item.voucher.code})"
             return cost_str
-         
+
         memberships = {
             f"membership_{item.id}": {
-                "name": str(item), 
-                "voucher": item.voucher.code if item.voucher else None,
-                "cost_str": _cost_str(item),
-                "cost_in_p": int(item.cost_with_voucher * 100),
-                "user": item.user
-            } for item in self.memberships.all()
-        }
-        bookings = {
-            f"booking_{item.id}": {
-                "name": str(item.event), 
+                "name": str(item),
                 "voucher": item.voucher.code if item.voucher else None,
                 "cost_str": _cost_str(item),
                 "cost_in_p": int(item.cost_with_voucher * 100),
                 "user": item.user,
-            } for item in self.bookings.all()
+            }
+            for item in self.memberships.all()
+        }
+        bookings = {
+            f"booking_{item.id}": {
+                "name": str(item.event),
+                "voucher": item.voucher.code if item.voucher else None,
+                "cost_str": _cost_str(item),
+                "cost_in_p": int(item.cost_with_voucher * 100),
+                "user": item.user,
+            }
+            for item in self.bookings.all()
         }
         gift_vouchers = {
             f"gift_voucher_{gift_voucher.id}": {
-                "name": gift_voucher.name, 
-                "cost_str": f"£{gift_voucher.gift_voucher_type.cost:.2f}", 
-                "cost_in_p": int(gift_voucher.gift_voucher_type.cost * 100)
-            } for gift_voucher in self.gift_vouchers.all()
+                "name": gift_voucher.name,
+                "cost_str": f"£{gift_voucher.gift_voucher_type.cost:.2f}",
+                "cost_in_p": int(gift_voucher.gift_voucher_type.cost * 100),
+            }
+            for gift_voucher in self.gift_vouchers.all()
         }
 
         return {**memberships, **bookings, **gift_vouchers}
@@ -111,10 +121,10 @@ class Invoice(models.Model):
         for key, item in all_items.items():
             summary = {
                 f"{key}_item": item["name"][:40],
-                f"{key}_cost_in_p": str(item['cost_in_p']),
+                f"{key}_cost_in_p": str(item["cost_in_p"]),
             }
-            if item.get('voucher'):
-                summary[f"{key}_voucher"] = item['voucher']
+            if item.get("voucher"):
+                summary[f"{key}_voucher"] = item["voucher"]
             items_summary.update(summary)
         return {**metadata, **items_summary}
 
@@ -141,8 +151,11 @@ class StripePaymentIntent(models.Model):
     description = models.CharField(max_length=255)
     status = models.CharField(max_length=255)
     invoice = models.ForeignKey(
-        Invoice, on_delete=models.SET_NULL, null=True, blank=True,
-        related_name="payment_intents"    
+        Invoice,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="payment_intents",
     )
     seller = models.ForeignKey(Seller, on_delete=models.SET_NULL, null=True, blank=True)
     metadata = models.JSONField()
@@ -150,7 +163,9 @@ class StripePaymentIntent(models.Model):
     currency = models.CharField(max_length=3)
 
     @classmethod
-    def update_or_create_payment_intent_instance(cls, payment_intent, invoice, seller=None):
+    def update_or_create_payment_intent_instance(
+        cls, payment_intent, invoice, seller=None
+    ):
         defaults = {
             "invoice": invoice,
             "amount": payment_intent.amount,
@@ -158,11 +173,13 @@ class StripePaymentIntent(models.Model):
             "status": payment_intent.status,
             "metadata": payment_intent.metadata,
             "client_secret": payment_intent.client_secret,
-            "currency": payment_intent.currency
+            "currency": payment_intent.currency,
         }
         if seller is not None:
             defaults.update({"seller": seller})
-        return cls.objects.update_or_create(payment_intent_id=payment_intent.id, defaults=defaults)
+        return cls.objects.update_or_create(
+            payment_intent_id=payment_intent.id, defaults=defaults
+        )
 
     def __str__(self):
         return f"{self.payment_intent_id} - invoice {self.invoice.invoice_id} - {self.invoice.username}"
@@ -170,15 +187,21 @@ class StripePaymentIntent(models.Model):
 
 class StripeRefund(models.Model):
     payment_intent = models.ForeignKey(
-        StripePaymentIntent, on_delete=models.SET_NULL, null=True, blank=True,
-        related_name="refunds"
+        StripePaymentIntent,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="refunds",
     )
     refund_id = models.CharField(max_length=255)
     amount = models.PositiveIntegerField()
     status = models.CharField(max_length=255)
     invoice = models.ForeignKey(
-        Invoice, on_delete=models.SET_NULL, null=True, blank=True,
-        related_name="refunds"
+        Invoice,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="refunds",
     )
     seller = models.ForeignKey(Seller, on_delete=models.SET_NULL, null=True, blank=True)
     metadata = models.JSONField()

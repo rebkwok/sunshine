@@ -1,4 +1,3 @@
-from os import stat
 import pytz
 
 from django import template
@@ -13,18 +12,18 @@ register = template.Library()
 
 @register.filter
 def bookings_count(event):
-    return Booking.objects.select_related('event', 'user').filter(
-        event=event, status='OPEN', no_show=False
-    ).count()
+    return (
+        Booking.objects.select_related("event", "user")
+        .filter(event=event, status="OPEN", no_show=False)
+        .count()
+    )
 
 
 @register.filter
 def abbr_name(name):
-    if len(name) > 8 and '-' in name:
-        split_name = name.split('-')
-        return mark_safe(
-            "{}-</br>{}".format(split_name[0], '-'.join(split_name[1:]))
-        )
+    if len(name) > 8 and "-" in name:
+        split_name = name.split("-")
+        return mark_safe("{}-</br>{}".format(split_name[0], "-".join(split_name[1:])))
     if len(name) > 12:
         return mark_safe("{}-</br>{}".format(name[:8], name[8:]))
     return name
@@ -49,7 +48,7 @@ def formatted_uk_date(date, format):
     """
     return UTC date in uk time
     """
-    uk=pytz.timezone('Europe/London')
+    uk = pytz.timezone("Europe/London")
     return date.astimezone(uk).strftime(format)
 
 
@@ -66,7 +65,9 @@ def membership_status(user):
     now = timezone.now()
     current_year = now.year
     current_month = now.month
-    paid = user.memberships.filter(paid=True, year__gte=current_year).order_by("year", "month", "purchase_date")
+    paid = user.memberships.filter(paid=True, year__gte=current_year).order_by(
+        "year", "month", "purchase_date"
+    )
     future_years = paid.filter(year__gt=current_year)
     this_year = paid.filter(year=current_year, month__gte=current_month)
     return {"current_memberships": this_year | future_years}

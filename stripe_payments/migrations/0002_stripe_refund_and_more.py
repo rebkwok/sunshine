@@ -5,44 +5,83 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('stripe_payments', '0001_initial'),
+        ("stripe_payments", "0001_initial"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='invoice',
-            name='business_email',
+            model_name="invoice",
+            name="business_email",
         ),
         migrations.RemoveField(
-            model_name='invoice',
-            name='transaction_id',
+            model_name="invoice",
+            name="transaction_id",
         ),
         migrations.AlterField(
-            model_name='invoice',
-            name='username',
-            field=models.CharField(max_length=255, verbose_name='Purchaser email'),
+            model_name="invoice",
+            name="username",
+            field=models.CharField(max_length=255, verbose_name="Purchaser email"),
         ),
         migrations.AlterField(
-            model_name='stripepaymentintent',
-            name='invoice',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='payment_intents', to='stripe_payments.invoice'),
+            model_name="stripepaymentintent",
+            name="invoice",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="payment_intents",
+                to="stripe_payments.invoice",
+            ),
         ),
         migrations.CreateModel(
-            name='StripeRefund',
+            name="StripeRefund",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('refund_id', models.CharField(max_length=255)),
-                ('amount', models.PositiveIntegerField()),
-                ('status', models.CharField(max_length=255)),
-                ('metadata', models.JSONField()),
-                ('currency', models.CharField(max_length=3)),
-                ('reason', models.CharField(max_length=255)),
-                ('booking_id', models.PositiveIntegerField()),
-                ('invoice', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='refunds', to='stripe_payments.invoice')),
-                ('payment_intent', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='refunds', to='stripe_payments.stripepaymentintent')),
-                ('seller', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='stripe_payments.seller')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("refund_id", models.CharField(max_length=255)),
+                ("amount", models.PositiveIntegerField()),
+                ("status", models.CharField(max_length=255)),
+                ("metadata", models.JSONField()),
+                ("currency", models.CharField(max_length=3)),
+                ("reason", models.CharField(max_length=255)),
+                ("booking_id", models.PositiveIntegerField()),
+                (
+                    "invoice",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="refunds",
+                        to="stripe_payments.invoice",
+                    ),
+                ),
+                (
+                    "payment_intent",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="refunds",
+                        to="stripe_payments.stripepaymentintent",
+                    ),
+                ),
+                (
+                    "seller",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to="stripe_payments.seller",
+                    ),
+                ),
             ],
         ),
     ]

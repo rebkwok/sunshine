@@ -5,33 +5,37 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('timetable', '0012_venue_address_venue_postcode_alter_venue_location'),
+        ("timetable", "0012_venue_address_venue_postcode_alter_venue_location"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='venue',
-            name='address',
+            model_name="venue",
+            name="address",
         ),
         migrations.RemoveField(
-            model_name='venue',
-            name='postcode',
+            model_name="venue",
+            name="postcode",
         ),
         migrations.AlterField(
-            model_name='location',
-            name='address',
+            model_name="location",
+            name="address",
             field=models.TextField(max_length=255),
         ),
         migrations.AlterField(
-            model_name='location',
-            name='postcode',
+            model_name="location",
+            name="postcode",
             field=models.CharField(max_length=255),
         ),
         migrations.AlterField(
-            model_name='venue',
-            name='location',
-            field=models.ForeignKey(help_text='Location (address) of this venue. Timetables will be grouped by location. Multiple venues can share the same location and will be displayed on the same timetable.', on_delete=django.db.models.deletion.CASCADE, related_name='venues', to='timetable.location'),
+            model_name="venue",
+            name="location",
+            field=models.ForeignKey(
+                help_text="Location (address) of this venue. Timetables will be grouped by location. Multiple venues can share the same location and will be displayed on the same timetable.",
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="venues",
+                to="timetable.location",
+            ),
         ),
     ]

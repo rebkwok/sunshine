@@ -4,15 +4,18 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('booking', '0002_alter_event_cancellation_fee'),
+        ("booking", "0002_alter_event_cancellation_fee"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='event',
-            name='paypal_email',
-            field=models.EmailField(default='placeholder@dummy-paypal.email', help_text='Email for the paypal account to be used for payment.  Check this carefully!', max_length=254),
+            model_name="event",
+            name="paypal_email",
+            field=models.EmailField(
+                default="placeholder@dummy-paypal.email",
+                help_text="Email for the paypal account to be used for payment.  Check this carefully!",
+                max_length=254,
+            ),
         ),
     ]

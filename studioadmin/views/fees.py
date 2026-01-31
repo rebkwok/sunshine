@@ -1,7 +1,10 @@
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import HttpResponse, HttpResponseRedirect, get_object_or_404, render
+from django.shortcuts import (
+    get_object_or_404,
+    render,
+)
 from django.views.decorators.http import require_http_methods
 from django.http import JsonResponse
 from django.template.response import TemplateResponse
@@ -14,25 +17,32 @@ from booking.models import Booking
 @staff_member_required
 def outstanding_fees_user(request, user_id):
     user = get_object_or_404(User, pk=user_id)
-    bookings_with_fees = user.bookings.filter(cancellation_fee_incurred=True, cancellation_fee_paid=False)
+    bookings_with_fees = user.bookings.filter(
+        cancellation_fee_incurred=True, cancellation_fee_paid=False
+    )
     return render(
         request,
         "studioadmin/outstanding_fees_for_user.html",
-        {"user_with_fees": user, "user_bookings_with_fees": bookings_with_fees}
+        {"user_with_fees": user, "user_bookings_with_fees": bookings_with_fees},
     )
+
 
 @login_required
 @staff_member_required
 def outstanding_fees_list(request):
-    users_with_outstanding_fees = [user for user in User.objects.all() if user.has_outstanding_fees()]
+    users_with_outstanding_fees = [
+        user for user in User.objects.all() if user.has_outstanding_fees()
+    ]
     return render(
-        request, "studioadmin/outstanding_fees_list.html", {"users_with_outstanding_fees": users_with_outstanding_fees}
+        request,
+        "studioadmin/outstanding_fees_list.html",
+        {"users_with_outstanding_fees": users_with_outstanding_fees},
     )
 
 
 @login_required
 @staff_member_required
-@require_http_methods(['POST'])
+@require_http_methods(["POST"])
 def ajax_toggle_cancellation_fee_payment(request, booking_id):
     booking = get_object_or_404(Booking, pk=booking_id)
 
@@ -47,35 +57,37 @@ def ajax_toggle_cancellation_fee_payment(request, booking_id):
             booking.cancellation_fee_paid = True
             new_payment_status = "paid"
         ActivityLog.objects.create(
-            log=f'Cancellation fee marked as {new_payment_status} for booking {booking.id} ({booking.user.username})'
-            f'by admin user {request.user.username}'
+            log=f"Cancellation fee marked as {new_payment_status} for booking {booking.id} ({booking.user.username})"
+            f"by admin user {request.user.username}"
         )
         booking.save()
 
     return TemplateResponse(
-        request, 'studioadmin/includes/fees_paid_toggle.html', {"booking": booking}
+        request, "studioadmin/includes/fees_paid_toggle.html", {"booking": booking}
     )
 
 
 @login_required
 @staff_member_required
-@require_http_methods(['POST'])
+@require_http_methods(["POST"])
 def ajax_get_cancellation_fee_payment_status(request, booking_id):
     booking = get_object_or_404(Booking, pk=booking_id)
     return TemplateResponse(
-        request, 'studioadmin/includes/fees_paid_toggle.html', {"booking": booking}
+        request, "studioadmin/includes/fees_paid_toggle.html", {"booking": booking}
     )
 
-@login_required
-@staff_member_required
-@require_http_methods(['POST'])
-def ajax_get_user_total_fees(request, user_id):
-    user = get_object_or_404(User, pk=user_id)
-    return JsonResponse({'total_fees': user.outstanding_fees_total()})
 
 @login_required
 @staff_member_required
-@require_http_methods(['POST'])
+@require_http_methods(["POST"])
+def ajax_get_user_total_fees(request, user_id):
+    user = get_object_or_404(User, pk=user_id)
+    return JsonResponse({"total_fees": user.outstanding_fees_total()})
+
+
+@login_required
+@staff_member_required
+@require_http_methods(["POST"])
 def ajax_toggle_remove_cancellation_fee(request, booking_id):
     booking = get_object_or_404(Booking, pk=booking_id)
     if booking.cancellation_fee_incurred:
@@ -88,9 +100,14 @@ def ajax_toggle_remove_cancellation_fee(request, booking_id):
         new_fee_status = "added"
         new_status_log_text = "added to"
     ActivityLog.objects.create(
-        log=f'Cancellation fee {new_status_log_text} booking {booking.id} for {booking.user.username}'
-        f'by admin user {request.user.username}'
+        log=f"Cancellation fee {new_status_log_text} booking {booking.id} for {booking.user.username}"
+        f"by admin user {request.user.username}"
     )
     booking.save()
 
-    return JsonResponse({'fee_status': new_fee_status, 'total_fees': booking.user.outstanding_fees_total()})
+    return JsonResponse(
+        {
+            "fee_status": new_fee_status,
+            "total_fees": booking.user.outstanding_fees_total(),
+        }
+    )

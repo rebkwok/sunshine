@@ -4,6 +4,7 @@ import os
 from model_bakery import baker
 from stripe_payments.models import Invoice
 
+
 @pytest.fixture
 def invoice_keyenv():
     old = os.environ.get("INVOICE_KEY")
@@ -23,12 +24,16 @@ def send_all_studio_emails(settings):
 @pytest.fixture
 def invoice(configured_user):
     yield baker.make(
-        Invoice, invoice_id="foo", amount=10,
-        username=configured_user.email, stripe_payment_intent_id="mock-intent-id"
+        Invoice,
+        invoice_id="foo",
+        amount=10,
+        username=configured_user.email,
+        stripe_payment_intent_id="mock-intent-id",
     )
+
 
 @pytest.fixture
 def membership(invoice, configured_user):
     yield baker.make_recipe(
-        'booking.membership', paid=False, invoice=invoice, user=configured_user
+        "booking.membership", paid=False, invoice=invoice, user=configured_user
     )

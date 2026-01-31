@@ -5,39 +5,92 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='ActivityType',
+            name="ActivityType",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('index', models.PositiveIntegerField(default=100, help_text="Determines order activites are displayed on the 'what we offer' page")),
-                ('name', models.CharField(max_length=255)),
-                ('description', models.TextField(default='', verbose_name='description')),
-                ('display_on_site', models.BooleanField(default=True, help_text="Include this activity type and its description on the 'what we offer' page")),
-                ('photo', models.ImageField(null=True, upload_to='images/activity_types')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "index",
+                    models.PositiveIntegerField(
+                        default=100,
+                        help_text="Determines order activites are displayed on the 'what we offer' page",
+                    ),
+                ),
+                ("name", models.CharField(max_length=255)),
+                (
+                    "description",
+                    models.TextField(default="", verbose_name="description"),
+                ),
+                (
+                    "display_on_site",
+                    models.BooleanField(
+                        default=True,
+                        help_text="Include this activity type and its description on the 'what we offer' page",
+                    ),
+                ),
+                (
+                    "photo",
+                    models.ImageField(null=True, upload_to="images/activity_types"),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='GalleryCategory',
+            name="GalleryCategory",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=50)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=50)),
             ],
         ),
         migrations.CreateModel(
-            name='GalleryImage',
+            name="GalleryImage",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('photo', models.ImageField(upload_to='images/gallery')),
-                ('caption_title', models.CharField(default='Sunshine Fitness', max_length=255)),
-                ('caption_subtitle', models.CharField(blank=True, max_length=255, null=True)),
-                ('category', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to='website.gallerycategory')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("photo", models.ImageField(upload_to="images/gallery")),
+                (
+                    "caption_title",
+                    models.CharField(default="Sunshine Fitness", max_length=255),
+                ),
+                (
+                    "caption_subtitle",
+                    models.CharField(blank=True, max_length=255, null=True),
+                ),
+                (
+                    "category",
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to="website.gallerycategory",
+                    ),
+                ),
             ],
         ),
     ]

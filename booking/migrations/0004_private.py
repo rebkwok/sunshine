@@ -4,23 +4,21 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('booking', '0003_alter_event_paypal_email'),
+        ("booking", "0003_alter_event_paypal_email"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Private',
-            fields=[
-            ],
+            name="Private",
+            fields=[],
             options={
-                'verbose_name': 'private lesson',
-                'verbose_name_plural': 'private lessons',
-                'proxy': True,
-                'indexes': [],
-                'constraints': [],
+                "verbose_name": "private lesson",
+                "verbose_name_plural": "private lessons",
+                "proxy": True,
+                "indexes": [],
+                "constraints": [],
             },
-            bases=('booking.event',),
+            bases=("booking.event",),
         ),
     ]

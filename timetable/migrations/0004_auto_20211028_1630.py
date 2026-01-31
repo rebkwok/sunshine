@@ -5,27 +5,32 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('timetable', '0003_auto_20211028_1218'),
+        ("timetable", "0003_auto_20211028_1218"),
     ]
 
     operations = [
         migrations.RenameModel(
-            old_name='MembershipCategory',
-            new_name='Category',
+            old_name="MembershipCategory",
+            new_name="Category",
         ),
         migrations.AlterModelOptions(
-            name='category',
-            options={'verbose_name_plural': 'categories'},
+            name="category",
+            options={"verbose_name_plural": "categories"},
         ),
         migrations.RemoveField(
-            model_name='timetablesession',
-            name='membership_category',
+            model_name="timetablesession",
+            name="membership_category",
         ),
         migrations.AddField(
-            model_name='timetablesession',
-            name='category',
-            field=models.ForeignKey(blank=True, help_text='Assign a category if you want to colour-code classes on the timetable (e.g. to group by class cost, membership etc)', null=True, on_delete=django.db.models.deletion.CASCADE, to='timetable.category'),
+            model_name="timetablesession",
+            name="category",
+            field=models.ForeignKey(
+                blank=True,
+                help_text="Assign a category if you want to colour-code classes on the timetable (e.g. to group by class cost, membership etc)",
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                to="timetable.category",
+            ),
         ),
     ]
