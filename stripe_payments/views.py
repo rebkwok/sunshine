@@ -111,14 +111,14 @@ def stripe_webhook(request):
         event = stripe.Webhook.construct_event(
             payload, sig_header, settings.STRIPE_ENDPOINT_SECRET
         )
-    except ValueError as e:
-        # Invalid payload
-        logger.error(e)
-        return HttpResponse(str(e), status=400)
     except stripe.error.SignatureVerificationError as e:
         # Invalid signature
         logger.error(e)
-        return HttpResponse(str(e), status=400)
+        return HttpResponse("Invalid webhook signature", status=400)
+    except Exception as e:
+        # Invalid payload
+        logger.error(e)
+        return HttpResponse("Unable to contruct webhook event", status=400)
 
     event_object = event.data.object
     if event.type == "account.application.authorized":
@@ -154,8 +154,10 @@ def stripe_webhook(request):
             site=Site.objects.get_current(request)
         ).first()
         try:
-            # This try block is presumably here for a reason, but not sure what it is. I think
-            # this could only raise an AttributeError, and then we log and proceed
+            # account is only present on the event if it originated from a connected account
+            # All events we're interested in are related to a connected account, but potentially
+            # a refund or other event that occurred outside of the system could be relevant, so
+            # if this raises an AttributeError, we log and proceed
             account = event.account
         except Exception as e:
             logger.error(e)
@@ -173,8 +175,23 @@ def stripe_webhook(request):
         # metadata, which isn't an error; it's probably a transaction that happened outside
         # of the system. If we got invoice info but couldn't find a matching invoice, this IS
         # raised as an exception and will be handles bellow
+        # payment_failed and requires_action happend when a user does something wrong - either
+        # their card is declined, has insufficient funds etc. There's no error in the system,
+        # so just log it and continue
+        # https://docs.stripe.com/declines/codes
+        # The following are unusual and not the standard user/card error (entering the wrong
+        # cvv, insufficient funds etc) and might need more investigation
+        unexpected_decline_codes = [
+            "authentication_not_handled",
+            "approve_with_id",
+            "fraudulent",
+            "invalid_amount",
+            "merchant_blacklist",
+            "processing_error",
+            "reenter_transaction",
+            "testmode_decline",
+        ]
         if invoice is not None:
-            error = None
             if event.type == "payment_intent.succeeded":
                 _process_completed_stripe_payment(
                     payment_intent, invoice, request=request
@@ -182,18 +199,23 @@ def stripe_webhook(request):
             elif event.type == "payment_intent.refunded":
                 send_processed_refund_emails(invoice)
             elif event.type == "payment_intent.payment_failed":
-                error = (
+                msg = (
                     f"Failed payment intent id: {payment_intent.id}; invoice id {invoice.invoice_id}; "
-                    f"error {payment_intent.last_payment_error}"
+                    f"error: {payment_intent.last_payment_error.type}; decline code: {payment_intent.last_payment_error.decline_code}"
                 )
+                if (
+                    payment_intent.last_payment_error.decline_code
+                    in unexpected_decline_codes
+                ):
+                    logger.error(msg)
+                    send_failed_payment_emails(error=msg)
+                else:
+                    logger.info(msg)
             elif event.type == "payment_intent.requires_action":
-                error = f"Payment intent requires action: id {payment_intent.id}; invoice id {invoice.invoice_id}"
-            if error:
-                logger.error(error)
-                send_failed_payment_emails(error=error)
-                return HttpResponse(error, status=200)
-    except Exception as e:  # log anything else
+                logger.info(
+                    f"Payment intent requires action: id {payment_intent.id}; invoice id {invoice.invoice_id}"
+                )
+    except Exception as e:  # log anything else and send error emails
         logger.error(e)
         send_failed_payment_emails(error=e)
-        return HttpResponse(str(e), status=200)
     return HttpResponse(status=200)

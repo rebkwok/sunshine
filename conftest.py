@@ -197,8 +197,8 @@ def total_gift_voucher(configured_user, gift_voucher_types):
 
 @pytest.fixture
 def get_mock_payment_intent():
-    def payment_intent(webhook_event_type=None, **params):
-        defaults = {
+    def payment_intent(**params):
+        object = {
             "id": "mock-intent-id",
             "amount": 1000,
             "description": "",
@@ -210,10 +210,8 @@ def get_mock_payment_intent():
                 data=[{"billing_details": {"email": "stripe-payer@test.com"}}]
             ),
         }
-        options = {**defaults, **params}
-        if webhook_event_type == "payment_intent.payment_failed":
-            options["last_payment_error"] = {"error": "an error"}
-        return Mock(**options)
+        object.update(params)
+        return Mock(**object)
 
     return payment_intent
 
@@ -221,7 +219,7 @@ def get_mock_payment_intent():
 @pytest.fixture
 def get_mock_refund():
     def refund(**params):
-        defaults = {
+        object = {
             "id": "mock-refund-id",
             "amount": 800,
             "status": "succeeded",
@@ -229,24 +227,7 @@ def get_mock_refund():
             "currency": "gbp",
             "reason": "",
         }
-        options = {**defaults, **params}
-        return Mock(**options)
+        object.update(params)
+        return Mock(**object)
 
     return refund
-
-
-@pytest.fixture
-def get_mock_webhook_event(seller, get_mock_payment_intent):
-    def mock_webhook_event(**params):
-        webhook_event_type = params.pop(
-            "webhook_event_type", "payment_intent.succeeded"
-        )
-        account = params.pop("account", seller.stripe_user_id)
-        mock_event = Mock(
-            account=account,
-            data=Mock(object=get_mock_payment_intent(webhook_event_type, **params)),
-            type=webhook_event_type,
-        )
-        return mock_event
-
-    return mock_webhook_event
