@@ -60,7 +60,7 @@
 }
 
 .expired td, .expired td a, .expired td .confirmed, .expired td .not-confirmed ,
-.expired .input-sm {
+.expired .input-sm, li.list-group-item.expired > div, li.list-group-item.expired > div > div > a {
     color: #BDBDBD !important;
 }
 

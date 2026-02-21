@@ -3,7 +3,7 @@
 from django import template
 from django.utils.safestring import mark_safe
 
-from booking.models import Booking
+from booking.models import Booking, WaitingListUser
 
 
 register = template.Library()
@@ -61,29 +61,45 @@ def get_range(value, start=0):
     return range(start, value + start)
 
 
-@register.filter
-def lookup(dictionary, key):
-    if dictionary:
-        return dictionary.get(key)
+@register.simple_tag
+def book_button_data(event, user, booking, ref):
+    if user.is_anonymous:
+        has_available_membership = False
+        on_waiting_list = False
+    else:
+        has_available_membership = bool(event.get_available_user_membership(user))
+        on_waiting_list = WaitingListUser.objects.filter(
+            user=user, event=event
+        ).exists()
 
-
-@register.filter
-def show_warning(event):
-    if not event.can_cancel() and event.cancellation_fee > 0:
-        return 1
-    return 0
-
-
-@register.filter
-def show_booking_button(booking):
-    return booking.event.bookable or (booking.status == "OPEN" and not booking.no_show)
-
-
-@register.filter
-def has_available_membership(event, user):
-    return event.get_available_user_membership(user) is not None
-
-
-@register.filter
-def nb_date(date):
-    return mark_safe(date.strftime("%a %d&nbsp;%b %H:%M"))
+    if booking:
+        is_booked = booking.status == "OPEN" and not booking.no_show
+        is_booked_and_unpaid = is_booked and not booking.paid
+        is_cancelled = booking.status == "CANCELLED" or booking.no_show
+        can_cancel = is_booked and booking.paid
+    else:
+        is_booked = False
+        is_booked_and_unpaid = False
+        is_cancelled = False
+        can_cancel = False
+    return {
+        "show_book_button": event.bookable or is_booked,
+        "ref": ref,
+        "event": event,
+        "members_only_not_allowed": event.members_only
+        and not is_booked
+        and not has_available_membership,
+        "is_booked": is_booked,
+        "can_cancel": can_cancel,
+        "can_rebook": is_cancelled and has_available_membership,
+        "can_book": not is_booked and has_available_membership,
+        "can_go_to_basket": is_booked_and_unpaid and not has_available_membership,
+        "can_add_to_basket": event.bookable
+        and not user.is_anonymous
+        and not is_booked
+        and not has_available_membership,
+        "show_cancellation_warning": can_cancel
+        and not event.can_cancel()
+        and event.cancellation_fee > 0,
+        "on_waiting_list": on_waiting_list,
+    }

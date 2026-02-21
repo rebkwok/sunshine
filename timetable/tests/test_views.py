@@ -69,7 +69,7 @@ class TimetableListViewTests(TestCase):
             self.assertEqual(tt.session_type, self.pole)
 
 
-def test_timetable_list_tab_(client):
+def test_timetable_list_tab(client):
     location1 = baker.make(Location, name="l1")
     location2 = baker.make(Location, name="l2")
     baker.make(TimetableSession, venue__location=location1)
@@ -77,13 +77,13 @@ def test_timetable_list_tab_(client):
         TimetableSession, venue__location=location2, show_on_timetable_page=False
     )
 
-    # One active location, tab set to first location that's active (not 0, as all locations tab isn't shown)
+    # One active location, tab set to first location that's active
     resp = client.get(reverse("timetable:timetable"))
-    assert resp.context_data["tab"] == 1
+    assert resp.context_data["tab"] == 0
 
     # non-int tab, default to whatever the default tab is
     resp = client.get(reverse("timetable:timetable") + "?tab=foo")
-    assert resp.context_data["tab"] == 1
+    assert resp.context_data["tab"] == 0
 
     ttsession2.show_on_timetable_page = True
     ttsession2.save()

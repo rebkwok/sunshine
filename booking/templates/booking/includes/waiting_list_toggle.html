@@ -1,5 +1,13 @@
-{% if on_waiting_list or bookingform.on_waiting_list or booking.id in on_waiting_list_booking_ids_list or event.id in waiting_list_events %}
+<span 
+hx-post={% url 'booking:toggle_waiting_list' button_data.event.id %}
+hx-trigger="click"
+hx-target="#table-row-event-{{ button_data.event.id }}"
+hx-vals='{"booking_id": "{{ booking.id }}", "tab": "{{ location.index }}", "ref": "{{ button_data.ref }}"}'
+hx-swap="outerHTML"
+>
+    {% if button_data.on_waiting_list %}
         <button class="btn btn-tra-01 color-01-hover btn-xs book-btn" id="leave_waiting_list_button">Leave waiting list</button>
-{% else %}
+    {% else %}
         <button class="btn btn-color-01 tra-01-hover btn-xs book-btn" id="join_waiting_list_button">Join waiting list</button>
-{% endif %}
+    {% endif %}
+</span>

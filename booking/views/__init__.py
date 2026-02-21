@@ -1,11 +1,9 @@
 from django.shortcuts import render
 
 from booking.views.ajax_views import (
-    booking_details,
-    toggle_booking,
     toggle_waiting_list,
-    update_booking_count,
     ajax_cart_item_delete,
+    toggle_booking,
 )
 from booking.views.event_views import (
     EventDetailView,
@@ -41,10 +39,7 @@ __all__ = [
     "BookingListView",
     "BookingHistoryListView",
     "PrivateClassesEventListView",
-    "booking_details",
-    "toggle_booking",
     "toggle_waiting_list",
-    "update_booking_count",
     "shopping_basket_view",
     "guest_shopping_basket",
     "stripe_checkout",
@@ -60,6 +55,7 @@ __all__ = [
     "GiftVoucherUpdateView",
     "UserInvoiceListView",
     "voucher_details",
+    "toggle_booking",
 ]
 
 

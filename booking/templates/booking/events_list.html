@@ -92,80 +92,17 @@
                         {% include 'booking/includes/events_pagination.html' with page_obj=location.queryset tab=location.index %}
                     
                         <div class="panel panel-transparent" style="background-color: rgba(230,230,230,0.6); overflow-x: scroll;">
-                                <table class="table table-striped">
-                                    <tr class="table-dark">
-                                        <th scope="col" class="table-center table-book-btn-col"></th>
-                                        <th scope="col" class="table-center">Date</th>
-                                        <th scope="col" class="table-center">Name</th>
-                                        <th scope="col" class="table-center">Venue</th>
-                                        <th scope="col" class="table-center">Cost</th>
-                                        <th scope="col" class="table-center">Spaces</th>
-                                    </tr>
-                                    <tbody>
-                                    {% for event in location.queryset %}
-                                        {% get_booking event user as booking %}
+                            <ul class="list-group">
+                                {% regroup location.queryset by date.date as event_list %}
 
-                                        <tr scope="row" id="table-row-event-{{ event.id }}"
-                                            class="{% if event.cancelled %}expired{% elif event.id in booked_events %}table-warning{% else %}table-light{% endif %}">
-                                            {% if user.is_authenticated %}
-                                                {% if event.id in staff_only_events %}
-                                                    <td class="table-center table-book-btn-col">VISIBLE TO STAFF ONLY</td>
-                                                {% else %}
-                                                    <td class="table-center table-book-btn-col">
-                                                        {% if user|has_disclaimer %}
-                                                            {% if event.cancelled %}
-                                                                CLASS CANCELLED
-                                                            {% elif user.has_outstanding_fees %}
-                                                                {% include "booking/includes/outstanding_fee_disabled_buttons.html" %}
-                                                            {% elif event.bookable or event.id in booked_events %}
-                                                                {% if event.members_only and not event|has_available_membership:user and not event.id in booked_events %}
-                                                                    <span class="btn btn-sunshine tra-sunshine-hover book_button disabled" disabled=disabled>Members only</span>
-                                                                {% else %}
-                                                                <span
-                                                                    id="book_{{ event.id }}"
-                                                                    data-event_id="{{ event.id }}"
-                                                                    data-event_str="{{ event.name }} ({{ event.date|date:'D d b H:i'|title }})"
-                                                                    data-ref="events"
-                                                                    data-show_warning="{{ event|show_warning }}"
-                                                                    data-cancellation_fee={{ event.cancellation_fee }}
-                                                                    class="td_ajax_book_btn">
-                                                                {% include "booking/includes/book_button_toggle.html" %}
-                                                                </span>
-                                                                {% endif %}
-                                                            {% else %}
-                                                                <span
-                                                                    id="waiting_list_button_{{ event.id }}"
-                                                                    data-event_id="{{ event.id }}"
-                                                                    class="td_ajax_waiting_list_btn">
-                                                                {% include "booking/includes/waiting_list_toggle.html" %}
-                                                                </span>
-                                                            {% endif %}
-                                                        {% else %}
-                                                        <em><a href="{% url 'accounts:disclaimer_form' user.id %}">Complete disclaimer</a></em>
-                                                        {% endif %}
-                                                    </td>
-                                                {% endif %}
-                                            {% else %}
-                                            <td class="table-center table-book-btn-col">
-                                                <a class='btn btn-sunshine tra-sunshine-hover' href="{% url 'account_login' %}?next={{request.get_full_path|urlencode }}">Log in to book</a>
-                                            </td>
-                                            {% endif %}
-                                            <td class="table-center">{{ event.date | nb_date }}</td>
-                                            <td class="table-center"><a href="{% url 'booking:event_detail' event.slug %}">{{ event.name }}</a></td>
-                                            <td class="table-center">{{ event.venue.abbreviation }}</td>
-                                            <td class="table-center">£{{ event.cost }}</td>
-                                            <td class="table-center">
-                                                {% if event.max_participants %}
-                                                    <span id="booking_count_{{ event.id }}"
-                                                        class="badge rounded-pill {% if event.spaces_left == 0 or event.cancelled %}badge-dark{% else %}badge-green{% endif%}">
-                                                        {{ event.spaces_left }}/{{ event.max_participants }}
-                                                    </span>
-                                                {% else %}N/A{% endif %}
-                                            </td>
-                                        </tr>
+                                {% for events in event_list %}
+                                    <li class="list-group-item list-group-item-secondary">{{ events.grouper|date:"l d M" }}</li>
+                                    {% for event in events.list %}
+                                        {% get_booking event user as booking %}
+                                        {% include "booking/includes/event_row.html" %}
                                     {% endfor %}
-                                    </tbody>
-                                </table>
+                                {% endfor %}
+                            </ul>
                         </div>
                         {% include 'booking/includes/events_pagination.html' with page_obj=location.queryset tab=location.index %}
                         {% endif %}
@@ -185,7 +122,5 @@
 
 {% block extrascripts %}
 <script type='text/javascript' src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
-<script type='text/javascript' src="{% static 'booking/js/events_booking_ajax.js' %}"></script>
-<script type='text/javascript' src="{% static 'booking/js/toggle_waiting_list_ajax.js' %}"></script>
-
+<script type='text/javascript' src="{% static 'booking/js/alerts.js' %}"></script>
 {% endblock %}

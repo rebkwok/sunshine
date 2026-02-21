@@ -107,11 +107,7 @@ class Venue(models.Model):
     @classmethod
     def location_choices(cls):
         return {
-            0: "All locations",
-            **{
-                i: location
-                for i, location in enumerate(cls.distinct_locations_in_order(), start=1)
-            },
+            i: location for i, location in enumerate(cls.distinct_locations_in_order())
         }
 
 
