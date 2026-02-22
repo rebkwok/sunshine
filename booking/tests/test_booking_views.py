@@ -7,7 +7,7 @@ from django.test import TestCase
 
 from accounts.models import DataPrivacyPolicy
 
-from booking.models import Booking, WaitingListUser
+from booking.models import Booking
 
 
 class BookingListViewTests(TestCase):

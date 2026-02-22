@@ -901,7 +901,7 @@ class BookingToggleHtmxViewTests(TestCase):
             event=self.event,
             status="OPEN",
         )
-        booking = baker.make_recipe("booking.booking", event=self.event)
+        baker.make_recipe("booking.booking", event=self.event)
 
         for i in range(2, 4):
             baker.make(
