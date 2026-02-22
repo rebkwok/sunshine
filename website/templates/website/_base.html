@@ -12,6 +12,7 @@
 		<meta name="description" content="Sunshine Fitness"/>
 		<meta name="keywords" content="Fitness, Pole Dance, Pole Fitness">	
 		<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <meta name="htmx-config" content='{"useTemplateFragments":"true"}'>
 				
   		<!-- SITE TITLE -->
 		<title>Sunshine Fitness</title>
@@ -58,7 +59,7 @@
         
 	</head>
 
-	<body>
+	<body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
 
 		{% comment %} {% block preloader %}{% endblock %} {% endcomment %}
 
@@ -80,7 +81,7 @@
                                 <a href="/"><img src='{% static "website/images/logo.jpg" %}' width="50" height="50" alt="mobile-logo"/></a>
                                 <span class="mobile-cart">
                                     <a href="{% url 'booking:shopping_basket' %}" class="btn btn-tra-sunshine sunshine-hover p-2">
-                                        <i class="fas fa-shopping-basket me-0"></i> <span id="cart_item_menu_count_xs">{{ cart_item_count }}</span>
+                                        <i class="fas fa-shopping-basket me-0"></i>&nbsp;<span id="cart_item_menu_count_xs">{{ cart_item_count }}</span>
                                     </a>
                                 </span>
                             </span>
@@ -182,7 +183,7 @@
                                         {% if user.is_authenticated %}
                                             <li class="nl-simple desktop-cart" aria-haspopup="true">
                                                 <a href="{% url 'booking:shopping_basket' %}" class="btn btn-sunshine tra-sunshine-hover last-link p-2">
-                                                    <i class="fas fa-shopping-basket me-0"></i> <span id="cart_item_menu_count">{{ cart_item_count }}</span>
+                                                    <i class="fas fa-shopping-basket me-0"></i>&nbsp;<span id="cart_item_menu_count">{{ cart_item_count }}</span>
                                                     </a>
                                                 
                                                 </a>
@@ -292,6 +293,9 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.13.2/jquery-ui.min.js" integrity="sha512-57oZ/vW8ANMjR/KQ6Be9v/+/h6bq9/l3f0Oc7vn6qMqyhvPd1cvKBRWWpzu0QoneImqr2SkmO4MSqU+RpHom3Q==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>    
 
 		<!-- Custom Script -->		
+        <script src="https://unpkg.com/htmx.org@1.9.2" integrity="sha384-L6OqL9pRWyyFU3+/bjdSri+iIphTN/bvYyM37tICVyOJkWZLpP2vGn6VUEXgzg6h" crossorigin="anonymous" defer></script>
+        <script src="https://unpkg.com/htmx.org/dist/ext/class-tools.js" defer></script>
+
         <script src="{% static 'website/js/custom-v3.js' %}"></script>
         <script src="{% static 'website/js/ajax_csrf.js' %}"></script>
         <script type="text/javascript" src="{% static 'cookielaw/js/cookielaw.js' %}"></script>
@@ -304,7 +308,7 @@
                 var active_section = $(section_id)
                 console.log(section_id);
                 active_section.addClass("active")
-            });
+htmx            });
         </script>
 
         {% block extrascripts %}{% endblock %}

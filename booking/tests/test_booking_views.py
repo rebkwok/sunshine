@@ -7,7 +7,7 @@ from django.test import TestCase
 
 from accounts.models import DataPrivacyPolicy
 
-from booking.models import Booking, WaitingListUser
+from booking.models import Booking
 
 
 class BookingListViewTests(TestCase):
@@ -86,15 +86,6 @@ class BookingListViewTests(TestCase):
         # booking listing should show this user's future bookings,
         # including the cancelled one
         assert resp.context_data["bookings"].count() == 6
-
-    def test_cancelled_bookings_on_waiting_list(self):
-        ev = baker.make_recipe("booking.future_PC", name="future event")
-        booking = baker.make_recipe(
-            "booking.booking", user=self.user, event=ev, status="CANCELLED"
-        )
-        baker.make(WaitingListUser, user=self.user, event=ev)
-        resp = self.client.get(self.url)
-        assert resp.context_data["on_waiting_list_booking_ids_list"] == [booking.id]
 
     def test_outstanding_fees_shows_banner(self):
         booking = self.regular_sessions_bookings[0]

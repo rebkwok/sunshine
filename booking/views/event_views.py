@@ -137,21 +137,6 @@ class BaseEventListView(ListView):
         tab, active_locations, venue_locations = self._get_location_data()
         context["tab"] = tab
 
-        if not self.request.user.is_anonymous:
-            # Add in the booked_events
-            user_booked_events = (
-                Booking.objects.select_related()
-                .filter(user=self.request.user, status="OPEN", no_show=False)
-                .values_list("event__id", flat=True)
-            )
-            booked_events = queryset.filter(id__in=user_booked_events).values_list(
-                "id", flat=True
-            )
-            waiting_list_events = WaitingListUser.objects.filter(
-                user=self.request.user
-            ).values_list("event__id", flat=True)
-            context["booked_events"] = booked_events
-            context["waiting_list_events"] = waiting_list_events
         if self.request.user.is_staff:
             # add in the staff-only events
             context["staff_only_events"] = queryset.filter(
@@ -195,9 +180,7 @@ class BaseEventListView(ListView):
         location_events = []
 
         for index, location_choice in venue_locations:
-            if index == 0 and len(active_locations) > 1:
-                loc_queryset = queryset
-            elif location_choice not in active_locations:
+            if location_choice not in active_locations:
                 continue
             else:
                 loc_queryset = queryset.filter(venue__location__name=location_choice)

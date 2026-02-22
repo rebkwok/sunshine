@@ -1,0 +1,27 @@
+{% if button_data.members_only_not_allowed %}
+    <span class="btn btn-sunshine tra-sunshine-hover book_button disabled" disabled=disabled>Members only</span>
+{% else %}
+    {% comment %} booking button {% endcomment %}
+    <span 
+        hx-post={% url 'booking:toggle_booking' button_data.event.id %}
+        hx-trigger="click"
+        hx-target="#table-row-event-{{ button_data.event.id }}"
+        hx-vals='{"booking_id": "{{ booking.id }}", "tab": "{{ location.index }}", "ref": "{{ button_data.ref }}"}'
+        hx-swap="outerHTML"
+        {% if button_data.show_cancellation_warning %}hx-confirm="Cancelling at this time will incur a fee of £{{ event.cancellation_fee }}. Are you sure you wish to cancel?"{% endif %}   
+    >
+        {% if button_data.can_go_to_basket %}
+            <span class="btn btn-xs book-btn btn-oak tra-oak-hover">
+                View basket <i class="fa fa-shopping-basket"></i>
+            </span>
+        {% elif button_data.can_cancel %}
+            <span class="btn btn-xs book-btn btn-pink tra-pink-hover">Cancel</span>
+        {% elif button_data.can_rebook %}
+            <span class="btn btn-xs book-btn btn-green tra-green-hover">Rebook</span>
+        {% elif button_data.can_book %}
+            <span class="btn btn-xs book-btn btn-green tra-green-hover">Book</span>
+        {% elif button_data.can_add_to_basket %}
+            <span class="btn btn-xs book-btn btn-sunshine tra-sunshine-hover">Add to basket</span>
+        {% endif %}
+    </span>
+{% endif %}

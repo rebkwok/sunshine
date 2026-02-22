@@ -1,7 +1,19 @@
-{% if event.bookable or booking.event.bookable %}
-    <button class="btn btn-xs book-btn btn-sunshine tra-sunshine-hover disabled" id="book_button_disabled">{% if ref == 'bookings' or bookings %}Rebook{% else %}Book{% endif %}</button>
-{% elif on_waiting_list or booking.id in on_waiting_list_booking_ids_list or event.id in waiting_list_events %}
-    <button class="btn book-btn btn-tra-01 color-01-hover btn-xs disabled" id="leave_waiting_list_button_disabled">Leave waiting list</button>
+{% if button_data.show_book_button %}
+    <span class="btn book-btn btn-xs btn-sunshine tra-sunshine-hover disabled" id="book_button_disabled">
+        {% if button_data.can_go_to_basket %}
+            View basket
+        {% elif button_data.can_cancel %}
+            Cancel
+        {% elif button_data.can_rebook %}
+            Rebook
+        {% elif button_data.can_book %}
+            Book
+        {% elif button_data.can_add_to_basket %}
+            Add to basket
+        {% endif %}
+    </span>
+{% elif button_data.on_waiting_list  %}
+    <button class="btn book-btn btn-xs btn-sunshine tra-sunshine-hover disabled" id="leave_waiting_list_button_disabled">Leave waiting list</button>
 {% else %}
-    <button class="btn book-btn btn-color-01 tra-01-hover btn-xs disabled" id="join_waiting_list_button_disabled">Join waiting list</button>
+    <button class="btn book-btn btn-xs btn-sunshine tra-sunshine-hover disabled" id="join_waiting_list_button_disabled">Join waiting list</button>
 {% endif %}

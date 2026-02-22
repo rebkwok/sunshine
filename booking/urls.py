@@ -9,10 +9,7 @@ from booking.views import (
     PrivateClassesEventListView,
     BookingListView,
     BookingHistoryListView,
-    toggle_booking,
     toggle_waiting_list,
-    booking_details,
-    update_booking_count,
     shopping_basket_view,
     guest_shopping_basket,
     stripe_checkout,
@@ -26,6 +23,7 @@ from booking.views import (
     GiftVoucherPurchaseView,
     GiftVoucherDetailView,
     voucher_details,
+    toggle_booking,
 )
 from booking.views.user_invoices_views import UserInvoiceListView
 
@@ -50,19 +48,9 @@ urlpatterns = [
     path("event/<slug:slug>/", EventDetailView.as_view(), name="event_detail"),
     path("toggle-booking/<int:event_id>/", toggle_booking, name="toggle_booking"),
     path(
-        "ajax-toggle-waiting-list/<int:event_id>/",
+        "toggle-waiting-list/<int:event_id>/",
         toggle_waiting_list,
         name="toggle_waiting_list",
-    ),
-    path(
-        "update-booking-details/<int:event_id>/",
-        booking_details,
-        name="booking_details",
-    ),
-    path(
-        "ajax-update-booking-count/<int:event_id>/",
-        update_booking_count,
-        name="update_booking_count",
     ),
     # GIFT VOUCHERS
     path("gift-vouchers/", GiftVoucherPurchaseView.as_view(), name="buy_gift_voucher"),

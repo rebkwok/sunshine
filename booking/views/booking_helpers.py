@@ -71,7 +71,7 @@ def cancel_booking_from_view(request, booking):
             booking.save()
 
     # MESSAGES
-    alert_message = {"message_type": "error"}
+    alert_message = {"level": "error"}
     # no messages if we're deleting from shopping basket
     if not delete_from_shopping_basket:
         alert_message["message"] = "Cancelled."

@@ -82,55 +82,50 @@ class EventListViewTests(TestCase):
         assert resp.context_data["page_obj"].number == 1
 
         # location paginators
-        # tab1 has 3 items, always returns p1
-        resp = self.client.get(self.workshops_url + "?page=1&tab=1")
-        venue_paginator = resp.context_data["location_events"][1]["queryset"]
+        # tab0 has 3 items, always returns p1
+        resp = self.client.get(self.workshops_url + "?page=1&tab=0")
+        venue_paginator = resp.context_data["location_events"][0]["queryset"]
         assert venue_paginator.paginator.count == 3
         assert venue_paginator.number == 1
 
-        loc1_paginator = resp.context_data["location_events"][2]["queryset"]
+        loc1_paginator = resp.context_data["location_events"][1]["queryset"]
         assert len(loc1_paginator.object_list) == 20
         assert loc1_paginator.paginator.count == 25
         assert loc1_paginator.number == 1
 
+        resp = self.client.get(self.workshops_url + "?page=2&tab=0")
+        venue_paginator = resp.context_data["location_events"][0]["queryset"]
+        assert venue_paginator.paginator.count == 3
+        assert venue_paginator.number == 1
+
+        # tab1 has 25 items
         resp = self.client.get(self.workshops_url + "?page=2&tab=1")
-        venue_paginator = resp.context_data["location_events"][1]["queryset"]
+        venue_paginator = resp.context_data["location_events"][0]["queryset"]
         assert venue_paginator.paginator.count == 3
         assert venue_paginator.number == 1
 
-        loc1_paginator = resp.context_data["location_events"][2]["queryset"]
-        assert len(loc1_paginator.object_list) == 20
-        assert loc1_paginator.paginator.count == 25
-        assert loc1_paginator.number == 1
-
-        # tab2 has 25 items
-        resp = self.client.get(self.workshops_url + "?page=2&tab=2")
-        venue_paginator = resp.context_data["location_events"][1]["queryset"]
-        assert venue_paginator.paginator.count == 3
-        assert venue_paginator.number == 1
-
-        loc1_paginator = resp.context_data["location_events"][2]["queryset"]
+        loc1_paginator = resp.context_data["location_events"][1]["queryset"]
         assert len(loc1_paginator.object_list) == 5
         assert loc1_paginator.paginator.count == 25
         assert loc1_paginator.number == 2
 
         # page out of range, returns last page
-        resp = self.client.get(self.workshops_url + "?page=10&tab=2")
-        loc1_paginator = resp.context_data["location_events"][2]["queryset"]
+        resp = self.client.get(self.workshops_url + "?page=10&tab=1")
+        loc1_paginator = resp.context_data["location_events"][1]["queryset"]
         assert len(loc1_paginator.object_list) == 5
         assert loc1_paginator.paginator.count == 25
         assert loc1_paginator.number == 2
 
         # page negative, returns last page
-        resp = self.client.get(self.workshops_url + "?page=-10&tab=2")
-        loc1_paginator = resp.context_data["location_events"][2]["queryset"]
+        resp = self.client.get(self.workshops_url + "?page=-10&tab=1")
+        loc1_paginator = resp.context_data["location_events"][1]["queryset"]
         assert len(loc1_paginator.object_list) == 5
         assert loc1_paginator.paginator.count == 25
         assert loc1_paginator.number == 2
 
         # page not a number, returns first page
-        resp = self.client.get(self.workshops_url + "?page=foo0&tab=2")
-        loc1_paginator = resp.context_data["location_events"][2]["queryset"]
+        resp = self.client.get(self.workshops_url + "?page=foo0&tab=1")
+        loc1_paginator = resp.context_data["location_events"][1]["queryset"]
         assert len(loc1_paginator.object_list) == 20
         assert loc1_paginator.paginator.count == 25
         assert loc1_paginator.number == 1
@@ -176,74 +171,29 @@ class EventListViewTests(TestCase):
         resp = self.client.get(self.workshops_url)
         assert len(resp.context_data["events"]) == 3
 
-    def test_event_list_with_logged_in_user(self):
-        """
-        Test that booked_events in context
-        """
-        booking = baker.make_recipe(
-            "booking.booking", user=self.user, event=self.regular_classes[0]
-        )
-        resp = self.client.get(self.classes_url)
-        assert "booked_events" in resp.context_data
-        assert resp.context_data["booked_events"][0] == [booking.event.id][0]
-
     def test_event_list_show_warning(self):
-        """
-        Test that all events are listed (workshops and other events)
-        """
+        # warning is shown if booking can be cancelled and cancellation fees apply
         event = baker.make_recipe(
             "booking.future_EV", allow_booking_cancellation=False, cancellation_fee=0
         )
         resp = self.client.get(self.workshops_url)
         assert resp.status_code == 200
         assert resp.context["events"].count() == 4
-        assert 'data-show_warning="1"' not in resp.rendered_content
+        assert "hx-confirm" not in resp.rendered_content
 
         event.cancellation_fee = 1
         event.save()
         resp = self.client.get(self.workshops_url)
-        assert 'data-show_warning="1"' in resp.rendered_content
+        assert "hx-confirm" not in resp.rendered_content
 
-    def test_event_list_with_booked_events(self):
-        """
-        test that booked events are shown on listing
-        """
+        baker.make(
+            "booking.booking", event=event, user=self.user, status="OPEN", paid=True
+        )
         resp = self.client.get(self.workshops_url)
-        # check there are no booked events yet
-        assert len(resp.context_data["booked_events"]) == 0
-
-        # create a booking for this user
-        booked_event = Event.objects.all()[0]
-        baker.make_recipe("booking.booking", user=self.user, event=booked_event)
-        resp = self.client.get(self.workshops_url)
-        booked_events = [event for event in resp.context_data["booked_events"]]
-        assert len(booked_events) == 1
-        assert booked_event.id in booked_events
-
-    def test_event_list_shows_only_current_user_bookings(self):
-        """
-        Test that only user's booked events are shown as booked
-        """
-        events = Event.objects.all()
-        event1 = events[0]
-        event2 = events[1]
-
-        resp = self.client.get(self.workshops_url)
-        # check there are no booked events yet
-        assert len(resp.context_data["booked_events"]) == 0
-
-        # create booking for this user
-        baker.make_recipe("booking.booking", user=self.user, event=event1)
-        # create booking for another user
-        user1 = baker.make_recipe("booking.user")
-        baker.make_recipe("booking.booking", user=user1, event=event2)
-
-        # check only event1 shows in the booked events
-        resp = self.client.get(self.workshops_url)
-        booked_events = [event for event in resp.context_data["booked_events"]]
-        assert Booking.objects.all().count() == 2
-        assert len(booked_events) == 1
-        assert event1.id in booked_events
+        assert (
+            'hx-confirm="Cancelling at this time will incur a fee'
+            in resp.rendered_content
+        )
 
     def test_event_list_with_name(self):
         url = self.classes_url + "?name=Class 1"
@@ -273,9 +223,9 @@ class EventListViewTests(TestCase):
             "booking.future_PC",
             venue__location__name="loc2",
             venue__order=300,
-            _quantity=15,
+            _quantity=25,
         )
-        assert Event.objects.filter(event_type="regular_session").count() == 27
+        assert Event.objects.filter(event_type="regular_session").count() == 37
         resp = self.client.get(self.classes_url)
 
         # paginated at 20
@@ -286,12 +236,11 @@ class EventListViewTests(TestCase):
 
         # paginated locations
         location_events = resp.context_data["location_events"]
-        assert len(location_events) == 4  # all, venue, loc1, loc2
+        assert len(location_events) == 3  # venue, loc1, loc2
         # all locations, paginated at 20
-        assert len(location_events[0]["queryset"]) == 20
-        assert len(location_events[1]["queryset"]) == 2
-        assert len(location_events[2]["queryset"]) == 10
-        assert len(location_events[3]["queryset"]) == 15
+        assert len(location_events[0]["queryset"]) == 2
+        assert len(location_events[1]["queryset"]) == 10
+        assert len(location_events[2]["queryset"]) == 20
 
     @patch("booking.views.event_views.timezone.now")
     def test_event_list_with_name_day_and_time(self, mock_now):

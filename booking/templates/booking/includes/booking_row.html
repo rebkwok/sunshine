@@ -1,0 +1,55 @@
+{% load accounttags bookingtags static %}
+
+{% if request.htmx %}
+    <span id="cart_item_menu_count_xs" hx-swap-oob="true">{{cart_item_count}}</div>
+    <span id="cart_item_menu_count" hx-swap-oob="true">{{cart_item_count }}</span>
+{% endif %}
+
+{% book_button_data booking.event user booking "booking" as button_data %}
+
+<li
+    id="table-row-event-{{ booking.event.id }}"
+    class="list-group-item 
+        {% if not button_data.can_cancel %}
+            expired
+        {% endif %}">
+    <div class="row">
+    {% if not history %}
+        <div class="col">
+            {% if booking.event.cancelled %}
+                <span class="btn btn-xs book-btn text-secondary disabled">CANCELLED</span>
+            {% elif user.has_outstanding_fees %}
+                {% include "booking/includes/outstanding_fee_disabled_buttons.html" %}
+            {% elif button_data.show_book_button %}
+                {% include 'booking/includes/book_button.html' %}
+            {% else %}
+                {% include "booking/includes/waiting_list_toggle.html" %}
+            {% endif %}
+            </div>
+    {% endif %}
+    <div class="col">{{ booking.event.date | date:"H:i" }}</div>
+    <div class="col">
+        <a href="{% url 'booking:event_detail' booking.event.slug %}">
+            {{ booking.event.name }}
+        </a>
+    </div>
+    <div class="col">{{ booking.event.venue.abbreviation }}</div>
+    <div class="col">{% if button_data.can_cancel %}OPEN{% else %}CANCELLED{% endif %}</div>
+    <div class="col">
+        {% if not booking.event.cancelled %}
+            Paid:
+            {% if booking.paid %}
+                {% if booking.membership %}
+                    <a href={% url "booking:membership_detail" booking.membership.id %}>
+                        <img src={% static 'booking/images/circle-m.svg' %} />
+                    </a>
+                {% else %}
+                    <span class="text-success fas fa-check-circle"/></span>
+                {% endif %}
+            {% else %}
+                <span class="text-danger fas fa-times-circle"/></span>
+            {% endif %}
+        {% endif %}
+    </div>
+</div>
+</li>
