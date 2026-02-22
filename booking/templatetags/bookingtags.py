@@ -86,20 +86,23 @@ def book_button_data(event, user, booking, ref):
         "show_book_button": event.bookable or is_booked,
         "ref": ref,
         "event": event,
-        "members_only_not_allowed": event.members_only
-        and not is_booked
-        and not has_available_membership,
+        "members_only_not_allowed": (
+            event.members_only and not is_booked and not has_available_membership
+        ),
         "is_booked": is_booked,
+        # button action
         "can_cancel": can_cancel,
         "can_rebook": is_cancelled and has_available_membership,
-        "can_book": not is_booked and has_available_membership,
+        "can_book": not is_booked and not is_cancelled and has_available_membership,
         "can_go_to_basket": is_booked_and_unpaid and not has_available_membership,
-        "can_add_to_basket": event.bookable
-        and not user.is_anonymous
-        and not is_booked
-        and not has_available_membership,
-        "show_cancellation_warning": can_cancel
-        and not event.can_cancel()
-        and event.cancellation_fee > 0,
+        "can_add_to_basket": (
+            event.bookable
+            and not user.is_anonymous
+            and not is_booked
+            and not has_available_membership
+        ),
+        "show_cancellation_warning": (
+            can_cancel and not event.can_cancel() and event.cancellation_fee > 0
+        ),
         "on_waiting_list": on_waiting_list,
     }

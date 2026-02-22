@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from datetime import datetime, UTC
+
 import pytest
 from model_bakery import baker
 
@@ -111,4 +113,93 @@ def test_book_button_data_never_booked(configured_user, has_membership, members_
         can_book=has_membership,
         can_add_to_basket=not has_membership,
         members_only_not_allowed=members_only and not has_membership,
+    )
+
+
+@pytest.mark.parametrize(
+    "has_membership,members_only",
+    [(True, False), (True, True), (False, False), (False, True)],
+)
+def test_book_button_data_booked(configured_user, has_membership, members_only):
+    event = baker.make_recipe("booking.future_PC", members_only=members_only)
+    booking = baker.make_recipe(
+        "booking.booking", paid=True, event=event, user=configured_user
+    )
+    if has_membership:
+        membership = baker.make(
+            Membership,
+            user=configured_user,
+            paid=True,
+            month=event.date.month,
+            year=event.date.year,
+        )
+        booking.membership = membership
+        booking.save()
+    assert book_button_data(event, configured_user, booking, "event") == button_data(
+        event,
+        is_booked=True,
+        can_cancel=True,
+    )
+
+
+@pytest.mark.freeze_time("2026-02-22T10:00")
+@pytest.mark.parametrize(
+    "event_date,cancellation_fee,show_warning",
+    [
+        # > 24 hrs away
+        (datetime(2026, 2, 23, 12, 0, tzinfo=UTC), 1, False),
+        # < 24 hrs away, no fee
+        (datetime(2026, 2, 23, 12, 0, tzinfo=UTC), 0, False),
+        # < 24 hrs away, has fee
+        (datetime(2026, 2, 23, 12, 0, tzinfo=UTC), 1, False),
+    ],
+)
+def test_book_button_data_cancellation_warning(
+    configured_user, event_date, cancellation_fee, show_warning
+):
+    event = baker.make_recipe(
+        "booking.future_PC", date=event_date, cancellation_fee=cancellation_fee
+    )
+    booking = baker.make_recipe(
+        "booking.booking", paid=True, event=event, user=configured_user
+    )
+    assert book_button_data(event, configured_user, booking, "event") == button_data(
+        event, is_booked=True, can_cancel=True, show_cancellation_warning=show_warning
+    )
+
+
+@pytest.mark.parametrize(
+    "has_membership,status,no_show",
+    [
+        (True, "CANCELLED", False),
+        (True, "OPEN", True),
+        (False, "CANCELLED", False),
+        (False, "OPEN", True),
+    ],
+)
+def test_book_button_data_booking_cancelled(
+    configured_user, has_membership, status, no_show
+):
+    event = baker.make_recipe("booking.future_PC")
+    booking = baker.make_recipe(
+        "booking.booking",
+        status=status,
+        paid=no_show,
+        no_show=no_show,
+        event=event,
+        user=configured_user,
+    )
+    if has_membership:
+        membership = baker.make(
+            Membership,
+            user=configured_user,
+            paid=True,
+            month=event.date.month,
+            year=event.date.year,
+        )
+        if no_show:
+            booking.membership = membership
+            booking.save()
+    assert book_button_data(event, configured_user, booking, "event") == button_data(
+        event, can_rebook=has_membership, can_add_to_basket=not has_membership
     )
