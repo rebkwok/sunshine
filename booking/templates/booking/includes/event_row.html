@@ -18,9 +18,9 @@
     <div class="row">
     {% if user.is_authenticated %}
         {% if event.id in staff_only_events %}
-            <div class="col">VISIBLE TO STAFF ONLY</div>
+            <div class="col-sm col-12">VISIBLE TO STAFF ONLY</div>
         {% else %}
-            <div class="col">
+            <div class="col-sm col-12">
                 {% if user|has_disclaimer %}
                     {% if event.cancelled %}
                         <span class="btn btn-xs book-btn text-secondary disabled">CANCELLED</span>
@@ -37,8 +37,8 @@
                     </div>
         {% endif %}
     {% else %}
-        <div class="col">
-            <a class='btn btn-sunshine tra-sunshine-hover' href="{% url 'account_login' %}?next={{request.get_full_path|urlencode }}">Log in to book</a>
+        <div class="col-sm col-12">
+            <a class='btn btn-sunshine tra-sunshine-hover' href="{% url 'account_login' %}?next={{request.get_full_path|urlencode }}">Log&nbsp;in to&nbsp;book</a>
         </div>
     {% endif %}
     <div class="col">{{ event.date | date:"H:i" }}</div>
@@ -50,7 +50,7 @@
     </div>
     <div class="col">{{ event.venue.abbreviation }}</div>
     <div class="col">£{{ event.cost }}</div>
-    <div class="col">
+    <div class="col-sm offset-9 col-3 me-auto">
         {% if event.max_participants %}
             {% if not event.cancelled %}
             <span id="booking_count_{{ event.id }}"
