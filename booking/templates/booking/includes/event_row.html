@@ -49,8 +49,8 @@
         {{ event.name }}</a>
     </div>
     <div class="col">{{ event.venue.abbreviation }}</div>
-    <div class="col">£{{ event.cost }}</div>
-    <div class="col-sm offset-9 col-3 me-auto">
+    <div class="col offset-6 col-2">£{{ event.cost }}</div>
+    <div class="col-sm col-3 me-auto">
         {% if event.max_participants %}
             {% if not event.cancelled %}
             <span id="booking_count_{{ event.id }}"
