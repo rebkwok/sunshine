@@ -10,7 +10,7 @@
 <li
     id="table-row-event-{{ booking.event.id }}"
     class="list-group-item 
-        {% if not button_data.can_cancel %}
+        {% if not button_data.can_cancel and not button_data.can_go_to_basket %}
             expired
         {% endif %}">
     <div class="row align-items-center">
@@ -34,7 +34,7 @@
         </a>
     </div>
     <div class="col-2 text-start">{{ booking.event.venue.abbreviation }}</div>
-    <div class="col-auto">{% if button_data.can_cancel %}OPEN{% else %}CANCELLED{% endif %}</div>
+    <div class="col-auto">{% if button_data.can_go_to_basket or button_data.can_cancel %}OPEN{% else %}CANCELLED{% endif %}</div>
     <div class="col-auto">
         {% if not booking.event.cancelled %}
             Paid:
