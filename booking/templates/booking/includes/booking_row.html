@@ -13,9 +13,9 @@
         {% if not button_data.can_cancel %}
             expired
         {% endif %}">
-    <div class="row">
+    <div class="row align-items-center">
     {% if not history %}
-        <div class="col">
+        <div class="col-12 col-sm-auto">
             {% if booking.event.cancelled %}
                 <span class="btn btn-xs book-btn text-secondary disabled">CANCELLED</span>
             {% elif user.has_outstanding_fees %}
@@ -27,15 +27,15 @@
             {% endif %}
             </div>
     {% endif %}
-    <div class="col">{{ booking.event.date | date:"H:i" }}</div>
+    <div class="col-auto">{{ booking.event.date | date:"H:i" }}</div>
     <div class="col">
         <a href="{% url 'booking:event_detail' booking.event.slug %}">
             {{ booking.event.name }}
         </a>
     </div>
-    <div class="col">{{ booking.event.venue.abbreviation }}</div>
-    <div class="col">{% if button_data.can_cancel %}OPEN{% else %}CANCELLED{% endif %}</div>
-    <div class="col">
+    <div class="col-2 text-start">{{ booking.event.venue.abbreviation }}</div>
+    <div class="col-auto">{% if button_data.can_cancel %}OPEN{% else %}CANCELLED{% endif %}</div>
+    <div class="col-auto">
         {% if not booking.event.cancelled %}
             Paid:
             {% if booking.paid %}

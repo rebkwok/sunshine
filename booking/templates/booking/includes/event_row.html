@@ -15,12 +15,12 @@
         {% elif button_data.is_booked %}
             {% if booking.paid %}list-group-item-success{% else %}list-group-item-warning{% endif %}
         {% endif %}">
-    <div class="row">
+    <div class="row align-items-center">
     {% if user.is_authenticated %}
         {% if event.id in staff_only_events %}
-            <div class="col-sm col-12">VISIBLE TO STAFF ONLY</div>
+            <div class="col-12 col-sm-auto">VISIBLE TO STAFF ONLY</div>
         {% else %}
-            <div class="col-sm col-12">
+            <div class="col-12 col-sm-auto">
                 {% if user|has_disclaimer %}
                     {% if event.cancelled %}
                         <span class="btn btn-xs book-btn text-secondary disabled">CANCELLED</span>
@@ -37,20 +37,20 @@
                     </div>
         {% endif %}
     {% else %}
-        <div class="col-sm col-12">
+        <div class="col-12 col-sm-auto">
             <a class='btn btn-sunshine tra-sunshine-hover' href="{% url 'account_login' %}?next={{request.get_full_path|urlencode }}">Log&nbsp;in to&nbsp;book</a>
         </div>
     {% endif %}
-    <div class="col">{{ event.date | date:"H:i" }}</div>
+    <div class="col-auto">{{ event.date | date:"H:i" }}</div>
     <div class="col"><a href="{% url 'booking:event_detail' event.slug %}">
         {% if booking and booking.paid and booking.status == "OPEN" and not booking.no_show %}
          <i class="fas fa-check-circle text-success"></i>
         {% endif %}
         {{ event.name }}</a>
     </div>
-    <div class="col">{{ event.venue.abbreviation }}</div>
-    <div class="col offset-6 col-2">£{{ event.cost }}</div>
-    <div class="col-sm col-3 me-auto">
+    <div class="col-2 text-start">{{ event.venue.abbreviation }}</div>
+    <div class="col-2 text-start">£{{ event.cost }}</div>
+    <div class="col-auto">
         {% if event.max_participants %}
             {% if not event.cancelled %}
             <span id="booking_count_{{ event.id }}"
