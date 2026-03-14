@@ -1,3 +1,29 @@
+/* Event/booking list row layout */
+.lg-btn-col  { width: 110px; }
+.lg-time-col { width: 45px; }
+.lg-venue-col { width: 80px; }
+.lg-cost-col  { width: 70px; }
+
+/* Grid layout for info column: col 1 = time (45px), col 2 = name/venue content.
+   Guarantees name and venue share the same left edge regardless of gap values. */
+.row-info-grid {
+    display: grid;
+    grid-template-columns: 45px 1fr;
+    column-gap: 0.5rem;
+    row-gap: 0.25rem;
+    align-items: center;
+}
+
+/* Constrain all book/waiting-list buttons globally so the button column never
+   expands beyond 110px (Bootstrap's white-space:nowrap would otherwise cause
+   wide text like "Join waiting list" to push the flex item beyond 110px at
+   screen sizes where the responsive.css breakpoint rules don't apply). */
+.list-group-item .btn.btn-xs.book-btn {
+  width: 110px;
+  font-size: 0.8rem;
+  padding: 6px 4px;
+}
+
 .message-container {
     margin-top: 10px;
     margin-left: 10px;

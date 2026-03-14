@@ -9,13 +9,15 @@
 
 <li
     id="table-row-event-{{ booking.event.id }}"
-    class="list-group-item 
+    class="list-group-item
         {% if not button_data.can_cancel and not button_data.can_go_to_basket %}
             expired
         {% endif %}">
-    <div class="row align-items-center">
-    {% if not history %}
-        <div class="col-12 col-sm-auto">
+    <div class="d-flex align-items-center gap-2">
+
+        <!-- Button column -->
+        {% if not history %}
+        <div class="lg-btn-col flex-shrink-0">
             {% if booking.event.cancelled %}
                 <span class="btn btn-xs book-btn text-secondary disabled">CANCELLED</span>
             {% elif user.has_outstanding_fees %}
@@ -25,31 +27,42 @@
             {% else %}
                 {% include "booking/includes/waiting_list_toggle.html" %}
             {% endif %}
-            </div>
-    {% endif %}
-    <div class="col-auto">{{ booking.event.date | date:"H:i" }}</div>
-    <div class="col">
-        <a href="{% url 'booking:event_detail' booking.event.slug %}">
-            {{ booking.event.name }}
-        </a>
-    </div>
-    <div class="col-2 text-start">{{ booking.event.venue.abbreviation }}</div>
-    <div class="col-auto">{% if button_data.can_go_to_basket or button_data.can_cancel %}OPEN{% else %}CANCELLED{% endif %}</div>
-    <div class="col-auto">
-        {% if not booking.event.cancelled %}
-            Paid:
-            {% if booking.paid %}
-                {% if booking.membership %}
-                    <a href={% url "booking:membership_detail" booking.membership.id %}>
-                        <img src={% static 'booking/images/circle-m.svg' %} />
-                    </a>
-                {% else %}
-                    <span class="text-success fas fa-check-circle"/></span>
-                {% endif %}
-            {% else %}
-                <span class="text-danger fas fa-times-circle"/></span>
-            {% endif %}
+        </div>
         {% endif %}
+
+        <!-- Info column: grid with time col + content col, 2 rows -->
+        <div class="flex-grow-1 row-info-grid">
+
+            <!-- Row 1: time + name -->
+            <div class="lg-time-col">{{ booking.event.date | date:"H:i" }}</div>
+            <div>
+                <a href="{% url 'booking:event_detail' booking.event.slug %}">
+                    {{ booking.event.name }}
+                </a>
+            </div>
+
+            <!-- Row 2: empty + venue + status + paid -->
+            <div></div>
+            <div class="d-flex align-items-center gap-2 gap-md-3">
+                <div class="lg-venue-col text-start">{{ booking.event.venue.abbreviation }}</div>
+                <div class="lg-cost-col">{% if button_data.can_go_to_basket or button_data.can_cancel %}OPEN{% else %}CANCELLED{% endif %}</div>
+                <div>
+                    {% if not booking.event.cancelled %}
+                        Paid: {% if booking.paid %}
+                            {% if booking.membership %}
+                                <a href={% url "booking:membership_detail" booking.membership.id %}>
+                                    <img src={% static 'booking/images/circle-m.svg' %} />
+                                </a>
+                            {% else %}
+                                <span class="text-success fas fa-check-circle"></span>
+                            {% endif %}
+                        {% else %}
+                            <span class="text-danger fas fa-times-circle"></span>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+
+        </div>
     </div>
-</div>
 </li>

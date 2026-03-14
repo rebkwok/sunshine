@@ -398,7 +398,10 @@
     padding: 6px 4px;
   }
 
-  .list-group-item .row {
+  .list-group-item .lg-time-col,
+  .list-group-item .lg-venue-col,
+  .list-group-item .lg-cost-col,
+  .list-group-item .flex-grow-1 {
     font-size: 0.8rem;
   }
 
@@ -717,7 +720,10 @@
     padding: 6px 4px;
   }
 
-  .list-group-item .row {
+  .list-group-item .lg-time-col,
+  .list-group-item .lg-venue-col,
+  .list-group-item .lg-cost-col,
+  .list-group-item .flex-grow-1 {
     font-size: 0.8rem;
   }
 
@@ -903,7 +909,10 @@
     padding: 6px 4px;
   }
 
-  .list-group-item .row {
+  .list-group-item .lg-time-col,
+  .list-group-item .lg-venue-col,
+  .list-group-item .lg-cost-col,
+  .list-group-item .flex-grow-1 {
     font-size: 0.8rem;
   }
 
@@ -1089,7 +1098,10 @@
     padding: 6px 4px;
   }
 
-  .list-group-item .row {
+  .list-group-item .lg-time-col,
+  .list-group-item .lg-venue-col,
+  .list-group-item .lg-cost-col,
+  .list-group-item .flex-grow-1 {
     font-size: 0.8rem;
   }
 
@@ -1277,7 +1289,10 @@
     padding: 6px 4px;
   }
 
-  .list-group-item .row {
+  .list-group-item .lg-time-col,
+  .list-group-item .lg-venue-col,
+  .list-group-item .lg-cost-col,
+  .list-group-item .flex-grow-1 {
     font-size: 0.8rem;
   }
 

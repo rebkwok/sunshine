@@ -9,56 +9,70 @@
 
 <li
     id="table-row-event-{{ event.id }}"
-    class="list-group-item 
+    class="list-group-item
         {% if event.cancelled %}
             expired
         {% elif button_data.is_booked %}
             {% if booking.paid %}list-group-item-success{% else %}list-group-item-warning{% endif %}
         {% endif %}">
-    <div class="row align-items-center">
-    {% if user.is_authenticated %}
-        {% if event.id in staff_only_events %}
-            <div class="col-12 col-sm-auto">VISIBLE TO STAFF ONLY</div>
-        {% else %}
-            <div class="col-12 col-sm-auto">
-                {% if user|has_disclaimer %}
-                    {% if event.cancelled %}
-                        <span class="btn btn-xs book-btn text-secondary disabled">CANCELLED</span>
-                    {% elif user.has_outstanding_fees %}
-                        {% include "booking/includes/outstanding_fee_disabled_buttons.html" %}
-                    {% elif button_data.show_book_button %}
-                        {% include 'booking/includes/book_button.html' %}
-                    {% else %}
-                        {% include "booking/includes/waiting_list_toggle.html" %}
-                    {% endif %}
+    <div class="d-flex align-items-center gap-2">
+
+        <!-- Button column -->
+        <div class="lg-btn-col flex-shrink-0">
+            {% if user.is_authenticated %}
+                {% if event.id in staff_only_events %}
+                    <span class="btn btn-xs book-btn text-secondary disabled">STAFF ONLY</span>
                 {% else %}
-                <em><a href="{% url 'accounts:disclaimer_form' user.id %}">Complete disclaimer</a></em>
+                    {% if user|has_disclaimer %}
+                        {% if event.cancelled %}
+                            <span class="btn btn-xs book-btn text-secondary disabled">CANCELLED</span>
+                        {% elif user.has_outstanding_fees %}
+                            {% include "booking/includes/outstanding_fee_disabled_buttons.html" %}
+                        {% elif button_data.show_book_button %}
+                            {% include 'booking/includes/book_button.html' %}
+                        {% else %}
+                            {% include "booking/includes/waiting_list_toggle.html" %}
+                        {% endif %}
+                    {% else %}
+                        <em><a href="{% url 'accounts:disclaimer_form' user.id %}">Complete disclaimer</a></em>
+                    {% endif %}
                 {% endif %}
-                    </div>
-        {% endif %}
-    {% else %}
-        <div class="col-12 col-sm-auto">
-            <a class='btn btn-sunshine tra-sunshine-hover' href="{% url 'account_login' %}?next={{request.get_full_path|urlencode }}">Log&nbsp;in to&nbsp;book</a>
-        </div>
-    {% endif %}
-    <div class="col-auto">{{ event.date | date:"H:i" }}</div>
-    <div class="col"><a href="{% url 'booking:event_detail' event.slug %}">
-        {% if booking and booking.paid and booking.status == "OPEN" and not booking.no_show %}
-         <i class="fas fa-check-circle text-success"></i>
-        {% endif %}
-        {{ event.name }}</a>
-    </div>
-    <div class="col-2 text-start">{{ event.venue.abbreviation }}</div>
-    <div class="col-2 text-start">£{{ event.cost }}</div>
-    <div class="col-auto">
-        {% if event.max_participants %}
-            {% if not event.cancelled %}
-            <span id="booking_count_{{ event.id }}"
-                class="badge rounded-pill {% if event.spaces_left == 0 %}badge-dark{% else %}badge-green{% endif%}">
-                {{ event.spaces_left }}/{{ event.max_participants }}
-            </span>
+            {% else %}
+                <a class="btn btn-sunshine tra-sunshine-hover" href="{% url 'account_login' %}?next={{request.get_full_path|urlencode }}">Log&nbsp;in to&nbsp;book</a>
             {% endif %}
-        {% else %}N/A{% endif %}
+        </div>
+
+        <!-- Info column: grid with time col + content col, 2 rows -->
+        <div class="flex-grow-1 row-info-grid">
+
+            <!-- Row 1: time + name -->
+            <div class="lg-time-col">{{ event.date | date:"H:i" }}</div>
+            <div>
+                <a href="{% url 'booking:event_detail' event.slug %}">
+                    {% if booking and booking.paid and booking.status == "OPEN" and not booking.no_show %}
+                        <i class="fas fa-check-circle text-success"></i>
+                    {% endif %}
+                    {{ event.name }}
+                </a>
+            </div>
+
+            <!-- Row 2: empty + venue + cost + spaces -->
+            <div></div>
+            <div class="d-flex align-items-center gap-2 gap-md-3">
+                <div class="lg-venue-col text-start">{{ event.venue.abbreviation }}</div>
+                <div class="lg-cost-col text-start">£{{ event.cost }}</div>
+                <div class="ms-auto">
+                    {% if event.max_participants %}
+                        {% if not event.cancelled %}
+                            <span id="booking_count_{{ event.id }}"
+                                class="badge rounded-pill {% if event.spaces_left == 0 %}badge-dark{% else %}badge-green{% endif %}">
+                                {{ event.spaces_left }}/{{ event.max_participants }}
+                            </span>
+                        {% endif %}
+                    {% else %}N/A{% endif %}
+                </div>
+            </div>
+
+        </div>
     </div>
-</div>
 </li>
