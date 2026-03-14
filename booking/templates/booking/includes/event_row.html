@@ -46,7 +46,7 @@
         <div class="flex-grow-1 row-info-grid">
 
             <!-- Row 1: time + name -->
-            <div class="lg-time-col">{{ event.date | date:"H:i" }}</div>
+            <div class="lg-time-col fw-bold">{{ event.date | date:"H:i" }}</div>
             <div>
                 <a href="{% url 'booking:event_detail' event.slug %}">
                     {% if booking and booking.paid and booking.status == "OPEN" and not booking.no_show %}
