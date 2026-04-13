@@ -39,7 +39,7 @@ dependencies = [
 [dependency-groups]
 dev = [
     "bs4>=0.0.2",
-    "coverage>=7.13.1",
+    "coverage>=7.13.5",
     "django-migration-testcase>=0.0.15",
     "ipdb>=0.13.13",
     "model-bakery>=1.21.0",
