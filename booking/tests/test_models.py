@@ -25,6 +25,7 @@ from booking.models import (
     MembershipType,
     TotalVoucher,
 )
+from booking.utils import start_of_day_in_local_time
 from stripe_payments.models import Invoice
 
 now = timezone.now()
@@ -679,10 +680,11 @@ def test_gift_voucher_properties(gift_voucher_types):
     voucher.save()
     assert gift_voucher.recipient_name == "User 1"
     assert gift_voucher.message == "For you"
-    assert gift_voucher.start_date == datetime.today().strftime("%d-%b-%Y")
+    # default start date is start of day in local time, which might not be the same as today's date
+    assert gift_voucher.start_date == start_of_day_in_local_time(datetime.today()).strftime("%d-%b-%Y")
     assert not gift_voucher.expiry_date
 
-    gift_voucher.activate()
+    gift_voucher.activate() 
     assert gift_voucher.start_date == datetime.today().strftime("%d-%b-%Y")
     assert gift_voucher.expiry_date == (
         datetime.today() + relativedelta(months=6)
