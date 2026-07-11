@@ -59,6 +59,10 @@
       "rangeStrategy": "widen"
     },
     {
+      "matchDatasources": ["cdnjs"],
+      "enabled": false
+    },
+    {
       "matchManagers": ["npm"],
       "matchDepTypes": ["dependencies"],
       "addLabels": ["js"],
