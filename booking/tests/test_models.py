@@ -667,7 +667,7 @@ def test_gift_voucher_type_str(gift_voucher_types):
     assert str(gift_voucher_types["membership_2"]) == "Membership - test - £20.00"
     assert str(gift_voucher_types["membership_4"]) == "Membership - test4 - £40.00"
 
-
+from booking.utils import start_of_day_in_local_time
 @pytest.mark.django_db
 def test_gift_voucher_properties(gift_voucher_types):
     gift_voucher = baker.make(
