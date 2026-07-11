@@ -17,7 +17,6 @@ jobs:
     services:
       # Label used to access the service container
       postgres:
-        # Docker Hub image
         image: postgres:16
         env:
           POSTGRES_USER: postgres
