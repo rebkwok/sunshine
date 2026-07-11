@@ -48,6 +48,10 @@
   // lockfile, which results in a conflict with MinimumReleaseAge.
   "packageRules": [
     {
+      "matchDatasources": ["docker"],
+      "enabled": false
+    },
+    {
       "matchManagers": ["npm"],
       "matchDepTypes": ["devDependencies"],
       "addLabels": ["js"],
