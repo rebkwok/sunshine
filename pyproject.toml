@@ -5,8 +5,8 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
-    "crispy-bootstrap5<=2025.6",
-    "delorean<=1.0.0",
+    "crispy-bootstrap5<=2026.3",
+    "delorean<=2.0.0",
     "dj-database-url<=3.1.2",
     "dj-static<=0.0.6",
     "django<=6.1",
@@ -16,7 +16,7 @@ dependencies = [
     "django-classy-tags<=4.1.0",
     "django-cookie-law<=2.2.0",
     "django-crispy-forms<=2.7",
-    "django-debug-toolbar<=6.3.0",
+    "django-debug-toolbar<=7.1.0",
     "django-email-obfuscator<=0.1.5",
     "django-environ<=0.14.0",
     "django-extensions<=4.1",
@@ -26,13 +26,13 @@ dependencies = [
     "django-suit",
     "dynamic-django-forms<=0.1.11",
     "envdir<=1.0.1",
-    "gunicorn<=24.1.1",
+    "gunicorn<=26.0.0",
     "pillow<=12.3.0",
     "psycopg2<=2.9.12",
     "pymemcache<=4.0.0",
     "python-dateutil<=2.9.0.post0",
     "shortuuid<=1.0.13",
-    "stripe<=14.4.1",
+    "stripe<=15.5.0",
     "whitenoise<=6.12.0",
 ]
 
