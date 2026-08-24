@@ -89,6 +89,7 @@ INSTALLED_APPS = (
     "cookielaw",
     "crispy_forms",
     "crispy_bootstrap5",
+    "django_recaptcha",
     "allauth",
     "allauth.account",
     "django_extensions",
@@ -324,6 +325,13 @@ if env("USE_MAILCATCHER"):  # pragma: no cover
     EMAIL_PORT = 1025
     EMAIL_USE_TLS = False
 
+
+# RECAPTCHA
+# To test locally, comment out the key lines and uncomment the SILENCED_SYSTEM_CHECKS - this will
+# use the test keys that always return True
+RECAPTCHA_PUBLIC_KEY = env.str("RECAPTCHA_PUBLIC_KEY", "")
+RECAPTCHA_PRIVATE_KEY = env.str("RECAPTCHA_PRIVATE_KEY", "")
+# SILENCED_SYSTEM_CHECKS = ['django_recaptcha.recaptcha_test_key_error']
 
 LOG_FOLDER = env("LOG_FOLDER")
 

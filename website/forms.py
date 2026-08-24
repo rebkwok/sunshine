@@ -1,6 +1,9 @@
 from django import forms
 from django.utils.html import mark_safe
 
+from django_recaptcha.fields import ReCaptchaField
+from django_recaptcha.widgets import ReCaptchaV2Checkbox
+
 
 class ContactForm(forms.Form):
     first_name = forms.CharField(
@@ -61,6 +64,8 @@ class ContactForm(forms.Form):
         ),
         required=False,
     )
+
+    captcha = ReCaptchaField(widget=ReCaptchaV2Checkbox)
 
     def clean_data_privacy_accepted(self):
         # We hide the checkbox in order to style it, so we need to validate

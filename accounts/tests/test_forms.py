@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 import json
 from datetime import datetime
+from unittest.mock import patch
+
 from model_bakery import baker
 
 import pytest
@@ -8,6 +10,8 @@ import pytest
 from django.test import TestCase
 from django.contrib.auth.models import User
 from django.urls import reverse
+
+from django_recaptcha.client import RecaptchaResponse
 
 from ..admin import (
     CookiePolicyAdminForm,
@@ -39,6 +43,7 @@ class SignUpFormTests(TestCase):
             "email": "test_user@test.com",
             "email2": "test_user@test.com",
             "username": "testuser",
+            "g-recaptcha-response": "PASSED",
             "password1": "dj34nmadkl24",
             "password2": "dj34nmadkl24",
         }
@@ -59,7 +64,9 @@ class SignUpFormTests(TestCase):
         resp = self.client.post(self.url, self.form_data)
         self.assertFalse(resp.context_data["form"].is_valid())
 
-    def test_sign_up(self):
+    @patch("django_recaptcha.fields.client.submit")
+    def test_sign_up(self, mocked_captcha_submit):
+        mocked_captcha_submit.return_value = RecaptchaResponse(is_valid=True)
         self.form_data.update({"first_name": "New", "last_name": "Name"})
         self.client.post(self.url, self.form_data)
         user = User.objects.latest("id")
@@ -78,7 +85,9 @@ class SignUpFormTests(TestCase):
         form = SignupForm(data=self.form_data)
         self.assertFalse(form.is_valid())
 
-    def test_sign_up_with_data_protection(self):
+    @patch("django_recaptcha.fields.client.submit")
+    def test_sign_up_with_data_protection(self, mocked_captcha_submit):
+        mocked_captcha_submit.return_value = RecaptchaResponse(is_valid=True)
         dp = baker.make(DataPrivacyPolicy)
         self.assertFalse(SignedDataPrivacy.objects.exists())
         self.form_data.update(
