@@ -1,9 +1,14 @@
 # -*- coding: utf-8 -*-
+from unittest.mock import patch
+
 import pytest
 
 from model_bakery import baker
 from django.core import mail
 from django.urls import reverse
+
+from django_recaptcha.client import RecaptchaResponse
+
 
 from timetable.models import SessionType, Venue, Location
 from website.models import Testimonial, TeamMember
@@ -83,7 +88,10 @@ def test_contact_view_get(client):
     }
 
 
-def test_send_contact_form(client, settings):
+@patch("django_recaptcha.fields.client.submit")
+def test_send_contact_form(mocked_captcha_submit, client, settings):
+    mocked_captcha_submit.return_value = RecaptchaResponse(is_valid=True)
+
     url = reverse("website:contact")
     data = {
         "subject": "General Enquiry",
@@ -93,6 +101,7 @@ def test_send_contact_form(client, settings):
         "message": "Test message",
         "cc": True,
         "data_privacy_accepted": True,
+        "g-recaptcha-response": "PASSED",
     }
 
     resp = client.post(url, data)
@@ -103,7 +112,10 @@ def test_send_contact_form(client, settings):
     assert mail.outbox[0].cc == ["dd@test.com"]
 
 
-def test_send_contact_form_with_errors(client):
+@patch("django_recaptcha.fields.client.submit")
+def test_send_contact_form_with_errors(mocked_captcha_submit, client):
+    mocked_captcha_submit.return_value = RecaptchaResponse(is_valid=True)
+
     url = reverse("website:contact")
     data = {
         "subject": "General Enquiry",
@@ -113,6 +125,7 @@ def test_send_contact_form_with_errors(client):
         "message": "",
         "cc": True,
         "data_privacy_accepted": True,
+        "g-recaptcha-response": "PASSED",
     }
 
     resp = client.post(url, data)
@@ -121,7 +134,10 @@ def test_send_contact_form_with_errors(client):
     assert len(mail.outbox) == 0
 
 
-def test_send_contact_form_data_privacy_required(client):
+@patch("django_recaptcha.fields.client.submit")
+def test_send_contact_form_data_privacy_required(mocked_captcha_submit, client):
+    mocked_captcha_submit.return_value = RecaptchaResponse(is_valid=True)
+
     url = reverse("website:contact")
     data = {
         "subject": "General Enquiry",
@@ -131,6 +147,7 @@ def test_send_contact_form_data_privacy_required(client):
         "message": "The message",
         "cc": True,
         "data_privacy_accepted": False,
+        "g-recaptcha-response": "PASSED",
     }
 
     resp = client.post(url, data)

@@ -14,7 +14,7 @@
                     {% if field.errors %} {{ field.errors }}{% endif %}
                </div>
            </div>
-        {% else %}
+        {% elif field.name != "captcha" %}
             <div class="form-actions">
             <label class="control-label" for="{{ field.name }}_id">{{ field.label }}{% if field.field.required %}*{% endif %}</label>
                 <div {% if field.errors %}class="ticket-error control-group"{% endif %}>
@@ -25,3 +25,12 @@
             </div>
         {%  endif %}
     {% endfor %}
+
+    <div class="form-actions">
+    <label class="control-label" for="{{ form.captcha.name }}_id">{{ form.captcha.label }}{% if form.captcha.field.required %}*{% endif %}</label>
+        <div {% if form.captcha.errors %}class="ticket-error control-group"{% endif %}>
+            {{ form.captcha }}
+        </div>
+        <div class="studioadmin-help">{{ form.captcha.help_text }}</div>
+        {% if field.errors %}<div>{{ form.captcha.errors }}</div>{% endif %}
+    </div>

@@ -6,6 +6,8 @@ from django.contrib.auth.models import User
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.html import mark_safe, linebreaks
+from django_recaptcha.fields import ReCaptchaField
+from django_recaptcha.widgets import ReCaptchaV2Checkbox
 
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import (
@@ -28,6 +30,7 @@ from .models import (
 class SignupForm(forms.Form):
     first_name = forms.CharField(max_length=30, label="First name")
     last_name = forms.CharField(max_length=30, label="Last name")
+    captcha = ReCaptchaField(widget=ReCaptchaV2Checkbox)
 
     def __init__(self, *args, **kwargs):
         super(SignupForm, self).__init__(*args, **kwargs)
