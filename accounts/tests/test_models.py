@@ -2,8 +2,8 @@
 from datetime import datetime, timedelta
 from datetime import timezone as dt_timezone
 from decimal import Decimal
+from zoneinfo import ZoneInfo
 import pytest
-import pytz
 
 from django.core.cache import cache
 from django.core.exceptions import ValidationError
@@ -213,9 +213,9 @@ def test_new_disclaimer_content_version_must_have_new_terms():
 def test_online_disclaimer_str(user):
     content = make_disclaimer_content(version=5.0)
     disclaimer = make_online_disclaimer(user=user, version=content.version)
-    formatted_date = disclaimer.date.astimezone(
-        pytz.timezone("Europe/London")
-    ).strftime("%d %b %Y, %H:%M")
+    formatted_date = disclaimer.date.astimezone(ZoneInfo("Europe/London")).strftime(
+        "%d %b %Y, %H:%M"
+    )
     assert str(disclaimer) == f"Test User (test) - V5.0 - {formatted_date}"
 
 

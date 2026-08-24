@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
-import pytz
 from datetime import timedelta
+from zoneinfo import ZoneInfo
+
 from django.contrib import admin
 from django.contrib.auth.models import User
 from django.contrib import messages
@@ -31,7 +32,7 @@ from stripe_payments.models import StripeRefund
 
 
 def format_date_in_local_timezone(utc_datetime):
-    local_tz = pytz.timezone("Europe/London")
+    local_tz = ZoneInfo("Europe/London")
     local_datetime = utc_datetime.astimezone(local_tz)
     return local_datetime.strftime("%a %d %b %Y %H:%M (%Z)")
 

@@ -1,7 +1,7 @@
 import logging
-import pytz
 
 from collections import OrderedDict
+from zoneinfo import ZoneInfo
 
 from django.core.paginator import Paginator
 from django.shortcuts import get_object_or_404
@@ -83,7 +83,7 @@ class BaseEventListView(ListView):
             except (ValueError, IndexError):
                 self.event_time = None
             else:
-                localtz = pytz.timezone("Europe/London")
+                localtz = ZoneInfo("Europe/London")
                 event_ids = [
                     event.id
                     for event in events

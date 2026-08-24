@@ -6,8 +6,8 @@ from datetime import timezone as dt_timezone
 from dateutil.relativedelta import relativedelta
 from decimal import Decimal
 import logging
-import pytz
 import shortuuid
+from zoneinfo import ZoneInfo
 
 from django.db import models
 from django.db.models import Q
@@ -119,7 +119,7 @@ class Event(models.Model):
         # made within a day or two (depending on cancellation time) of event date
         cancellation_period = self.cancellation_period
         if now.month in [3, 10]:
-            local_tz = pytz.timezone("Europe/London")
+            local_tz = ZoneInfo("Europe/London")
             now_local = now.astimezone(local_tz)
             event_date_local = self.date.astimezone(local_tz)
             # find the difference in DST offset between now and the event date (in hours)
@@ -150,7 +150,7 @@ class Event(models.Model):
         return available
 
     def __str__(self):
-        local_datestr = self.date.astimezone(pytz.timezone("Europe/London")).strftime(
+        local_datestr = self.date.astimezone(ZoneInfo("Europe/London")).strftime(
             "%d %b %Y, %H:%M"
         )
         return f"{self.name} - {local_datestr}"

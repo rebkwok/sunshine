@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
 
 import logging
-import pytz
 
 from datetime import timedelta, datetime
+
+from delorean import Delorean
+
 from booking.models import Event
 from .models import TimetableSession
 from activitylog.models import ActivityLog
@@ -27,9 +29,10 @@ def upload_timetable(start_date, end_date, session_ids, show_on_site, user=None)
         )
         for session in sessions_to_create:
             # create date in Europe/London, convert to UTC
-            localtz = pytz.timezone("Europe/London")
-            local_date = localtz.localize(datetime.combine(d, session.start_time))
-            converted_date = local_date.astimezone(pytz.utc)
+            local_date = Delorean(
+                datetime.combine(d, session.start_time), timezone="Europe/London"
+            )
+            converted_date = local_date.shift("UTC").datetime
             name = "{} ({})".format(session.name, session.level)
 
             event_type = (
