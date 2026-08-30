@@ -1,7 +1,7 @@
 {% load accounttags bookingtags static %}
 
 {% if request.htmx %}
-    <span id="cart_item_menu_count_xs" hx-swap-oob="true">{{cart_item_count}}</div>
+    <span id="cart_item_menu_count_xs" hx-swap-oob="true">{{cart_item_count}}</span>
     <span id="cart_item_menu_count" hx-swap-oob="true">{{cart_item_count }}</span>
 {% endif %}
 
@@ -14,7 +14,6 @@
             expired
         {% endif %}">
     <div class="d-flex flex-column flex-sm-row align-items-sm-center gap-2">
-
         <!-- Button column -->
         {% if not history %}
         <div class="lg-btn-col flex-shrink-0 order-last order-sm-first">
