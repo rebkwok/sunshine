@@ -9,6 +9,8 @@ from model_bakery import baker
 from booking.models import Membership, Booking, GiftVoucher
 from ..models import Invoice, Seller, StripePaymentIntent, StripeRefund
 
+from conftest import get_mock_payment_intent, get_mock_refund
+
 pytestmark = pytest.mark.django_db
 
 
@@ -127,7 +129,7 @@ def test_seller_str():
     assert str(seller) == "testuser@test.com"
 
 
-def test_create_stripe_payment_intent_instance_from_pi(get_mock_payment_intent):
+def test_create_stripe_payment_intent_instance_from_pi():
     payment_intent = get_mock_payment_intent()
     invoice = baker.make(Invoice, invoice_id="foo123")
     assert not StripePaymentIntent.objects.exists()
@@ -150,7 +152,7 @@ def test_create_stripe_payment_intent_instance_from_pi(get_mock_payment_intent):
     assert pi.seller == seller
 
 
-def test_stripe_payment_intent_str(get_mock_payment_intent):
+def test_stripe_payment_intent_str():
     payment_intent = get_mock_payment_intent()
     invoice = baker.make(Invoice, invoice_id="foo123", username="user@test.com")
     pi, _ = StripePaymentIntent.update_or_create_payment_intent_instance(
@@ -159,9 +161,7 @@ def test_stripe_payment_intent_str(get_mock_payment_intent):
     assert str(pi) == "mock-intent-id - invoice foo123 - user@test.com"
 
 
-def test_create_stripe_refund_instance_from_refund_obj_and_pi_instance(
-    get_mock_payment_intent, get_mock_refund
-):
+def test_create_stripe_refund_instance_from_refund_obj_and_pi_instance():
     payment_intent_from_stripe = get_mock_payment_intent()
     refund_from_stripe = get_mock_refund()
     invoice = baker.make(Invoice, invoice_id="foo123")

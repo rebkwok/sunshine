@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from datetime import timedelta
 from model_bakery import baker
-from unittest.mock import Mock, patch
+from unittest.mock import patch
 
 from django.contrib.sites.models import Site
 from django.urls import reverse
@@ -23,7 +23,9 @@ from conftest import (
     make_data_privacy_agreement,
     make_online_disclaimer,
 )
-from stripe_payments.models import Invoice, Seller
+from stripe_payments.models import Invoice, Seller, StripePaymentIntent
+
+from conftest import get_mock_payment_intent
 
 
 class ShoppingBasketMixin:
@@ -957,19 +959,6 @@ class StripeCheckoutTests(ShoppingBasketMixin, TestCase):
         cls.url = reverse("booking:stripe_checkout")
         cls.user = baker.make_recipe("booking.user", password="test")
 
-    def get_mock_payment_intent(self, **params):
-        defaults = {
-            "id": "mock-intent-id",
-            "amount": 1000,
-            "description": "",
-            "status": "succeeded",
-            "metadata": {},
-            "currency": "gbp",
-            "client_secret": "secret",
-        }
-        options = {**defaults, **params}
-        return Mock(**options)
-
     def setUp(self):
         super().setUp()
         baker.make(Seller, site=Site.objects.get_current())
@@ -997,10 +986,7 @@ class StripeCheckoutTests(ShoppingBasketMixin, TestCase):
         # redirects to basket, which will do the redirect to guest basket
         assert resp.url == reverse("booking:shopping_basket")
 
-    @patch("booking.views.shopping_basket.stripe.PaymentIntent")
-    def test_validates_total_voucher(self, mock_payment_intent):
-        mock_payment_intent_obj = self.get_mock_payment_intent(id="foo")
-        mock_payment_intent.create.return_value = mock_payment_intent_obj
+    def test_validates_total_voucher(self):
         session = self.client.session
         gift_voucher = baker.make_recipe("booking.gift_voucher_10")
         gift_voucher.voucher.purchaser_email = self.user.email
@@ -1009,14 +995,24 @@ class StripeCheckoutTests(ShoppingBasketMixin, TestCase):
         session["total_voucher_code"] = "test"
         session.save()
         # total correct
-        resp = self.client.post(self.url, data={"cart_total": 5})
+        mock_payment_intent_obj = get_mock_payment_intent(id="foo")
+        with patch(
+            "booking.views.shopping_basket.stripe.PaymentIntent"
+        ) as mock_payment_intent:
+            mock_payment_intent.create.return_value = mock_payment_intent_obj
+            resp = self.client.post(self.url, data={"cart_total": 5})
         assert resp.status_code == 200
 
         # voucher invalid
         assert "total_voucher_code" in self.client.session
         total_voucher.activated = False
         total_voucher.save()
-        resp = self.client.post(self.url, data={"cart_total": 5})
+        with patch(
+            "booking.views.shopping_basket.stripe.PaymentIntent"
+        ) as mock_payment_intent:
+            mock_payment_intent.create.return_value = mock_payment_intent_obj
+            resp = self.client.post(self.url, data={"cart_total": 5})
+
         assert resp.status_code == 302
         assert "total_voucher_code" not in self.client.session
 
@@ -1026,10 +1022,9 @@ class StripeCheckoutTests(ShoppingBasketMixin, TestCase):
         assert resp.status_code == 302
         assert resp.url == reverse("booking:shopping_basket")
 
-    @patch("booking.views.shopping_basket.stripe.PaymentIntent")
-    def test_creates_invoice_and_applies_to_unpaid_items(self, mock_payment_intent):
-        mock_payment_intent_obj = self.get_mock_payment_intent(id="foo")
-        mock_payment_intent.create.return_value = mock_payment_intent_obj
+    def test_creates_invoice_and_applies_to_unpaid_items(self):
+        mock_payment_intent_obj = get_mock_payment_intent(id="foo")
+
         membership = baker.make_recipe(
             "booking.membership",
             membership_type=self.membership_type,
@@ -1039,7 +1034,11 @@ class StripeCheckoutTests(ShoppingBasketMixin, TestCase):
 
         assert Invoice.objects.exists() is False
         # total is correct
-        resp = self.client.post(self.url, data={"cart_total": 30})
+        with patch(
+            "booking.views.shopping_basket.stripe.PaymentIntent"
+        ) as mock_payment_intent:
+            mock_payment_intent.create.return_value = mock_payment_intent_obj
+            resp = self.client.post(self.url, data={"cart_total": 30})
         assert resp.status_code == 200
         assert resp.context_data["cart_total"] == 30.00
         membership.refresh_from_db()
@@ -1052,13 +1051,8 @@ class StripeCheckoutTests(ShoppingBasketMixin, TestCase):
         assert membership.invoice == invoice
         assert booking.invoice == invoice
 
-    @patch("booking.views.shopping_basket.stripe.PaymentIntent")
-    def test_creates_invoice_for_gift_voucher_with_override_cost(
-        self, mock_payment_intent
-    ):
-        mock_payment_intent_obj = self.get_mock_payment_intent(id="foo")
-        mock_payment_intent.create.return_value = mock_payment_intent_obj
-
+    def test_creates_invoice_for_gift_voucher_with_override_cost(self):
+        mock_payment_intent_obj = get_mock_payment_intent(id="foo")
         gift_voucher = baker.make_recipe(
             "booking.gift_voucher_10", gift_voucher_type__override_cost=57
         )
@@ -1067,7 +1061,12 @@ class StripeCheckoutTests(ShoppingBasketMixin, TestCase):
 
         assert Invoice.objects.exists() is False
         # total is correct
-        resp = self.client.post(self.url, data={"cart_total": 57})
+
+        with patch(
+            "booking.views.shopping_basket.stripe.PaymentIntent"
+        ) as mock_payment_intent:
+            mock_payment_intent.create.return_value = mock_payment_intent_obj
+            resp = self.client.post(self.url, data={"cart_total": 57})
         assert resp.status_code == 200
         assert resp.context_data["cart_total"] == 57.00
         gift_voucher.refresh_from_db()
@@ -1078,12 +1077,8 @@ class StripeCheckoutTests(ShoppingBasketMixin, TestCase):
         assert invoice.amount == 57
         assert gift_voucher.invoice == invoice
 
-    @patch("booking.views.shopping_basket.stripe.PaymentIntent")
-    def test_creates_invoice_and_applies_to_unpaid_gift_vouchers_anon_user(
-        self, mock_payment_intent
-    ):
-        mock_payment_intent_obj = self.get_mock_payment_intent(id="foo")
-        mock_payment_intent.create.return_value = mock_payment_intent_obj
+    def test_creates_invoice_and_applies_to_unpaid_gift_vouchers_anon_user(self):
+        mock_payment_intent_obj = get_mock_payment_intent(id="foo")
         self.client.logout()
         session = self.client.session
         gift_voucher1 = baker.make_recipe("booking.gift_voucher_10")
@@ -1095,7 +1090,11 @@ class StripeCheckoutTests(ShoppingBasketMixin, TestCase):
 
         assert Invoice.objects.exists() is False
         # total is correct
-        resp = self.client.post(self.url, data={"cart_total": 21})
+        with patch(
+            "booking.views.shopping_basket.stripe.PaymentIntent"
+        ) as mock_payment_intent:
+            mock_payment_intent.create.return_value = mock_payment_intent_obj
+            resp = self.client.post(self.url, data={"cart_total": 21})
         assert resp.status_code == 200
         assert resp.context_data["cart_total"] == 21.00
 
@@ -1109,12 +1108,8 @@ class StripeCheckoutTests(ShoppingBasketMixin, TestCase):
         assert gift_voucher1.invoice == invoice
         assert gift_voucher2.invoice == invoice
 
-    @patch("booking.views.shopping_basket.stripe.PaymentIntent")
-    def test_creates_invoice_and_applies_to_unpaid_blocks_with_vouchers(
-        self, mock_payment_intent
-    ):
-        mock_payment_intent_obj = self.get_mock_payment_intent(id="foo")
-        mock_payment_intent.create.return_value = mock_payment_intent_obj
+    def test_creates_invoice_and_applies_to_unpaid_blocks_with_vouchers(self):
+        mock_payment_intent_obj = get_mock_payment_intent(id="foo")
         voucher = baker.make(ItemVoucher, discount=10, event_types=["private"])
         voucher.membership_types.add(self.membership_type)
         membership = baker.make_recipe(
@@ -1130,7 +1125,11 @@ class StripeCheckoutTests(ShoppingBasketMixin, TestCase):
 
         assert Invoice.objects.exists() is False
         # total is correct
-        resp = self.client.post(self.url, data={"cart_total": 65})
+        with patch(
+            "booking.views.shopping_basket.stripe.PaymentIntent"
+        ) as mock_payment_intent:
+            mock_payment_intent.create.return_value = mock_payment_intent_obj
+            resp = self.client.post(self.url, data={"cart_total": 65})
         assert resp.status_code == 200
         for item in [membership, booking_p, booking_w]:
             item.refresh_from_db()
@@ -1142,10 +1141,8 @@ class StripeCheckoutTests(ShoppingBasketMixin, TestCase):
             assert item.invoice == invoice
         assert resp.context_data["cart_total"] == 65.00
 
-    @patch("booking.views.shopping_basket.stripe.PaymentIntent")
-    def test_zero_total(self, mock_payment_intent):
-        mock_payment_intent_obj = self.get_mock_payment_intent(id="foo")
-        mock_payment_intent.create.return_value = mock_payment_intent_obj
+    def test_zero_total(self):
+        mock_payment_intent_obj = get_mock_payment_intent(id="foo")
         voucher = baker.make(
             ItemVoucher,
             code="test",
@@ -1156,17 +1153,19 @@ class StripeCheckoutTests(ShoppingBasketMixin, TestCase):
         booking = baker.make(
             Booking, event=self.private, user=self.user, voucher=voucher
         )
-        resp = self.client.post(self.url, data={"cart_total": 0})
+        with patch(
+            "booking.views.shopping_basket.stripe.PaymentIntent"
+        ) as mock_payment_intent:
+            mock_payment_intent.create.return_value = mock_payment_intent_obj
+            resp = self.client.post(self.url, data={"cart_total": 0})
         booking.refresh_from_db()
         assert booking.paid
         assert booking.voucher == voucher
         assert resp.status_code == 302
         assert resp.url == reverse("booking:regular_session_list")
 
-    @patch("booking.views.shopping_basket.stripe.PaymentIntent")
-    def test_zero_total_with_total_voucher(self, mock_payment_intent):
-        mock_payment_intent_obj = self.get_mock_payment_intent(id="foo")
-        mock_payment_intent.create.return_value = mock_payment_intent_obj
+    def test_zero_total_with_total_voucher(self):
+        mock_payment_intent_obj = get_mock_payment_intent(id="foo")
         baker.make(
             TotalVoucher,
             activated=True,
@@ -1185,10 +1184,14 @@ class StripeCheckoutTests(ShoppingBasketMixin, TestCase):
         gift_voucher.voucher.save()
 
         # Call shopping basket view to apply the total voucher code
-        self.client.post(
-            reverse("booking:shopping_basket"),
-            data={"add_voucher_code": "add_voucher_code", "code": "test"},
-        )
+        with patch(
+            "booking.views.shopping_basket.stripe.PaymentIntent"
+        ) as mock_payment_intent:
+            mock_payment_intent.create.return_value = mock_payment_intent_obj
+            self.client.post(
+                reverse("booking:shopping_basket"),
+                data={"add_voucher_code": "add_voucher_code", "code": "test"},
+            )
         assert self.client.session["total_voucher_code"] == "test"
 
         resp = self.client.post(self.url, data={"cart_total": 0})
@@ -1205,10 +1208,8 @@ class StripeCheckoutTests(ShoppingBasketMixin, TestCase):
         assert booking in invoice.bookings.all()
         assert invoice.paid is True
 
-    @patch("booking.views.shopping_basket.stripe.PaymentIntent")
-    def test_uses_existing_invoice(self, mock_payment_intent):
-        mock_payment_intent_obj = self.get_mock_payment_intent(id="foo")
-        mock_payment_intent.modify.return_value = mock_payment_intent_obj
+    def test_uses_existing_invoice(self):
+        mock_payment_intent_obj = get_mock_payment_intent(id="foo")
         invoice = baker.make(
             Invoice,
             username=self.user.email,
@@ -1221,11 +1222,49 @@ class StripeCheckoutTests(ShoppingBasketMixin, TestCase):
         )
 
         # total is correct
-        resp = self.client.post(self.url, data={"cart_total": 30})
+        with patch(
+            "booking.views.shopping_basket.stripe.PaymentIntent"
+        ) as mock_payment_intent:
+            mock_payment_intent.modify.return_value = mock_payment_intent_obj
+            resp = self.client.post(self.url, data={"cart_total": 30})
         booking.refresh_from_db()
         assert Invoice.objects.count() == 1
         assert booking.invoice == invoice
         assert resp.context_data["cart_total"] == 30.00
+
+    def test_uses_existing_invoice_and_stripe_payment_intent(self):
+        mock_payment_intent_obj = get_mock_payment_intent(id="foo", amount=3000)
+        invoice = baker.make(
+            Invoice,
+            username=self.user.email,
+            amount=20,
+            paid=False,
+            stripe_payment_intent_id="foo",
+        )
+        stripe_payment_intent = baker.make(
+            StripePaymentIntent, payment_intent_id="foo", amount=20, invoice=invoice
+        )
+
+        booking = baker.make(
+            Booking, event=self.private, user=self.user, invoice=invoice
+        )
+
+        # total is correct
+        with patch(
+            "booking.views.shopping_basket.stripe.PaymentIntent"
+        ) as mock_payment_intent:
+            mock_payment_intent.modify.return_value = mock_payment_intent_obj
+            resp = self.client.post(self.url, data={"cart_total": 30})
+        booking.refresh_from_db()
+        assert Invoice.objects.count() == 1
+        assert booking.invoice == invoice
+        assert resp.context_data["cart_total"] == 30.00
+
+        invoice.refresh_from_db()
+        assert invoice.amount == 30
+        stripe_payment_intent.refresh_from_db()
+        assert StripePaymentIntent.objects.filter(invoice=invoice).count() == 1
+        assert stripe_payment_intent.amount == 3000
 
     def test_no_seller(self):
         Seller.objects.all().delete()
@@ -1235,13 +1274,8 @@ class StripeCheckoutTests(ShoppingBasketMixin, TestCase):
         assert resp.status_code == 200
         assert resp.context_data["preprocessing_error"] is True
 
-    @patch("booking.views.shopping_basket.stripe.PaymentIntent")
-    def test_invoice_already_succeeded(self, mock_payment_intent):
-        mock_payment_intent_obj = self.get_mock_payment_intent(
-            id="foo", status="succeeded"
-        )
-        mock_payment_intent.modify.side_effect = InvalidRequestError("error", None)
-        mock_payment_intent.retrieve.return_value = mock_payment_intent_obj
+    def test_invoice_already_succeeded(self):
+        mock_payment_intent_obj = get_mock_payment_intent(id="foo", status="succeeded")
 
         invoice = baker.make(
             Invoice,
@@ -1251,16 +1285,16 @@ class StripeCheckoutTests(ShoppingBasketMixin, TestCase):
             stripe_payment_intent_id="foo",
         )
         baker.make(Booking, event=self.private, user=self.user, invoice=invoice)
-        resp = self.client.post(self.url, data={"cart_total": 30})
+        with patch(
+            "booking.views.shopping_basket.stripe.PaymentIntent"
+        ) as mock_payment_intent:
+            mock_payment_intent.modify.side_effect = InvalidRequestError("error", None)
+            mock_payment_intent.retrieve.return_value = mock_payment_intent_obj
+            resp = self.client.post(self.url, data={"cart_total": 30})
         assert resp.context_data["preprocessing_error"] is True
 
-    @patch("booking.views.shopping_basket.stripe.PaymentIntent")
-    def test_other_error_modifying_payment_intent(self, mock_payment_intent):
-        mock_payment_intent_obj = self.get_mock_payment_intent(
-            id="foo", status="pending"
-        )
-        mock_payment_intent.modify.side_effect = InvalidRequestError("error", None)
-        mock_payment_intent.retrieve.return_value = mock_payment_intent_obj
+    def test_other_error_modifying_payment_intent(self):
+        mock_payment_intent_obj = get_mock_payment_intent(id="foo", status="pending")
 
         invoice = baker.make(
             Invoice,
@@ -1271,7 +1305,12 @@ class StripeCheckoutTests(ShoppingBasketMixin, TestCase):
         )
         baker.make(Booking, event=self.private, user=self.user, invoice=invoice)
 
-        resp = self.client.post(self.url, data={"cart_total": 30})
+        with patch(
+            "booking.views.shopping_basket.stripe.PaymentIntent"
+        ) as mock_payment_intent:
+            mock_payment_intent.modify.side_effect = InvalidRequestError("error", None)
+            mock_payment_intent.retrieve.return_value = mock_payment_intent_obj
+            resp = self.client.post(self.url, data={"cart_total": 30})
         assert resp.context_data["preprocessing_error"] is True
 
     def test_check_total(self):

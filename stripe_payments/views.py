@@ -83,8 +83,7 @@ def stripe_payment_complete(request):
         failed = True
         error = f"Payment intent id {payment_intent.id} status: {payment_intent.status}"
         logger.error(error)
-    payment_intent.metadata.pop("invoice_id", None)
-    payment_intent.metadata.pop("invoice_signature", None)
+
     if not failed:
         context = {
             "cart_items": invoice.items_dict().values(),

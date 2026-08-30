@@ -458,11 +458,18 @@ def stripe_checkout(request):
                 )
 
             try:
-                if payment_intent_obj.metadata != payment_intent_data["metadata"]:
+                if isinstance(payment_intent_obj, StripePaymentIntent):
+                    retrieved_metadata = payment_intent_obj.metadata
+                else:
+                    retrieved_metadata = payment_intent_obj.metadata.to_dict(
+                        for_json=True
+                    )
+
+                if retrieved_metadata != payment_intent_data["metadata"]:
                     logger.info("Resetting metadata")
                     # unset all metadata so we can reset it to the new values
                     # otherwise deleted items will not be removed
-                    unset_metadata = {k: "" for k in payment_intent_obj.metadata}
+                    unset_metadata = {k: "" for k in retrieved_metadata}
                     stripe.PaymentIntent.modify(
                         invoice.stripe_payment_intent_id,
                         metadata=unset_metadata,

@@ -5,10 +5,11 @@ from django.core import mail
 from model_bakery import baker
 import pytest
 
-from stripe import InvalidRequestError
+from stripe import InvalidRequestError, Refund
 
 from stripe_payments.models import StripePaymentIntent, StripeRefund
 
+from conftest import get_mock_payment_intent, get_mock_refund
 
 from ..utils import process_refund
 
@@ -16,11 +17,7 @@ from ..utils import process_refund
 pytestmark = pytest.mark.django_db
 
 
-@patch("stripe_payments.utils.stripe.Refund")
 def test_process_refund(
-    mock_refund,
-    get_mock_refund,
-    get_mock_payment_intent,
     configured_user,
     invoice,
     seller,
@@ -37,8 +34,10 @@ def test_process_refund(
         get_mock_payment_intent(metadata=invoice.items_metadata()), invoice
     )
 
-    mock_refund.create.return_value = get_mock_refund()
-    refunded = process_refund(Mock(), booking)
+    refund = get_mock_refund()
+    with patch("stripe_payments.utils.stripe.Refund", autospec=Refund) as mock_refund:
+        mock_refund.create.return_value = refund
+        refunded = process_refund(Mock(), booking)
     assert refunded
 
     refund_obj = StripeRefund.objects.first()
@@ -62,9 +61,7 @@ def test_process_refund_no_payment_intent(configured_user, invoice, seller):
     assert "Payment intent not found" in mail.outbox[0].body
 
 
-def test_process_refund_count_not_find_booking_cost(
-    get_mock_payment_intent, configured_user, invoice, seller
-):
+def test_process_refund_count_not_find_booking_cost(configured_user, invoice, seller):
     booking = baker.make_recipe(
         "booking.booking",
         event__cost=8,
@@ -85,7 +82,7 @@ def test_process_refund_count_not_find_booking_cost(
 
 @patch("stripe_payments.utils.stripe.Refund")
 def test_process_refund_invalid_request_error(
-    mock_refund, get_mock_payment_intent, configured_user, invoice, seller
+    mock_refund, configured_user, invoice, seller
 ):
     mock_refund.create.side_effect = InvalidRequestError("Invalid request", None)
     booking = baker.make_recipe(
@@ -106,9 +103,7 @@ def test_process_refund_invalid_request_error(
 
 
 @patch("stripe_payments.utils.stripe.Refund")
-def test_process_refund_unknown_error(
-    mock_refund, get_mock_payment_intent, configured_user, invoice, seller
-):
+def test_process_refund_unknown_error(mock_refund, configured_user, invoice, seller):
     mock_refund.create.side_effect = Exception("Unknown")
     booking = baker.make_recipe(
         "booking.booking",

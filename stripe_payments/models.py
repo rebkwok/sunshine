@@ -171,7 +171,7 @@ class StripePaymentIntent(models.Model):
             "amount": payment_intent.amount,
             "description": payment_intent.description,
             "status": payment_intent.status,
-            "metadata": payment_intent.metadata,
+            "metadata": payment_intent.metadata.to_dict(for_json=True),
             "client_secret": payment_intent.client_secret,
             "currency": payment_intent.currency,
         }
@@ -218,7 +218,7 @@ class StripeRefund(models.Model):
             amount=refund.amount,
             status=refund.status,
             seller=payment_intent_model_instance.seller,
-            metadata=refund.metadata,
+            metadata=refund.metadata.to_dict(for_json=True),
             currency=refund.currency,
             reason=refund.reason,
             booking_id=booking_id,
