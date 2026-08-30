@@ -20,6 +20,7 @@ dependencies = [
     "django-email-obfuscator<=0.1.5",
     "django-environ<=0.14.0",
     "django-extensions<=4.1",
+    "django-htmx>=1.29.0",
     "django-object-actions<=5.1.2",
     "django-recaptcha>=4.1.0",
     "django-ses[events]<=4.7.2",

@@ -1,5 +1,6 @@
 {% load static %}
 {% load django_bootstrap5 %}
+{% load django_htmx %}
 {% load cookielaw_tags %}
 
 <!DOCTYPE html>
@@ -292,10 +293,8 @@
         {% bootstrap_javascript %}
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.13.2/jquery-ui.min.js" integrity="sha512-57oZ/vW8ANMjR/KQ6Be9v/+/h6bq9/l3f0Oc7vn6qMqyhvPd1cvKBRWWpzu0QoneImqr2SkmO4MSqU+RpHom3Q==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>    
 
-		<!-- Custom Script -->		
-        <script src="https://unpkg.com/htmx.org@1.9.2" integrity="sha384-L6OqL9pRWyyFU3+/bjdSri+iIphTN/bvYyM37tICVyOJkWZLpP2vGn6VUEXgzg6h" crossorigin="anonymous" defer></script>
-        <script src="https://unpkg.com/htmx.org/dist/ext/class-tools.js" defer></script>
-
+		<!-- Custom Script -->
+         {% htmx_script %}
         <script src="{% static 'website/js/custom-v3.js' %}"></script>
         <script src="{% static 'website/js/ajax_csrf.js' %}"></script>
         <script type="text/javascript" src="{% static 'cookielaw/js/cookielaw.js' %}"></script>
@@ -306,9 +305,8 @@
                 $.fn.bootstrapBtn = $.fn.button.noConflict();
                 var section_id = "#nav-{{ section }}"
                 var active_section = $(section_id)
-                console.log(section_id);
                 active_section.addClass("active")
-htmx            });
+            });
         </script>
 
         {% block extrascripts %}{% endblock %}
