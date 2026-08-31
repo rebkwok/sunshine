@@ -12,7 +12,7 @@ from conftest import make_archived_disclaimer, make_online_disclaimer
 
 class DeleteExpiredDisclaimersTests(TestCase):
     def setUp(self):
-        super(DeleteExpiredDisclaimersTests, self).setUp()
+        super().setUp()
         self.user = baker.make_recipe(
             "booking.user", first_name="Test", last_name="User"
         )

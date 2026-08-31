@@ -261,7 +261,7 @@ class EventDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         # Call the base implementation first to get a context
-        context = super(EventDetailView, self).get_context_data()
+        context = super().get_context_data()
         event = self.object
         event_type = "class" if event.event_type == "regular_session" else "workshop"
         user = self.request.user

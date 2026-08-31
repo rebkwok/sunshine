@@ -142,4 +142,4 @@ class SuitConfig(DjangoSuitConfig):
     )
 
     def ready(self):
-        super(SuitConfig, self).ready()
+        super().ready()

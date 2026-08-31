@@ -94,7 +94,7 @@ class EventsFilter(forms.Form):
 
     def __init__(self, **kwargs):
         event_type = kwargs.pop("event_type", "regular_session")
-        super(EventsFilter, self).__init__()
+        super().__init__()
         initial = kwargs.get("initial")
 
         self.fields["name"].choices = get_names(event_type=event_type)

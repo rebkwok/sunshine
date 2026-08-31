@@ -33,7 +33,7 @@ class SignupForm(forms.Form):
     captcha = ReCaptchaField(widget=ReCaptchaV2Checkbox)
 
     def __init__(self, *args, **kwargs):
-        super(SignupForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         # get the current version here to make sure we always display and save
         # with the same version, even if it changed while the form was being
         # completed
@@ -71,7 +71,7 @@ class SignupForm(forms.Form):
 
 class ProfileForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
-        super(ProfileForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.fields["first_name"].required = True
         self.fields["last_name"].required = True
 
@@ -98,7 +98,7 @@ class DataPrivacyAgreementForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         self.next_url = kwargs.pop("next_url")
-        super(DataPrivacyAgreementForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.data_privacy_policy = DataPrivacyPolicy.current()
 
     def clean_confirm(self):

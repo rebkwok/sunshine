@@ -54,7 +54,7 @@ def profile(request):
 
 class CustomLoginView(LoginView):
     def get_success_url(self):
-        super(CustomLoginView, self).get_success_url()
+        super().get_success_url()
         ret = self.request.POST.get("next") or self.request.GET.get("next")
         if not ret or ret in [
             "/accounts/password/change/",
@@ -74,7 +74,7 @@ class CustomLoginView(LoginView):
 class CustomSignUpView(SignupView):
     def get_context_data(self, **kwargs):
         # add the username to the form if passed in queryparams from login form
-        context = super(CustomSignUpView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         context["section"] = "login"
         username = self.request.GET.get("username", None)
         if username is not None:

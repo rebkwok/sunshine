@@ -411,7 +411,7 @@ class EventDetailViewTests(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.user = baker.make_recipe("booking.user", password="test")
-        super(EventDetailViewTests, cls).setUpTestData()
+        super().setUpTestData()
         make_online_disclaimer(user=cls.user)
         baker.make_recipe("booking.future_EV", _quantity=3)
 

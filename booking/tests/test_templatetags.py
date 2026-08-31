@@ -15,7 +15,7 @@ pytestmark = pytest.mark.django_db
 class BookingtagTests(TestCase):
     @classmethod
     def setUpTestData(cls):
-        super(BookingtagTests, cls).setUpTestData()
+        super().setUpTestData()
         cls.user = baker.make(User, is_staff=True)
         cls.user.save()
 

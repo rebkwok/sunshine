@@ -29,7 +29,7 @@ class TimetableFilter(forms.Form):
 
 class UploadTimetableForm(forms.Form):
     def __init__(self, *args, **kwargs):
-        super(UploadTimetableForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         qs = TimetableSession.objects.all().order_by("session_day", "start_time")
 
@@ -81,7 +81,7 @@ class UploadTimetableForm(forms.Form):
         )
 
     def clean(self):
-        super(UploadTimetableForm, self).clean()
+        super().clean()
         cleaned_data = self.cleaned_data
 
         start_date = self.data.get("start_date")

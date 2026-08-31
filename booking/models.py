@@ -885,7 +885,7 @@ class Booking(models.Model):
         # we shouldn't ever set cancellation fee paid without it also being flagged as incurred
         if self.cancellation_fee_paid:
             self.cancellation_fee_incurred = True
-        super(Booking, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
 
 class WaitingListUser(models.Model):

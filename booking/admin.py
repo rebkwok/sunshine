@@ -139,7 +139,7 @@ class BookingInline(admin.TabularInline):
 
     def get_queryset(self, request):
         return (
-            super(BookingInline, self)
+            super()
             .get_queryset(request)
             .order_by("-status", "no_show")
         )
@@ -149,7 +149,7 @@ class BookingInline(admin.TabularInline):
         Override the formset function in order to remove the add and change buttons beside the foreign key pull-down
         menus in the inline.
         """
-        formset = super(BookingInline, self).get_formset(request, obj, **kwargs)
+        formset = super().get_formset(request, obj, **kwargs)
         form = formset.form
         widget = form.base_fields["user"].widget
         widget.can_add_related = False
@@ -399,7 +399,7 @@ class RegularClassAdmin(EventAdmin):
     actions = ("cancel_event", "uncancel_event", "toggle_members_only")
 
     def get_form(self, request, obj=None, **kwargs):
-        form = super(RegularClassAdmin, self).get_form(request, obj, **kwargs)
+        form = super().get_form(request, obj, **kwargs)
         form.base_fields["cost"].help_text = "(non-membership cost)"
         form.base_fields["event_type"].choices = [
             ("regular_session", "Regular timetabled session"),

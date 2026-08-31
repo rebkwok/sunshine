@@ -10,7 +10,7 @@ from booking.models import Booking
 class BookingListViewTests(TestCase):
     @classmethod
     def setUpTestData(cls):
-        super(BookingListViewTests, cls).setUpTestData()
+        super().setUpTestData()
         cls.user = baker.make(User)
         cls.regular_sessions = baker.make_recipe("booking.future_PC", _quantity=3)
         cls.events = baker.make_recipe("booking.future_EV", _quantity=2)
@@ -18,7 +18,7 @@ class BookingListViewTests(TestCase):
         cls.url = reverse("booking:bookings")
 
     def setUp(self):
-        super(BookingListViewTests, self).setUp()
+        super().setUp()
         self.client.force_login(self.user)
         self.regular_sessions_bookings = [
             baker.make_recipe("booking.booking", user=self.user, event=event)
@@ -136,7 +136,7 @@ class BookingListViewTests(TestCase):
 class BookingHistoryListViewTests(TestCase):
     @classmethod
     def setUpTestData(cls):
-        super(BookingHistoryListViewTests, cls).setUpTestData()
+        super().setUpTestData()
         cls.user = baker.make(User)
         event = baker.make_recipe("booking.future_PC")
         cls.booking = baker.make_recipe("booking.booking", user=cls.user, event=event)

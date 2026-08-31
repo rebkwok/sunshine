@@ -29,7 +29,7 @@ class SignUpFormTests(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.url = reverse("account_signup")
-        super(SignUpFormTests, cls).setUpTestData()
+        super().setUpTestData()
 
     def setUp(self):
         self.form_data = {

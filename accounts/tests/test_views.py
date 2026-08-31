@@ -150,7 +150,7 @@ class SignedDataPrivacyCreateViewTests(TestCase):
         make_data_privacy_agreement(cls.user)
 
     def setUp(self):
-        super(SignedDataPrivacyCreateViewTests, self).setUp()
+        super().setUp()
         self.client.login(username=self.user.username, password="test")
 
     def test_user_already_has_active_signed_agreement(self):
