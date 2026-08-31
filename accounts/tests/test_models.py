@@ -1,5 +1,4 @@
-from datetime import datetime, timedelta
-from datetime import timezone as dt_timezone
+from datetime import UTC, datetime, timedelta
 from decimal import Decimal
 from zoneinfo import ZoneInfo
 
@@ -222,8 +221,8 @@ def test_archived_disclaimer_str(user):
     content = make_disclaimer_content(version=5.0)
     # date in BST to check timezones
     data = {
-        "date": datetime(2019, 7, 1, 18, 0, tzinfo=dt_timezone.utc),
-        "date_archived": datetime(2020, 1, 20, 18, 0, tzinfo=dt_timezone.utc),
+        "date": datetime(2019, 7, 1, 18, 0, tzinfo=UTC),
+        "date_archived": datetime(2020, 1, 20, 18, 0, tzinfo=UTC),
         "version": content.version,
     }
     disclaimer = make_archived_disclaimer(**data)
@@ -248,7 +247,7 @@ def test_cannot_create_new_active_disclaimer(user):
     # disclaimer is out of date, so inactive
     disclaimer = make_online_disclaimer(
         user=user,
-        date=datetime(2015, 2, 10, 19, 0, tzinfo=dt_timezone.utc),
+        date=datetime(2015, 2, 10, 19, 0, tzinfo=UTC),
         version=content.version,
     )
     assert disclaimer.is_active is False

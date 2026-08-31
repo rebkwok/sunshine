@@ -1,5 +1,4 @@
-from datetime import datetime
-from datetime import timezone as dt_timezone
+from datetime import UTC, datetime
 from unittest.mock import Mock, patch
 
 import pytest
@@ -77,7 +76,7 @@ class EventAdminTests(TestCase):
     def test_event_date_display(self):
         event = baker.make_recipe(
             "booking.future_EV",
-            date=datetime(2019, 1, 23, 18, 0, tzinfo=dt_timezone.utc),
+            date=datetime(2019, 1, 23, 18, 0, tzinfo=UTC),
         )
         baker.make_recipe("booking.booking", event=event, _quantity=3)
 
@@ -86,7 +85,7 @@ class EventAdminTests(TestCase):
         assert ev_admin.get_date(ev_query) == "Wed 23 Jan 2019 18:00 (GMT)"
 
         # BST datetime
-        event.date = datetime(2019, 7, 23, 17, 0, tzinfo=dt_timezone.utc)
+        event.date = datetime(2019, 7, 23, 17, 0, tzinfo=UTC)
         event.save()
         ev_query = ev_admin.get_queryset(None)[0]
         assert ev_admin.get_date(ev_query) == "Tue 23 Jul 2019 18:00 (BST)"

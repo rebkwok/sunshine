@@ -1,7 +1,6 @@
 import os
 import sys
-from datetime import datetime, timedelta
-from datetime import timezone as dt_timezone
+from datetime import UTC, datetime, timedelta
 from io import StringIO
 from tempfile import TemporaryDirectory
 from unittest.mock import patch
@@ -134,7 +133,7 @@ class DeleteEmptyJobActivityLogsTests(TestCase):
 class DeleteOldActivityLogsTests(TestCase):
     def setUp(self):
         # logs 13, 25, 37 months ago, one for each empty job text msg, one other
-        self.mock_now = datetime(2019, 10, 1, tzinfo=dt_timezone.utc)
+        self.mock_now = datetime(2019, 10, 1, tzinfo=UTC)
         self.log_11monthsold = baker.make(
             ActivityLog,
             log="message",

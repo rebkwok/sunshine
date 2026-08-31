@@ -1,5 +1,4 @@
-from datetime import datetime, timedelta
-from datetime import timezone as dt_timezone
+from datetime import UTC, datetime, timedelta
 
 from django.conf import settings
 from django.core.management.base import BaseCommand
@@ -29,7 +28,7 @@ class Command(BaseCommand):
             try:
                 # convert before date to datetime obj, with HH MM SS at 0
                 before_date = datetime.strptime(before_date_raw, "%Y%m%d").replace(
-                    tzinfo=dt_timezone.utc
+                    tzinfo=UTC
                 )
                 if before_date > timezone.now():
                     self.stdout.write(

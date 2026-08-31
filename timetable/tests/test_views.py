@@ -1,5 +1,4 @@
-from datetime import datetime
-from datetime import timezone as dt_timezone
+from datetime import UTC, datetime
 from unittest.mock import patch
 
 import pytest
@@ -121,7 +120,7 @@ class UploadTimetableTests(TestCase):
     @patch("timetable.forms.timezone")
     def test_events_are_created(self, mock_tz):
         self.client.login(username=self.superuser.username, password="test")
-        mock_tz.now.return_value = datetime(2015, 6, 1, 0, 0, tzinfo=dt_timezone.utc)
+        mock_tz.now.return_value = datetime(2015, 6, 1, 0, 0, tzinfo=UTC)
         baker.make_recipe("booking.mon_session", _quantity=5)
         self.assertEqual(Event.objects.count(), 0)
         form_data = {
@@ -141,7 +140,7 @@ class UploadTimetableTests(TestCase):
     @patch("timetable.forms.timezone")
     def test_does_not_create_duplicate_sessions(self, mock_tz):
         self.client.login(username=self.superuser.username, password="test")
-        mock_tz.now.return_value = datetime(2015, 6, 1, 0, 0, tzinfo=dt_timezone.utc)
+        mock_tz.now.return_value = datetime(2015, 6, 1, 0, 0, tzinfo=UTC)
         baker.make_recipe("booking.mon_session", _quantity=5)
         self.assertEqual(Event.objects.count(), 0)
         form_data = {
@@ -166,7 +165,7 @@ class UploadTimetableTests(TestCase):
         add duplicates to context for warning display
         """
         self.client.login(username=self.superuser.username, password="test")
-        mock_tz.now.return_value = datetime(2015, 6, 1, 0, 0, tzinfo=dt_timezone.utc)
+        mock_tz.now.return_value = datetime(2015, 6, 1, 0, 0, tzinfo=UTC)
         session = baker.make_recipe("booking.tue_session", name="test")
         # this session recipe has level 2 which will be incorporated into the class name
 

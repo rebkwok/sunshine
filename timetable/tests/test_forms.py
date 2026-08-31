@@ -1,6 +1,5 @@
 
-from datetime import datetime
-from datetime import timezone as dt_timezone
+from datetime import UTC, datetime
 from unittest.mock import patch
 
 from django.test import TestCase
@@ -27,13 +26,13 @@ class UploadTimetableFormTests(TestCase):
 
     @patch("timetable.forms.timezone")
     def test_form_valid(self, mock_tz):
-        mock_tz.now.return_value = datetime(2015, 6, 6, 12, 0, tzinfo=dt_timezone.utc)
+        mock_tz.now.return_value = datetime(2015, 6, 6, 12, 0, tzinfo=UTC)
         form = UploadTimetableForm(data=self.form_data())
         self.assertTrue(form.is_valid())
 
     @patch("timetable.forms.timezone")
     def test_start_and_end_date_required(self, mock_tz):
-        mock_tz.now.return_value = datetime(2015, 6, 6, 12, 0, tzinfo=dt_timezone.utc)
+        mock_tz.now.return_value = datetime(2015, 6, 6, 12, 0, tzinfo=UTC)
         form = UploadTimetableForm(data={"sessions": [self.session.id]})
         self.assertFalse(form.is_valid())
         self.assertEqual(len(form.errors), 2)
@@ -42,7 +41,7 @@ class UploadTimetableFormTests(TestCase):
 
     @patch("timetable.forms.timezone")
     def test_invalid_start_date_format(self, mock_tz):
-        mock_tz.now.return_value = datetime(2015, 6, 6, 12, 0, tzinfo=dt_timezone.utc)
+        mock_tz.now.return_value = datetime(2015, 6, 6, 12, 0, tzinfo=UTC)
         form = UploadTimetableForm(
             data=self.form_data({"start_date": "Monday 08 June 2015"})
         )
@@ -52,7 +51,7 @@ class UploadTimetableFormTests(TestCase):
 
     @patch("timetable.forms.timezone")
     def test_start_date_in_past(self, mock_tz):
-        mock_tz.now.return_value = datetime(2015, 6, 6, 12, 0, tzinfo=dt_timezone.utc)
+        mock_tz.now.return_value = datetime(2015, 6, 6, 12, 0, tzinfo=UTC)
         form = UploadTimetableForm(
             data=self.form_data({"start_date": "Mon 08 Jun 2000"})
         )
@@ -62,7 +61,7 @@ class UploadTimetableFormTests(TestCase):
 
     @patch("timetable.forms.timezone")
     def test_invalid_end_date_format(self, mock_tz):
-        mock_tz.now.return_value = datetime(2015, 6, 6, 12, 0, tzinfo=dt_timezone.utc)
+        mock_tz.now.return_value = datetime(2015, 6, 6, 12, 0, tzinfo=UTC)
         form = UploadTimetableForm(
             data=self.form_data({"end_date": "Monday 15 June 2015"})
         )
@@ -72,7 +71,7 @@ class UploadTimetableFormTests(TestCase):
 
     @patch("timetable.forms.timezone")
     def test_end_date_before_start_date(self, mock_tz):
-        mock_tz.now.return_value = datetime(2015, 6, 6, 12, 0, tzinfo=dt_timezone.utc)
+        mock_tz.now.return_value = datetime(2015, 6, 6, 12, 0, tzinfo=UTC)
         form = UploadTimetableForm(
             data=self.form_data(
                 {"start_date": "Tue 16 Jun 2015", "end_date": "Mon 15 Jun 2015"}

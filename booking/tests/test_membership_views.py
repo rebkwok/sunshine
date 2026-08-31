@@ -1,5 +1,4 @@
-from datetime import datetime, timedelta
-from datetime import timezone as dt_timezone
+from datetime import UTC, datetime, timedelta
 
 import pytest
 from django.urls import reverse
@@ -118,8 +117,8 @@ def test_membership_purchase_options(freezer, client, configured_user, membershi
     ]
 
     # make a past class and a future class for next month; still only shows next month
-    baker.make(RegularClass, date=datetime(2020, 10, 25, 10, 0, tzinfo=dt_timezone.utc))
-    baker.make(RegularClass, date=datetime(2020, 11, 1, 10, 0, tzinfo=dt_timezone.utc))
+    baker.make(RegularClass, date=datetime(2020, 10, 25, 10, 0, tzinfo=UTC))
+    baker.make(RegularClass, date=datetime(2020, 11, 1, 10, 0, tzinfo=UTC))
     resp = client.get(buy_url)
     assert resp.context_data["options"] == [
         {
@@ -134,7 +133,7 @@ def test_membership_purchase_options(freezer, client, configured_user, membershi
 
     # make a future class for this month
     future_class = baker.make(
-        RegularClass, date=datetime(2020, 10, 30, 10, 0, tzinfo=dt_timezone.utc)
+        RegularClass, date=datetime(2020, 10, 30, 10, 0, tzinfo=UTC)
     )
     resp = client.get(buy_url)
 
@@ -160,7 +159,7 @@ def test_membership_purchase_options(freezer, client, configured_user, membershi
     # end of year correctly assigns next month
     freezer.move_to("2020-12-27")
     # make sure we have a future class
-    future_class.date = datetime(2020, 12, 30, 10, 0, tzinfo=dt_timezone.utc)
+    future_class.date = datetime(2020, 12, 30, 10, 0, tzinfo=UTC)
     future_class.save()
     client.force_login(configured_user)
     # time is beginning of month, shows next months options as well
@@ -193,7 +192,7 @@ def test_membership_purchase_options_with_unpaid_items(
     client.force_login(configured_user)
     # time is end of month, shows this month and next
     # make a future class for this month
-    baker.make(RegularClass, date=datetime(2020, 10, 30, 10, 0, tzinfo=dt_timezone.utc))
+    baker.make(RegularClass, date=datetime(2020, 10, 30, 10, 0, tzinfo=UTC))
     resp = client.get(buy_url)
     assert resp.context_data["options"] == [
         {

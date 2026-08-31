@@ -1,6 +1,5 @@
 import json
-from datetime import datetime, timedelta
-from datetime import timezone as dt_timezone
+from datetime import UTC, datetime, timedelta
 from unittest.mock import patch
 
 from django.conf import settings
@@ -301,10 +300,10 @@ class BookingToggleHtmxViewTests(TestCase):
         """
         Toggle booking to no-show
         """
-        mock_now.return_value = datetime(2018, 1, 1, 9, tzinfo=dt_timezone.utc)
+        mock_now.return_value = datetime(2018, 1, 1, 9, tzinfo=UTC)
         event = baker.make_recipe(
             "booking.future_PC",
-            date=datetime(2018, 1, 1, 10, tzinfo=dt_timezone.utc),
+            date=datetime(2018, 1, 1, 10, tzinfo=UTC),
             cancellation_fee=0,
         )
         url = reverse("booking:toggle_booking", args=[event.id])
@@ -313,7 +312,7 @@ class BookingToggleHtmxViewTests(TestCase):
             "booking.booking",
             user=self.user,
             event=event,
-            date_booked=datetime(2018, 1, 1, 8, 44, tzinfo=dt_timezone.utc),
+            date_booked=datetime(2018, 1, 1, 8, 44, tzinfo=UTC),
             paid=True,
         )  # booked and paid within cancellation period
         self.client.login(username=self.user.username, password="test")
@@ -345,7 +344,7 @@ class BookingToggleHtmxViewTests(TestCase):
             "booking.booking",
             user=self.user,
             event=event,
-            date_booked=datetime(2018, 1, 1, 8, 44, tzinfo=dt_timezone.utc),
+            date_booked=datetime(2018, 1, 1, 8, 44, tzinfo=UTC),
             paid=True,
         )
         self.client.login(username=self.user.username, password="test")
@@ -374,7 +373,7 @@ class BookingToggleHtmxViewTests(TestCase):
             "booking.booking",
             user=self.user,
             event=event,
-            date_booked=datetime(2018, 1, 1, 8, 56, tzinfo=dt_timezone.utc),
+            date_booked=datetime(2018, 1, 1, 8, 56, tzinfo=UTC),
             paid=True,
             membership=membership,
         )
@@ -401,10 +400,10 @@ class BookingToggleHtmxViewTests(TestCase):
         """
         Cancelling within 5 mins allows proper cancelling
         """
-        mock_now.return_value = datetime(2018, 1, 1, 9, tzinfo=dt_timezone.utc)
+        mock_now.return_value = datetime(2018, 1, 1, 9, tzinfo=UTC)
         event = baker.make_recipe(
             "booking.future_PC",
-            date=datetime(2018, 1, 1, 10, tzinfo=dt_timezone.utc),
+            date=datetime(2018, 1, 1, 10, tzinfo=UTC),
             cancellation_fee=0,
         )
         url = reverse("booking:toggle_booking", args=[event.id])
@@ -415,7 +414,7 @@ class BookingToggleHtmxViewTests(TestCase):
             "booking.booking",
             user=self.user,
             event=event,
-            date_booked=datetime(2018, 1, 1, 8, 56, tzinfo=dt_timezone.utc),
+            date_booked=datetime(2018, 1, 1, 8, 56, tzinfo=UTC),
             paid=True,
             membership=membership,
         )
@@ -439,10 +438,10 @@ class BookingToggleHtmxViewTests(TestCase):
         """
         Cancelling within 5 mins of rebooking allows proper cancelling
         """
-        mock_now.return_value = datetime(2018, 1, 1, 9, tzinfo=dt_timezone.utc)
+        mock_now.return_value = datetime(2018, 1, 1, 9, tzinfo=UTC)
         event = baker.make_recipe(
             "booking.future_PC",
-            date=datetime(2018, 1, 1, 10, tzinfo=dt_timezone.utc),
+            date=datetime(2018, 1, 1, 10, tzinfo=UTC),
             cancellation_fee=0,
         )
         url = reverse("booking:toggle_booking", args=[event.id])
@@ -453,8 +452,8 @@ class BookingToggleHtmxViewTests(TestCase):
             "booking.booking",
             user=self.user,
             event=event,
-            date_booked=datetime(2018, 1, 1, 5, 0, tzinfo=dt_timezone.utc),
-            date_rebooked=datetime(2018, 1, 1, 8, 56, tzinfo=dt_timezone.utc),
+            date_booked=datetime(2018, 1, 1, 5, 0, tzinfo=UTC),
+            date_rebooked=datetime(2018, 1, 1, 8, 56, tzinfo=UTC),
             paid=True,
             membership=membership,
         )
@@ -490,7 +489,7 @@ class BookingToggleHtmxViewTests(TestCase):
             "booking.booking",
             user=self.user,
             event=event,
-            date_booked=datetime(2018, 1, 1, 8, 56, tzinfo=dt_timezone.utc),
+            date_booked=datetime(2018, 1, 1, 8, 56, tzinfo=UTC),
             paid=True,
             invoice=invoice,
         )

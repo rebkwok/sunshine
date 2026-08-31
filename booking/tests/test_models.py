@@ -1,5 +1,4 @@
-from datetime import datetime, timedelta
-from datetime import timezone as dt_timezone
+from datetime import UTC, datetime, timedelta
 from unittest.mock import patch
 
 import pytest
@@ -44,7 +43,7 @@ class EventTests(TestCase):
         event = baker.make_recipe(
             "booking.past_event",
             name="Test event",
-            date=datetime(2015, 1, 1, tzinfo=dt_timezone.utc),
+            date=datetime(2015, 1, 1, tzinfo=UTC),
         )
         self.assertEqual(str(event), "Test event - 01 Jan 2015, 00:00")
 
@@ -59,64 +58,64 @@ class EventTests(TestCase):
         # i.e. in local time, it's currently 9.30am, and the event start is 10am, so users
         # expect to be able to cancel
         (
-            datetime(2023, 3, 25, 9, 30, tzinfo=dt_timezone.utc),  # not DST
-            datetime(2023, 3, 26, 9, 0, tzinfo=dt_timezone.utc),  # DST
+            datetime(2023, 3, 25, 9, 30, tzinfo=UTC),  # not DST
+            datetime(2023, 3, 26, 9, 0, tzinfo=UTC),  # DST
             True,
             24,
         ),
         # This is > 24 hrs
         (
-            datetime(2023, 3, 25, 8, 30, tzinfo=dt_timezone.utc),  # not DST
-            datetime(2023, 3, 26, 9, 0, tzinfo=dt_timezone.utc),  # DST
+            datetime(2023, 3, 25, 8, 30, tzinfo=UTC),  # not DST
+            datetime(2023, 3, 26, 9, 0, tzinfo=UTC),  # DST
             True,
             24,
         ),
         # less than 23 hrs
         (
-            datetime(2023, 3, 25, 10, 5, tzinfo=dt_timezone.utc),  # not DST
-            datetime(2023, 3, 26, 9, 0, tzinfo=dt_timezone.utc),  # DST
+            datetime(2023, 3, 25, 10, 5, tzinfo=UTC),  # not DST
+            datetime(2023, 3, 26, 9, 0, tzinfo=UTC),  # DST
             False,
             24,
         ),
         # both DST, <24 hrs
         (
-            datetime(2023, 3, 26, 9, 30, tzinfo=dt_timezone.utc),
-            datetime(2023, 3, 27, 9, 0, tzinfo=dt_timezone.utc),
+            datetime(2023, 3, 26, 9, 30, tzinfo=UTC),
+            datetime(2023, 3, 27, 9, 0, tzinfo=UTC),
             False,
             24,
         ),
         # longer cancellation period
         (
-            datetime(2023, 3, 23, 9, 30, tzinfo=dt_timezone.utc),  # not DST
-            datetime(2023, 3, 26, 9, 0, tzinfo=dt_timezone.utc),  # DST
+            datetime(2023, 3, 23, 9, 30, tzinfo=UTC),  # not DST
+            datetime(2023, 3, 26, 9, 0, tzinfo=UTC),  # DST
             True,
             72,
         ),
         # longer cancellation period
         (
-            datetime(2023, 3, 23, 8, 30, tzinfo=dt_timezone.utc),  # not DST
-            datetime(2023, 3, 26, 9, 0, tzinfo=dt_timezone.utc),  # DST
+            datetime(2023, 3, 23, 8, 30, tzinfo=UTC),  # not DST
+            datetime(2023, 3, 26, 9, 0, tzinfo=UTC),  # DST
             True,
             72,
         ),
         # longer cancellation period
         (
-            datetime(2023, 3, 23, 10, 30, tzinfo=dt_timezone.utc),  # not DST
-            datetime(2023, 3, 26, 9, 0, tzinfo=dt_timezone.utc),  # DST
+            datetime(2023, 3, 23, 10, 30, tzinfo=UTC),  # not DST
+            datetime(2023, 3, 26, 9, 0, tzinfo=UTC),  # DST
             False,
             72,
         ),
         # now is DST, event not DST
         # > 24.5 hrs between now and event date
         (
-            datetime(2022, 10, 29, 9, 30, tzinfo=dt_timezone.utc),  # DST; 10:30 local
-            datetime(2022, 10, 30, 10, 0, tzinfo=dt_timezone.utc),  # not DST
+            datetime(2022, 10, 29, 9, 30, tzinfo=UTC),  # DST; 10:30 local
+            datetime(2022, 10, 30, 10, 0, tzinfo=UTC),  # not DST
             False,
             24,
         ),
         (
-            datetime(2022, 10, 29, 8, 55, tzinfo=dt_timezone.utc),  # DST; 10:30 local
-            datetime(2022, 10, 30, 10, 0, tzinfo=dt_timezone.utc),  # not DST
+            datetime(2022, 10, 29, 8, 55, tzinfo=UTC),  # DST; 10:30 local
+            datetime(2022, 10, 30, 10, 0, tzinfo=UTC),  # not DST
             True,
             24,
         ),
@@ -140,7 +139,7 @@ class BookingTests(TestCase):
         cls.event_no_cost = baker.make_recipe(
             "booking.future_PC",
             cost=0,
-            date=datetime(2020, 2, 10, 18, 0, tzinfo=dt_timezone.utc),
+            date=datetime(2020, 2, 10, 18, 0, tzinfo=UTC),
         )
 
     def setUp(self):
@@ -239,7 +238,7 @@ class BookingTests(TestCase):
         Test that reopening a cancelled booking for an event with spaces sets
         the rebooking date
         """
-        mock_now = datetime(2015, 1, 1, tzinfo=dt_timezone.utc)
+        mock_now = datetime(2015, 1, 1, tzinfo=UTC)
         mock_tz.now.return_value = mock_now
         user = self.users[0]
         booking = baker.make_recipe(
@@ -257,7 +256,7 @@ class BookingTests(TestCase):
         """
         Test that reopening a second time resets the rebooking date
         """
-        mock_now = datetime(2015, 3, 1, tzinfo=dt_timezone.utc)
+        mock_now = datetime(2015, 3, 1, tzinfo=UTC)
         mock_tz.now.return_value = mock_now
         user = self.users[0]
         booking = baker.make_recipe(
@@ -265,10 +264,10 @@ class BookingTests(TestCase):
             event=self.event_with_cost,
             user=user,
             status="CANCELLED",
-            date_rebooked=datetime(2015, 1, 1, tzinfo=dt_timezone.utc),
+            date_rebooked=datetime(2015, 1, 1, tzinfo=UTC),
         )
         self.assertEqual(
-            booking.date_rebooked, datetime(2015, 1, 1, tzinfo=dt_timezone.utc)
+            booking.date_rebooked, datetime(2015, 1, 1, tzinfo=UTC)
         )
         booking.status = "OPEN"
         booking.save()
@@ -306,7 +305,7 @@ class BookingTests(TestCase):
     def test_cancel_booking_within_cancellation_period(self, mock_tz):
         # event_no_cost date 2020-2-10 18:00
         # < 12hrs before event date
-        mock_tz.now.return_value = datetime(2020, 2, 10, 7, 0, tzinfo=dt_timezone.utc)
+        mock_tz.now.return_value = datetime(2020, 2, 10, 7, 0, tzinfo=UTC)
         booking = baker.make_recipe(
             "booking.booking", event=self.event_no_cost, status="OPEN", paid=False
         )
@@ -321,7 +320,7 @@ class BookingTests(TestCase):
     def test_set_to_no_show_within_cancellation_period(self, mock_tz):
         # event_no_cost date 2020-2-10 18:00
         # < 24hrs before event date
-        mock_tz.now.return_value = datetime(2020, 2, 10, 7, 0, tzinfo=dt_timezone.utc)
+        mock_tz.now.return_value = datetime(2020, 2, 10, 7, 0, tzinfo=UTC)
         booking = baker.make_recipe(
             "booking.booking", event=self.event_no_cost, status="OPEN", paid=False
         )
@@ -338,10 +337,10 @@ class BookingTests(TestCase):
         cancelled_event = baker.make_recipe(
             "booking.future_PC",
             cost=0,
-            date=datetime(2020, 2, 10, 18, 0, tzinfo=dt_timezone.utc),
+            date=datetime(2020, 2, 10, 18, 0, tzinfo=UTC),
         )
         # < 24hrs before event date
-        mock_tz.now.return_value = datetime(2020, 2, 9, 20, 0, tzinfo=dt_timezone.utc)
+        mock_tz.now.return_value = datetime(2020, 2, 9, 20, 0, tzinfo=UTC)
         booking = baker.make_recipe(
             "booking.booking", event=cancelled_event, status="OPEN", paid=False
         )
@@ -360,11 +359,11 @@ class BookingTests(TestCase):
         cancelled_event = baker.make_recipe(
             "booking.future_PC",
             cost=0,
-            date=datetime(2020, 2, 10, 18, 0, tzinfo=dt_timezone.utc),
+            date=datetime(2020, 2, 10, 18, 0, tzinfo=UTC),
             cancellation_fee=0,
         )
         # < 24hrs before event date
-        mock_tz.now.return_value = datetime(2020, 2, 9, 20, 0, tzinfo=dt_timezone.utc)
+        mock_tz.now.return_value = datetime(2020, 2, 9, 20, 0, tzinfo=UTC)
         booking = baker.make_recipe(
             "booking.booking", event=cancelled_event, status="OPEN", paid=False
         )
@@ -514,9 +513,9 @@ def test_membership(membership_type):
 
     assert str(past_membership) == "test - February 2022"
     assert past_membership.str_with_abbreviated_month() == "test - Feb 2022"
-    assert past_membership.start_date() == datetime(2022, 2, 1, tzinfo=dt_timezone.utc)
+    assert past_membership.start_date() == datetime(2022, 2, 1, tzinfo=UTC)
     assert past_membership.expiry_date() == datetime(
-        2022, 2, 28, tzinfo=dt_timezone.utc
+        2022, 2, 28, tzinfo=UTC
     )
     assert past_membership.month_str == "February"
     assert not past_membership.current_or_future()
