@@ -5,7 +5,7 @@ from django.contrib.admin.sites import AdminSite
 from django.core.files.uploadedfile import SimpleUploadedFile
 from model_bakery import baker
 
-import website.admin as admin
+from website import admin
 from website.models import GalleryImage, TeamMember
 
 

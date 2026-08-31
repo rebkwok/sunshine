@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 from django.urls import reverse
 from django.utils import timezone
 
-import accounts.admin as admin
+from accounts import admin
 from accounts.models import CookiePolicy, DisclaimerContent, OnlineDisclaimer
 from conftest import make_disclaimer_content, make_online_disclaimer
 

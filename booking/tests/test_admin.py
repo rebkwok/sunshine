@@ -9,8 +9,8 @@ from django.test import TestCase
 from django.urls import reverse
 from model_bakery import baker
 
-import booking.admin as admin
 from activitylog.models import ActivityLog
+from booking import admin
 from booking.models import (
     Booking,
     Event,

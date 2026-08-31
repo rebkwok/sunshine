@@ -5,7 +5,7 @@ from django.contrib.admin.sites import AdminSite
 from django.core.files.uploadedfile import SimpleUploadedFile
 from model_bakery import baker
 
-import timetable.admin as admin
+from timetable import admin
 from timetable.models import SessionType, Venue
 
 
