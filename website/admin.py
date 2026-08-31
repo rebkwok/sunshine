@@ -8,7 +8,7 @@ from .models import GalleryCategory, GalleryImage, TeamMember, Testimonial
 class GalleryCategoryAdmin(admin.ModelAdmin):
     list_display = ("name",)
 
-    fieldsets = [
+    fieldsets = (
         (
             None,
             {
@@ -16,7 +16,7 @@ class GalleryCategoryAdmin(admin.ModelAdmin):
                 "description": ("Gallery category, used to filter images"),
             },
         ),
-    ]
+    )
 
 
 @admin.register(GalleryImage)

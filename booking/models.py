@@ -81,12 +81,12 @@ class Event(models.Model):
     )
 
     class Meta:
-        ordering = ["-date"]
+        ordering = ("-date",)
         verbose_name = "Workshop/Class"
         verbose_name_plural = "Workshops/Classes"
-        indexes = [
+        indexes = (
             models.Index(fields=["date", "event_type"]),
-        ]
+        )
 
     @property
     def spaces_left(self):

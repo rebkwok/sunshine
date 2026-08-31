@@ -120,7 +120,7 @@ class TimetableSessionAdmin(admin.ModelAdmin):
         "members_only",
         "show_on_timetable_page",
     )
-    fieldsets = [
+    fieldsets = (
         (
             "Session name",
             {
@@ -158,10 +158,9 @@ class TimetableSessionAdmin(admin.ModelAdmin):
             },
         ),
         ("Date and time", {"fields": ["session_day", "start_time", "end_time"]}),
-    ]
-    ordering = ["session_day", "start_time"]
+    )
+    ordering = ("session_day", "start_time")
 
-    list_filter = ["session_type", "venue"]
     list_editable = ("members_only", "show_on_timetable_page")
 
     def get_urls(self):

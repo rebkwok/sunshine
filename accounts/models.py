@@ -254,9 +254,9 @@ class OnlineDisclaimer(BaseOnlineDisclaimer):
     date_updated = models.DateTimeField(null=True, blank=True)
 
     class Meta:
-        indexes = [
+        indexes = (
             models.Index(fields=["user"]),
-        ]
+        )
 
     def __str__(self):
         return "{} {} ({}) - V{} - {}".format(

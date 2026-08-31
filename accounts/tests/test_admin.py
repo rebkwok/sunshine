@@ -49,13 +49,13 @@ def test_disclaimer_content_fields():
         DisclaimerContent, AdminSite()
     )
     # no obj, return default fields
-    assert disclaimer_content_admin.get_fields(None, None) == [
+    assert disclaimer_content_admin.get_fields(None, None) == (
         "disclaimer_terms",
         "version",
         "form",
         "is_draft",
         "issue_date",
-    ]
+    )
 
 
 @pytest.mark.django_db
@@ -65,13 +65,13 @@ def test_disclaimer_content_fields_draft():
         DisclaimerContent, AdminSite()
     )
     # no obj, return default fields
-    assert disclaimer_content_admin.get_fields(None, content) == [
+    assert disclaimer_content_admin.get_fields(None, content) == (
         "disclaimer_terms",
         "version",
         "form",
         "is_draft",
         "issue_date",
-    ]
+    )
 
 
 @pytest.mark.django_db

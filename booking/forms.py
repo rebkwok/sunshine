@@ -19,9 +19,9 @@ from booking.models import (
 class BookingCreateForm(forms.ModelForm):
     class Meta:
         model = Booking
-        fields = [
+        fields = (
             "event",
-        ]
+        )
 
 
 day = 24
@@ -46,13 +46,13 @@ cancel_choices = (
 
 class EventForm(forms.ModelForm):
     class Meta:
-        widgets = {
+        widgets = {  # noqa: RUF012
             # You can also use prepended and appended together
             "cost": EnclosedInput(prepend="\u00a3"),
             "cancellation_period": forms.Select(choices=cancel_choices),
             # 'date': SuitSplitDateTimeWidget()
         }
-        help_texts = {
+        help_texts = {  # noqa: RUF012
             "cancellation_period": mark_safe(
                 'Only applicable if "allow booking cancellation" is '
                 "ticked.<br/>"
@@ -107,12 +107,12 @@ class ItemVoucherForm(forms.ModelForm):
     class Meta:
         model = ItemVoucher
         fields = "__all__"
-        labels = {
+        labels = {  # noqa: RUF012
             "start_date": "Start date and time",
             "expiry_date": "Expiry date and time (optional)",
             "discount": "Discount %",
         }
-        help_texts = {
+        help_texts = {  # noqa: RUF012
             "code": "Voucher codes are case sensitive; must not contain spaces",
             "max_vouchers": "Maximum uses across all users; leave blank for no maximum",
             "max_per_user": "Maximum uses per users; leave blank for no maximum",

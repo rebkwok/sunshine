@@ -177,8 +177,8 @@ class DisclaimerContentAdmin(admin.ModelAdmin):
     form = DisclaimerContentAdminForm
     add_form_template = "accounts/admin/admin_disclaimer_content_change_form.html"
     change_form_template = "accounts/admin/admin_disclaimer_content_change_form.html"
-    default_fields = ["disclaimer_terms", "version", "form", "is_draft", "issue_date"]
-    actions = []
+    default_fields = ("disclaimer_terms", "version", "form", "is_draft", "issue_date")
+    actions = ()
 
     def has_delete_permission(self, request, obj=None):
         return False

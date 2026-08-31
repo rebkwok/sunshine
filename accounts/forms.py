@@ -82,7 +82,7 @@ class ProfileForm(forms.ModelForm):
             "first_name",
             "last_name",
         )
-        widgets = {
+        widgets = {  # noqa: RUF012
             "username": forms.TextInput(attrs={"class": "form-control"}),
             "first_name": forms.TextInput(attrs={"class": "form-control"}),
             "last_name": forms.TextInput(attrs={"class": "form-control"}),
