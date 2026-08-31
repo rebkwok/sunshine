@@ -1,14 +1,12 @@
 import re
 
 import pytest
+from django.contrib.admin.sites import AdminSite
+from django.core.files.uploadedfile import SimpleUploadedFile
 from model_bakery import baker
 
-from django.contrib.admin.sites import AdminSite
-
 import timetable.admin as admin
-from timetable.models import Venue, SessionType
-
-from django.core.files.uploadedfile import SimpleUploadedFile
+from timetable.models import SessionType, Venue
 
 
 @pytest.mark.django_db

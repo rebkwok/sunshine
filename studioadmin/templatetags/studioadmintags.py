@@ -1,9 +1,9 @@
 from zoneinfo import ZoneInfo
 
 from django import template
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
-from django.urls import reverse
 
 from booking.models import Booking
 

@@ -5,7 +5,6 @@ from django.core.mail.message import EmailMultiAlternatives
 from django.template.loader import get_template
 
 from activitylog.models import ActivityLog
-
 from booking.models import Booking, Event, WaitingListUser
 from booking.utils import host_from_request
 

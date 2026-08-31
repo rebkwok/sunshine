@@ -1,21 +1,21 @@
+import json
 from decimal import Decimal
 from math import floor
-import json
 
-from django.contrib import admin
 from django import forms
+from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import User
-from django.utils.html import format_html, mark_safe
 from django.shortcuts import reverse
+from django.utils.html import format_html, mark_safe
 
 from accounts.models import (
+    ArchivedDisclaimer,
     CookiePolicy,
     DataPrivacyPolicy,
-    SignedDataPrivacy,
     DisclaimerContent,
     OnlineDisclaimer,
-    ArchivedDisclaimer,
+    SignedDataPrivacy,
     has_active_disclaimer,
     has_expired_disclaimer,
 )

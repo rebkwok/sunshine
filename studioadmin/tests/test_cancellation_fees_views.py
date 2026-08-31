@@ -3,11 +3,10 @@
 from datetime import timedelta
 
 from bs4 import BeautifulSoup
-from model_bakery import baker
-
+from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
-from django.test import TestCase
+from model_bakery import baker
 
 from .helpers import TestPermissionMixin
 

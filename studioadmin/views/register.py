@@ -1,30 +1,27 @@
 # -*- coding: utf-8 -*-
 import logging
-
 from datetime import timedelta
 
+from braces.views import LoginRequiredMixin
+from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
-from django.contrib import messages
-from django.http import JsonResponse, HttpResponseBadRequest
-from django.template.response import TemplateResponse
-from django.template.loader import render_to_string
+from django.http import HttpResponseBadRequest, JsonResponse
 from django.shortcuts import (
     HttpResponse,
     get_object_or_404,
 )
-from django.views.generic import ListView
+from django.template.loader import render_to_string
+from django.template.response import TemplateResponse
 from django.utils import timezone
 from django.views.decorators.http import require_http_methods
+from django.views.generic import ListView
 
-from braces.views import LoginRequiredMixin
-
+from activitylog.models import ActivityLog
 from booking.email_helpers import send_waiting_list_email
-from booking.models import Event, Booking, WaitingListUser
+from booking.models import Booking, Event, WaitingListUser
 
 from ..forms import AddRegisterBookingForm, StatusFilter
-from activitylog.models import ActivityLog
-
 
 logger = logging.getLogger(__name__)
 

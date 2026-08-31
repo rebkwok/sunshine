@@ -1,28 +1,28 @@
 from copy import deepcopy
-from dateutil.relativedelta import relativedelta
 
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import (
+    HTML,
+    Hidden,
+    Layout,
+    Submit,
+)
+from dateutil.relativedelta import relativedelta
 from django import forms
 from django.contrib.auth.models import User
 from django.urls import reverse
 from django.utils import timezone
-from django.utils.html import mark_safe, linebreaks
+from django.utils.html import linebreaks, mark_safe
 from django_recaptcha.fields import ReCaptchaField
 from django_recaptcha.widgets import ReCaptchaV2Checkbox
 
-from crispy_forms.helper import FormHelper
-from crispy_forms.layout import (
-    Layout,
-    Submit,
-    Hidden,
-    HTML,
-)
-
 from accounts import validators as account_validators
+
 from .models import (
     DataPrivacyPolicy,
-    SignedDataPrivacy,
-    OnlineDisclaimer,
     DisclaimerContent,
+    OnlineDisclaimer,
+    SignedDataPrivacy,
     has_expired_disclaimer,
 )
 

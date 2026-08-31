@@ -2,14 +2,12 @@
 
 from datetime import datetime, timedelta
 from datetime import timezone as dt_timezone
-
 from unittest.mock import patch
-from model_bakery import baker
 
+from django.core import mail, management
 from django.test import TestCase
-from django.core import management
-from django.core import mail
 from django.utils import timezone
+from model_bakery import baker
 
 from booking.models import Booking, Event
 

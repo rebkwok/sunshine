@@ -1,19 +1,19 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime, timedelta
 from datetime import timezone as dt_timezone
-
 from unittest.mock import patch
-from model_bakery import baker
 
 from django.contrib.auth.models import User
 from django.core import mail
+from django.test import RequestFactory, TestCase
 from django.urls import reverse
 from django.utils import timezone
-from django.test import RequestFactory, TestCase
+from model_bakery import baker
 
 from booking.models import Event, WaitingListUser
-from studioadmin.views.register import process_event_booking_updates
 from studioadmin.forms import AddRegisterBookingForm
+from studioadmin.views.register import process_event_booking_updates
+
 from .helpers import TestPermissionMixin
 
 

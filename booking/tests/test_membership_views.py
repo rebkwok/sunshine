@@ -1,13 +1,12 @@
 from datetime import datetime, timedelta
 from datetime import timezone as dt_timezone
 
+import pytest
 from django.urls import reverse
 from django.utils import timezone
-from booking.models import Membership, RegularClass
-
-import pytest
 from model_bakery import baker
 
+from booking.models import Membership, RegularClass
 
 pytestmark = pytest.mark.django_db
 

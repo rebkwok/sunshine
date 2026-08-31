@@ -1,4 +1,4 @@
-from .models import Venue, TimetableSession
+from .models import TimetableSession, Venue
 
 
 def timetable(request):

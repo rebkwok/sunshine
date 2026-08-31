@@ -1,10 +1,10 @@
 from suit.apps import (
-    DjangoSuitConfig,
     SUIT_FORM_SIZE_FULL,
-    SUIT_FORM_SIZE_SMALL,
     SUIT_FORM_SIZE_LARGE,
+    SUIT_FORM_SIZE_SMALL,
+    DjangoSuitConfig,
 )
-from suit.menu import ParentItem, ChildItem
+from suit.menu import ChildItem, ParentItem
 
 
 class SuitConfig(DjangoSuitConfig):

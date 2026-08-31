@@ -5,15 +5,13 @@ ActivityLog it
 
 import logging
 
-from django.utils import timezone
+from dateutil.relativedelta import relativedelta
 from django.core.management.base import BaseCommand
 from django.db.models import Q
-
-from dateutil.relativedelta import relativedelta
+from django.utils import timezone
 
 from accounts.models import ArchivedDisclaimer, OnlineDisclaimer
 from activitylog.models import ActivityLog
-
 
 logger = logging.getLogger(__name__)
 

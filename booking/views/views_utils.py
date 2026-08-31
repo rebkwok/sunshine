@@ -1,6 +1,6 @@
+from django.shortcuts import HttpResponseRedirect
 from django.urls import reverse
 from django.utils import timezone
-from django.shortcuts import HttpResponseRedirect
 
 from accounts.models import DataPrivacyPolicy
 from accounts.utils import has_active_data_privacy_agreement

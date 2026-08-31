@@ -1,10 +1,10 @@
 from django.contrib import admin
-from django.shortcuts import render, redirect
+from django.shortcuts import redirect, render
 from django.urls import path, reverse
 from django.utils.safestring import mark_safe
 
 from .forms import UploadTimetableForm
-from .models import Category, TimetableSession, SessionType, Venue, Location
+from .models import Category, Location, SessionType, TimetableSession, Venue
 from .utils import upload_timetable
 
 

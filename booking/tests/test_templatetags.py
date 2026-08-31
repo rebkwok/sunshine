@@ -1,16 +1,14 @@
 # -*- coding: utf-8 -*-
-from datetime import datetime, UTC
+from datetime import UTC, datetime
 
 import pytest
-from model_bakery import baker
-
-from django.contrib.auth.models import User, AnonymousUser
-from django.urls import reverse
+from django.contrib.auth.models import AnonymousUser, User
 from django.test import TestCase
+from django.urls import reverse
+from model_bakery import baker
 
 from booking.models import Membership
 from booking.templatetags.bookingtags import book_button_data
-
 
 pytestmark = pytest.mark.django_db
 

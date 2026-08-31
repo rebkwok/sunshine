@@ -15,12 +15,12 @@ If any bookings for events are cancelled, and the event has a waiting list, send
 """
 
 import logging
+
 from django.core.management.base import BaseCommand
 
-from booking.models import Booking
-from booking.email_helpers import email_waiting_lists
 from activitylog.models import ActivityLog
-
+from booking.email_helpers import email_waiting_lists
+from booking.models import Booking
 
 logger = logging.getLogger(__name__)
 

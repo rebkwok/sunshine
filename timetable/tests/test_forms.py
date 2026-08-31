@@ -2,11 +2,10 @@
 
 from datetime import datetime
 from datetime import timezone as dt_timezone
-
 from unittest.mock import patch
-from model_bakery import baker
 
 from django.test import TestCase
+from model_bakery import baker
 
 from ..forms import UploadTimetableForm
 

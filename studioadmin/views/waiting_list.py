@@ -1,17 +1,14 @@
 import logging
 
+from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-
-from django.contrib import messages
-from django.template.response import TemplateResponse
 from django.shortcuts import get_object_or_404
-
-from booking.models import Event, WaitingListUser
+from django.template.response import TemplateResponse
 
 from activitylog.models import ActivityLog
-
+from booking.models import Event, WaitingListUser
 
 logger = logging.getLogger(__name__)
 

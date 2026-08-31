@@ -1,15 +1,15 @@
 # -*- coding: utf-8 -*-
 import logging
 
-from django.views.generic import ListView
-from django.utils import timezone
 from braces.views import LoginRequiredMixin
-from booking.email_helpers import email_waiting_lists
+from django.utils import timezone
+from django.views.generic import ListView
 
+from booking.email_helpers import email_waiting_lists
 from booking.models import Booking
 from booking.utils import host_from_request
-from .views_utils import DataPolicyAgreementRequiredMixin
 
+from .views_utils import DataPolicyAgreementRequiredMixin
 
 logger = logging.getLogger(__name__)
 

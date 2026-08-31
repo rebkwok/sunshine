@@ -2,20 +2,20 @@ import json
 import logging
 
 import stripe
-
 from django.conf import settings
 from django.contrib.sites.models import Site
+from django.shortcuts import HttpResponse, render
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
-from django.shortcuts import render, HttpResponse
 
 from activitylog.models import ActivityLog
+
 from .emails import send_failed_payment_emails, send_processed_refund_emails
 from .exceptions import StripeProcessingError
 from .models import Seller, StripePaymentIntent
 from .utils import (
-    get_invoice_from_payment_intent,
     check_stripe_data,
+    get_invoice_from_payment_intent,
     process_invoice_items,
 )
 

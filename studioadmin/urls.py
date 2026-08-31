@@ -1,22 +1,22 @@
-from django.views.generic import RedirectView
 from django.contrib.admin.views.decorators import staff_member_required
 from django.urls import path
+from django.views.generic import RedirectView
 
 from .views.fees import (
-    outstanding_fees_user,
-    outstanding_fees_list,
-    ajax_toggle_cancellation_fee_payment,
-    ajax_toggle_remove_cancellation_fee,
     ajax_get_cancellation_fee_payment_status,
     ajax_get_user_total_fees,
+    ajax_toggle_cancellation_fee_payment,
+    ajax_toggle_remove_cancellation_fee,
+    outstanding_fees_list,
+    outstanding_fees_user,
 )
 from .views.register import (
     EventRegisterListView,
-    register_view,
-    booking_register_add_view,
     ajax_toggle_attended,
+    booking_register_add_view,
+    register_view,
 )
-from .views.users import UserListView, UserDisclaimerView
+from .views.users import UserDisclaimerView, UserListView
 from .views.waiting_list import event_waiting_list_view
 
 app_name = "studioadmin"

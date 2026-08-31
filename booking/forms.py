@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
-from django import forms
-from django.utils.safestring import mark_safe
-from django.utils import timezone
-
-from suit.widgets import EnclosedInput
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Submit
+from django import forms
+from django.utils import timezone
+from django.utils.safestring import mark_safe
+from suit.widgets import EnclosedInput
 
 from booking.models import (
     Booking,

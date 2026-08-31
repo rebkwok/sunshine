@@ -1,20 +1,19 @@
 from dateutil.relativedelta import relativedelta
-
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.cache import cache
-from django.db.models.signals import post_save, post_delete
+from django.db.models.signals import post_delete, post_save
 from django.dispatch import receiver
 from django.utils import timezone
 
-from activitylog.models import ActivityLog
 from accounts.models import (
     ArchivedDisclaimer,
-    active_data_privacy_cache_key,
-    active_disclaimer_cache_key,
     OnlineDisclaimer,
     SignedDataPrivacy,
+    active_data_privacy_cache_key,
+    active_disclaimer_cache_key,
 )
+from activitylog.models import ActivityLog
 from booking.email_helpers import send_email
 
 

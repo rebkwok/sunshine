@@ -4,7 +4,6 @@ from django import template
 
 from booking.models import Booking, WaitingListUser
 
-
 register = template.Library()
 
 HOURS_CONVERSION = {

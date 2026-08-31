@@ -1,21 +1,19 @@
 # -*- coding: utf-8 -*-
-from datetime import timedelta
 import logging
+from datetime import timedelta
 from math import floor
 from zoneinfo import ZoneInfo
 
-from django.db import models
+from django.contrib.auth.models import User
 from django.core.cache import cache
 from django.core.exceptions import ValidationError
-from django.contrib.auth.models import User
+from django.db import models
 from django.utils import timezone
-
 from dynamic_forms.models import FormField, ResponseField
 
 from accounts.utils import active_data_privacy_cache_key
 from activitylog.models import ActivityLog
 from stripe_payments.models import Seller
-
 
 log = logging.getLogger(__name__)
 

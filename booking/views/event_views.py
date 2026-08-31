@@ -1,22 +1,20 @@
 import logging
-
 from collections import OrderedDict
 from zoneinfo import ZoneInfo
 
 from django.core.paginator import Paginator
+from django.http import Http404
 from django.shortcuts import get_object_or_404
-from django.views.generic import ListView, DetailView
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
-from django.http import Http404
-from booking.email_helpers import email_waiting_lists
+from django.views.generic import DetailView, ListView
 
+from booking.email_helpers import email_waiting_lists
 from booking.forms import EventsFilter
 from booking.models import Booking, Event, WaitingListUser
 from booking.utils import host_from_request
 from timetable.models import Venue
-
 
 logger = logging.getLogger(__name__)
 

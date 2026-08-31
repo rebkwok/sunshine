@@ -2,16 +2,19 @@
 from datetime import timedelta
 
 import pytest
-
-from model_bakery import baker
-
+from allauth.account.models import EmailAddress
+from django.contrib.auth.models import User
 from django.core.cache import cache
 from django.test import TestCase
-from django.contrib.auth.models import User
 from django.urls import reverse
 from django.utils import timezone
+from model_bakery import baker
 
-from allauth.account.models import EmailAddress
+from conftest import (
+    make_data_privacy_agreement,
+    make_disclaimer_content,
+    make_online_disclaimer,
+)
 
 from ..models import (
     DataPrivacyPolicy,
@@ -20,12 +23,6 @@ from ..models import (
     has_active_disclaimer,
 )
 from ..utils import has_active_data_privacy_agreement
-
-from conftest import (
-    make_disclaimer_content,
-    make_online_disclaimer,
-    make_data_privacy_agreement,
-)
 
 pytestmark = pytest.mark.django_db
 

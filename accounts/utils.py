@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 from django.core.cache import cache
-
 from django.utils.html import format_html
 
 

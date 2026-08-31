@@ -1,15 +1,13 @@
 from datetime import timedelta
 
-from model_bakery import baker
-
 from django.core import management
 from django.test import TestCase
 from django.utils import timezone
+from model_bakery import baker
 
 from accounts.models import ArchivedDisclaimer, OnlineDisclaimer
 from activitylog.models import ActivityLog
-
-from conftest import make_online_disclaimer, make_archived_disclaimer
+from conftest import make_archived_disclaimer, make_online_disclaimer
 
 
 class DeleteExpiredDisclaimersTests(TestCase):

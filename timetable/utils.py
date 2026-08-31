@@ -1,15 +1,14 @@
 # -*- coding: utf-8 -*-
 
 import logging
-
-from datetime import timedelta, datetime
+from datetime import datetime, timedelta
 
 from delorean import Delorean
 
-from booking.models import Event
-from .models import TimetableSession
 from activitylog.models import ActivityLog
+from booking.models import Event
 
+from .models import TimetableSession
 
 logger = logging.getLogger(__name__)
 

@@ -1,38 +1,36 @@
 # -*- coding: utf-8 -*-
-from calendar import monthrange, month_name, month_abbr
+import logging
+from calendar import month_abbr, month_name, monthrange
 from datetime import datetime, timedelta
 from datetime import timezone as dt_timezone
-
-from dateutil.relativedelta import relativedelta
 from decimal import Decimal
-import logging
-import shortuuid
 from zoneinfo import ZoneInfo
 
-from django.db import models
-from django.db.models import Q
-from django.db.models.signals import post_delete
-from django.dispatch import receiver
+import shortuuid
+from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.postgres.fields import ArrayField
 from django.core.cache import cache
 from django.core.exceptions import ValidationError
+from django.db import models
+from django.db.models import Q
+from django.db.models.signals import post_delete
+from django.dispatch import receiver
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
-
 from django_extensions.db.fields import AutoSlugField
 
 from activitylog.models import ActivityLog
-from stripe_payments.models import Invoice
-from timetable.models import Venue
 from booking.utils import (
-    start_of_day_in_utc,
     end_of_day_in_utc,
     start_of_day_in_local_time,
+    start_of_day_in_utc,
 )
+from stripe_payments.models import Invoice
+from timetable.models import Venue
 
 logger = logging.getLogger(__name__)
 

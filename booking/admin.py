@@ -2,33 +2,31 @@
 from datetime import timedelta
 from zoneinfo import ZoneInfo
 
-from django.contrib import admin
+from django.contrib import admin, messages
 from django.contrib.auth.models import User
-from django.contrib import messages
 from django.utils import timezone
 from django.utils.safestring import mark_safe
-
 from django_object_actions import DjangoObjectActions, takes_instance_or_queryset
 
 from activitylog.models import ActivityLog
+from booking.email_helpers import send_email
+from booking.forms import EventForm, ItemVoucherForm
 from booking.models import (
     Booking,
+    Event,
     GiftVoucher,
     GiftVoucherType,
     ItemVoucher,
     Membership,
     MembershipType,
+    Private,
+    RegularClass,
     TotalVoucher,
     WaitingListUser,
     Workshop,
-    RegularClass,
-    Private,
-    Event,
 )
-from booking.forms import EventForm, ItemVoucherForm
-from booking.email_helpers import send_email
-from stripe_payments.utils import process_refund
 from stripe_payments.models import StripeRefund
+from stripe_payments.utils import process_refund
 
 
 def format_date_in_local_timezone(utc_datetime):

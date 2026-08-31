@@ -2,21 +2,20 @@
 import json
 from datetime import datetime, timedelta
 from datetime import timezone as dt_timezone
-
 from unittest.mock import patch
-from model_bakery import baker
 
 from django.conf import settings
 from django.core import mail
 from django.core.handlers.wsgi import WSGIRequest
+from django.test import TestCase, override_settings
 from django.urls import reverse
-from django.test import override_settings, TestCase
 from django.utils import timezone
+from model_bakery import baker
 
 from conftest import make_data_privacy_agreement
 from stripe_payments.models import Invoice
 
-from ..models import Event, Booking, GiftVoucher, Membership, WaitingListUser
+from ..models import Booking, Event, GiftVoucher, Membership, WaitingListUser
 
 
 class BookingToggleHtmxViewTests(TestCase):

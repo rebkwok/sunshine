@@ -3,28 +3,28 @@ from datetime import datetime, timedelta
 from datetime import timezone as dt_timezone
 from decimal import Decimal
 from zoneinfo import ZoneInfo
-import pytest
 
+import pytest
 from django.core.cache import cache
 from django.core.exceptions import ValidationError
 from django.utils import timezone
 
-from ..models import (
-    CookiePolicy,
-    DataPrivacyPolicy,
-    SignedDataPrivacy,
-    ArchivedDisclaimer,
-    DisclaimerContent,
-    OnlineDisclaimer,
-)
-from ..utils import active_data_privacy_cache_key, has_active_data_privacy_agreement
 from conftest import (
     make_archived_disclaimer,
+    make_data_privacy_agreement,
     make_disclaimer_content,
     make_online_disclaimer,
-    make_data_privacy_agreement,
 )
 
+from ..models import (
+    ArchivedDisclaimer,
+    CookiePolicy,
+    DataPrivacyPolicy,
+    DisclaimerContent,
+    OnlineDisclaimer,
+    SignedDataPrivacy,
+)
+from ..utils import active_data_privacy_cache_key, has_active_data_privacy_agreement
 
 pytestmark = pytest.mark.django_db
 

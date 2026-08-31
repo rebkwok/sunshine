@@ -1,15 +1,14 @@
 from decimal import Decimal
-from unittest.mock import patch
 from hashlib import sha512
+from unittest.mock import patch
 
 import pytest
-
 from model_bakery import baker
 
-from booking.models import Membership, Booking, GiftVoucher
-from ..models import Invoice, Seller, StripePaymentIntent, StripeRefund
-
+from booking.models import Booking, GiftVoucher, Membership
 from conftest import get_mock_payment_intent, get_mock_refund
+
+from ..models import Invoice, Seller, StripePaymentIntent, StripeRefund
 
 pytestmark = pytest.mark.django_db
 

@@ -1,15 +1,14 @@
 # -*- coding: utf-8 -*-
-from model_bakery import baker
 import pytest
 from django.urls import reverse
+from model_bakery import baker
 
 from booking.models import (
-    GiftVoucherType,
     GiftVoucher,
+    GiftVoucherType,
     ItemVoucher,
     TotalVoucher,
 )
-
 
 pytestmark = pytest.mark.django_db
 

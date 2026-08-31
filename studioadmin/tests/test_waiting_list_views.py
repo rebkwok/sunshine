@@ -1,6 +1,5 @@
-from django.urls import reverse
 from django.test import TestCase
-
+from django.urls import reverse
 from model_bakery import baker
 
 from .helpers import TestPermissionMixin

@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.urls import path
 
-from website.views import home, home_legacy, contact, faq, session_types, venues
+from website.views import contact, faq, home, home_legacy, session_types, venues
 
 app_name = "website"
 

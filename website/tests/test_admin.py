@@ -1,14 +1,12 @@
 import re
 
 import pytest
-from model_bakery import baker
-
 from django.contrib.admin.sites import AdminSite
+from django.core.files.uploadedfile import SimpleUploadedFile
+from model_bakery import baker
 
 import website.admin as admin
 from website.models import GalleryImage, TeamMember
-
-from django.core.files.uploadedfile import SimpleUploadedFile
 
 
 @pytest.mark.django_db

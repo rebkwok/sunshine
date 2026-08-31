@@ -1,14 +1,13 @@
-from django.urls import include, path, re_path
-
-from django.contrib import admin
 from django.conf import settings
 from django.conf.urls.static import static
+from django.contrib import admin
+from django.urls import include, path, re_path
 
 from accounts.views import (
     CustomLoginView,
     CustomSignUpView,
-    data_privacy_policy,
     cookie_policy,
+    data_privacy_policy,
 )
 from booking.views import permission_denied
 from studioadmin.views.views import redirect_to_admin

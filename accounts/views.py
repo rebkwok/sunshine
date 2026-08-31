@@ -1,26 +1,24 @@
-from django.shortcuts import render, HttpResponseRedirect, get_object_or_404
-from django.urls import reverse
-from django.contrib.auth.models import User
-from django.contrib.auth.decorators import login_required
-from django.views.generic import FormView, UpdateView, CreateView
-
 from allauth.account.views import LoginView, SignupView
-
 from braces.views import LoginRequiredMixin
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
+from django.shortcuts import HttpResponseRedirect, get_object_or_404, render
+from django.urls import reverse
+from django.views.generic import CreateView, FormView, UpdateView
 
 from .forms import (
     DataPrivacyAgreementForm,
-    ProfileForm,
     DisclaimerContactUpdateForm,
     DisclaimerForm,
+    ProfileForm,
 )
 from .models import (
     CookiePolicy,
     DataPrivacyPolicy,
-    SignedDataPrivacy,
-    has_expired_disclaimer,
-    has_active_disclaimer,
     OnlineDisclaimer,
+    SignedDataPrivacy,
+    has_active_disclaimer,
+    has_expired_disclaimer,
 )
 from .utils import has_active_data_privacy_agreement
 

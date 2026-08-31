@@ -1,24 +1,22 @@
-from datetime import datetime, timedelta
-from datetime import timezone as dt_timezone
 import os
 import sys
-from tempfile import TemporaryDirectory
+from datetime import datetime, timedelta
+from datetime import timezone as dt_timezone
 from io import StringIO
+from tempfile import TemporaryDirectory
 from unittest.mock import patch
 
 import pytest
 from dateutil.relativedelta import relativedelta
-from model_bakery import baker
-
 from django.conf import settings
 from django.contrib.admin.sites import AdminSite
 from django.core import management
 from django.test import TestCase, override_settings
 from django.utils import timezone
+from model_bakery import baker
 
 from activitylog import admin
 from activitylog.models import ActivityLog
-
 
 pytestmark = pytest.mark.django_db
 

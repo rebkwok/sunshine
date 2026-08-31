@@ -1,9 +1,8 @@
 import re
 
 import pytest
-from model_bakery import baker
-
 from django.core.files.uploadedfile import SimpleUploadedFile
+from model_bakery import baker
 
 from website.models import GalleryCategory, GalleryImage
 

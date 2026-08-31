@@ -1,7 +1,7 @@
 from django.views.generic import ListView
 
-from timetable.models import TimetableSession, Venue
 from timetable.forms import TimetableFilter
+from timetable.models import TimetableSession, Venue
 
 
 class TimetableListView(ListView):

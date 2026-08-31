@@ -1,13 +1,13 @@
 import pytest
+from django.contrib.auth.models import User
+from django.test import TestCase
+from django.urls import reverse
 from model_bakery import baker
 
-from django.urls import reverse
-from django.test import TestCase
-from django.contrib.auth.models import User
-
-from studioadmin.views.users import NAME_FILTERS
-from .helpers import TestPermissionMixin
 from conftest import make_disclaimer_content, make_online_disclaimer
+from studioadmin.views.users import NAME_FILTERS
+
+from .helpers import TestPermissionMixin
 
 
 class UserListViewTests(TestPermissionMixin, TestCase):

@@ -7,13 +7,15 @@ Add reminder_sent flag to booking model so we don't keep sending
 """
 
 from datetime import timedelta
-from django.utils import timezone
+
 from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.db.models import Q
+from django.utils import timezone
+
+from activitylog.models import ActivityLog
 from booking.email_helpers import send_email
 from booking.models import Booking, Event
-from activitylog.models import ActivityLog
 
 
 class Command(BaseCommand):

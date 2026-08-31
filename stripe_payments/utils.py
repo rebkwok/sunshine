@@ -1,14 +1,15 @@
 import logging
+
+import stripe
 from django.conf import settings
 from django.contrib.sites.models import Site
-import stripe
 
 from activitylog.models import ActivityLog
 from booking.email_helpers import send_gift_voucher_email
-from .emails import send_processed_payment_emails, send_invalid_request_email
-from .exceptions import StripeProcessingError
-from .models import Invoice, StripeRefund, StripePaymentIntent, Seller
 
+from .emails import send_invalid_request_email, send_processed_payment_emails
+from .exceptions import StripeProcessingError
+from .models import Invoice, Seller, StripePaymentIntent, StripeRefund
 
 logger = logging.getLogger(__name__)
 

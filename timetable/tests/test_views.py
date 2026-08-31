@@ -1,19 +1,16 @@
-import pytest
-
 from datetime import datetime
 from datetime import timezone as dt_timezone
-
-from delorean import Delorean
 from unittest.mock import patch
+
+import pytest
+from delorean import Delorean
+from django.contrib.auth.models import User
+from django.test import TestCase
+from django.urls import reverse
 from model_bakery import baker
 
-from django.contrib.auth.models import User
-from django.urls import reverse
-from django.test import TestCase
-
 from booking.models import Event
-from timetable.models import TimetableSession, SessionType, Venue, Location
-
+from timetable.models import Location, SessionType, TimetableSession, Venue
 
 pytestmark = pytest.mark.django_db
 

@@ -1,12 +1,10 @@
 # -*- coding: utf-8 -*-
+from django.contrib.auth.models import User
+from django.test import TestCase
+from django.urls import reverse
 from model_bakery import baker
 
-from django.contrib.auth.models import User
-from django.urls import reverse
-from django.test import TestCase
-
 from accounts.models import DataPrivacyPolicy
-
 from booking.models import Booking
 
 

@@ -2,7 +2,7 @@ import datetime
 
 from django.core.management.base import BaseCommand
 
-from ...models import Category, Location, Venue, SessionType, TimetableSession
+from ...models import Category, Location, SessionType, TimetableSession, Venue
 
 
 class Command(BaseCommand):

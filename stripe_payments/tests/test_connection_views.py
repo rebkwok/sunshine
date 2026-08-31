@@ -1,8 +1,7 @@
 from unittest.mock import patch
 
-from django.urls import reverse
-
 import pytest
+from django.urls import reverse
 
 from ..models import Seller
 

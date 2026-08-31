@@ -1,6 +1,5 @@
 from django import forms
 from django.utils.html import mark_safe
-
 from django_recaptcha.fields import ReCaptchaField
 from django_recaptcha.widgets import ReCaptchaV2Checkbox
 

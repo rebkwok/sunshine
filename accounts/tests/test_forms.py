@@ -3,15 +3,14 @@ import json
 from datetime import datetime
 from unittest.mock import patch
 
+import pytest
+from django.contrib.auth.models import User
+from django.test import TestCase
+from django.urls import reverse
+from django_recaptcha.client import RecaptchaResponse
 from model_bakery import baker
 
-import pytest
-
-from django.test import TestCase
-from django.contrib.auth.models import User
-from django.urls import reverse
-
-from django_recaptcha.client import RecaptchaResponse
+from conftest import make_disclaimer_content
 
 from ..admin import (
     CookiePolicyAdminForm,
@@ -22,12 +21,9 @@ from ..forms import DataPrivacyAgreementForm, SignupForm
 from ..models import (
     CookiePolicy,
     DataPrivacyPolicy,
-    SignedDataPrivacy,
     DisclaimerContent,
+    SignedDataPrivacy,
 )
-
-
-from conftest import make_disclaimer_content
 
 
 class SignUpFormTests(TestCase):

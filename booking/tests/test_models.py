@@ -1,23 +1,19 @@
 # -*- coding: utf-8 -*-
-from datetime import timedelta, datetime
+from datetime import datetime, timedelta
 from datetime import timezone as dt_timezone
-
 from unittest.mock import patch
 
+import pytest
 from dateutil.relativedelta import relativedelta
-
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 from django.utils import timezone
-
-import pytest
-
 from model_bakery import baker
 
 from booking.models import (
-    Event,
     Booking,
+    Event,
     GiftVoucher,
     GiftVoucherType,
     ItemVoucher,

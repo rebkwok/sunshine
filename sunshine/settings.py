@@ -9,11 +9,11 @@ https://docs.djangoproject.com/en/1.6/ref/settings/
 """
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-import environ
 import logging
 import os
 import sys
 
+import environ
 from django.contrib import messages
 
 from .custom_logging import GroupWriteRotatingFileHandler, log_file_permissions

@@ -1,10 +1,8 @@
 import logging
 
-from django.contrib.auth.models import User
-from django.views.generic import ListView, DetailView
-
 from braces.views import LoginRequiredMixin
-
+from django.contrib.auth.models import User
+from django.views.generic import DetailView, ListView
 
 logger = logging.getLogger(__name__)
 

@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime, timedelta
 from datetime import timezone as dt_timezone
-
 from unittest.mock import patch
 
-from model_bakery import baker
-
 from django.core.cache import cache
+from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
-from django.test import TestCase
+from model_bakery import baker
 
-from booking.models import Event, Booking, WaitingListUser, Workshop
+from booking.models import Booking, Event, WaitingListUser, Workshop
 from conftest import make_online_disclaimer
 
 

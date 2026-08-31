@@ -1,30 +1,28 @@
 from datetime import datetime
 from datetime import timezone as dt_timezone
-
 from unittest.mock import Mock, patch
 
 import pytest
-from model_bakery import baker
-
-from django.core import mail
-from django.contrib.auth.models import User
 from django.contrib.admin.sites import AdminSite
+from django.contrib.auth.models import User
+from django.core import mail
 from django.test import TestCase
 from django.urls import reverse
+from model_bakery import baker
 
-from activitylog.models import ActivityLog
 import booking.admin as admin
+from activitylog.models import ActivityLog
 from booking.models import (
-    Event,
     Booking,
+    Event,
     GiftVoucher,
     ItemVoucher,
     Membership,
     MembershipType,
     Private,
+    RegularClass,
     TotalVoucher,
     Workshop,
-    RegularClass,
 )
 from stripe_payments.models import Invoice, StripeRefund
 

@@ -1,29 +1,27 @@
 import json
-
-from urllib.parse import parse_qs, urlsplit, urlunsplit, urlencode
+from urllib.parse import parse_qs, urlencode, urlsplit, urlunsplit
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponseBadRequest, JsonResponse, HttpResponse
-from django.template.response import TemplateResponse
-from django.views.decorators.http import require_http_methods
-from django.urls import reverse
+from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse
 from django.shortcuts import get_object_or_404
-
+from django.template.response import TemplateResponse
+from django.urls import reverse
+from django.views.decorators.http import require_http_methods
 
 from activitylog.models import ActivityLog
+from booking.email_helpers import email_waiting_lists, send_email
+from booking.models import Booking, Event, GiftVoucher, Membership, WaitingListUser
+from booking.utils import calculate_user_cart_total, host_from_request
 from booking.views.views_utils import (
     get_unpaid_bookings,
-    get_unpaid_memberships,
     get_unpaid_gift_vouchers,
     get_unpaid_gift_vouchers_from_session,
+    get_unpaid_memberships,
     total_unpaid_item_count,
 )
-from .booking_helpers import cancel_booking_from_view
-from booking.models import Event, Booking, GiftVoucher, Membership, WaitingListUser
-from booking.email_helpers import send_email, email_waiting_lists
-from booking.utils import calculate_user_cart_total, host_from_request
 
+from .booking_helpers import cancel_booking_from_view
 
 ITEM_TYPE_MODEL_MAPPING = {
     "membership": Membership,

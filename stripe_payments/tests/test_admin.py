@@ -1,17 +1,15 @@
 from decimal import Decimal
-from booking.models import Booking, GiftVoucher, Membership
-import pytest
 
+import pytest
 from django.contrib.admin import AdminSite
 from django.urls import reverse
-
 from model_bakery import baker
 
+from booking.models import Booking, GiftVoucher, Membership
+from conftest import get_mock_payment_intent, get_mock_refund
 from stripe_payments.models import Invoice, StripePaymentIntent, StripeRefund
 
-from ..admin import StripePaymentIntentAdmin, StripeRefundAdmin, InvoiceAdmin
-
-from conftest import get_mock_payment_intent, get_mock_refund
+from ..admin import InvoiceAdmin, StripePaymentIntentAdmin, StripeRefundAdmin
 
 pytestmark = pytest.mark.django_db
 

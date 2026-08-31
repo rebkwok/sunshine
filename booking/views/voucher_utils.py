@@ -1,6 +1,7 @@
 import logging
 
 from stripe_payments.models import Invoice
+
 from ..models import ItemVoucher, Membership, TotalVoucher
 
 logger = logging.getLogger(__name__)
