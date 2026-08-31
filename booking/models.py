@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import logging
 from calendar import month_abbr, month_name, monthrange
 from datetime import datetime, timedelta

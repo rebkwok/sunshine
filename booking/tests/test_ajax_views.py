@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import json
 from datetime import datetime, timedelta
 from datetime import timezone as dt_timezone

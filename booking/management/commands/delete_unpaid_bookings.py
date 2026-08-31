@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 
 """
 Check for unpaid bookings and delete where:
