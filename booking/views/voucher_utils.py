@@ -120,17 +120,13 @@ def validate_voucher_for_items_in_cart(
     voucher, cart_unpaid_memberships, cart_unpaid_bookings
 ):
     valid_bookings_in_cart = any(
-        [
-            voucher.check_event_type(booking.event.event_type)
-            for booking in cart_unpaid_bookings
-        ]
+        voucher.check_event_type(booking.event.event_type)
+        for booking in cart_unpaid_bookings
     )
     if not valid_bookings_in_cart:
         valid_memberships_in_cart = any(
-            [
-                voucher.check_membership_type(membership.membership_type)
-                for membership in cart_unpaid_memberships
-            ]
+            voucher.check_membership_type(membership.membership_type)
+            for membership in cart_unpaid_memberships
         )
         if not valid_memberships_in_cart:
             raise VoucherValidationError(
