@@ -133,7 +133,7 @@ class UploadTimetableTests(TestCase):
         self.assertEqual(Event.objects.count(), 5)
         for session in TimetableSession.objects.all():
             Event.objects.filter(
-                name="{} ({})".format(session.name, session.level)
+                name=f"{session.name} ({session.level})"
             ).exists()
 
         self.assertEqual(Event.objects.filter(event_type="regular_session").count(), 5)

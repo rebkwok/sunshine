@@ -67,8 +67,8 @@ class Command(BaseCommand):
             booking.save()
 
             ActivityLog.objects.create(
-                log="Reminder email sent for booking id {} for event {}, "
-                "user {}".format(booking.id, booking.event, booking.user.username)
+                log=f"Reminder email sent for booking id {booking.id} for event {booking.event}, "
+                f"user {booking.user.username}"
             )
 
         if upcoming_bookings:

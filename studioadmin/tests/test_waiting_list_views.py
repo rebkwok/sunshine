@@ -18,7 +18,7 @@ class WaitingListViewStudioAdminTests(TestPermissionMixin, TestCase):
         event = baker.make_recipe("booking.future_PC")
         url = reverse(self.url_string, kwargs={"event_slug": event.slug})
         resp = self.client.get(url)
-        redirected_url = reverse("account_login") + "?next={}".format(url)
+        redirected_url = reverse("account_login") + f"?next={url}"
         self.assertEqual(resp.status_code, 302)
         self.assertIn(redirected_url, resp.url)
 
@@ -30,7 +30,7 @@ class WaitingListViewStudioAdminTests(TestPermissionMixin, TestCase):
         self.client.login(username=self.user.username, password="test")
         url = reverse(self.url_string, kwargs={"event_slug": event.slug})
         resp = self.client.get(url, kwargs={"event_slug": event.slug})
-        redirected_url = reverse("admin:login") + "?next={}".format(url)
+        redirected_url = reverse("admin:login") + f"?next={url}"
         self.assertEqual(resp.status_code, 302)
         self.assertIn(redirected_url, resp.url)
 

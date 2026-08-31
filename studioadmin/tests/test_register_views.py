@@ -33,7 +33,7 @@ class EventRegisterListViewTests(TestPermissionMixin, TestCase):
         """
         self.client.logout()
         resp = self.client.get(self.url)
-        redirected_url = reverse("admin:login") + "?next={}".format(self.url)
+        redirected_url = reverse("admin:login") + f"?next={self.url}"
         self.assertEqual(resp.status_code, 302)
         self.assertIn(redirected_url, resp.url)
 
@@ -129,7 +129,7 @@ class RegisterViewTests(TestPermissionMixin, TestCase):
         resp = self.client.get(self.pc_url)
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(
-            resp.url, reverse("account_login") + "?next={}".format(self.pc_url)
+            resp.url, reverse("account_login") + f"?next={self.pc_url}"
         )
 
     def test_staff_or_instructor_required(self):
@@ -138,7 +138,7 @@ class RegisterViewTests(TestPermissionMixin, TestCase):
         resp = self.client.get(self.pc_url)
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(
-            resp.url, reverse("admin:login") + "?next={}".format(self.pc_url)
+            resp.url, reverse("admin:login") + f"?next={self.pc_url}"
         )
 
         self.client.login(username=self.staff_user.username, password="test")
@@ -274,14 +274,14 @@ class RegisterAjaxAddBookingViewsTests(TestPermissionMixin, TestCase):
         resp = self.client.get(self.pc_url)
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(
-            resp.url, reverse("account_login") + "?next={}".format(self.pc_url)
+            resp.url, reverse("account_login") + f"?next={self.pc_url}"
         )
 
         self.client.login(username=self.user.username, password="test")
         resp = self.client.get(self.pc_url)
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(
-            resp.url, reverse("admin:login") + "?next={}".format(self.pc_url)
+            resp.url, reverse("admin:login") + f"?next={self.pc_url}"
         )
 
         self.client.login(username=self.staff_user.username, password="test")

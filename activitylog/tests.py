@@ -107,7 +107,7 @@ class DeleteEmptyJobActivityLogsTests(TestCase):
 
         self.assertEqual(
             self.output.getvalue(),
-            "Invalid date {}; before date must be in the past.\n".format(before_date),
+            f"Invalid date {before_date}; before date must be in the past.\n",
         )
         self.assertEqual(ActivityLog.objects.count(), self.total_setup_logs)
 

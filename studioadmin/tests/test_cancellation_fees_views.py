@@ -26,7 +26,7 @@ class CancellationFeesListViewTests(TestPermissionMixin, TestCase):
         """
         self.client.logout()
         resp = self.client.get(self.url)
-        redirected_url = reverse("account_login") + "?next={}".format(self.url)
+        redirected_url = reverse("account_login") + f"?next={self.url}"
         self.assertEqual(resp.status_code, 302)
         self.assertIn(redirected_url, resp.url)
 
@@ -104,7 +104,7 @@ class UserCancellationFeesListViewTests(TestPermissionMixin, TestCase):
         """
         self.client.logout()
         resp = self.client.get(self.url)
-        redirected_url = reverse("account_login") + "?next={}".format(self.url)
+        redirected_url = reverse("account_login") + f"?next={self.url}"
         self.assertEqual(resp.status_code, 302)
         self.assertIn(redirected_url, resp.url)
 

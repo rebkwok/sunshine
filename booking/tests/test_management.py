@@ -114,7 +114,7 @@ class CancelUnpaidBookingsTests(TestCase):
             baker.make_recipe(
                 "booking.waiting_list_user",
                 event=self.event,
-                user__email="test{}@test.com".format(i),
+                user__email=f"test{i}@test.com",
             )
 
         management.call_command("delete_unpaid_bookings")
@@ -150,7 +150,7 @@ class CancelUnpaidBookingsTests(TestCase):
             baker.make_recipe(
                 "booking.waiting_list_user",
                 event=self.event,
-                user__email="test{}@test.com".format(i),
+                user__email=f"test{i}@test.com",
             )
 
         management.call_command("delete_unpaid_bookings")
@@ -177,7 +177,7 @@ class CancelUnpaidBookingsTests(TestCase):
             baker.make_recipe(
                 "booking.waiting_list_user",
                 event=self.event,
-                user__email="test{}@test.com".format(i),
+                user__email=f"test{i}@test.com",
             )
 
         management.call_command("delete_unpaid_bookings")

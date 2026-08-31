@@ -31,7 +31,7 @@ def upload_timetable(start_date, end_date, session_ids, show_on_site, user=None)
                 datetime.combine(d, session.start_time), timezone="Europe/London"
             )
             converted_date = local_date.shift("UTC").datetime
-            name = "{} ({})".format(session.name, session.level)
+            name = f"{session.name} ({session.level})"
 
             event_type = (
                 "private"
@@ -72,7 +72,7 @@ def upload_timetable(start_date, end_date, session_ids, show_on_site, user=None)
             log="Timetable uploaded for {} to {} {}".format(
                 start_date.strftime("%a %d %B %Y"),
                 end_date.strftime("%a %d %B %Y"),
-                "by admin user {}".format(user.username) if user else "",
+                f"by admin user {user.username}" if user else "",
             )
         )
 

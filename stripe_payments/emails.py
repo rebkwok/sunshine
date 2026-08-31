@@ -25,7 +25,7 @@ def send_processed_payment_emails(invoice):
     # send email to studio
     if settings.SEND_ALL_STUDIO_EMAILS:
         send_mail(
-            "{} Payment processed".format(settings.ACCOUNT_EMAIL_SUBJECT_PREFIX),
+            f"{settings.ACCOUNT_EMAIL_SUBJECT_PREFIX} Payment processed",
             get_template(
                 "stripe_payments/email/payment_processed_to_studio.txt"
             ).render(ctx),

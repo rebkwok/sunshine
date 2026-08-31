@@ -529,7 +529,7 @@ class BookingToggleHtmxViewTests(TestCase):
             baker.make(
                 WaitingListUser,
                 event=self.event,
-                user__email="test{}@test.test".format(i),
+                user__email=f"test{i}@test.test",
             )
 
         event = Event.objects.get(id=self.event.id)
@@ -566,7 +566,7 @@ class BookingToggleHtmxViewTests(TestCase):
             baker.make(
                 WaitingListUser,
                 event=self.event,
-                user__email="test{}@test.test".format(i),
+                user__email=f"test{i}@test.test",
             )
 
         self.assertFalse(self.event.spaces_left)
@@ -617,7 +617,7 @@ class BookingToggleHtmxViewTests(TestCase):
             baker.make(
                 WaitingListUser,
                 event=self.event,
-                user__email="test{}@test.test".format(i),
+                user__email=f"test{i}@test.test",
             )
 
         self.assertFalse(self.event.spaces_left)
@@ -675,7 +675,7 @@ class BookingToggleHtmxViewTests(TestCase):
             baker.make(
                 WaitingListUser,
                 event=self.event,
-                user__email="test{}@test.test".format(i),
+                user__email=f"test{i}@test.test",
             )
 
         self.assertFalse(self.event.spaces_left)
@@ -737,7 +737,7 @@ class BookingToggleHtmxViewTests(TestCase):
             baker.make(
                 WaitingListUser,
                 event=self.event,
-                user__email="test{}@test.test".format(i),
+                user__email=f"test{i}@test.test",
             )
 
         self.assertFalse(self.event.spaces_left)
@@ -794,7 +794,7 @@ class BookingToggleHtmxViewTests(TestCase):
             baker.make(
                 WaitingListUser,
                 event=self.event,
-                user__email="test{}@test.test".format(i),
+                user__email=f"test{i}@test.test",
             )
 
         self.assertFalse(self.event.spaces_left)
@@ -850,7 +850,7 @@ class BookingToggleHtmxViewTests(TestCase):
             baker.make(
                 WaitingListUser,
                 event=self.event,
-                user__email="test{}@test.test".format(i),
+                user__email=f"test{i}@test.test",
             )
 
         self.assertFalse(self.event.spaces_left)
@@ -905,7 +905,7 @@ class BookingToggleHtmxViewTests(TestCase):
             baker.make(
                 WaitingListUser,
                 event=self.event,
-                user__email="test{}@test.test".format(i),
+                user__email=f"test{i}@test.test",
             )
 
         # cancel booking

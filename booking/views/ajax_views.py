@@ -214,7 +214,7 @@ def toggle_booking(request, event_id):
         )
         send_email(
             request,
-            "Booking {} for {}".format(action, event.name),
+            f"Booking {action} for {event.name}",
             ctx,
             text_template,
             html_template,
@@ -225,9 +225,7 @@ def toggle_booking(request, event_id):
         if booking.event.email_studio_when_booked:
             send_email(
                 request,
-                "{} {} has just booked for {}".format(
-                    booking.user.first_name, booking.user.last_name, booking.event
-                ),
+                f"{booking.user.first_name} {booking.user.last_name} has just booked for {booking.event}",
                 ctx,
                 "booking/email/to_studio_booking.txt",
                 to_list=[settings.DEFAULT_STUDIO_EMAIL],
@@ -250,9 +248,7 @@ def toggle_booking(request, event_id):
         if action in ["created", "reopened"]:
             waiting_list_user.delete()
             ActivityLog.objects.create(
-                log="User {} removed from waiting list for {}".format(
-                    request.user.username, event
-                )
+                log=f"User {request.user.username} removed from waiting list for {event}"
             )
     except WaitingListUser.DoesNotExist:
         pass

@@ -33,9 +33,7 @@ class Command(BaseCommand):
                 )
                 if before_date > timezone.now():
                     self.stdout.write(
-                        "Invalid date {}; before date must be in the past.".format(
-                            before_date_raw
-                        )
+                        f"Invalid date {before_date_raw}; before date must be in the past."
                     )
                     return
                 logs = ActivityLog.objects.filter(

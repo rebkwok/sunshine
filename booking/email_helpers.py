@@ -35,7 +35,7 @@ def send_email(
         ctx.update({"domain": domain, "host": f"https://{domain}"})
 
     msg = EmailMultiAlternatives(
-        "{}{}".format("{} ".format(prefix) if prefix else "", subject),
+        "{}{}".format(f"{prefix} " if prefix else "", subject),
         get_template(template_txt).render(ctx),
         from_email=from_email,
         to=to_list,
@@ -75,14 +75,10 @@ def send_waiting_list_email(event, users, host=None):
 
             if auto_book_user is not None:
                 ActivityLog.objects.create(
-                    log="Booking autocreated for User {}, {}".format(
-                        auto_book_user.username, event
-                    )
+                    log=f"Booking autocreated for User {auto_book_user.username}, {event}"
                 )
                 ActivityLog.objects.create(
-                    log="User {} removed from waiting list for {}".format(
-                        auto_book_user.username, event
-                    )
+                    log=f"User {auto_book_user.username} removed from waiting list for {event}"
                 )
                 break  # stop if we find an autobook user; we've now filled the space
 
@@ -95,9 +91,7 @@ def send_waiting_list_email(event, users, host=None):
     if auto_book_user:
         # send email to auto_book_users
         msg = EmailMultiAlternatives(
-            "{} You have been booked into {}".format(
-                settings.ACCOUNT_EMAIL_SUBJECT_PREFIX, event
-            ),
+            f"{settings.ACCOUNT_EMAIL_SUBJECT_PREFIX} You have been booked into {event}",
             get_template("booking/email/autobook_email.txt").render(ctx),
             settings.DEFAULT_FROM_EMAIL,
             to=[auto_book_user.email],
@@ -111,9 +105,7 @@ def send_waiting_list_email(event, users, host=None):
     if user_emails and event.spaces_left:
         # send email to rest of waiting list
         msg = EmailMultiAlternatives(
-            "{} {} - space now available".format(
-                settings.ACCOUNT_EMAIL_SUBJECT_PREFIX, event
-            ),
+            f"{settings.ACCOUNT_EMAIL_SUBJECT_PREFIX} {event} - space now available",
             get_template("booking/email/waiting_list_email.txt").render(ctx),
             settings.DEFAULT_FROM_EMAIL,
             bcc=user_emails,

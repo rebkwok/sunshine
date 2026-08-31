@@ -201,7 +201,7 @@ def get_disclaimer_form_data(user):
 def test_disclaimer_create_view_login_required(client, user):
     url = reverse("accounts:disclaimer_form", args=(user.id,))
     resp = client.get(url)
-    redirected_url = reverse("account_login") + "?next={}".format(url)
+    redirected_url = reverse("account_login") + f"?next={url}"
     assert resp.status_code == 302
     assert redirected_url in resp.url
 

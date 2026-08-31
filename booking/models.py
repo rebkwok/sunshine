@@ -717,7 +717,7 @@ class Booking(models.Model):
         unique_together = ("user", "event")
 
     def __str__(self):
-        return "{} - {}".format(str(self.event.name), str(self.user.username))
+        return f"{str(self.event.name)} - {str(self.user.username)}"
 
     def booked_with_membership_within_allowed_time(self):
         allowed_datetime = timezone.now() - timedelta(minutes=5)
@@ -837,7 +837,7 @@ class Booking(models.Model):
         if self._is_rebooking():
             if self.event.spaces_left == 0:
                 raise ValidationError(
-                    _("Attempting to reopen booking for full event %s" % self.event.id)
+                    _("Attempting to reopen booking for full event {}".format(self.event.id))
                 )
 
         if (
@@ -846,7 +846,7 @@ class Booking(models.Model):
             and self.event.spaces_left == 0
         ):
             raise ValidationError(
-                _("Attempting to create booking for full event %s" % self.event.id)
+                _("Attempting to create booking for full event {}".format(self.event.id))
             )
 
         if self.attended and self.no_show:
@@ -947,7 +947,7 @@ class Private(Event):
 
 
 def user_str_patch(self):
-    return "%s %s (%s)" % (self.first_name, self.last_name, self.username)
+    return f"{self.first_name} {self.last_name} ({self.username})"
 
 
 def has_outstanding_fees(self):

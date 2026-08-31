@@ -97,7 +97,7 @@ class EventAdminTests(TestCase):
             baker.make_recipe(
                 "booking.booking",
                 event=event,
-                user__email="test{}@test.test".format(i),
+                user__email=f"test{i}@test.test",
                 paid=True,
             )
         assert event.bookings.filter(status="OPEN").count() == 3
@@ -192,7 +192,7 @@ class EventAdminTests(TestCase):
         event = baker.make_recipe("booking.future_EV", max_participants=5)
         for i in range(3):
             baker.make_recipe(
-                "booking.booking", event=event, user__email="test{}@test.test".format(i)
+                "booking.booking", event=event, user__email=f"test{i}@test.test"
             )
         baker.make_recipe(
             "booking.booking", event=event, no_show=True, user__email="test3@test.test"
@@ -270,7 +270,7 @@ class EventAdminTests(TestCase):
             baker.make_recipe(
                 "booking.booking",
                 event=event,
-                user__email="test{}@test.test".format(i),
+                user__email=f"test{i}@test.test",
                 paid=False,
                 status="CANCELLED",
             )
@@ -431,7 +431,7 @@ class EventProxyAdminTests(TestCase):
         event = baker.make_recipe("booking.future_EV", max_participants=5)
         for i in range(3):
             baker.make_recipe(
-                "booking.booking", event=event, user__email="test{}@test.test".format(i)
+                "booking.booking", event=event, user__email=f"test{i}@test.test"
             )
         assert event.bookings.filter(status="OPEN").count() == 3
 
@@ -459,7 +459,7 @@ class EventProxyAdminTests(TestCase):
         event = baker.make_recipe("booking.future_PC", max_participants=5)
         for i in range(3):
             baker.make_recipe(
-                "booking.booking", event=event, user__email="test{}@test.test".format(i)
+                "booking.booking", event=event, user__email=f"test{i}@test.test"
             )
         assert event.bookings.filter(status="OPEN").count() == 3
 
@@ -478,7 +478,7 @@ class EventProxyAdminTests(TestCase):
         event = baker.make_recipe("booking.future_PV", max_participants=5)
         for i in range(3):
             baker.make_recipe(
-                "booking.booking", event=event, user__email="test{}@test.test".format(i)
+                "booking.booking", event=event, user__email=f"test{i}@test.test"
             )
         assert event.bookings.filter(status="OPEN").count() == 3
 
@@ -593,7 +593,7 @@ class BookingAdminTests(TestCase):
         assert booking_admin.event_name(booking_query) == booking.event.name
         assert booking_admin.get_date(booking_query) == booking.event.date
         assert booking_admin.get_user(booking_query) == "Test User (testuser)"
-        assert booking_admin.get_cost(booking_query) == "\u00a3{}.00".format(event.cost)
+        assert booking_admin.get_cost(booking_query) == f"\u00a3{event.cost}.00"
         assert booking_admin.refunded(booking_query) == "-"
 
         baker.make(StripeRefund, booking_id=booking.id)

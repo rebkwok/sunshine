@@ -101,8 +101,8 @@ def booking_register_add_view(request, event_id):
             ev_type = "Workshop" if event.event_type == "workshop" else "Class"
             form.add_error(
                 "__all__",
-                "{} is now full, booking could not be created. "
-                "Please close this window and refresh register page.".format(ev_type),
+                f"{ev_type} is now full, booking could not be created. "
+                "Please close this window and refresh register page.",
             )
 
     context = {"form_event": event, "form": form}
@@ -128,18 +128,11 @@ def process_event_booking_updates(form, event, request):
 
     messages.success(
         request,
-        "Booking for {} has been {}. {}".format(booking.event, action, extra_msg),
+        f"Booking for {booking.event} has been {action}. {extra_msg}",
     )
 
     ActivityLog.objects.create(
-        log='Booking id {} (user {}) for "{}" {} by admin user {}. {}'.format(
-            booking.id,
-            booking.user.username,
-            booking.event,
-            action,
-            request.user.username,
-            extra_msg,
-        )
+        log=f'Booking id {booking.id} (user {booking.user.username}) for "{booking.event}" {action} by admin user {request.user.username}. {extra_msg}'
     )
 
     try:
@@ -148,9 +141,7 @@ def process_event_booking_updates(form, event, request):
         )
         waiting_list_user.delete()
         ActivityLog.objects.create(
-            log="User {} has been removed from the waiting list for {}".format(
-                booking.user.username, booking.event
-            )
+            log=f"User {booking.user.username} has been removed from the waiting list for {booking.event}"
         )
     except WaitingListUser.DoesNotExist:
         pass
@@ -174,7 +165,7 @@ def ajax_toggle_attended(request, booking_id):
             ev_type = (
                 "Class" if booking.event.event_type == "regular_session" else "Workshop"
             )
-            alert_msg = "{} is now full, cannot reopen booking.".format(ev_type)
+            alert_msg = f"{ev_type} is now full, cannot reopen booking."
         else:
             booking.status = "OPEN"
             booking.attended = True
@@ -200,7 +191,7 @@ def ajax_toggle_attended(request, booking_id):
             send_waiting_list_email(
                 booking.event,
                 [wluser.user for wluser in waiting_list_users],
-                host="http://{}".format(request.get_host()),
+                host=f"http://{request.get_host()}",
             )
             ActivityLog.objects.create(
                 log="Waiting list email sent to user(s) {} for event {}".format(

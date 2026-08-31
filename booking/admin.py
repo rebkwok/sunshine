@@ -43,7 +43,7 @@ class UserFilter(admin.SimpleListFilter):
         return [
             (
                 user.id,
-                "{} {} ({})".format(user.first_name, user.last_name, user.username),
+                f"{user.first_name} {user.last_name} ({user.username})",
             )
             for user in qs
         ]
@@ -269,8 +269,7 @@ class EventAdmin(DjangoObjectActions, admin.ModelAdmin):
                 obj.delete()
                 self.message_user(
                     request,
-                    "%s %s deleted (no open/cancelled bookings)"
-                    % (event_type.title(), obj),
+                    f"{event_type.title()} {obj} deleted (no open/cancelled bookings)",
                 )
                 ActivityLog.objects.create(
                     log=f"{obj} was deleted by admin user {request.user.username}"
@@ -279,7 +278,7 @@ class EventAdmin(DjangoObjectActions, admin.ModelAdmin):
                 if obj.date <= timezone.now():
                     self.message_user(
                         request,
-                        "Can't cancel past %s" % event_type,
+                        f"Can't cancel past {event_type}",
                         level=messages.ERROR,
                     )
                 else:
@@ -305,7 +304,7 @@ class EventAdmin(DjangoObjectActions, admin.ModelAdmin):
 
                         send_email(
                             request,
-                            subject="{} has been cancelled".format(obj),
+                            subject=f"{obj} has been cancelled",
                             ctx={
                                 "event_type": event_type,
                                 "event": obj,
@@ -324,11 +323,9 @@ class EventAdmin(DjangoObjectActions, admin.ModelAdmin):
                     if open_bookings_count == 0:
                         msg = "no open bookings"
                     else:
-                        msg = "users for {} open booking(s) have been emailed notification".format(
-                            open_bookings_count
-                        )
+                        msg = f"users for {open_bookings_count} open booking(s) have been emailed notification"
                     self.message_user(
-                        request, "%s %s cancelled; %s" % (event_type.title(), obj, msg)
+                        request, f"{event_type.title()} {obj} cancelled; {msg}"
                     )
 
     @takes_instance_or_queryset
@@ -337,12 +334,12 @@ class EventAdmin(DjangoObjectActions, admin.ModelAdmin):
             if not obj.cancelled:
                 self.message_user(
                     request,
-                    "Can't uncancel %s (not cancelled)" % obj,
+                    f"Can't uncancel {obj} (not cancelled)",
                     level=messages.ERROR,
                 )
             elif obj.date <= timezone.now():
                 self.message_user(
-                    request, "Can't cancel past event %s" % obj, level=messages.ERROR
+                    request, f"Can't cancel past event {obj}", level=messages.ERROR
                 )
             else:
                 obj.cancelled = False
@@ -352,8 +349,7 @@ class EventAdmin(DjangoObjectActions, admin.ModelAdmin):
                 )
                 self.message_user(
                     request,
-                    "%s was uncancelled; note bookings remain cancelled. Ensure any manually reopened booking are marked as paid!"
-                    % obj,
+                    f"{obj} was uncancelled; note bookings remain cancelled. Ensure any manually reopened booking are marked as paid!",
                     level=messages.SUCCESS,
                 )
 
@@ -518,9 +514,7 @@ class BookingAdmin(admin.ModelAdmin):
     event_name.admin_order_field = "event"
 
     def get_user(self, obj):
-        return "{} {} ({})".format(
-            obj.user.first_name, obj.user.last_name, obj.user.username
-        )
+        return f"{obj.user.first_name} {obj.user.last_name} ({obj.user.username})"
 
     get_user.short_description = "User"
     get_user.admin_order_field = "user__first_name"
@@ -528,7 +522,7 @@ class BookingAdmin(admin.ModelAdmin):
     actions = ("confirm_space",)
 
     def get_cost(self, obj):
-        return "\u00a3{:.2f}".format(obj.event.cost)
+        return f"\u00a3{obj.event.cost:.2f}"
 
     get_cost.short_description = "Cost"
 

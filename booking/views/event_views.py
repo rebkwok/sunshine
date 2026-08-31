@@ -52,7 +52,7 @@ class BaseEventListView(ListView):
         name = self.request.GET.get("name", "all").strip()
         level = self.request.GET.get("level")
         if name and level:
-            self.event_name = "{} ({})".format(name, level.strip())
+            self.event_name = f"{name} ({level.strip()})"
         else:
             self.event_name = name
         self.event_day = self.request.GET.get("day", "").strip()
@@ -301,34 +301,32 @@ class EventDetailView(DetailView):
             context["bookable"] = event.bookable
             if booked:
                 context["bookable"] = False
-                booking_info_text = "You have booked for this {}.".format(event_type)
+                booking_info_text = f"You have booked for this {event_type}."
                 context["booked"] = True
             else:
                 if cancelled:
                     context["cancelled"] = True
                     cancelled_text = (
                         "You have previously booked "
-                        "for this {} and your booking "
+                        f"for this {event_type} and your booking "
                         "has been "
-                        "cancelled.".format(event_type)
+                        "cancelled."
                     )
                     context["booking_info_text_cancelled"] = cancelled_text
 
                 if event.spaces_left <= 0:
-                    booking_info_text = "This {} is now full.".format(event_type)
+                    booking_info_text = f"This {event_type} is now full."
         else:
-            login_url_str = "/accounts/login?next=/booking/{}s/{}".format(
-                event_type, event.slug
-            )
+            login_url_str = f"/accounts/login?next=/booking/{event_type}s/{event.slug}"
             if event.spaces_left <= 0:
                 booking_info_text = mark_safe(
-                    "This {} is now full.  "
-                    "Please <a href='{}'>log in</a> to join the waiting "
-                    "list.".format(event_type, login_url_str)
+                    f"This {event_type} is now full.  "
+                    f"Please <a href='{login_url_str}'>log in</a> to join the waiting "
+                    "list."
                 )
             else:
                 booking_info_text = mark_safe(
-                    "Please <a href='{}'>log in</a> to book.".format(login_url_str)
+                    f"Please <a href='{login_url_str}'>log in</a> to book."
                 )
         context["booking_info_text"] = booking_info_text
         return context

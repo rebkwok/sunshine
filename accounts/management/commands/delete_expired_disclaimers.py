@@ -30,7 +30,7 @@ class Command(BaseCommand):
             & (Q(date_updated__isnull=True) | Q(date_updated__lt=expire_date))
         )
         online_disclaimer_users = [
-            "{} {}".format(disc.user.first_name, disc.user.last_name)
+            f"{disc.user.first_name} {disc.user.last_name}"
             for disc in old_online_disclaimers_to_delete
         ]
 

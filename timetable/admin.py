@@ -46,7 +46,7 @@ class VenueAdmin(admin.ModelAdmin):
     @mark_safe
     def image_img(self, obj):
         if obj.photo:
-            return '<img src="%s"  height="60px"/>' % obj.photo.url
+            return f'<img src="{obj.photo.url}"  height="60px"/>'
         else:
             return "-"
 
@@ -85,7 +85,7 @@ class SessionTypeAdmin(admin.ModelAdmin):
     @mark_safe
     def image_img(self, obj):
         if obj.photo:
-            return '<img src="%s"  height="60px"/>' % obj.photo.url
+            return f'<img src="{obj.photo.url}"  height="60px"/>'
         else:
             return "-"
 

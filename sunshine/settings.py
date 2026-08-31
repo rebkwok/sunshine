@@ -158,7 +158,7 @@ ACCOUNT_LOGOUT_REDIRECT_URL = "/"
 ALLAUTH_TRUSTED_PROXY_COUNT = 1
 
 ABSOLUTE_URL_OVERRIDES = {
-    "auth.user": lambda o: "/users/%s/" % o.username,
+    "auth.user": lambda o: f"/users/{o.username}/",
 }
 
 # Password validation

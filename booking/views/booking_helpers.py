@@ -79,13 +79,8 @@ def cancel_booking_from_view(request, booking):
             if refunded:
                 alert_message["message"] += " Refund processing."
             ActivityLog.objects.create(
-                log="Booking id {} for event {}, user {}, was cancelled by user "
-                "{}".format(
-                    booking.id,
-                    booking.event,
-                    booking.user.username,
-                    request.user.username,
-                )
+                log=f"Booking id {booking.id} for event {booking.event}, user {booking.user.username}, was cancelled by user "
+                f"{request.user.username}"
             )
         elif booking.no_show:
             if not booking.event.allow_booking_cancellation:
@@ -94,12 +89,8 @@ def cancel_booking_from_view(request, booking):
                     "refunds or transfer credit."
                 )
                 ActivityLog.objects.create(
-                    log="Booking id {} for NON-CANCELLABLE event {}, user {}, "
-                    "was cancelled and set to no-show".format(
-                        booking.id,
-                        booking.event,
-                        booking.user.username,
-                    )
+                    log=f"Booking id {booking.id} for NON-CANCELLABLE event {booking.event}, user {booking.user.username}, "
+                    "was cancelled and set to no-show"
                 )
             else:
                 alert_message["message"] += (
@@ -107,13 +98,9 @@ def cancel_booking_from_view(request, booking):
                     "refunds as the allowed cancellation period has passed."
                 )
                 ActivityLog.objects.create(
-                    log="Booking id {} for event {}, user {}, was cancelled "
+                    log=f"Booking id {booking.id} for event {booking.event}, user {booking.user.username}, was cancelled "
                     "after the cancellation period and set to "
-                    "no-show".format(
-                        booking.id,
-                        booking.event,
-                        booking.user.username,
-                    )
+                    "no-show"
                 )
 
     # EMAIL USER
@@ -132,9 +119,7 @@ def cancel_booking_from_view(request, booking):
             "studio_email": settings.DEFAULT_STUDIO_EMAIL,
         }
         send_mail(
-            "{} Booking for {} cancelled".format(
-                settings.ACCOUNT_EMAIL_SUBJECT_PREFIX, booking.event
-            ),
+            f"{settings.ACCOUNT_EMAIL_SUBJECT_PREFIX} Booking for {booking.event} cancelled",
             get_template("booking/email/booking_cancelled.txt").render(ctx),
             settings.DEFAULT_FROM_EMAIL,
             [booking.user.email],
@@ -147,9 +132,7 @@ def cancel_booking_from_view(request, booking):
         # EMAIL STUDIO
         if settings.SEND_ALL_STUDIO_EMAILS:
             send_mail(
-                "{} Booking for {} cancelled".format(
-                    settings.ACCOUNT_EMAIL_SUBJECT_PREFIX, booking.event
-                ),
+                f"{settings.ACCOUNT_EMAIL_SUBJECT_PREFIX} Booking for {booking.event} cancelled",
                 get_template("booking/email/to_studio_booking_cancelled.txt").render(
                     ctx
                 ),

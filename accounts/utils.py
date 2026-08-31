@@ -7,9 +7,7 @@ def active_data_privacy_cache_key(user):
     from accounts.models import DataPrivacyPolicy
 
     current_version = DataPrivacyPolicy.current_version()
-    return "user_{}_active_data_privacy_agreement_version_{}".format(
-        user.id, current_version
-    )
+    return f"user_{user.id}_active_data_privacy_agreement_version_{current_version}"
 
 
 def has_active_data_privacy_agreement(user):

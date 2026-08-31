@@ -50,9 +50,7 @@ class BookingListViewTests(TestCase):
         baker.make(DataPrivacyPolicy)
         resp = self.client.get(self.url)
         assert resp.status_code == 302
-        assert resp.url == reverse("accounts:data_privacy_review") + "?next={}".format(
-            self.url
-        )
+        assert resp.url == reverse("accounts:data_privacy_review") + f"?next={self.url}"
 
     def test_booking_list_by_user(self):
         """
