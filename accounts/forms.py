@@ -157,15 +157,14 @@ class DisclaimerForm(forms.ModelForm):
         ]
         self.fields["phone"].validators = [account_validators.phone_number_validator]
         self.fields["phone"].label = "Contact phone number"
-        if self.user is not None:
-            if has_expired_disclaimer(self.user):
-                last_disclaimer = OnlineDisclaimer.objects.filter(user=self.user).last()
-                # set initial on all fields except password and confirmation fields
-                # to data from last disclaimer
-                for field_name in self.fields:
-                    if field_name not in ["terms_accepted", "password"]:
-                        last_value = getattr(last_disclaimer, field_name)
-                        self.fields[field_name].initial = last_value
+        if self.user is not None and has_expired_disclaimer(self.user):
+            last_disclaimer = OnlineDisclaimer.objects.filter(user=self.user).last()
+            # set initial on all fields except password and confirmation fields
+            # to data from last disclaimer
+            for field_name in self.fields:
+                if field_name not in ["terms_accepted", "password"]:
+                    last_value = getattr(last_disclaimer, field_name)
+                    self.fields[field_name].initial = last_value
         self.helper = FormHelper()
         back_url = reverse("accounts:profile")
 

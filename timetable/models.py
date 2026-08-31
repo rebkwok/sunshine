@@ -199,7 +199,6 @@ class TimetableSession(models.Model):
         return f"{self.name} ({self.level}), {self.venue.abbreviation}, {dict(self.WEEKDAY_CHOICES)[self.session_day]} {self.start_time.strftime('%H:%M')}"
 
     def save(self, *args, **kwargs):
-        if self.show_on_timetable_page:
-            if self.session_type.name.lower().strip().startswith("private"):
-                self.show_on_timetable_page = False
+        if self.show_on_timetable_page and self.session_type.name.lower().strip().startswith("private"):
+            self.show_on_timetable_page = False
         super().save(*args, **kwargs)

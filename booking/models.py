@@ -735,13 +735,12 @@ class Booking(models.Model):
         """
         Delete bookings that are unpaid
         """
-        if use_cache:
+        if use_cache and cache.get("expired_bookings_cleaned"):
             # check cache to see if we cleaned up recently
-            if cache.get("expired_bookings_cleaned"):
-                logger.info(
-                    "Expired bookings cleaned up within past 2 mins; no cleanup required"
-                )
-                return []
+            logger.info(
+                "Expired bookings cleaned up within past 2 mins; no cleanup required"
+            )
+            return []
 
         # timeout defaults to 15 mins
         timeout = settings.CART_TIMEOUT_MINUTES
@@ -833,11 +832,10 @@ class Booking(models.Model):
         return cancelling or setting_as_no_show
 
     def clean(self):
-        if self._is_rebooking():
-            if self.event.spaces_left == 0:
-                raise ValidationError(
-                    _("Attempting to reopen booking for full event {}".format(self.event.id))
-                )
+        if self._is_rebooking() and self.event.spaces_left == 0:
+            raise ValidationError(
+                _("Attempting to reopen booking for full event {}".format(self.event.id))
+            )
 
         if (
             self._is_new_booking()
