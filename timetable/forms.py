@@ -1,4 +1,4 @@
-from datetime import date, datetime
+from datetime import UTC, datetime
 
 from django import forms
 from django.utils import timezone
@@ -44,7 +44,7 @@ class UploadTimetableForm(forms.Form):
                 format="%a %d %b %Y",
             ),
             required=True,
-            initial=date.today(),
+            initial=datetime.now(tz=UTC).date(),
         )
 
         self.fields["end_date"] = forms.DateField(

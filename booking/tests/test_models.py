@@ -676,14 +676,14 @@ def test_gift_voucher_properties(gift_voucher_types):
     assert gift_voucher.message == "For you"
     # default start date is start of day in local time, which might not be the same as today's date
     assert gift_voucher.start_date == start_of_day_in_local_time(
-        datetime.today()
+        datetime.now(tz=UTC)
     ).strftime("%d-%b-%Y")
     assert not gift_voucher.expiry_date
 
     gift_voucher.activate()
-    assert gift_voucher.start_date == datetime.today().strftime("%d-%b-%Y")
+    assert gift_voucher.start_date == datetime.now(tz=UTC).strftime("%d-%b-%Y")
     assert gift_voucher.expiry_date == (
-        datetime.today() + relativedelta(months=6)
+        datetime.now(tz=UTC) + relativedelta(months=6)
     ).strftime("%d-%b-%Y")
 
 

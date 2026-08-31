@@ -1,5 +1,5 @@
 import json
-from datetime import datetime
+from datetime import UTC, datetime
 from unittest.mock import patch
 
 import pytest
@@ -219,7 +219,7 @@ def test_disclaimer_content_admin_form_valid():
         data={
             "is_draft": False,
             "disclaimer_terms": "terms",
-            "issue_date": datetime.today(),
+            "issue_date": datetime.now(tz=UTC).date(),
         }
     )
     # no version is valid as field not required
@@ -230,7 +230,7 @@ def test_disclaimer_content_admin_form_valid():
         data={
             "is_draft": False,
             "disclaimer_terms": "terms",
-            "issue_date": datetime.today(),
+            "issue_date": datetime.now(tz=UTC).date(),
             "version": 3.8,
         }
     )
@@ -247,7 +247,7 @@ def test_disclaimer_content_admin_form_bad_version():
             "is_draft": False,
             "version": 1.0,
             "disclaimer_terms": "terms",
-            "issue_date": datetime.today(),
+            "issue_date": datetime.now(tz=UTC).date(),
         }
     )
     assert not form.is_valid()
@@ -268,7 +268,7 @@ def test_disclaimer_content_admin_form_content_must_change_no_questionnaire():
             "is_draft": False,
             "version": 2.0,
             "disclaimer_terms": "terms",
-            "issue_date": datetime.today(),
+            "issue_date": datetime.now(tz=UTC).date(),
         }
     )
     assert not form.is_valid()
@@ -297,7 +297,7 @@ def test_disclaimer_content_admin_form_content_must_change():
             "is_draft": False,
             "version": 2.0,
             "disclaimer_terms": "terms",
-            "issue_date": datetime.today(),
+            "issue_date": datetime.now(tz=UTC).date(),
             "form": json.dumps(questionnaire_form),
         }
     )
@@ -321,7 +321,7 @@ def test_disclaimer_content_admin_form_content_must_change():
             "is_draft": False,
             "version": 2.0,
             "disclaimer_terms": "terms",
-            "issue_date": datetime.today(),
+            "issue_date": datetime.now(tz=UTC).date(),
             "form": json.dumps(new_questionnaire_form),
         }
     )
@@ -333,7 +333,7 @@ def test_disclaimer_content_admin_form_content_must_change():
             "is_draft": False,
             "version": 2.0,
             "disclaimer_terms": "new terms",
-            "issue_date": datetime.today(),
+            "issue_date": datetime.now(tz=UTC).date(),
             "form": json.dumps(questionnaire_form),
         }
     )
