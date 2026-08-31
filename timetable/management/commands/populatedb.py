@@ -18,13 +18,13 @@ class Command(BaseCommand):
             location=location,
         )
 
-        tbc, _ = Venue.objects.get_or_create(
+        Venue.objects.get_or_create(
             name="Venue TBC",
             abbreviation="TBC",
             location=location,
         )
 
-        polefit, new = SessionType.objects.update_or_create(
+        polefit, _ = SessionType.objects.update_or_create(
             name="Pole Fitness",
             display_on_site=True,
             order=100,
@@ -66,7 +66,7 @@ class Command(BaseCommand):
             },
         )
 
-        cat, _ = Category.objects.get_or_create(name="Fitness")
+        Category.objects.get_or_create(name="Fitness")
 
         # create timetable:
         sessions = [
