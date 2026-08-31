@@ -41,17 +41,17 @@ dependencies = [
 [dependency-groups]
 dev = [
     "bs4<=0.0.2",
-    "coverage<=7.15.0",
+    "coverage<=7.15.4",
     "django-migration-testcase<=0.0.15",
     "ipdb<=0.13.13",
-    "model-bakery<=1.23.2",
+    "model-bakery<=1.24.0",
     "pytest<=9.1.1",
-    "pytest-cov<=7.0.0",
-    "pytest-django<=4.12.0",
-    "pytest-env<=1.2.0",
+    "pytest-cov<=7.1.0",
+    "pytest-django<=4.14.0",
+    "pytest-env<=1.7.0",
     "pytest-freezer<=0.4.9",
     "pytest-xdist<=3.8.0",
-    "ruff<=0.14.14",
+    "ruff<=0.16.4",
 ]
 
 [tool.uv.sources]
