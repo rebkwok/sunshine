@@ -11,6 +11,7 @@ from stripe_payments.models import Invoice, StripePaymentIntent, StripeRefund
 
 from ..admin import StripePaymentIntentAdmin, StripeRefundAdmin, InvoiceAdmin
 
+from conftest import get_mock_payment_intent, get_mock_refund
 
 pytestmark = pytest.mark.django_db
 
@@ -28,7 +29,7 @@ def test_invoice_display_no_payment_intent_or_items():
     assert invoice_admin.pi(invoice) == ""
 
 
-def test_invoice_display_payment_intent(get_mock_payment_intent):
+def test_invoice_display_payment_intent():
     invoice = baker.make(
         Invoice, invoice_id="foo123", username="test@test.com", amount=10
     )
@@ -53,7 +54,7 @@ def test_invoice_display_items():
     assert invoice_admin.items(invoice) == f"<ul><li>{str(booking.event)}</li></ul>"
 
 
-def test_payment_intent_admin_display(get_mock_payment_intent):
+def test_payment_intent_admin_display():
     invoice = baker.make(
         Invoice, invoice_id="foo123", username="test@test.com", amount=10
     )
@@ -90,7 +91,7 @@ def test_payment_intent_admin_display(get_mock_payment_intent):
     )
 
 
-def test_refund_admin_display(get_mock_payment_intent, get_mock_refund):
+def test_refund_admin_display():
     invoice = baker.make(
         Invoice, invoice_id="foo123", username="test@test.com", amount=10
     )

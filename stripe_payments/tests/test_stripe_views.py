@@ -12,6 +12,8 @@ from model_bakery import baker
 from booking.models import Membership, Booking, GiftVoucher, TotalVoucher
 from ..models import Invoice, StripePaymentIntent
 
+from conftest import get_mock_payment_intent
+
 
 pytestmark = pytest.mark.django_db
 
@@ -21,14 +23,15 @@ complete_url = reverse("stripe_payments:stripe_payment_complete")
 
 
 @pytest.mark.usefixtures("seller", "send_all_studio_emails")
-@patch("stripe_payments.views.stripe.PaymentIntent", autospec=stripe.PaymentIntent)
-def test_return_with_no_matching_invoice(
-    mock_payment_intent, get_mock_payment_intent, client
-):
-    mock_payment_intent.retrieve.return_value = get_mock_payment_intent()
-    resp = client.post(
-        complete_url, data={"payload": json.dumps({"id": "mock-intent-id"})}
-    )
+def test_return_with_no_matching_invoice(client):
+    payment_intent = get_mock_payment_intent()
+    with patch(
+        "stripe_payments.views.stripe.PaymentIntent", autospec=stripe.PaymentIntent
+    ) as mock_payment_intent:
+        mock_payment_intent.retrieve.return_value = payment_intent
+        resp = client.post(
+            complete_url, data={"payload": json.dumps({"id": "mock-intent-id"})}
+        )
     assert resp.status_code == 200
     assert "Error Processing Payment" in resp.content.decode("utf-8")
 
@@ -42,10 +45,13 @@ def test_return_with_no_matching_invoice(
 
 
 @pytest.mark.usefixtures("seller", "send_all_studio_emails")
-@patch("stripe_payments.views.stripe.PaymentIntent", autospec=stripe.PaymentIntent)
-def test_return_with_no_payload(mock_payment_intent, get_mock_payment_intent, client):
-    mock_payment_intent.retrieve.return_value = get_mock_payment_intent()
-    resp = client.post(complete_url, data={"message": "Error: unk"})
+def test_return_with_no_payload(client):
+    payment_intent = get_mock_payment_intent()
+    with patch(
+        "stripe_payments.views.stripe.PaymentIntent", autospec=stripe.PaymentIntent
+    ) as mock_payment_intent:
+        mock_payment_intent.retrieve.return_value = payment_intent
+        resp = client.post(complete_url, data={"message": "Error: unk"})
     assert resp.status_code == 200
     assert "Error Processing Payment" in resp.content.decode("utf-8")
 
@@ -56,10 +62,7 @@ def test_return_with_no_payload(mock_payment_intent, get_mock_payment_intent, cl
 
 
 @pytest.mark.usefixtures("seller", "send_all_studio_emails")
-@patch("stripe_payments.views.stripe.PaymentIntent", autospec=stripe.PaymentIntent)
-def test_return_with_matching_invoice_and_membership(
-    mock_payment_intent, get_mock_payment_intent, client, configured_user
-):
+def test_return_with_matching_invoice_and_membership(client, configured_user):
     assert StripePaymentIntent.objects.exists() is False
     invoice = baker.make(
         Invoice,
@@ -76,13 +79,14 @@ def test_return_with_matching_invoice_and_membership(
         "invoice_signature": invoice.signature(),
         **invoice.items_metadata(),
     }
-    mock_payment_intent.retrieve.return_value = get_mock_payment_intent(
-        metadata=metadata
-    )
-
-    resp = client.post(
-        complete_url, data={"payload": json.dumps({"id": "mock-intent-id"})}
-    )
+    payment_intent = get_mock_payment_intent(metadata=metadata)
+    with patch(
+        "stripe_payments.views.stripe.PaymentIntent", autospec=stripe.PaymentIntent
+    ) as mock_payment_intent:
+        mock_payment_intent.retrieve.return_value = payment_intent
+        resp = client.post(
+            complete_url, data={"payload": json.dumps({"id": "mock-intent-id"})}
+        )
     assert resp.status_code == 200
     assert "Payment Processed" in resp.content.decode("utf-8")
     membership.refresh_from_db()
@@ -99,10 +103,7 @@ def test_return_with_matching_invoice_and_membership(
 
 
 @pytest.mark.usefixtures("seller", "send_all_studio_emails")
-@patch("stripe_payments.views.stripe.PaymentIntent", autospec=stripe.PaymentIntent)
-def test_return_with_matching_invoice_and_booking(
-    mock_payment_intent, get_mock_payment_intent, client, configured_user
-):
+def test_return_with_matching_invoice_and_booking(client, configured_user):
     assert StripePaymentIntent.objects.exists() is False
     invoice = baker.make(
         Invoice,
@@ -117,12 +118,14 @@ def test_return_with_matching_invoice_and_booking(
         "invoice_signature": invoice.signature(),
         **invoice.items_metadata(),
     }
-    mock_payment_intent.retrieve.return_value = get_mock_payment_intent(
-        metadata=metadata
-    )
-    resp = client.post(
-        complete_url, data={"payload": json.dumps({"id": "mock-intent-id"})}
-    )
+    payment_intent = get_mock_payment_intent(metadata=metadata)
+    with patch(
+        "stripe_payments.views.stripe.PaymentIntent", autospec=stripe.PaymentIntent
+    ) as mock_payment_intent:
+        mock_payment_intent.retrieve.return_value = payment_intent
+        resp = client.post(
+            complete_url, data={"payload": json.dumps({"id": "mock-intent-id"})}
+        )
     assert resp.status_code == 200
     assert "Payment Processed" in resp.content.decode("utf-8")
     booking.refresh_from_db()
@@ -140,9 +143,8 @@ def test_return_with_matching_invoice_and_booking(
 
 
 @pytest.mark.usefixtures("seller", "send_all_studio_emails")
-@patch("stripe_payments.views.stripe.PaymentIntent", autospec=stripe.PaymentIntent)
 def test_return_with_matching_invoice_and_booking_and_total_voucher_code(
-    mock_payment_intent, get_mock_payment_intent, client, configured_user
+    client, configured_user
 ):
     total_voucher = baker.make(TotalVoucher, code="test_total", discount_amount=10)
     assert StripePaymentIntent.objects.exists() is False
@@ -160,15 +162,17 @@ def test_return_with_matching_invoice_and_booking_and_total_voucher_code(
         "invoice_signature": invoice.signature(),
         **invoice.items_metadata(),
     }
-    mock_payment_intent.retrieve.return_value = get_mock_payment_intent(
-        metadata=metadata
-    )
-    session = client.session
-    session["total_voucher_code"] = "test_total"
-    session.save()
-    resp = client.post(
-        complete_url, data={"payload": json.dumps({"id": "mock-intent-id"})}
-    )
+    payment_intent = get_mock_payment_intent(metadata=metadata)
+    with patch(
+        "stripe_payments.views.stripe.PaymentIntent", autospec=stripe.PaymentIntent
+    ) as mock_payment_intent:
+        mock_payment_intent.retrieve.return_value = payment_intent
+        session = client.session
+        session["total_voucher_code"] = "test_total"
+        session.save()
+        resp = client.post(
+            complete_url, data={"payload": json.dumps({"id": "mock-intent-id"})}
+        )
     assert resp.status_code == 200
     assert "Payment Processed" in resp.content.decode("utf-8")
     booking.refresh_from_db()
@@ -183,10 +187,7 @@ def test_return_with_matching_invoice_and_booking_and_total_voucher_code(
 
 
 @pytest.mark.usefixtures("seller", "send_all_studio_emails")
-@patch("stripe_payments.views.stripe.PaymentIntent", autospec=stripe.PaymentIntent)
-def test_return_with_matching_invoice_and_gift_voucher(
-    mock_payment_intent, get_mock_payment_intent, client, configured_user
-):
+def test_return_with_matching_invoice_and_gift_voucher(client, configured_user):
     assert StripePaymentIntent.objects.exists() is False
     invoice = baker.make(
         Invoice,
@@ -205,13 +206,14 @@ def test_return_with_matching_invoice_and_gift_voucher(
         "invoice_signature": invoice.signature(),
         **invoice.items_metadata(),
     }
-    mock_payment_intent.retrieve.return_value = get_mock_payment_intent(
-        metadata=metadata
-    )
-
-    resp = client.post(
-        complete_url, data={"payload": json.dumps({"id": "mock-intent-id"})}
-    )
+    payment_intent = get_mock_payment_intent(metadata=metadata)
+    with patch(
+        "stripe_payments.views.stripe.PaymentIntent", autospec=stripe.PaymentIntent
+    ) as mock_payment_intent:
+        mock_payment_intent.retrieve.return_value = payment_intent
+        resp = client.post(
+            complete_url, data={"payload": json.dumps({"id": "mock-intent-id"})}
+        )
     assert resp.status_code == 200
     assert "Payment Processed" in resp.content.decode("utf-8")
     gift_voucher.refresh_from_db()
@@ -233,10 +235,7 @@ def test_return_with_matching_invoice_and_gift_voucher(
 
 
 @pytest.mark.usefixtures("seller", "send_all_studio_emails")
-@patch("stripe_payments.views.stripe.PaymentIntent", autospec=stripe.PaymentIntent)
-def test_return_with_matching_invoice_and_gift_voucher_anon_user(
-    mock_payment_intent, get_mock_payment_intent, client
-):
+def test_return_with_matching_invoice_and_gift_voucher_anon_user(client):
     assert StripePaymentIntent.objects.exists() is False
     invoice = baker.make(
         Invoice,
@@ -255,13 +254,14 @@ def test_return_with_matching_invoice_and_gift_voucher_anon_user(
         "invoice_signature": invoice.signature(),
         **invoice.items_metadata(),
     }
-    mock_payment_intent.retrieve.return_value = get_mock_payment_intent(
-        metadata=metadata
-    )
-
-    resp = client.post(
-        complete_url, data={"payload": json.dumps({"id": "mock-intent-id"})}
-    )
+    payment_intent = get_mock_payment_intent(metadata=metadata)
+    with patch(
+        "stripe_payments.views.stripe.PaymentIntent", autospec=stripe.PaymentIntent
+    ) as mock_payment_intent:
+        mock_payment_intent.retrieve.return_value = payment_intent
+        resp = client.post(
+            complete_url, data={"payload": json.dumps({"id": "mock-intent-id"})}
+        )
     assert resp.status_code == 200
     assert "Payment Processed" in resp.content.decode("utf-8")
     gift_voucher.refresh_from_db()
@@ -287,9 +287,8 @@ def test_return_with_matching_invoice_and_gift_voucher_anon_user(
 
 
 @pytest.mark.usefixtures("seller", "send_all_studio_emails")
-@patch("stripe_payments.views.stripe.PaymentIntent", autospec=stripe.PaymentIntent)
 def test_return_with_matching_invoice_booking_membership_gift_voucher_merch(
-    mock_payment_intent, get_mock_payment_intent, client, configured_user
+    client, configured_user
 ):
     invoice = baker.make(
         Invoice,
@@ -314,12 +313,14 @@ def test_return_with_matching_invoice_booking_membership_gift_voucher_merch(
         "invoice_signature": invoice.signature(),
         **invoice.items_metadata(),
     }
-    mock_payment_intent.retrieve.return_value = get_mock_payment_intent(
-        metadata=metadata
-    )
-    resp = client.post(
-        complete_url, data={"payload": json.dumps({"id": "mock-intent-id"})}
-    )
+    payment_intent = get_mock_payment_intent(metadata=metadata)
+    with patch(
+        "stripe_payments.views.stripe.PaymentIntent", autospec=stripe.PaymentIntent
+    ) as mock_payment_intent:
+        mock_payment_intent.retrieve.return_value = payment_intent
+        resp = client.post(
+            complete_url, data={"payload": json.dumps({"id": "mock-intent-id"})}
+        )
 
     assert resp.status_code == 200
     assert "Payment Processed" in resp.content.decode("utf-8")
@@ -341,10 +342,7 @@ def test_return_with_matching_invoice_booking_membership_gift_voucher_merch(
 
 
 @pytest.mark.usefixtures("seller", "send_all_studio_emails")
-@patch("stripe_payments.views.stripe.PaymentIntent", autospec=stripe.PaymentIntent)
-def test_return_with_invalid_invoice(
-    mock_payment_intent, get_mock_payment_intent, client, configured_user
-):
+def test_return_with_invalid_invoice(client, configured_user):
     invoice = baker.make(
         Invoice,
         invoice_id="",
@@ -360,12 +358,14 @@ def test_return_with_invalid_invoice(
         "invoice_signature": invoice.signature(),
         **invoice.items_metadata(),
     }
-    mock_payment_intent.retrieve.return_value = get_mock_payment_intent(
-        metadata=metadata
-    )
-    resp = client.post(
-        complete_url, data={"payload": json.dumps({"id": "mock-intent-id"})}
-    )
+    payment_intent = get_mock_payment_intent(metadata=metadata)
+    with patch(
+        "stripe_payments.views.stripe.PaymentIntent", autospec=stripe.PaymentIntent
+    ) as mock_payment_intent:
+        mock_payment_intent.retrieve.return_value = payment_intent
+        resp = client.post(
+            complete_url, data={"payload": json.dumps({"id": "mock-intent-id"})}
+        )
     assert "Error Processing Payment" in resp.content.decode("utf-8")
     assert invoice.paid is False
     # send failed emails
@@ -378,10 +378,7 @@ def test_return_with_invalid_invoice(
 
 
 @pytest.mark.usefixtures("seller", "send_all_studio_emails")
-@patch("stripe_payments.views.stripe.PaymentIntent", autospec=stripe.PaymentIntent)
-def test_return_with_matching_invoice_multiple_memberships(
-    mock_payment_intent, get_mock_payment_intent, client, configured_user
-):
+def test_return_with_matching_invoice_multiple_memberships(client, configured_user):
     invoice = baker.make(
         Invoice,
         invoice_id="foo",
@@ -401,12 +398,14 @@ def test_return_with_matching_invoice_multiple_memberships(
         "invoice_signature": invoice.signature(),
         **invoice.items_metadata(),
     }
-    mock_payment_intent.retrieve.return_value = get_mock_payment_intent(
-        metadata=metadata
-    )
-    resp = client.post(
-        complete_url, data={"payload": json.dumps({"id": "mock-intent-id"})}
-    )
+    payment_intent = get_mock_payment_intent(metadata=metadata)
+    with patch(
+        "stripe_payments.views.stripe.PaymentIntent", autospec=stripe.PaymentIntent
+    ) as mock_payment_intent:
+        mock_payment_intent.retrieve.return_value = payment_intent
+        resp = client.post(
+            complete_url, data={"payload": json.dumps({"id": "mock-intent-id"})}
+        )
     assert resp.status_code == 200
     assert "Payment Processed" in resp.content.decode("utf-8")
     membership1.refresh_from_db()
@@ -419,10 +418,7 @@ def test_return_with_matching_invoice_multiple_memberships(
 
 
 @pytest.mark.usefixtures("seller", "send_all_studio_emails")
-@patch("stripe_payments.views.stripe.PaymentIntent", autospec=stripe.PaymentIntent)
-def test_return_with_matching_invoice_invalid_amount(
-    mock_payment_intent, get_mock_payment_intent, client, configured_user
-):
+def test_return_with_matching_invoice_invalid_amount(client, configured_user):
     invoice = baker.make(
         Invoice,
         invoice_id="foo",
@@ -438,21 +434,20 @@ def test_return_with_matching_invoice_invalid_amount(
         "invoice_signature": invoice.signature(),
         **invoice.items_metadata(),
     }
-    mock_payment_intent.retrieve.return_value = get_mock_payment_intent(
-        metadata=metadata
-    )
-    resp = client.post(
-        complete_url, data={"payload": json.dumps({"id": "mock-intent-id"})}
-    )
+    payment_intent = get_mock_payment_intent(metadata=metadata)
+    with patch(
+        "stripe_payments.views.stripe.PaymentIntent", autospec=stripe.PaymentIntent
+    ) as mock_payment_intent:
+        mock_payment_intent.retrieve.return_value = payment_intent
+        resp = client.post(
+            complete_url, data={"payload": json.dumps({"id": "mock-intent-id"})}
+        )
     assert invoice.paid is False
     assert "Error Processing Payment" in resp.content.decode("utf-8")
 
 
 @pytest.mark.usefixtures("seller", "send_all_studio_emails")
-@patch("stripe_payments.views.stripe.PaymentIntent", autospec=stripe.PaymentIntent)
-def test_return_with_matching_invoice_invalid_signature(
-    mock_payment_intent, get_mock_payment_intent, client, configured_user
-):
+def test_return_with_matching_invoice_invalid_signature(client, configured_user):
     invoice = baker.make(
         Invoice,
         invoice_id="foo",
@@ -468,21 +463,20 @@ def test_return_with_matching_invoice_invalid_signature(
         "invoice_signature": "foo",
         **invoice.items_metadata(),
     }
-    mock_payment_intent.retrieve.return_value = get_mock_payment_intent(
-        metadata=metadata
-    )
-    resp = client.post(
-        complete_url, data={"payload": json.dumps({"id": "mock-intent-id"})}
-    )
+    payment_intent = get_mock_payment_intent(metadata=metadata)
+    with patch(
+        "stripe_payments.views.stripe.PaymentIntent", autospec=stripe.PaymentIntent
+    ) as mock_payment_intent:
+        mock_payment_intent.retrieve.return_value = payment_intent
+        resp = client.post(
+            complete_url, data={"payload": json.dumps({"id": "mock-intent-id"})}
+        )
     assert invoice.paid is False
     assert "Error Processing Payment" in resp.content.decode("utf-8")
 
 
 @pytest.mark.usefixtures("seller", "send_all_studio_emails")
-@patch("stripe_payments.views.stripe.PaymentIntent", autospec=stripe.PaymentIntent)
-def test_return_with_matching_invoice_block_already_processed(
-    mock_payment_intent, get_mock_payment_intent, client, configured_user
-):
+def test_return_with_matching_invoice_block_already_processed(client, configured_user):
     invoice = baker.make(
         Invoice,
         invoice_id="foo",
@@ -499,12 +493,14 @@ def test_return_with_matching_invoice_block_already_processed(
         "invoice_signature": "foo",
         **invoice.items_metadata(),
     }
-    mock_payment_intent.retrieve.return_value = get_mock_payment_intent(
-        metadata=metadata
-    )
-    resp = client.post(
-        complete_url, data={"payload": json.dumps({"id": "mock-intent-id"})}
-    )
+    payment_intent = get_mock_payment_intent(metadata=metadata)
+    with patch(
+        "stripe_payments.views.stripe.PaymentIntent", autospec=stripe.PaymentIntent
+    ) as mock_payment_intent:
+        mock_payment_intent.retrieve.return_value = payment_intent
+        resp = client.post(
+            complete_url, data={"payload": json.dumps({"id": "mock-intent-id"})}
+        )
 
     assert resp.status_code == 200
     assert "Payment Processed" in resp.content.decode("utf-8")
@@ -513,10 +509,7 @@ def test_return_with_matching_invoice_block_already_processed(
 
 
 @pytest.mark.usefixtures("seller", "send_all_studio_emails")
-@patch("stripe_payments.views.stripe.PaymentIntent", autospec=stripe.PaymentIntent)
-def test_return_with_failed_payment_intent(
-    mock_payment_intent, get_mock_payment_intent, client, configured_user
-):
+def test_return_with_failed_payment_intent(client, configured_user):
     invoice = baker.make(
         Invoice,
         invoice_id="foo",
@@ -532,11 +525,13 @@ def test_return_with_failed_payment_intent(
         "invoice_signature": invoice.signature(),
         **invoice.items_metadata(),
     }
-    mock_payment_intent.retrieve.return_value = get_mock_payment_intent(
-        metadata=metadata, status="failed"
-    )
-    resp = client.post(
-        complete_url, data={"payload": json.dumps({"id": "mock-intent-id"})}
-    )
+    payment_intent = get_mock_payment_intent(metadata=metadata, status="failed")
+    with patch(
+        "stripe_payments.views.stripe.PaymentIntent", autospec=stripe.PaymentIntent
+    ) as mock_payment_intent:
+        mock_payment_intent.retrieve.return_value = payment_intent
+        resp = client.post(
+            complete_url, data={"payload": json.dumps({"id": "mock-intent-id"})}
+        )
     assert invoice.paid is False
     assert "Error Processing Payment" in resp.content.decode("utf-8")

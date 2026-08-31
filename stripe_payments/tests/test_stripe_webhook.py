@@ -271,7 +271,7 @@ def test_webhook_no_invoice_metadata(
     payload = mock_stripe_payload("payment_intent.succeeded", metadata={})
     resp = post_to_webhook(client, payload)
     assert resp.status_code == 200
-    assert len(mail.outbox) == 0
+    assert len(mail.outbox) == 0, mail.outbox[0].body
 
 
 def test_webhook_refunded(

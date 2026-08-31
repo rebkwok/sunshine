@@ -34,7 +34,7 @@ dependencies = [
     "pymemcache<=4.0.0",
     "python-dateutil<=2.9.0.post0",
     "shortuuid<=1.0.13",
-    "stripe<=14.4.1",
+    "stripe<=15.5.0",
     "whitenoise<=6.12.0",
 ]
 

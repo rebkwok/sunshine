@@ -1,9 +1,9 @@
 import random
 from datetime import datetime, UTC
-from unittest.mock import Mock
 
 from model_bakery import baker
 import pytest
+import stripe
 
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
@@ -195,39 +195,29 @@ def total_gift_voucher(configured_user, gift_voucher_types):
     yield gv
 
 
-@pytest.fixture
-def get_mock_payment_intent():
-    def payment_intent(**params):
-        object = {
-            "id": "mock-intent-id",
-            "amount": 1000,
-            "description": "",
-            "status": "succeeded",
-            "metadata": {},
-            "currency": "gbp",
-            "client_secret": "secret",
-            "charges": Mock(
-                data=[{"billing_details": {"email": "stripe-payer@test.com"}}]
-            ),
-        }
-        object.update(params)
-        return Mock(**object)
-
-    return payment_intent
+def get_mock_payment_intent(**params):
+    object = {
+        "id": "mock-intent-id",
+        "amount": 1000,
+        "description": "",
+        "status": "succeeded",
+        "metadata": {},
+        "currency": "gbp",
+        "client_secret": "secret",
+        "charges": {"data": [{"billing_details": {"email": "stripe-payer@test.com"}}]},
+    }
+    object.update(params)
+    return stripe.PaymentIntent.construct_from(object, "dummy-api-key")
 
 
-@pytest.fixture
-def get_mock_refund():
-    def refund(**params):
-        object = {
-            "id": "mock-refund-id",
-            "amount": 800,
-            "status": "succeeded",
-            "metadata": {},
-            "currency": "gbp",
-            "reason": "",
-        }
-        object.update(params)
-        return Mock(**object)
-
-    return refund
+def get_mock_refund(**params):
+    object = {
+        "id": "mock-refund-id",
+        "amount": 800,
+        "status": "succeeded",
+        "metadata": {},
+        "currency": "gbp",
+        "reason": "",
+    }
+    object.update(params)
+    return stripe.Refund.construct_from(object, "dummy-api-key")

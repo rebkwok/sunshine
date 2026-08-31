@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 def get_invoice_from_payment_intent(payment_intent, raise_immediately=False):
     # Don't raise exception shere so we don't expose it to the user; leave it for the webhook
-    invoice_id = payment_intent.metadata.get("invoice_id")
+    invoice_id = getattr(payment_intent.metadata, "invoice_id", None)
     if not invoice_id:
         #  No invoice id in the metadata is unlikely to be an error; more likely it's a payment not made via the
         # site.
@@ -41,7 +41,7 @@ def get_invoice_from_payment_intent(payment_intent, raise_immediately=False):
 
 
 def check_stripe_data(payment_intent, invoice):
-    signature = payment_intent.metadata.get("invoice_signature")
+    signature = getattr(payment_intent.metadata, "invoice_signature", None)
     if signature != invoice.signature():
         raise StripeProcessingError(
             f"Could not verify invoice signature: payment intent {payment_intent.id}; invoice id {invoice.invoice_id}"
