@@ -172,7 +172,7 @@ class UploadTimetableTests(TestCase):
 
         # create date in Europe/London, convert to UTC
         local_ev_date = Delorean(
-            datetime.combine(datetime(2015, 6, 2, 0, 0), session.start_time),
+            datetime.combine(datetime(2015, 6, 2, 0, 0), session.start_time),  # noqa: DTZ001
             timezone="Europe/London",
         )
         converted_ev_date = local_ev_date.shift("UTC").datetime
