@@ -119,8 +119,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "allauth.account.middleware.AccountMiddleware",
-    "django_htmx.middleware.HtmxMiddleware"
-
+    "django_htmx.middleware.HtmxMiddleware",
 ]
 
 
@@ -156,7 +155,7 @@ ACCOUNT_SIGNUP_FORM_CLASS = "accounts.forms.SignupForm"
 ACCOUNT_LOGOUT_REDIRECT_URL = "/"
 
 # Login 403s on alluth 65.14.2 without this
-ALLAUTH_TRUSTED_PROXY_COUNT=1
+ALLAUTH_TRUSTED_PROXY_COUNT = 1
 
 ABSOLUTE_URL_OVERRIDES = {
     "auth.user": lambda o: "/users/%s/" % o.username,
@@ -537,3 +536,6 @@ MEMBERSHIP_AVAILABLE_EARLY_DAYS = env.int("MEMBERSHIP_AVAILABLE_EARLY_DAYS", def
 
 # Feature flag for legacy homepage
 LEGACY_HOMEPAGE = env.bool("LEGACY_HOMEPAGE", default=True)
+
+# ensure secure data-altering operations via POST
+DJANGO_OBJECT_ACTIONS_DEFAULT_HTTP_METHOD = "POST"

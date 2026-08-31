@@ -1,9 +1,9 @@
-import pytz
 import pytest
 
 from datetime import datetime
 from datetime import timezone as dt_timezone
 
+from delorean import Delorean
 from unittest.mock import patch
 from model_bakery import baker
 
@@ -174,13 +174,11 @@ class UploadTimetableTests(TestCase):
         # this session recipe has level 2 which will be incorporated into the class name
 
         # create date in Europe/London, convert to UTC
-        localtz = pytz.timezone("Europe/London")
-        local_ev_date = localtz.localize(
-            datetime.combine(
-                datetime(2015, 6, 2, 0, 0, tzinfo=dt_timezone.utc), session.start_time
-            )
+        local_ev_date = Delorean(
+            datetime.combine(datetime(2015, 6, 2, 0, 0), session.start_time),
+            timezone="Europe/London",
         )
-        converted_ev_date = local_ev_date.astimezone(pytz.utc)
+        converted_ev_date = local_ev_date.shift("UTC").datetime
 
         # create duplicate existing classes for (tues) 2/6/15
         baker.make_recipe(

@@ -1,4 +1,4 @@
-import pytz
+from zoneinfo import ZoneInfo
 
 from django import template
 from django.utils import timezone
@@ -48,7 +48,7 @@ def formatted_uk_date(date, format):
     """
     return UTC date in uk time
     """
-    uk = pytz.timezone("Europe/London")
+    uk = ZoneInfo("Europe/London")
     return date.astimezone(uk).strftime(format)
 
 

@@ -6,7 +6,7 @@ readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "crispy-bootstrap5<=2025.6",
-    "delorean<=1.0.0",
+    "delorean<=2.0.0",
     "dj-database-url<=3.1.2",
     "dj-static<=0.0.6",
     "django<=6.1",

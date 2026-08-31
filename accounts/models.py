@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 from datetime import timedelta
 import logging
-import pytz
 from math import floor
+from zoneinfo import ZoneInfo
 
 from django.db import models
 from django.core.cache import cache
@@ -266,9 +266,7 @@ class OnlineDisclaimer(BaseOnlineDisclaimer):
             self.user.last_name,
             self.user.username,
             self.version,
-            self.date.astimezone(pytz.timezone("Europe/London")).strftime(
-                "%d %b %Y, %H:%M"
-            ),
+            self.date.astimezone(ZoneInfo("Europe/London")).strftime("%d %b %Y, %H:%M"),
         )
 
     @property
@@ -310,10 +308,8 @@ class ArchivedDisclaimer(BaseOnlineDisclaimer):
         return "{} - V{} - {} (archived {})".format(
             self.name,
             self.version,
-            self.date.astimezone(pytz.timezone("Europe/London")).strftime(
-                "%d %b %Y, %H:%M"
-            ),
-            self.date_archived.astimezone(pytz.timezone("Europe/London")).strftime(
+            self.date.astimezone(ZoneInfo("Europe/London")).strftime("%d %b %Y, %H:%M"),
+            self.date_archived.astimezone(ZoneInfo("Europe/London")).strftime(
                 "%d %b %Y, %H:%M"
             ),
         )
