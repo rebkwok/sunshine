@@ -89,7 +89,7 @@ class UploadTimetableForm(forms.Form):
             if self.errors.get("start_date"):
                 del self.errors["start_date"]
             try:
-                start_date = datetime.strptime(start_date, "%a %d %b %Y").date()
+                start_date = datetime.strptime(start_date, "%a %d %b %Y").date()  # noqa: DTZ007
                 if start_date >= timezone.now().date():
                     cleaned_data["start_date"] = start_date
                 else:
@@ -107,7 +107,7 @@ class UploadTimetableForm(forms.Form):
             if self.errors.get("end_date"):
                 del self.errors["end_date"]
             try:
-                end_date = datetime.strptime(end_date, "%a %d %b %Y").date()
+                end_date = datetime.strptime(end_date, "%a %d %b %Y").date()  # noqa: DTZ007
             except ValueError:
                 self.add_error(
                     "end_date",
