@@ -39,7 +39,7 @@ def test_generate_invoice_id(short_uuid_random):
 @pytest.mark.usefixtures("invoice_keyenv")
 def test_signature():
     invoice = baker.make(Invoice, invoice_id="foo123")
-    assert invoice.signature() == sha512("foo123test".encode("utf-8")).hexdigest()
+    assert invoice.signature() == sha512(b"foo123test").hexdigest()
 
 
 @pytest.mark.usefixtures("invoice_keyenv")
