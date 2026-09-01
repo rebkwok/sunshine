@@ -72,8 +72,8 @@ class BaseEventListView(ListView):
             events = events.filter(name=self.event_name)
 
         # select day/time
-        if self.event_day in DAYS.keys() and self.event_time:
-            weekday = list(DAYS.keys()).index(self.event_day)
+        if self.event_day in DAYS and self.event_time:
+            weekday = list(DAYS).index(self.event_day)
             try:
                 event_time = self.event_time.split(":")
                 hour = int(event_time[0])

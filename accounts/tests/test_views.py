@@ -559,12 +559,12 @@ def test_disclaimer_emergency_contact_update_view_post(client, user):
     url = reverse("accounts:update_emergency_contact", args=(user.id,))
     client.post(
         url,
-        data=dict(
-            phone="111",
-            emergency_contact_name="test1",
-            emergency_contact_relationship="test1",
-            emergency_contact_phone="888",
-        ),
+        data={
+            "phone": "111",
+            "emergency_contact_name": "test1",
+            "emergency_contact_relationship": "test1",
+            "emergency_contact_phone": "888",
+        },
     )
     disclaimer.refresh_from_db()
     assert disclaimer.phone == "111"

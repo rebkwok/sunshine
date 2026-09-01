@@ -234,7 +234,7 @@ class DisclaimerCreateView(LoginRequiredMixin, DisclaimerFormMixin, CreateView):
             if (
                 updating_disclaimer
                 and field.label
-                in updating_disclaimer.health_questionnaire_responses.keys()
+                in updating_disclaimer.health_questionnaire_responses
             ):
                 previous_response = updating_disclaimer.health_questionnaire_responses[
                     field.label
