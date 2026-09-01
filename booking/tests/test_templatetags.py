@@ -143,12 +143,12 @@ def test_book_button_data_booked(configured_user, has_membership, members_only):
 @pytest.mark.parametrize(
     "event_date,cancellation_fee,show_warning",
     [
-        # > 24 hrs away
+        # > 24 hrs away, no warning
         (datetime(2026, 2, 23, 12, 0, tzinfo=UTC), 1, False),
-        # < 24 hrs away, no fee
-        (datetime(2026, 2, 23, 12, 0, tzinfo=UTC), 0, False),
-        # < 24 hrs away, has fee
-        (datetime(2026, 2, 23, 12, 0, tzinfo=UTC), 1, False),
+        # < 24 hrs away, no fee, no warning
+        (datetime(2026, 2, 23, 8, 0, tzinfo=UTC), 0, False),
+        # < 24 hrs away, has fee, show warning
+        (datetime(2026, 2, 23, 8, 0, tzinfo=UTC), 1, True),
     ],
 )
 def test_book_button_data_cancellation_warning(
