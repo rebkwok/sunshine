@@ -716,7 +716,7 @@ class Booking(models.Model):
         unique_together = ("user", "event")
 
     def __str__(self):
-        return f"{str(self.event.name)} - {str(self.user.username)}"
+        return f"{self.event.name!s} - {self.user.username!s}"
 
     def booked_with_membership_within_allowed_time(self):
         allowed_datetime = timezone.now() - timedelta(minutes=5)

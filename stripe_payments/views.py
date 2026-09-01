@@ -47,7 +47,7 @@ def stripe_payment_complete(request):
     if payload is None:
         logger.error("No payload found %s", payload)
         send_failed_payment_emails(
-            payment_intent=None, error=f"POST: {str(request.POST)}"
+            payment_intent=None, error=f"POST: {request.POST!s}"
         )
         return render(request, "stripe_payments/non_valid_payment.html")
 
