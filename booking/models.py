@@ -834,7 +834,7 @@ class Booking(models.Model):
     def clean(self):
         if self._is_rebooking() and self.event.spaces_left == 0:
             raise ValidationError(
-                _("Attempting to reopen booking for full event {}".format(self.event.id))
+                _("Attempting to reopen booking for full event %s") % self.event.id
             )
 
         if (
@@ -843,7 +843,7 @@ class Booking(models.Model):
             and self.event.spaces_left == 0
         ):
             raise ValidationError(
-                _("Attempting to create booking for full event {}".format(self.event.id))
+                _("Attempting to create booking for full event %s") % self.event.id
             )
 
         if self.attended and self.no_show:
