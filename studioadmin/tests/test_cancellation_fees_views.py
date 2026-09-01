@@ -54,12 +54,12 @@ class CancellationFeesListViewTests(TestPermissionMixin, TestCase):
             cancellation_fee_incurred=True,
             cancellation_fee_paid=True,
         )
-        user = baker.make_recipe("booking.user")
+        other_user = baker.make_recipe("booking.user")
         # fees for another user
         baker.make_recipe(
             "booking.booking",
             event__cancellation_fee=1.00,
-            user=user,
+            user=other_user,
             cancellation_fee_incurred=True,
             _quantity=4,
         )
@@ -71,8 +71,8 @@ class CancellationFeesListViewTests(TestPermissionMixin, TestCase):
 
         fees_links = [user_fees.find("a").attrs["href"] for user_fees in fees]
         fees_text = [user_fees.text.strip() for user_fees in fees]
-        for user in [self.user, user]:
-            self.assertIn(f"/instructor-admin/fees/{self.user.id}/", fees_links)
+        for user in [self.user, other_user]:
+            self.assertIn(f"/instructor-admin/fees/{user.id}/", fees_links)
             self.assertIn(f"£{user.outstanding_fees_total()}", fees_text)
 
     def test_long_user_email_abbreviated(self):
