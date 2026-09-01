@@ -12,7 +12,8 @@ class UploadTimetableFormTests(TestCase):
     def setUp(self):
         self.session = baker.make_recipe("booking.mon_session")
 
-    def form_data(self, extra_data={}):
+    def form_data(self, extra_data=None):
+        extra_data = extra_data or {}
         data = {
             "start_date": "Mon 08 Jun 2015",
             "end_date": "Mon 15 Jun 2015",
