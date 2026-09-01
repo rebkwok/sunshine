@@ -124,7 +124,7 @@ def process_refund(request, booking):
                 except stripe.error.InvalidRequestError as error:
                     # send warning email to tech support
                     send_invalid_request_email(request, booking, str(error))
-    except Exception as error:
+    except Exception as error:  # noqa: BLE001
         # catch anything else
         send_invalid_request_email(request, booking, str(error))
 

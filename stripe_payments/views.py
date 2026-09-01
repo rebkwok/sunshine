@@ -114,7 +114,7 @@ def stripe_webhook(request):
         # Invalid signature
         logger.error(e)
         return HttpResponse("Invalid webhook signature", status=400)
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         # Invalid payload
         logger.error(e)
         return HttpResponse("Unable to contruct webhook event", status=400)
@@ -158,7 +158,7 @@ def stripe_webhook(request):
             # a refund or other event that occurred outside of the system could be relevant, so
             # if this raises an AttributeError, we log and proceed
             account = event.account
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             logger.error(e)
         else:
             if account != site_seller.stripe_user_id:
@@ -214,7 +214,8 @@ def stripe_webhook(request):
                 logger.info(
                     f"Payment intent requires action: id {payment_intent.id}; invoice id {invoice.invoice_id}"
                 )
-    except Exception as e:  # log anything else and send error emails
+    except Exception as e:  # noqa: BLE001
+        # log anything else and send error emails
         logger.error(e)
         send_failed_payment_emails(error=e)
     return HttpResponse(status=200)
