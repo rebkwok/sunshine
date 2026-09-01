@@ -88,7 +88,7 @@ class CookiePolicy(models.Model):
 
         if not self.id and not self.version:
             # if no version specified, go to next major version
-            self.version = floor((CookiePolicy.current_version() + 1))
+            self.version = floor(CookiePolicy.current_version() + 1)
         super().save(**kwargs)
         ActivityLog.objects.create(
             log=f"CookiePolicy version {self.version} created"
@@ -128,7 +128,7 @@ class DataPrivacyPolicy(models.Model):
 
         if not self.id and not self.version:
             # if no version specified, go to next major version
-            self.version = floor((DataPrivacyPolicy.current_version() + 1))
+            self.version = floor(DataPrivacyPolicy.current_version() + 1)
         super().save(**kwargs)
         ActivityLog.objects.create(
             log=f"Data Privacy Policy version {self.version} created"
@@ -210,7 +210,7 @@ class DisclaimerContent(models.Model):
 
         if not self.id and not self.version:
             # if no version specified, go to next major version
-            self.version = float(floor((DisclaimerContent.current_version() + 1)))
+            self.version = float(floor(DisclaimerContent.current_version() + 1))
 
         # Always update issue date on saving drafts or publishing first version
         if self.is_draft or getattr(self, "is_draft_oldval", False):
