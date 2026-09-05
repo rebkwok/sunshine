@@ -40,7 +40,7 @@ class EventAdminTests(TestCase):
         # default value
         filter = admin.EventDateListFilter(None, {}, Event, admin.EventAdmin)
         events = filter.queryset(None, Event.objects.all())
-        assert len(events), 1
+        assert len(events) == 1
         event = events[0]
         assert event.name == "future"
 
