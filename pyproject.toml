@@ -105,3 +105,6 @@ django-suit = { git = "https://github.com/rebkwok/django-suit.git", rev = "v2" }
     skip_empty = true
     skip_covered = true
     fail_under = 100
+
+[tool.ruff.lint]
+exclude = ["**/migrations/*"]
