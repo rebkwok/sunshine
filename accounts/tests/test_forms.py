@@ -139,8 +139,7 @@ class CookiePolicyAdminFormTests(TestCase):
         self.assertEqual(
             form.non_field_errors(),
             [
-                "No changes made from previous version; new version must "
-                "update policy content"
+                "No changes made from previous version; new version must update policy content"
             ],
         )
 
@@ -170,8 +169,7 @@ class DataPrivacyPolicyAdminFormTests(TestCase):
         self.assertEqual(
             form.non_field_errors(),
             [
-                "No changes made from previous version; new version must "
-                "update policy content"
+                "No changes made from previous version; new version must update policy content"
             ],
         )
 
