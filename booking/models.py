@@ -294,9 +294,10 @@ class ItemVoucher(BaseVoucher):
 
     def valid_for(self):
         event_type_readable = dict(GIFT_VOUCHER_EVENT_TYPES)
-        return list(
-            f"Membership - {mem.name}" for mem in self.membership_types.all()
-        ) + [f"{event_type_readable[ev_type]} booking" for ev_type in self.event_types]
+        return (
+            [f"Membership - {mem.name}" for mem in self.membership_types.all()] +
+            [f"{event_type_readable[ev_type]} booking" for ev_type in self.event_types]
+        )
 
     def used_items(self, user=None):
         used_items = {
