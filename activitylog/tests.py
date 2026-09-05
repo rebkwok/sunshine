@@ -155,7 +155,7 @@ class DeleteOldActivityLogsTests(TestCase):
     def test_delete_default_old_logs(self, mock_now, mock_run):
         mock_now.return_value = self.mock_now
         self.assertEqual(ActivityLog.objects.count(), 3)
-        with TemporaryDirectory() as tmpdir:
+        with TemporaryDirectory() as tmpdir:  # noqa: SIM117
             with override_settings(LOG_FOLDER=tmpdir):
                 # no age, defaults to 1 yr
                 management.call_command("delete_old_activitylogs")
@@ -187,7 +187,7 @@ class DeleteOldActivityLogsTests(TestCase):
     def test_delete_old_logs_with_args(self, mock_now, mock_run):
         mock_now.return_value = self.mock_now
         self.assertEqual(ActivityLog.objects.count(), 3)
-        with TemporaryDirectory() as tmpdir:
+        with TemporaryDirectory() as tmpdir:  # noqa: SIM117
             with override_settings(LOG_FOLDER=tmpdir):
                 management.call_command("delete_old_activitylogs", age=3)
                 # 3 logs left - the 2 that are < 3 yrs old plus the new one to log this activity
