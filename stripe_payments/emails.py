@@ -34,7 +34,6 @@ def send_processed_payment_emails(invoice):
             html_message=get_template(
                 "stripe_payments/email/payment_processed_to_studio.html"
             ).render(ctx),
-            fail_silently=False,
         )
 
     # send email to user
@@ -46,7 +45,6 @@ def send_processed_payment_emails(invoice):
         html_message=get_template(
             "stripe_payments/email/payment_processed_to_user.html"
         ).render(ctx),
-        fail_silently=False,
     )
 
 
@@ -66,7 +64,6 @@ def send_processed_refund_emails(invoice):
         get_template("stripe_payments/email/payment_refund_processed.txt").render(ctx),
         settings.DEFAULT_FROM_EMAIL,
         [settings.SUPPORT_EMAIL],
-        fail_silently=False,
     )
 
 
@@ -79,7 +76,6 @@ def send_failed_payment_emails(payment_intent=None, error=None):
         ),
         settings.DEFAULT_FROM_EMAIL,
         [settings.SUPPORT_EMAIL],
-        fail_silently=False,
     )
 
 
@@ -98,5 +94,4 @@ def send_invalid_request_email(request, booking, reason):
         get_template("stripe_payments/email/refund_failed.txt").render(ctx),
         settings.DEFAULT_FROM_EMAIL,
         [settings.SUPPORT_EMAIL],
-        fail_silently=False,
     )

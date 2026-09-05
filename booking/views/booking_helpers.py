@@ -126,7 +126,6 @@ def cancel_booking_from_view(request, booking):
             html_message=get_template("booking/email/booking_cancelled.html").render(
                 ctx
             ),
-            fail_silently=False,
         )
 
         # EMAIL STUDIO
@@ -138,7 +137,6 @@ def cancel_booking_from_view(request, booking):
                 ),
                 settings.DEFAULT_FROM_EMAIL,
                 [settings.DEFAULT_STUDIO_EMAIL],
-                fail_silently=False,
             )
 
     # WAITING LIST

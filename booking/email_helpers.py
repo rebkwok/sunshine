@@ -45,7 +45,7 @@ def send_email(
     )
     if template_html:
         msg.attach_alternative(get_template(template_html).render(ctx), "text/html")
-    msg.send(fail_silently=False)
+    msg.send()
 
 
 def send_waiting_list_email(event, users, host=None):
@@ -100,7 +100,7 @@ def send_waiting_list_email(event, users, host=None):
         msg.attach_alternative(
             get_template("booking/email/autobook_email.html").render(ctx), "text/html"
         )
-        msg.send(fail_silently=False)
+        msg.send()
 
     if user_emails and event.spaces_left:
         # send email to rest of waiting list
@@ -114,7 +114,7 @@ def send_waiting_list_email(event, users, host=None):
             get_template("booking/email/waiting_list_email.html").render(ctx),
             "text/html",
         )
-        msg.send(fail_silently=False)
+        msg.send()
 
         ActivityLog.objects.create(
             log="Waiting list email sent to user(s) {} for event {}".format(
