@@ -23,7 +23,7 @@ dependencies = [
     "django-htmx>=1.29.0",
     "django-object-actions<=5.1.2",
     "django-recaptcha>=4.1.0",
-    "django-ses[events]<=4.7.2",
+    "django-ses[events]<=4.8.0",
     "django-storages<=1.14.6",
     "django-suit",
     "dynamic-django-forms<=0.1.11",
