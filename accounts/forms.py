@@ -51,11 +51,11 @@ class SignupForm(forms.Form):
 
     def clean_data_privacy_confirmation(self):
         dp = self.cleaned_data.get("data_privacy_confirmation")
-        if not dp:
-            self.add_error(
-                "data_privacy_confirmation", "You must check this box to continue"
-            )
-        return
+        if dp:
+            return dp
+        self.add_error(
+            "data_privacy_confirmation", "You must check this box to continue"
+        )
 
     def signup(self, request, user):
         user.first_name = self.cleaned_data["first_name"]
@@ -103,9 +103,9 @@ class DataPrivacyAgreementForm(forms.Form):
 
     def clean_confirm(self):
         confirm = self.cleaned_data.get("confirm")
-        if not confirm:
-            self.add_error("confirm", "You must check this box to continue")
-        return
+        if confirm:
+            return confirm
+        self.add_error("confirm", "You must check this box to continue")
 
 
 BASE_DISCLAIMER_FORM_WIDGETS = {
@@ -222,13 +222,12 @@ class DisclaimerForm(forms.ModelForm):
     def clean_date_of_birth(self):
         date_of_birth = self.cleaned_data.get("date_of_birth")
         age_cutoff_date = (timezone.now() - relativedelta(years=16)).date()
-        if date_of_birth > age_cutoff_date:
-            self.add_error(
-                "date_of_birth",
-                "You must be at least 16 years old to register and book classes",
-            )
-            return
-        return date_of_birth
+        if date_of_birth <= age_cutoff_date:
+            return date_of_birth
+        self.add_error(
+            "date_of_birth",
+            "You must be at least 16 years old to register and book classes",
+        )
 
     def clean_password(self):
         password = self.cleaned_data.get("password")

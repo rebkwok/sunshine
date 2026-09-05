@@ -223,9 +223,7 @@ class BaseVoucher(models.Model):
 
     @property
     def has_expired(self):
-        if self.expiry_date and self.expiry_date < timezone.now():
-            return True
-        return False
+        return self.expiry_date and self.expiry_date < timezone.now()
 
     @property
     def has_started(self):
