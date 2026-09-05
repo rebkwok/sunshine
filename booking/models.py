@@ -521,8 +521,7 @@ class GiftVoucher(models.Model):
         """Activate a voucher that isn't already activated, and reset start/expiry dates if necessary"""
         if self.voucher and not self.voucher.activated:
             self.voucher.activated = True
-            if self.voucher.start_date < timezone.now():
-                self.voucher.start_date = timezone.now()
+            self.voucher.start_date = max(self.voucher.start_date, timezone.now())
             if self.gift_voucher_type.duration:
                 self.voucher.expiry_date = end_of_day_in_utc(
                     self.voucher.start_date
