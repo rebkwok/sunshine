@@ -1,34 +1,31 @@
-# -*- coding: utf-8 -*-
 from datetime import timedelta
 from zoneinfo import ZoneInfo
 
-from django.contrib import admin
+from django.contrib import admin, messages
 from django.contrib.auth.models import User
-from django.contrib import messages
 from django.utils import timezone
 from django.utils.safestring import mark_safe
-
 from django_object_actions import DjangoObjectActions, takes_instance_or_queryset
 
 from activitylog.models import ActivityLog
+from booking.email_helpers import send_email
+from booking.forms import EventForm, ItemVoucherForm
 from booking.models import (
     Booking,
+    Event,
     GiftVoucher,
     GiftVoucherType,
     ItemVoucher,
     Membership,
     MembershipType,
+    Private,
+    RegularClass,
     TotalVoucher,
     WaitingListUser,
     Workshop,
-    RegularClass,
-    Private,
-    Event,
 )
-from booking.forms import EventForm, ItemVoucherForm
-from booking.email_helpers import send_email
-from stripe_payments.utils import process_refund
 from stripe_payments.models import StripeRefund
+from stripe_payments.utils import process_refund
 
 
 def format_date_in_local_timezone(utc_datetime):
@@ -46,7 +43,7 @@ class UserFilter(admin.SimpleListFilter):
         return [
             (
                 user.id,
-                "{} {} ({})".format(user.first_name, user.last_name, user.username),
+                f"{user.first_name} {user.last_name} ({user.username})",
             )
             for user in qs
         ]
@@ -141,18 +138,14 @@ class BookingInline(admin.TabularInline):
     autocomplete_fields = ("user",)
 
     def get_queryset(self, request):
-        return (
-            super(BookingInline, self)
-            .get_queryset(request)
-            .order_by("-status", "no_show")
-        )
+        return super().get_queryset(request).order_by("-status", "no_show")
 
     def get_formset(self, request, obj=None, **kwargs):
         """
         Override the formset function in order to remove the add and change buttons beside the foreign key pull-down
         menus in the inline.
         """
-        formset = super(BookingInline, self).get_formset(request, obj, **kwargs)
+        formset = super().get_formset(request, obj, **kwargs)
         form = formset.form
         widget = form.base_fields["user"].widget
         widget.can_add_related = False
@@ -190,11 +183,11 @@ class EventAdmin(DjangoObjectActions, admin.ModelAdmin):
     actions_on_top = True
     ordering = ("date",)
     form = EventForm
-    actions = ["cancel_event", "uncancel_event"]
-    change_actions = ["cancel_event", "uncancel_event"]
-    inlines = [BookingInline, WaitingListInline]
+    actions = ("cancel_event", "uncancel_event")
+    change_actions = ("cancel_event", "uncancel_event")
+    inlines = (BookingInline, WaitingListInline)
 
-    fieldsets = [
+    fieldsets = (
         (
             "Event/Workshop details",
             {
@@ -223,7 +216,7 @@ class EventAdmin(DjangoObjectActions, admin.ModelAdmin):
         ),
         ("Display options", {"fields": ("show_on_site",)}),
         ("Status", {"fields": ("cancelled",)}),
-    ]
+    )
 
     def has_delete_permission(self, request, obj=None):
         return False
@@ -272,8 +265,7 @@ class EventAdmin(DjangoObjectActions, admin.ModelAdmin):
                 obj.delete()
                 self.message_user(
                     request,
-                    "%s %s deleted (no open/cancelled bookings)"
-                    % (event_type.title(), obj),
+                    f"{event_type.title()} {obj} deleted (no open/cancelled bookings)",
                 )
                 ActivityLog.objects.create(
                     log=f"{obj} was deleted by admin user {request.user.username}"
@@ -282,7 +274,7 @@ class EventAdmin(DjangoObjectActions, admin.ModelAdmin):
                 if obj.date <= timezone.now():
                     self.message_user(
                         request,
-                        "Can't cancel past %s" % event_type,
+                        f"Can't cancel past {event_type}",
                         level=messages.ERROR,
                     )
                 else:
@@ -308,7 +300,7 @@ class EventAdmin(DjangoObjectActions, admin.ModelAdmin):
 
                         send_email(
                             request,
-                            subject="{} has been cancelled".format(obj),
+                            subject=f"{obj} has been cancelled",
                             ctx={
                                 "event_type": event_type,
                                 "event": obj,
@@ -327,11 +319,9 @@ class EventAdmin(DjangoObjectActions, admin.ModelAdmin):
                     if open_bookings_count == 0:
                         msg = "no open bookings"
                     else:
-                        msg = "users for {} open booking(s) have been emailed notification".format(
-                            open_bookings_count
-                        )
+                        msg = f"users for {open_bookings_count} open booking(s) have been emailed notification"
                     self.message_user(
-                        request, "%s %s cancelled; %s" % (event_type.title(), obj, msg)
+                        request, f"{event_type.title()} {obj} cancelled; {msg}"
                     )
 
     @takes_instance_or_queryset
@@ -340,12 +330,12 @@ class EventAdmin(DjangoObjectActions, admin.ModelAdmin):
             if not obj.cancelled:
                 self.message_user(
                     request,
-                    "Can't uncancel %s (not cancelled)" % obj,
+                    f"Can't uncancel {obj} (not cancelled)",
                     level=messages.ERROR,
                 )
             elif obj.date <= timezone.now():
                 self.message_user(
-                    request, "Can't cancel past event %s" % obj, level=messages.ERROR
+                    request, f"Can't cancel past event {obj}", level=messages.ERROR
                 )
             else:
                 obj.cancelled = False
@@ -355,8 +345,7 @@ class EventAdmin(DjangoObjectActions, admin.ModelAdmin):
                 )
                 self.message_user(
                     request,
-                    "%s was uncancelled; note bookings remain cancelled. Ensure any manually reopened booking are marked as paid!"
-                    % obj,
+                    f"{obj} was uncancelled; note bookings remain cancelled. Ensure any manually reopened booking are marked as paid!",
                     level=messages.SUCCESS,
                 )
 
@@ -385,7 +374,7 @@ class WorkshopAdmin(EventAdmin):
 
     cancel_event.short_description = "Cancel workshop; this will cancel all bookings and email notifications to students."
     cancel_event.label = "Cancel workshop"
-    cancel_event.attrs = {"style": "font-weight: bold; color: red;"}
+    cancel_event.attrs = {"style": "font-weight: bold; color: red;"}  # noqa: RUF012
 
     @takes_instance_or_queryset
     def uncancel_event(self, request, queryset):
@@ -393,16 +382,16 @@ class WorkshopAdmin(EventAdmin):
 
     uncancel_event.short_description = "Uncancel workshop; bookings will remain cancelled and will need to be manually reinstated."
     uncancel_event.label = "Uncancel workshop"
-    uncancel_event.attrs = {"style": "font-weight: bold; color: green;"}
+    uncancel_event.attrs = {"style": "font-weight: bold; color: green;"}  # noqa: RUF012
 
 
 @admin.register(RegularClass)
 class RegularClassAdmin(EventAdmin):
     readonly_fields = ("cancelled",)
-    actions = ["cancel_event", "uncancel_event", "toggle_members_only"]
+    actions = ("cancel_event", "uncancel_event", "toggle_members_only")
 
     def get_form(self, request, obj=None, **kwargs):
-        form = super(RegularClassAdmin, self).get_form(request, obj, **kwargs)
+        form = super().get_form(request, obj, **kwargs)
         form.base_fields["cost"].help_text = "(non-membership cost)"
         form.base_fields["event_type"].choices = [
             ("regular_session", "Regular timetabled session"),
@@ -424,7 +413,7 @@ class RegularClassAdmin(EventAdmin):
 
     cancel_event.short_description = "Cancel class; this will cancel all bookings and email notifications to students."
     cancel_event.label = "Cancel class"
-    cancel_event.attrs = {"style": "font-weight: bold; color: red;"}
+    cancel_event.attrs = {"style": "font-weight: bold; color: red;"}  # noqa: RUF012
 
     @takes_instance_or_queryset
     def uncancel_event(self, request, queryset):
@@ -432,7 +421,7 @@ class RegularClassAdmin(EventAdmin):
 
     uncancel_event.short_description = "Uncancel class; bookings will remain cancelled and will need to be manually reinstated."
     uncancel_event.label = "Uncancel class"
-    uncancel_event.attrs = {"style": "font-weight: bold; color: green;"}
+    uncancel_event.attrs = {"style": "font-weight: bold; color: green;"}  # noqa: RUF012
 
     def toggle_members_only(self, request, queryset):
         for obj in queryset:
@@ -468,7 +457,7 @@ class PrivateAdmin(EventAdmin):
 
     cancel_event.short_description = "Cancel class; this will cancel all bookings and email notifications to students."
     cancel_event.label = "Cancel class"
-    cancel_event.attrs = {"style": "font-weight: bold; color: red;"}
+    cancel_event.attrs = {"style": "font-weight: bold; color: red;"}  # noqa: RUF012
 
     @takes_instance_or_queryset
     def uncancel_event(self, request, queryset):
@@ -476,7 +465,7 @@ class PrivateAdmin(EventAdmin):
 
     uncancel_event.short_description = "Uncancel class; bookings will remain cancelled and will need to be manually reinstated."
     uncancel_event.label = "Uncancel class"
-    uncancel_event.attrs = {"style": "font-weight: bold; color: green;"}
+    uncancel_event.attrs = {"style": "font-weight: bold; color: green;"}  # noqa: RUF012
 
 
 @admin.register(Booking)
@@ -521,17 +510,15 @@ class BookingAdmin(admin.ModelAdmin):
     event_name.admin_order_field = "event"
 
     def get_user(self, obj):
-        return "{} {} ({})".format(
-            obj.user.first_name, obj.user.last_name, obj.user.username
-        )
+        return f"{obj.user.first_name} {obj.user.last_name} ({obj.user.username})"
 
     get_user.short_description = "User"
     get_user.admin_order_field = "user__first_name"
 
-    actions = ["confirm_space"]
+    actions = ("confirm_space",)
 
     def get_cost(self, obj):
-        return "\u00a3{:.2f}".format(obj.event.cost)
+        return f"\u00a3{obj.event.cost:.2f}"
 
     get_cost.short_description = "Cost"
 
@@ -691,7 +678,7 @@ class GiftVoucherTypeAdmin(admin.ModelAdmin):
         "active",
     )
     list_editable = ("active",)
-    fieldsets = [
+    fieldsets = (
         (
             "Voucher type",
             {
@@ -724,7 +711,7 @@ class GiftVoucherTypeAdmin(admin.ModelAdmin):
                 ),
             },
         ),
-    ]
+    )
 
 
 @admin.register(GiftVoucher)
@@ -751,7 +738,7 @@ class GiftVoucherAdmin(DjangoObjectActions, admin.ModelAdmin):
         "recipient_name",
         "message",
     )
-    change_actions = ["activate"]
+    change_actions = ("activate",)
 
     def activated(self, obj):
         return obj.voucher.activated

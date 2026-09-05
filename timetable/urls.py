@@ -2,7 +2,6 @@ from django.urls import path
 
 from timetable.views import TimetableListView
 
-
 app_name = "timetable"
 
 

@@ -1,10 +1,9 @@
 import csv
 import os
-from pathlib import Path
 import subprocess
+from pathlib import Path
 
 from dateutil.relativedelta import relativedelta
-
 from django.conf import settings
 from django.core import management
 from django.core.management.base import BaseCommand

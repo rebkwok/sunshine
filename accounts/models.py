@@ -1,21 +1,18 @@
-# -*- coding: utf-8 -*-
-from datetime import timedelta
 import logging
+from datetime import timedelta
 from math import floor
 from zoneinfo import ZoneInfo
 
-from django.db import models
+from django.contrib.auth.models import User
 from django.core.cache import cache
 from django.core.exceptions import ValidationError
-from django.contrib.auth.models import User
+from django.db import models
 from django.utils import timezone
-
 from dynamic_forms.models import FormField, ResponseField
 
 from accounts.utils import active_data_privacy_cache_key
 from activitylog.models import ActivityLog
 from stripe_payments.models import Seller
-
 
 log = logging.getLogger(__name__)
 
@@ -46,7 +43,7 @@ def has_readonly_fields(original_class):
             old_value = getattr(instance, field_name + "_oldval")
             new_value = getattr(instance, field_name)
             if old_value != new_value:
-                raise ValueError("Field %s is read only." % field_name)
+                raise ValueError(f"Field {field_name} is read only.")
 
     models.signals.post_init.connect(
         store_read_only_fields, original_class, weak=False
@@ -81,7 +78,7 @@ class CookiePolicy(models.Model):
         return CookiePolicy.objects.order_by("version").last()
 
     def __str__(self):
-        return "Cookie Policy - Version {}".format(self.version)
+        return f"Cookie Policy - Version {self.version}"
 
     def save(self, **kwargs):
         if not self.id:
@@ -91,11 +88,9 @@ class CookiePolicy(models.Model):
 
         if not self.id and not self.version:
             # if no version specified, go to next major version
-            self.version = floor((CookiePolicy.current_version() + 1))
+            self.version = floor(CookiePolicy.current_version() + 1)
         super().save(**kwargs)
-        ActivityLog.objects.create(
-            log="CookiePolicy version {} created".format(self.version)
-        )
+        ActivityLog.objects.create(log=f"CookiePolicy version {self.version} created")
 
 
 @has_readonly_fields
@@ -121,7 +116,7 @@ class DataPrivacyPolicy(models.Model):
         return DataPrivacyPolicy.objects.order_by("version").last()
 
     def __str__(self):
-        return "Data Privacy Policy - Version {}".format(self.version)
+        return f"Data Privacy Policy - Version {self.version}"
 
     def save(self, **kwargs):
         if not self.id:
@@ -131,10 +126,10 @@ class DataPrivacyPolicy(models.Model):
 
         if not self.id and not self.version:
             # if no version specified, go to next major version
-            self.version = floor((DataPrivacyPolicy.current_version() + 1))
+            self.version = floor(DataPrivacyPolicy.current_version() + 1)
         super().save(**kwargs)
         ActivityLog.objects.create(
-            log="Data Privacy Policy version {} created".format(self.version)
+            log=f"Data Privacy Policy version {self.version} created"
         )
 
 
@@ -152,7 +147,7 @@ class SignedDataPrivacy(models.Model):
         verbose_name = "Signed Data Privacy Agreement"
 
     def __str__(self):
-        return "{} - V{}".format(self.user.username, self.version)
+        return f"{self.user.username} - V{self.version}"
 
     @property
     def is_active(self):
@@ -163,9 +158,7 @@ class SignedDataPrivacy(models.Model):
         cache.delete(active_data_privacy_cache_key(self.user))
         if not self.id:
             ActivityLog.objects.create(
-                log="Signed data privacy policy agreement created: {}".format(
-                    self.__str__()
-                )
+                log=f"Signed data privacy policy agreement created: {self.__str__()}"
             )
         super().save(**kwargs)
 
@@ -215,14 +208,14 @@ class DisclaimerContent(models.Model):
 
         if not self.id and not self.version:
             # if no version specified, go to next major version
-            self.version = float(floor((DisclaimerContent.current_version() + 1)))
+            self.version = float(floor(DisclaimerContent.current_version() + 1))
 
         # Always update issue date on saving drafts or publishing first version
         if self.is_draft or getattr(self, "is_draft_oldval", False):
             self.issue_date = timezone.now()
         super().save(**kwargs)
         ActivityLog.objects.create(
-            log="Disclaimer Terms & PARQ version {} created".format(self.version)
+            log=f"Disclaimer Terms & PARQ version {self.version} created"
         )
 
 
@@ -256,9 +249,7 @@ class OnlineDisclaimer(BaseOnlineDisclaimer):
     date_updated = models.DateTimeField(null=True, blank=True)
 
     class Meta:
-        indexes = [
-            models.Index(fields=["user"]),
-        ]
+        indexes = (models.Index(fields=["user"]),)
 
     def __str__(self):
         return "{} {} ({}) - V{} - {}".format(
@@ -323,7 +314,7 @@ def active_disclaimer_cache_key(user):
 
 
 def expired_disclaimer_cache_key(user):
-    return "user_{}_expired_disclaimer".format(user.id)
+    return f"user_{user.id}_expired_disclaimer"
 
 
 def has_active_disclaimer(user):

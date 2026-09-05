@@ -2,6 +2,8 @@ from django import template
 
 from accounts.models import (
     has_active_disclaimer,
+)
+from accounts.models import (
     has_expired_disclaimer as has_expired_disclaimer_util,
 )
 from accounts.utils import format_questionnaire_responses_to_html

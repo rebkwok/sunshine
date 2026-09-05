@@ -1,26 +1,24 @@
-from django.shortcuts import render, HttpResponseRedirect, get_object_or_404
-from django.urls import reverse
-from django.contrib.auth.models import User
-from django.contrib.auth.decorators import login_required
-from django.views.generic import FormView, UpdateView, CreateView
-
 from allauth.account.views import LoginView, SignupView
-
 from braces.views import LoginRequiredMixin
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
+from django.shortcuts import HttpResponseRedirect, get_object_or_404, render
+from django.urls import reverse
+from django.views.generic import CreateView, FormView, UpdateView
 
 from .forms import (
     DataPrivacyAgreementForm,
-    ProfileForm,
     DisclaimerContactUpdateForm,
     DisclaimerForm,
+    ProfileForm,
 )
 from .models import (
     CookiePolicy,
     DataPrivacyPolicy,
-    SignedDataPrivacy,
-    has_expired_disclaimer,
-    has_active_disclaimer,
     OnlineDisclaimer,
+    SignedDataPrivacy,
+    has_active_disclaimer,
+    has_expired_disclaimer,
 )
 from .utils import has_active_data_privacy_agreement
 
@@ -56,7 +54,7 @@ def profile(request):
 
 class CustomLoginView(LoginView):
     def get_success_url(self):
-        super(CustomLoginView, self).get_success_url()
+        super().get_success_url()
         ret = self.request.POST.get("next") or self.request.GET.get("next")
         if not ret or ret in [
             "/accounts/password/change/",
@@ -76,7 +74,7 @@ class CustomLoginView(LoginView):
 class CustomSignUpView(SignupView):
     def get_context_data(self, **kwargs):
         # add the username to the form if passed in queryparams from login form
-        context = super(CustomSignUpView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         context["section"] = "login"
         username = self.request.GET.get("username", None)
         if username is not None:
@@ -235,8 +233,7 @@ class DisclaimerCreateView(LoginRequiredMixin, DisclaimerFormMixin, CreateView):
             field.widget.attrs["autocomplete"] = "off"
             if (
                 updating_disclaimer
-                and field.label
-                in updating_disclaimer.health_questionnaire_responses.keys()
+                and field.label in updating_disclaimer.health_questionnaire_responses
             ):
                 previous_response = updating_disclaimer.health_questionnaire_responses[
                     field.label

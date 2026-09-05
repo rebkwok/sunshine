@@ -1,12 +1,12 @@
 from django.urls import path
 
 from .views import (
-    profile,
-    ProfileUpdateView,
-    SignedDataPrivacyCreateView,
+    DisclaimerContactUpdateView,
     DisclaimerCreateView,
     DisclaimerUpdateView,
-    DisclaimerContactUpdateView,
+    ProfileUpdateView,
+    SignedDataPrivacyCreateView,
+    profile,
 )
 
 app_name = "accounts"

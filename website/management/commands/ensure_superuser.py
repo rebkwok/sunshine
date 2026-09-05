@@ -1,7 +1,6 @@
-from django.core.management.base import BaseCommand
-from django.contrib.auth.models import User
-
 from allauth.account.models import EmailAddress
+from django.contrib.auth.models import User
+from django.core.management.base import BaseCommand
 
 
 class Command(BaseCommand):

@@ -1,7 +1,7 @@
 from django.views.generic import ListView
 
-from timetable.models import TimetableSession, Venue
 from timetable.forms import TimetableFilter
+from timetable.models import TimetableSession, Venue
 
 
 class TimetableListView(ListView):
@@ -46,7 +46,7 @@ class TimetableListView(ListView):
 
     def get_context_data(self, *args, **kwargs):
         # Call the base implementation first to get a context
-        context = super(TimetableListView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         context["section"] = "timetable"
 
         session_type = self.request.GET.get("filtered_session_type", 0)

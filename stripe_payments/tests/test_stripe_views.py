@@ -1,19 +1,17 @@
-from unittest.mock import patch
 import json
-import pytest
+from unittest.mock import patch
 
+import pytest
+import stripe
 from django.conf import settings
 from django.core import mail
 from django.shortcuts import reverse
-
-import stripe
 from model_bakery import baker
 
-from booking.models import Membership, Booking, GiftVoucher, TotalVoucher
-from ..models import Invoice, StripePaymentIntent
-
+from booking.models import Booking, GiftVoucher, Membership, TotalVoucher
 from conftest import get_mock_payment_intent
 
+from ..models import Invoice, StripePaymentIntent
 
 pytestmark = pytest.mark.django_db
 

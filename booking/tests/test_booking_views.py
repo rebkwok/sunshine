@@ -1,19 +1,16 @@
-# -*- coding: utf-8 -*-
+from django.contrib.auth.models import User
+from django.test import TestCase
+from django.urls import reverse
 from model_bakery import baker
 
-from django.contrib.auth.models import User
-from django.urls import reverse
-from django.test import TestCase
-
 from accounts.models import DataPrivacyPolicy
-
 from booking.models import Booking
 
 
 class BookingListViewTests(TestCase):
     @classmethod
     def setUpTestData(cls):
-        super(BookingListViewTests, cls).setUpTestData()
+        super().setUpTestData()
         cls.user = baker.make(User)
         cls.regular_sessions = baker.make_recipe("booking.future_PC", _quantity=3)
         cls.events = baker.make_recipe("booking.future_EV", _quantity=2)
@@ -21,7 +18,7 @@ class BookingListViewTests(TestCase):
         cls.url = reverse("booking:bookings")
 
     def setUp(self):
-        super(BookingListViewTests, self).setUp()
+        super().setUp()
         self.client.force_login(self.user)
         self.regular_sessions_bookings = [
             baker.make_recipe("booking.booking", user=self.user, event=event)
@@ -53,9 +50,7 @@ class BookingListViewTests(TestCase):
         baker.make(DataPrivacyPolicy)
         resp = self.client.get(self.url)
         assert resp.status_code == 302
-        assert resp.url == reverse("accounts:data_privacy_review") + "?next={}".format(
-            self.url
-        )
+        assert resp.url == reverse("accounts:data_privacy_review") + f"?next={self.url}"
 
     def test_booking_list_by_user(self):
         """
@@ -139,7 +134,7 @@ class BookingListViewTests(TestCase):
 class BookingHistoryListViewTests(TestCase):
     @classmethod
     def setUpTestData(cls):
-        super(BookingHistoryListViewTests, cls).setUpTestData()
+        super().setUpTestData()
         cls.user = baker.make(User)
         event = baker.make_recipe("booking.future_PC")
         cls.booking = baker.make_recipe("booking.booking", user=cls.user, event=event)

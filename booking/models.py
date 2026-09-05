@@ -1,38 +1,34 @@
-# -*- coding: utf-8 -*-
-from calendar import monthrange, month_name, month_abbr
-from datetime import datetime, timedelta
-from datetime import timezone as dt_timezone
-
-from dateutil.relativedelta import relativedelta
-from decimal import Decimal
 import logging
-import shortuuid
+from calendar import month_abbr, month_name, monthrange
+from datetime import UTC, datetime, timedelta
+from decimal import Decimal
 from zoneinfo import ZoneInfo
 
-from django.db import models
-from django.db.models import Q
-from django.db.models.signals import post_delete
-from django.dispatch import receiver
+import shortuuid
+from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.postgres.fields import ArrayField
 from django.core.cache import cache
 from django.core.exceptions import ValidationError
+from django.db import models
+from django.db.models import Q
+from django.db.models.signals import post_delete
+from django.dispatch import receiver
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
-
 from django_extensions.db.fields import AutoSlugField
 
 from activitylog.models import ActivityLog
-from stripe_payments.models import Invoice
-from timetable.models import Venue
 from booking.utils import (
-    start_of_day_in_utc,
     end_of_day_in_utc,
     start_of_day_in_local_time,
+    start_of_day_in_utc,
 )
+from stripe_payments.models import Invoice
+from timetable.models import Venue
 
 logger = logging.getLogger(__name__)
 
@@ -83,12 +79,10 @@ class Event(models.Model):
     )
 
     class Meta:
-        ordering = ["-date"]
+        ordering = ("-date",)
         verbose_name = "Workshop/Class"
         verbose_name_plural = "Workshops/Classes"
-        indexes = [
-            models.Index(fields=["date", "event_type"]),
-        ]
+        indexes = (models.Index(fields=["date", "event_type"]),)
 
     @property
     def spaces_left(self):
@@ -227,9 +221,7 @@ class BaseVoucher(models.Model):
 
     @property
     def has_expired(self):
-        if self.expiry_date and self.expiry_date < timezone.now():
-            return True
-        return False
+        return self.expiry_date and self.expiry_date < timezone.now()
 
     @property
     def has_started(self):
@@ -300,9 +292,9 @@ class ItemVoucher(BaseVoucher):
 
     def valid_for(self):
         event_type_readable = dict(GIFT_VOUCHER_EVENT_TYPES)
-        return list(
-            f"Membership - {mem.name}" for mem in self.membership_types.all()
-        ) + [f"{event_type_readable[ev_type]} booking" for ev_type in self.event_types]
+        return [f"Membership - {mem.name}" for mem in self.membership_types.all()] + [
+            f"{event_type_readable[ev_type]} booking" for ev_type in self.event_types
+        ]
 
     def used_items(self, user=None):
         used_items = {
@@ -526,8 +518,7 @@ class GiftVoucher(models.Model):
         """Activate a voucher that isn't already activated, and reset start/expiry dates if necessary"""
         if self.voucher and not self.voucher.activated:
             self.voucher.activated = True
-            if self.voucher.start_date < timezone.now():
-                self.voucher.start_date = timezone.now()
+            self.voucher.start_date = max(self.voucher.start_date, timezone.now())
             if self.gift_voucher_type.duration:
                 self.voucher.expiry_date = end_of_day_in_utc(
                     self.voucher.start_date
@@ -631,11 +622,11 @@ class Membership(models.Model):
         return month_name[self.month]
 
     def start_date(self):
-        return datetime(self.year, self.month, 1, tzinfo=dt_timezone.utc)
+        return datetime(self.year, self.month, 1, tzinfo=UTC)
 
     def expiry_date(self):
         _, last_day = monthrange(month=self.month, year=self.year)
-        return datetime(self.year, self.month, last_day, tzinfo=dt_timezone.utc)
+        return datetime(self.year, self.month, last_day, tzinfo=UTC)
 
     def has_expired(self):
         now = timezone.now()
@@ -720,7 +711,7 @@ class Booking(models.Model):
         unique_together = ("user", "event")
 
     def __str__(self):
-        return "{} - {}".format(str(self.event.name), str(self.user.username))
+        return f"{self.event.name!s} - {self.user.username!s}"
 
     def booked_with_membership_within_allowed_time(self):
         allowed_datetime = timezone.now() - timedelta(minutes=5)
@@ -739,13 +730,12 @@ class Booking(models.Model):
         """
         Delete bookings that are unpaid
         """
-        if use_cache:
+        if use_cache and cache.get("expired_bookings_cleaned"):
             # check cache to see if we cleaned up recently
-            if cache.get("expired_bookings_cleaned"):
-                logger.info(
-                    "Expired bookings cleaned up within past 2 mins; no cleanup required"
-                )
-                return []
+            logger.info(
+                "Expired bookings cleaned up within past 2 mins; no cleanup required"
+            )
+            return []
 
         # timeout defaults to 15 mins
         timeout = settings.CART_TIMEOUT_MINUTES
@@ -837,11 +827,10 @@ class Booking(models.Model):
         return cancelling or setting_as_no_show
 
     def clean(self):
-        if self._is_rebooking():
-            if self.event.spaces_left == 0:
-                raise ValidationError(
-                    _("Attempting to reopen booking for full event %s" % self.event.id)
-                )
+        if self._is_rebooking() and self.event.spaces_left == 0:
+            raise ValidationError(
+                _("Attempting to reopen booking for full event %s") % self.event.id
+            )
 
         if (
             self._is_new_booking()
@@ -849,7 +838,7 @@ class Booking(models.Model):
             and self.event.spaces_left == 0
         ):
             raise ValidationError(
-                _("Attempting to create booking for full event %s" % self.event.id)
+                _("Attempting to create booking for full event %s") % self.event.id
             )
 
         if self.attended and self.no_show:
@@ -888,7 +877,7 @@ class Booking(models.Model):
         # we shouldn't ever set cancellation fee paid without it also being flagged as incurred
         if self.cancellation_fee_paid:
             self.cancellation_fee_incurred = True
-        super(Booking, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
 
 class WaitingListUser(models.Model):
@@ -950,7 +939,7 @@ class Private(Event):
 
 
 def user_str_patch(self):
-    return "%s %s (%s)" % (self.first_name, self.last_name, self.username)
+    return f"{self.first_name} {self.last_name} ({self.username})"
 
 
 def has_outstanding_fees(self):

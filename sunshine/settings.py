@@ -9,11 +9,11 @@ https://docs.djangoproject.com/en/1.6/ref/settings/
 """
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-import environ
 import logging
 import os
 import sys
 
+import environ
 from django.contrib import messages
 
 from .custom_logging import GroupWriteRotatingFileHandler, log_file_permissions
@@ -38,7 +38,7 @@ environ.Env.read_env(root(".env"))  # reading .env file
 TESTING = env("TESTING")
 if not TESTING:  # pragma: no cover
     TESTING = any(
-        [test_str in arg for arg in sys.argv for test_str in ["test", "pytest"]]
+        test_str in arg for arg in sys.argv for test_str in ["test", "pytest"]
     )
 
 BASE_DIR = root()
@@ -158,7 +158,7 @@ ACCOUNT_LOGOUT_REDIRECT_URL = "/"
 ALLAUTH_TRUSTED_PROXY_COUNT = 1
 
 ABSOLUTE_URL_OVERRIDES = {
-    "auth.user": lambda o: "/users/%s/" % o.username,
+    "auth.user": lambda o: f"/users/{o.username}/",
 }
 
 # Password validation

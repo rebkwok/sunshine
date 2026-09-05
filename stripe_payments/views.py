@@ -2,20 +2,20 @@ import json
 import logging
 
 import stripe
-
 from django.conf import settings
 from django.contrib.sites.models import Site
+from django.shortcuts import HttpResponse, render
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
-from django.shortcuts import render, HttpResponse
 
 from activitylog.models import ActivityLog
+
 from .emails import send_failed_payment_emails, send_processed_refund_emails
 from .exceptions import StripeProcessingError
 from .models import Seller, StripePaymentIntent
 from .utils import (
-    get_invoice_from_payment_intent,
     check_stripe_data,
+    get_invoice_from_payment_intent,
     process_invoice_items,
 )
 
@@ -46,9 +46,7 @@ def stripe_payment_complete(request):
     payload = request.POST.get("payload")
     if payload is None:
         logger.error("No payload found %s", payload)
-        send_failed_payment_emails(
-            payment_intent=None, error=f"POST: {str(request.POST)}"
-        )
+        send_failed_payment_emails(payment_intent=None, error=f"POST: {request.POST!s}")
         return render(request, "stripe_payments/non_valid_payment.html")
 
     payload = json.loads(payload)
@@ -114,7 +112,7 @@ def stripe_webhook(request):
         # Invalid signature
         logger.error(e)
         return HttpResponse("Invalid webhook signature", status=400)
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         # Invalid payload
         logger.error(e)
         return HttpResponse("Unable to contruct webhook event", status=400)
@@ -158,7 +156,7 @@ def stripe_webhook(request):
             # a refund or other event that occurred outside of the system could be relevant, so
             # if this raises an AttributeError, we log and proceed
             account = event.account
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             logger.error(e)
         else:
             if account != site_seller.stripe_user_id:
@@ -214,7 +212,8 @@ def stripe_webhook(request):
                 logger.info(
                     f"Payment intent requires action: id {payment_intent.id}; invoice id {invoice.invoice_id}"
                 )
-    except Exception as e:  # log anything else and send error emails
+    except Exception as e:  # noqa: BLE001
+        # log anything else and send error emails
         logger.error(e)
         send_failed_payment_emails(error=e)
     return HttpResponse(status=200)

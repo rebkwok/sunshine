@@ -1,61 +1,61 @@
 from django.shortcuts import render
 
 from booking.views.ajax_views import (
-    toggle_waiting_list,
     ajax_cart_item_delete,
     toggle_booking,
-)
-from booking.views.event_views import (
-    EventDetailView,
-    RegularClassesEventListView,
-    WorkshopEventListView,
-    PrivateClassesEventListView,
+    toggle_waiting_list,
 )
 from booking.views.booking_views import BookingHistoryListView, BookingListView
-from booking.views.shopping_basket import (
-    shopping_basket_view,
-    guest_shopping_basket,
-    stripe_checkout,
-    check_total,
+from booking.views.event_views import (
+    EventDetailView,
+    PrivateClassesEventListView,
+    RegularClassesEventListView,
+    WorkshopEventListView,
 )
-from booking.views.misc import csrf_failure
-from booking.views.purchases import (
-    ajax_add_membership_to_basket,
-    membership_purchase_view,
-)
-from booking.views.memberships import MembershipListView, MembershipDetailView
 from booking.views.gift_vouchers import (
     GiftVoucherDetailView,
     GiftVoucherPurchaseView,
     GiftVoucherUpdateView,
     voucher_details,
 )
+from booking.views.memberships import MembershipDetailView, MembershipListView
+from booking.views.misc import csrf_failure
+from booking.views.purchases import (
+    ajax_add_membership_to_basket,
+    membership_purchase_view,
+)
+from booking.views.shopping_basket import (
+    check_total,
+    guest_shopping_basket,
+    shopping_basket_view,
+    stripe_checkout,
+)
 from booking.views.user_invoices_views import UserInvoiceListView
 
 __all__ = [
-    "RegularClassesEventListView",
-    "WorkshopEventListView",
-    "EventDetailView",
-    "BookingListView",
     "BookingHistoryListView",
-    "PrivateClassesEventListView",
-    "toggle_waiting_list",
-    "shopping_basket_view",
-    "guest_shopping_basket",
-    "stripe_checkout",
-    "check_total",
-    "ajax_cart_item_delete",
-    "csrf_failure",
-    "membership_purchase_view",
-    "ajax_add_membership_to_basket",
-    "MembershipListView",
-    "MembershipDetailView",
+    "BookingListView",
+    "EventDetailView",
     "GiftVoucherDetailView",
     "GiftVoucherPurchaseView",
     "GiftVoucherUpdateView",
+    "MembershipDetailView",
+    "MembershipListView",
+    "PrivateClassesEventListView",
+    "RegularClassesEventListView",
     "UserInvoiceListView",
-    "voucher_details",
+    "WorkshopEventListView",
+    "ajax_add_membership_to_basket",
+    "ajax_cart_item_delete",
+    "check_total",
+    "csrf_failure",
+    "guest_shopping_basket",
+    "membership_purchase_view",
+    "shopping_basket_view",
+    "stripe_checkout",
     "toggle_booking",
+    "toggle_waiting_list",
+    "voucher_details",
 ]
 
 

@@ -1,7 +1,6 @@
-# -*- coding: utf-8 -*-
 from django.contrib.auth.models import User
-from django.urls import reverse
 from django.test import TestCase
+from django.urls import reverse
 
 from .helpers import TestPermissionMixin
 

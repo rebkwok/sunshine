@@ -1,15 +1,14 @@
 from decimal import Decimal
-from unittest.mock import patch
 from hashlib import sha512
+from unittest.mock import patch
 
 import pytest
-
 from model_bakery import baker
 
-from booking.models import Membership, Booking, GiftVoucher
-from ..models import Invoice, Seller, StripePaymentIntent, StripeRefund
-
+from booking.models import Booking, GiftVoucher, Membership
 from conftest import get_mock_payment_intent, get_mock_refund
+
+from ..models import Invoice, Seller, StripePaymentIntent, StripeRefund
 
 pytestmark = pytest.mark.django_db
 
@@ -40,7 +39,7 @@ def test_generate_invoice_id(short_uuid_random):
 @pytest.mark.usefixtures("invoice_keyenv")
 def test_signature():
     invoice = baker.make(Invoice, invoice_id="foo123")
-    assert invoice.signature() == sha512("foo123test".encode("utf-8")).hexdigest()
+    assert invoice.signature() == sha512(b"foo123test").hexdigest()
 
 
 @pytest.mark.usefixtures("invoice_keyenv")

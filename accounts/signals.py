@@ -1,20 +1,19 @@
 from dateutil.relativedelta import relativedelta
-
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.cache import cache
-from django.db.models.signals import post_save, post_delete
+from django.db.models.signals import post_delete, post_save
 from django.dispatch import receiver
 from django.utils import timezone
 
-from activitylog.models import ActivityLog
 from accounts.models import (
     ArchivedDisclaimer,
-    active_data_privacy_cache_key,
-    active_disclaimer_cache_key,
     OnlineDisclaimer,
     SignedDataPrivacy,
+    active_data_privacy_cache_key,
+    active_disclaimer_cache_key,
 )
+from activitylog.models import ActivityLog
 from booking.email_helpers import send_email
 
 
@@ -23,11 +22,7 @@ def user_post_save(sender, instance, created, *args, **kwargs):
     # Log when new user created
     if created:
         ActivityLog.objects.create(
-            log="New user registered: {} {}, username {}".format(
-                instance.first_name,
-                instance.last_name,
-                instance.username,
-            )
+            log=f"New user registered: {instance.first_name} {instance.last_name}, username {instance.username}"
         )
 
         # Email info to user (skip if no email address, or if we're running tests)
@@ -57,9 +52,7 @@ def archive_disclaimer_and_update_cache(sender, instance, **kwargs):
         fields["name"] = f"{instance.user.first_name} {instance.user.last_name}"
         ArchivedDisclaimer.objects.create(**fields)
         ActivityLog.objects.create(
-            log="Online disclaimer deleted; archive created for user {} {}".format(
-                instance.user.first_name, instance.user.last_name
-            )
+            log=f"Online disclaimer deleted; archive created for user {instance.user.first_name} {instance.user.last_name}"
         )
     # set cache to False
     cache.set(active_disclaimer_cache_key(instance.user), False, None)

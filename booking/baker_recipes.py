@@ -1,13 +1,11 @@
 from datetime import timedelta
+
 from django.contrib.auth.models import User
-
 from django.utils import timezone
-
 from model_bakery.recipe import Recipe, foreign_key, seq
 
-from booking.models import Event, Booking, GiftVoucher, Membership, WaitingListUser
+from booking.models import Booking, Event, GiftVoucher, Membership, WaitingListUser
 from timetable.models import TimetableSession, Venue
-
 
 now = timezone.now()
 past = now - timedelta(30)

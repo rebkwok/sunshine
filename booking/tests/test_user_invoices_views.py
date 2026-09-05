@@ -1,10 +1,8 @@
-# -*- coding: utf-8 -*-
-from model_bakery import baker
 import pytest
 from django.urls import reverse
+from model_bakery import baker
 
 from stripe_payments.models import Invoice
-
 
 pytestmark = pytest.mark.django_db
 

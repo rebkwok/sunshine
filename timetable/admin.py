@@ -1,10 +1,10 @@
 from django.contrib import admin
-from django.shortcuts import render, redirect
+from django.shortcuts import redirect, render
 from django.urls import path, reverse
 from django.utils.safestring import mark_safe
 
 from .forms import UploadTimetableForm
-from .models import Category, TimetableSession, SessionType, Venue, Location
+from .models import Category, Location, SessionType, TimetableSession, Venue
 from .utils import upload_timetable
 
 
@@ -46,7 +46,7 @@ class VenueAdmin(admin.ModelAdmin):
     @mark_safe
     def image_img(self, obj):
         if obj.photo:
-            return '<img src="%s"  height="60px"/>' % obj.photo.url
+            return f'<img src="{obj.photo.url}"  height="60px"/>'
         else:
             return "-"
 
@@ -85,7 +85,7 @@ class SessionTypeAdmin(admin.ModelAdmin):
     @mark_safe
     def image_img(self, obj):
         if obj.photo:
-            return '<img src="%s"  height="60px"/>' % obj.photo.url
+            return f'<img src="{obj.photo.url}"  height="60px"/>'
         else:
             return "-"
 
@@ -120,7 +120,7 @@ class TimetableSessionAdmin(admin.ModelAdmin):
         "members_only",
         "show_on_timetable_page",
     )
-    fieldsets = [
+    fieldsets = (
         (
             "Session name",
             {
@@ -158,10 +158,9 @@ class TimetableSessionAdmin(admin.ModelAdmin):
             },
         ),
         ("Date and time", {"fields": ["session_day", "start_time", "end_time"]}),
-    ]
-    ordering = ["session_day", "start_time"]
+    )
+    ordering = ("session_day", "start_time")
 
-    list_filter = ["session_type", "venue"]
     list_editable = ("members_only", "show_on_timetable_page")
 
     def get_urls(self):

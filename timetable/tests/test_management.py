@@ -1,11 +1,8 @@
 import pytest
-
-
 from django.core import management
 from django.test import TestCase
 
 from ..models import SessionType, TimetableSession, Venue
-
 
 pytestmark = pytest.mark.django_db
 

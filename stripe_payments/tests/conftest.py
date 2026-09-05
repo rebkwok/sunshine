@@ -1,7 +1,8 @@
-import pytest
 import os
 
+import pytest
 from model_bakery import baker
+
 from stripe_payments.models import Invoice
 
 

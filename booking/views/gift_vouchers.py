@@ -1,14 +1,14 @@
 from django.contrib import messages
 from django.shortcuts import HttpResponseRedirect
-from django.urls import reverse
 from django.template.response import TemplateResponse
+from django.urls import reverse
 from django.views.generic import CreateView, UpdateView
 
 from ..forms import GiftVoucherForm
 from ..models import (
+    GiftVoucher,
     ItemVoucher,
     TotalVoucher,
-    GiftVoucher,
 )
 
 

@@ -1,18 +1,14 @@
-from unittest.mock import patch, Mock
+from unittest.mock import Mock, patch
 
-from django.core import mail
-
-from model_bakery import baker
 import pytest
-
+from django.core import mail
+from model_bakery import baker
 from stripe import InvalidRequestError, Refund
 
+from conftest import get_mock_payment_intent, get_mock_refund
 from stripe_payments.models import StripePaymentIntent, StripeRefund
 
-from conftest import get_mock_payment_intent, get_mock_refund
-
 from ..utils import process_refund
-
 
 pytestmark = pytest.mark.django_db
 

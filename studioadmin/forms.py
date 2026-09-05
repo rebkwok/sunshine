@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from django import forms
 from django.contrib.auth.models import User
 
@@ -31,7 +29,7 @@ def get_user_choices(event):
             [
                 (
                     user.id,
-                    "{} {} ({})".format(user.first_name, user.last_name, user.username),
+                    f"{user.first_name} {user.last_name} ({user.username})",
                 )
                 for user in users
             ]

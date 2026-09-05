@@ -1,8 +1,8 @@
-from urllib.parse import urlencode
 import logging
+from urllib.parse import urlencode
 
 import requests
-
+from braces.views import LoginRequiredMixin, StaffuserRequiredMixin
 from django.conf import settings
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.sites.models import Site
@@ -10,11 +10,8 @@ from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.views.generic import View
 
-from braces.views import LoginRequiredMixin, StaffuserRequiredMixin
-
 from activitylog.models import ActivityLog
 from stripe_payments.models import Seller
-
 
 logger = logging.getLogger(__name__)
 

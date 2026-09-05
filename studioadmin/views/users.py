@@ -1,10 +1,8 @@
 import logging
 
-from django.contrib.auth.models import User
-from django.views.generic import ListView, DetailView
-
 from braces.views import LoginRequiredMixin
-
+from django.contrib.auth.models import User
+from django.views.generic import DetailView, ListView
 
 logger = logging.getLogger(__name__)
 
@@ -42,7 +40,7 @@ NAME_FILTERS = (
 
 def _get_name_filter_available(queryset):
     names_list = queryset.distinct().values_list("first_name", flat=True)
-    letter_set = set([name[0].lower() for name in names_list if name])
+    letter_set = {name[0].lower() for name in names_list if name}
 
     name_filter_options = []
     for option in NAME_FILTERS:

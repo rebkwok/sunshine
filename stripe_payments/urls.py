@@ -1,11 +1,11 @@
 from django.urls import path
-from .views import stripe_payment_complete, stripe_webhook
-from .connection_views import (
-    connect_stripe_view,
-    StripeAuthorizeView,
-    StripeAuthorizeCallbackView,
-)
 
+from .connection_views import (
+    StripeAuthorizeCallbackView,
+    StripeAuthorizeView,
+    connect_stripe_view,
+)
+from .views import stripe_payment_complete, stripe_webhook
 
 app_name = "stripe_payments"
 

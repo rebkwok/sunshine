@@ -1,17 +1,19 @@
-# -*- coding: utf-8 -*-
 from datetime import timedelta
 
 import pytest
-
-from model_bakery import baker
-
+from allauth.account.models import EmailAddress
+from django.contrib.auth.models import User
 from django.core.cache import cache
 from django.test import TestCase
-from django.contrib.auth.models import User
 from django.urls import reverse
 from django.utils import timezone
+from model_bakery import baker
 
-from allauth.account.models import EmailAddress
+from conftest import (
+    make_data_privacy_agreement,
+    make_disclaimer_content,
+    make_online_disclaimer,
+)
 
 from ..models import (
     DataPrivacyPolicy,
@@ -20,12 +22,6 @@ from ..models import (
     has_active_disclaimer,
 )
 from ..utils import has_active_data_privacy_agreement
-
-from conftest import (
-    make_disclaimer_content,
-    make_online_disclaimer,
-    make_data_privacy_agreement,
-)
 
 pytestmark = pytest.mark.django_db
 
@@ -154,7 +150,7 @@ class SignedDataPrivacyCreateViewTests(TestCase):
         make_data_privacy_agreement(cls.user)
 
     def setUp(self):
-        super(SignedDataPrivacyCreateViewTests, self).setUp()
+        super().setUp()
         self.client.login(username=self.user.username, password="test")
 
     def test_user_already_has_active_signed_agreement(self):
@@ -205,7 +201,7 @@ def get_disclaimer_form_data(user):
 def test_disclaimer_create_view_login_required(client, user):
     url = reverse("accounts:disclaimer_form", args=(user.id,))
     resp = client.get(url)
-    redirected_url = reverse("account_login") + "?next={}".format(url)
+    redirected_url = reverse("account_login") + f"?next={url}"
     assert resp.status_code == 302
     assert redirected_url in resp.url
 
@@ -563,12 +559,12 @@ def test_disclaimer_emergency_contact_update_view_post(client, user):
     url = reverse("accounts:update_emergency_contact", args=(user.id,))
     client.post(
         url,
-        data=dict(
-            phone="111",
-            emergency_contact_name="test1",
-            emergency_contact_relationship="test1",
-            emergency_contact_phone="888",
-        ),
+        data={
+            "phone": "111",
+            "emergency_contact_name": "test1",
+            "emergency_contact_relationship": "test1",
+            "emergency_contact_phone": "888",
+        },
     )
     disclaimer.refresh_from_db()
     assert disclaimer.phone == "111"

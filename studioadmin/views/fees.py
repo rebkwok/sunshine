@@ -1,13 +1,13 @@
 from django.contrib.admin.views.decorators import staff_member_required
-from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
+from django.http import JsonResponse
 from django.shortcuts import (
     get_object_or_404,
     render,
 )
-from django.views.decorators.http import require_http_methods
-from django.http import JsonResponse
 from django.template.response import TemplateResponse
+from django.views.decorators.http import require_http_methods
 
 from activitylog.models import ActivityLog
 from booking.models import Booking

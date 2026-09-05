@@ -1,9 +1,11 @@
+import itertools
+
 from django.contrib import admin
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 
-from booking.models import Booking, Membership, GiftVoucher
-from stripe_payments.models import Invoice, Seller, StripeRefund, StripePaymentIntent
+from booking.models import Booking, GiftVoucher, Membership
+from stripe_payments.models import Invoice, Seller, StripePaymentIntent, StripeRefund
 
 
 class BookingInline(admin.TabularInline):
@@ -133,7 +135,7 @@ class StripePaymentIntentAdmin(admin.ModelAdmin):
 
 
 def _inv_items(invoice):
-    items = sum(list(invoice.items_summary().values()), [])
+    items = list(itertools.chain.from_iterable(list(invoice.items_summary().values())))
     if items:
         items = [f"<li>{item}</li>" for item in items]
         return mark_safe(f"<ul>{''.join(items)}</ul>")

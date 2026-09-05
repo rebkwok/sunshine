@@ -1,4 +1,4 @@
-from datetime import datetime, date
+from datetime import UTC, datetime
 
 from django import forms
 from django.utils import timezone
@@ -29,7 +29,7 @@ class TimetableFilter(forms.Form):
 
 class UploadTimetableForm(forms.Form):
     def __init__(self, *args, **kwargs):
-        super(UploadTimetableForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         qs = TimetableSession.objects.all().order_by("session_day", "start_time")
 
@@ -44,7 +44,7 @@ class UploadTimetableForm(forms.Form):
                 format="%a %d %b %Y",
             ),
             required=True,
-            initial=date.today(),
+            initial=datetime.now(tz=UTC).date(),
         )
 
         self.fields["end_date"] = forms.DateField(
@@ -81,7 +81,7 @@ class UploadTimetableForm(forms.Form):
         )
 
     def clean(self):
-        super(UploadTimetableForm, self).clean()
+        super().clean()
         cleaned_data = self.cleaned_data
 
         start_date = self.data.get("start_date")
@@ -89,7 +89,7 @@ class UploadTimetableForm(forms.Form):
             if self.errors.get("start_date"):
                 del self.errors["start_date"]
             try:
-                start_date = datetime.strptime(start_date, "%a %d %b %Y").date()
+                start_date = datetime.strptime(start_date, "%a %d %b %Y").date()  # noqa: DTZ007
                 if start_date >= timezone.now().date():
                     cleaned_data["start_date"] = start_date
                 else:
@@ -107,7 +107,7 @@ class UploadTimetableForm(forms.Form):
             if self.errors.get("end_date"):
                 del self.errors["end_date"]
             try:
-                end_date = datetime.strptime(end_date, "%a %d %b %Y").date()
+                end_date = datetime.strptime(end_date, "%a %d %b %Y").date()  # noqa: DTZ007
             except ValueError:
                 self.add_error(
                     "end_date",

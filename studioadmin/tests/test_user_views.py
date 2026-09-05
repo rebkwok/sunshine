@@ -1,13 +1,13 @@
 import pytest
+from django.contrib.auth.models import User
+from django.test import TestCase
+from django.urls import reverse
 from model_bakery import baker
 
-from django.urls import reverse
-from django.test import TestCase
-from django.contrib.auth.models import User
-
-from studioadmin.views.users import NAME_FILTERS
-from .helpers import TestPermissionMixin
 from conftest import make_disclaimer_content, make_online_disclaimer
+from studioadmin.views.users import NAME_FILTERS
+
+from .helpers import TestPermissionMixin
 
 
 class UserListViewTests(TestPermissionMixin, TestCase):
@@ -21,7 +21,7 @@ class UserListViewTests(TestPermissionMixin, TestCase):
         test that the page redirects if user is not logged in
         """
         resp = self.client.get(self.url)
-        redirected_url = reverse("admin:login") + "?next={}".format(self.url)
+        redirected_url = reverse("admin:login") + f"?next={self.url}"
         self.assertEqual(resp.status_code, 302)
         self.assertIn(redirected_url, resp.url)
 
@@ -31,7 +31,7 @@ class UserListViewTests(TestPermissionMixin, TestCase):
         """
         self.client.login(username=self.user.username, password="test")
         resp = self.client.get(self.url)
-        redirected_url = reverse("admin:login") + "?next={}".format(self.url)
+        redirected_url = reverse("admin:login") + f"?next={self.url}"
         self.assertEqual(resp.status_code, 302)
         self.assertIn(redirected_url, resp.url)
 
@@ -99,7 +99,7 @@ class UserListViewTests(TestPermissionMixin, TestCase):
     def test_filter_options(self):
         # make a user with first name starting with all options
         for option in NAME_FILTERS:
-            baker.make_recipe("booking.user", first_name="{}Usr".format(option))
+            baker.make_recipe("booking.user", first_name=f"{option}Usr")
         # delete any starting with Z
         User.objects.filter(first_name__istartswith="Z").delete()
         self.client.login(username=self.staff_user.username, password="test")

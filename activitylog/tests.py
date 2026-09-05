@@ -1,24 +1,21 @@
-from datetime import datetime, timedelta
-from datetime import timezone as dt_timezone
 import os
 import sys
-from tempfile import TemporaryDirectory
+from datetime import UTC, datetime, timedelta
 from io import StringIO
+from tempfile import TemporaryDirectory
 from unittest.mock import patch
 
 import pytest
 from dateutil.relativedelta import relativedelta
-from model_bakery import baker
-
 from django.conf import settings
 from django.contrib.admin.sites import AdminSite
 from django.core import management
 from django.test import TestCase, override_settings
 from django.utils import timezone
+from model_bakery import baker
 
 from activitylog import admin
 from activitylog.models import ActivityLog
-
 
 pytestmark = pytest.mark.django_db
 
@@ -109,7 +106,7 @@ class DeleteEmptyJobActivityLogsTests(TestCase):
 
         self.assertEqual(
             self.output.getvalue(),
-            "Invalid date {}; before date must be in the past.\n".format(before_date),
+            f"Invalid date {before_date}; before date must be in the past.\n",
         )
         self.assertEqual(ActivityLog.objects.count(), self.total_setup_logs)
 
@@ -136,7 +133,7 @@ class DeleteEmptyJobActivityLogsTests(TestCase):
 class DeleteOldActivityLogsTests(TestCase):
     def setUp(self):
         # logs 13, 25, 37 months ago, one for each empty job text msg, one other
-        self.mock_now = datetime(2019, 10, 1, tzinfo=dt_timezone.utc)
+        self.mock_now = datetime(2019, 10, 1, tzinfo=UTC)
         self.log_11monthsold = baker.make(
             ActivityLog,
             log="message",
@@ -158,7 +155,7 @@ class DeleteOldActivityLogsTests(TestCase):
     def test_delete_default_old_logs(self, mock_now, mock_run):
         mock_now.return_value = self.mock_now
         self.assertEqual(ActivityLog.objects.count(), 3)
-        with TemporaryDirectory() as tmpdir:
+        with TemporaryDirectory() as tmpdir:  # noqa: SIM117
             with override_settings(LOG_FOLDER=tmpdir):
                 # no age, defaults to 1 yr
                 management.call_command("delete_old_activitylogs")
@@ -190,7 +187,7 @@ class DeleteOldActivityLogsTests(TestCase):
     def test_delete_old_logs_with_args(self, mock_now, mock_run):
         mock_now.return_value = self.mock_now
         self.assertEqual(ActivityLog.objects.count(), 3)
-        with TemporaryDirectory() as tmpdir:
+        with TemporaryDirectory() as tmpdir:  # noqa: SIM117
             with override_settings(LOG_FOLDER=tmpdir):
                 management.call_command("delete_old_activitylogs", age=3)
                 # 3 logs left - the 2 that are < 3 yrs old plus the new one to log this activity

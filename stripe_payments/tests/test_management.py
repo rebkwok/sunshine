@@ -1,12 +1,11 @@
-from model_bakery import baker
 import pytest
-
 from django.core import management
+from model_bakery import baker
 
-from booking.models import Membership, Booking, GiftVoucher
-from ..models import Invoice, StripePaymentIntent
 from activitylog.models import ActivityLog
+from booking.models import Booking, GiftVoucher, Membership
 
+from ..models import Invoice, StripePaymentIntent
 
 pytestmark = pytest.mark.django_db
 

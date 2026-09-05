@@ -1,12 +1,10 @@
 import logging
 
-from django.views.generic import ListView, DetailView
-
 from braces.views import LoginRequiredMixin
+from django.views.generic import DetailView, ListView
 
 from ..models import Membership
 from .views_utils import DataPolicyAgreementRequiredMixin
-
 
 logger = logging.getLogger(__name__)
 

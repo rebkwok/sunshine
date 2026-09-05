@@ -1,17 +1,13 @@
-# -*- coding: utf-8 -*-
 from unittest.mock import patch
 
 import pytest
-
-from model_bakery import baker
 from django.core import mail
 from django.urls import reverse
-
 from django_recaptcha.client import RecaptchaResponse
+from model_bakery import baker
 
-
-from timetable.models import SessionType, Venue, Location
-from website.models import Testimonial, TeamMember
+from timetable.models import Location, SessionType, Venue
+from website.models import TeamMember, Testimonial
 
 pytestmark = pytest.mark.django_db
 

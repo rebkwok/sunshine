@@ -1,14 +1,15 @@
 import random
 
-from django.urls import reverse
 from django.conf import settings
-from django.shortcuts import render, HttpResponseRedirect
 from django.contrib import messages
+from django.shortcuts import HttpResponseRedirect, render
+from django.urls import reverse
 
 from booking.email_helpers import send_email
-from timetable.models import Location, Venue, SessionType
+from timetable.models import Location, SessionType, Venue
 from website.forms import ContactForm
-from .models import GalleryImage, Testimonial, TeamMember
+
+from .models import GalleryImage, TeamMember, Testimonial
 
 
 def home(request):

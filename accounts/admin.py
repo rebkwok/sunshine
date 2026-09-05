@@ -1,21 +1,21 @@
+import json
 from decimal import Decimal
 from math import floor
-import json
 
-from django.contrib import admin
 from django import forms
+from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import User
-from django.utils.html import format_html, mark_safe
 from django.shortcuts import reverse
+from django.utils.html import format_html, mark_safe
 
 from accounts.models import (
+    ArchivedDisclaimer,
     CookiePolicy,
     DataPrivacyPolicy,
-    SignedDataPrivacy,
     DisclaimerContent,
     OnlineDisclaimer,
-    ArchivedDisclaimer,
+    SignedDataPrivacy,
     has_active_disclaimer,
     has_expired_disclaimer,
 )
@@ -33,11 +33,7 @@ class PolicyAdminFormMixin:
                 self.fields["content"].initial = current_policy.content
                 self.fields[
                     "version"
-                ].help_text = (
-                    "Current version is {}.  Leave blank for next major version".format(
-                        current_policy.version
-                    )
-                )
+                ].help_text = f"Current version is {current_policy.version}.  Leave blank for next major version"
             else:
                 self.fields["version"].initial = 1.0
 
@@ -124,7 +120,7 @@ class DisclaimerContentAdminForm(forms.ModelForm):
                     ].initial = current_content.disclaimer_terms
                     self.fields["form"].initial = current_content.form
                     next_default_version = Decimal(
-                        floor((DisclaimerContent.current_version() + 1))
+                        floor(DisclaimerContent.current_version() + 1)
                     )
                     self.fields["version"].help_text = (
                         f"Current version is {current_content.version}.  Leave "
@@ -177,8 +173,8 @@ class DisclaimerContentAdmin(admin.ModelAdmin):
     form = DisclaimerContentAdminForm
     add_form_template = "accounts/admin/admin_disclaimer_content_change_form.html"
     change_form_template = "accounts/admin/admin_disclaimer_content_change_form.html"
-    default_fields = ["disclaimer_terms", "version", "form", "is_draft", "issue_date"]
-    actions = []
+    default_fields = ("disclaimer_terms", "version", "form", "is_draft", "issue_date")
+    actions = ()
 
     def has_delete_permission(self, request, obj=None):
         return False

@@ -1,18 +1,19 @@
 from calendar import month_name, monthrange
+
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
-from django.template.response import TemplateResponse
 from django.template.loader import render_to_string
+from django.template.response import TemplateResponse
 from django.utils import timezone
 from django.views.decorators.http import require_http_methods
 
 from booking.models import Membership, MembershipType, RegularClass
 from booking.views.views_utils import (
     data_privacy_required,
-    total_unpaid_item_count,
     get_unpaid_memberships,
+    total_unpaid_item_count,
 )
 
 

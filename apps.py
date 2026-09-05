@@ -1,16 +1,16 @@
 from suit.apps import (
-    DjangoSuitConfig,
     SUIT_FORM_SIZE_FULL,
-    SUIT_FORM_SIZE_SMALL,
     SUIT_FORM_SIZE_LARGE,
+    SUIT_FORM_SIZE_SMALL,
+    DjangoSuitConfig,
 )
-from suit.menu import ParentItem, ChildItem
+from suit.menu import ChildItem, ParentItem
 
 
 class SuitConfig(DjangoSuitConfig):
     layout = "horizontal"
 
-    form_size = {
+    form_size = {  # noqa: RUF012
         "default": SUIT_FORM_SIZE_SMALL,
         # 'fields': {}
         "widgets": {
@@ -26,7 +26,7 @@ class SuitConfig(DjangoSuitConfig):
     }
 
     # staff users cannot see anything at the moment
-    superuser_permissions = ["add_event"]
+    superuser_permissions = ("add_event",)
     menu = (
         ParentItem(
             "WebsiteContent",
@@ -142,4 +142,4 @@ class SuitConfig(DjangoSuitConfig):
     )
 
     def ready(self):
-        super(SuitConfig, self).ready()
+        super().ready()

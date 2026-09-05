@@ -1,11 +1,9 @@
 import logging
 
+from braces.views import LoginRequiredMixin
 from django.views.generic import ListView
 
-from braces.views import LoginRequiredMixin
-
 from stripe_payments.models import Invoice
-
 
 logger = logging.getLogger(__name__)
 

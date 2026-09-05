@@ -1,20 +1,18 @@
 from datetime import timedelta
 
-from model_bakery import baker
-
 from django.core import management
 from django.test import TestCase
 from django.utils import timezone
+from model_bakery import baker
 
 from accounts.models import ArchivedDisclaimer, OnlineDisclaimer
 from activitylog.models import ActivityLog
-
-from conftest import make_online_disclaimer, make_archived_disclaimer
+from conftest import make_archived_disclaimer, make_online_disclaimer
 
 
 class DeleteExpiredDisclaimersTests(TestCase):
     def setUp(self):
-        super(DeleteExpiredDisclaimersTests, self).setUp()
+        super().setUp()
         self.user = baker.make_recipe(
             "booking.user", first_name="Test", last_name="User"
         )
@@ -44,8 +42,7 @@ class DeleteExpiredDisclaimersTests(TestCase):
         activitylogs = ActivityLog.objects.values_list("log", flat=True)
 
         online_users = [
-            "{} {}".format(user.first_name, user.last_name)
-            for user in [self.user, self.user1]
+            f"{user.first_name} {user.last_name}" for user in [self.user, self.user1]
         ]
 
         self.assertIn(

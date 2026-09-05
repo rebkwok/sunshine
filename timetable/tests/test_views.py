@@ -1,19 +1,15 @@
-import pytest
-
-from datetime import datetime
-from datetime import timezone as dt_timezone
-
-from delorean import Delorean
+from datetime import UTC, datetime
 from unittest.mock import patch
+
+import pytest
+from delorean import Delorean
+from django.contrib.auth.models import User
+from django.test import TestCase
+from django.urls import reverse
 from model_bakery import baker
 
-from django.contrib.auth.models import User
-from django.urls import reverse
-from django.test import TestCase
-
 from booking.models import Event
-from timetable.models import TimetableSession, SessionType, Venue, Location
-
+from timetable.models import Location, SessionType, TimetableSession, Venue
 
 pytestmark = pytest.mark.django_db
 
@@ -124,7 +120,7 @@ class UploadTimetableTests(TestCase):
     @patch("timetable.forms.timezone")
     def test_events_are_created(self, mock_tz):
         self.client.login(username=self.superuser.username, password="test")
-        mock_tz.now.return_value = datetime(2015, 6, 1, 0, 0, tzinfo=dt_timezone.utc)
+        mock_tz.now.return_value = datetime(2015, 6, 1, 0, 0, tzinfo=UTC)
         baker.make_recipe("booking.mon_session", _quantity=5)
         self.assertEqual(Event.objects.count(), 0)
         form_data = {
@@ -135,16 +131,14 @@ class UploadTimetableTests(TestCase):
         self.client.post(self.url, data=form_data)
         self.assertEqual(Event.objects.count(), 5)
         for session in TimetableSession.objects.all():
-            Event.objects.filter(
-                name="{} ({})".format(session.name, session.level)
-            ).exists()
+            Event.objects.filter(name=f"{session.name} ({session.level})").exists()
 
         self.assertEqual(Event.objects.filter(event_type="regular_session").count(), 5)
 
     @patch("timetable.forms.timezone")
     def test_does_not_create_duplicate_sessions(self, mock_tz):
         self.client.login(username=self.superuser.username, password="test")
-        mock_tz.now.return_value = datetime(2015, 6, 1, 0, 0, tzinfo=dt_timezone.utc)
+        mock_tz.now.return_value = datetime(2015, 6, 1, 0, 0, tzinfo=UTC)
         baker.make_recipe("booking.mon_session", _quantity=5)
         self.assertEqual(Event.objects.count(), 0)
         form_data = {
@@ -169,13 +163,13 @@ class UploadTimetableTests(TestCase):
         add duplicates to context for warning display
         """
         self.client.login(username=self.superuser.username, password="test")
-        mock_tz.now.return_value = datetime(2015, 6, 1, 0, 0, tzinfo=dt_timezone.utc)
+        mock_tz.now.return_value = datetime(2015, 6, 1, 0, 0, tzinfo=UTC)
         session = baker.make_recipe("booking.tue_session", name="test")
         # this session recipe has level 2 which will be incorporated into the class name
 
         # create date in Europe/London, convert to UTC
         local_ev_date = Delorean(
-            datetime.combine(datetime(2015, 6, 2, 0, 0), session.start_time),
+            datetime.combine(datetime(2015, 6, 2, 0, 0), session.start_time),  # noqa: DTZ001
             timezone="Europe/London",
         )
         converted_ev_date = local_ev_date.shift("UTC").datetime

@@ -1,17 +1,14 @@
 import logging
 
+from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-
-from django.contrib import messages
-from django.template.response import TemplateResponse
 from django.shortcuts import get_object_or_404
-
-from booking.models import Event, WaitingListUser
+from django.template.response import TemplateResponse
 
 from activitylog.models import ActivityLog
-
+from booking.models import Event, WaitingListUser
 
 logger = logging.getLogger(__name__)
 
@@ -35,19 +32,10 @@ def event_waiting_list_view(request, event_slug):
 
         messages.success(
             request,
-            "{} {} ({}) has been removed from the waiting list".format(
-                user_to_remove.first_name,
-                user_to_remove.last_name,
-                user_to_remove.username,
-            ),
+            f"{user_to_remove.first_name} {user_to_remove.last_name} ({user_to_remove.username}) has been removed from the waiting list",
         )
         ActivityLog.objects.create(
-            log="{} {} ({}) removed from the waiting list by admin user {}".format(
-                user_to_remove.first_name,
-                user_to_remove.last_name,
-                user_to_remove.username,
-                request.user.username,
-            )
+            log=f"{user_to_remove.first_name} {user_to_remove.last_name} ({user_to_remove.username}) removed from the waiting list by admin user {request.user.username}"
         )
 
     return TemplateResponse(

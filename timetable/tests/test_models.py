@@ -1,12 +1,10 @@
 from datetime import time
-import pytest
 
+import pytest
+from django.core import exceptions
 from model_bakery import baker
 
-from django.core import exceptions
-
-from ..models import SessionType, Category, Location, Venue, TimetableSession
-
+from ..models import Category, Location, SessionType, TimetableSession, Venue
 
 pytestmark = pytest.mark.django_db
 

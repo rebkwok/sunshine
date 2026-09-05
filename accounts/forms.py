@@ -1,28 +1,28 @@
 from copy import deepcopy
-from dateutil.relativedelta import relativedelta
 
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import (
+    HTML,
+    Hidden,
+    Layout,
+    Submit,
+)
+from dateutil.relativedelta import relativedelta
 from django import forms
 from django.contrib.auth.models import User
 from django.urls import reverse
 from django.utils import timezone
-from django.utils.html import mark_safe, linebreaks
+from django.utils.html import linebreaks, mark_safe
 from django_recaptcha.fields import ReCaptchaField
 from django_recaptcha.widgets import ReCaptchaV2Checkbox
 
-from crispy_forms.helper import FormHelper
-from crispy_forms.layout import (
-    Layout,
-    Submit,
-    Hidden,
-    HTML,
-)
-
 from accounts import validators as account_validators
+
 from .models import (
     DataPrivacyPolicy,
-    SignedDataPrivacy,
-    OnlineDisclaimer,
     DisclaimerContent,
+    OnlineDisclaimer,
+    SignedDataPrivacy,
     has_expired_disclaimer,
 )
 
@@ -33,7 +33,7 @@ class SignupForm(forms.Form):
     captcha = ReCaptchaField(widget=ReCaptchaV2Checkbox)
 
     def __init__(self, *args, **kwargs):
-        super(SignupForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         # get the current version here to make sure we always display and save
         # with the same version, even if it changed while the form was being
         # completed
@@ -51,11 +51,11 @@ class SignupForm(forms.Form):
 
     def clean_data_privacy_confirmation(self):
         dp = self.cleaned_data.get("data_privacy_confirmation")
-        if not dp:
-            self.add_error(
-                "data_privacy_confirmation", "You must check this box to continue"
-            )
-        return
+        if dp:
+            return dp
+        self.add_error(
+            "data_privacy_confirmation", "You must check this box to continue"
+        )
 
     def signup(self, request, user):
         user.first_name = self.cleaned_data["first_name"]
@@ -71,7 +71,7 @@ class SignupForm(forms.Form):
 
 class ProfileForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
-        super(ProfileForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.fields["first_name"].required = True
         self.fields["last_name"].required = True
 
@@ -82,7 +82,7 @@ class ProfileForm(forms.ModelForm):
             "first_name",
             "last_name",
         )
-        widgets = {
+        widgets = {  # noqa: RUF012
             "username": forms.TextInput(attrs={"class": "form-control"}),
             "first_name": forms.TextInput(attrs={"class": "form-control"}),
             "last_name": forms.TextInput(attrs={"class": "form-control"}),
@@ -98,14 +98,14 @@ class DataPrivacyAgreementForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         self.next_url = kwargs.pop("next_url")
-        super(DataPrivacyAgreementForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.data_privacy_policy = DataPrivacyPolicy.current()
 
     def clean_confirm(self):
         confirm = self.cleaned_data.get("confirm")
-        if not confirm:
-            self.add_error("confirm", "You must check this box to continue")
-        return
+        if confirm:
+            return confirm
+        self.add_error("confirm", "You must check this box to continue")
 
 
 BASE_DISCLAIMER_FORM_WIDGETS = {
@@ -157,15 +157,14 @@ class DisclaimerForm(forms.ModelForm):
         ]
         self.fields["phone"].validators = [account_validators.phone_number_validator]
         self.fields["phone"].label = "Contact phone number"
-        if self.user is not None:
-            if has_expired_disclaimer(self.user):
-                last_disclaimer = OnlineDisclaimer.objects.filter(user=self.user).last()
-                # set initial on all fields except password and confirmation fields
-                # to data from last disclaimer
-                for field_name in self.fields:
-                    if field_name not in ["terms_accepted", "password"]:
-                        last_value = getattr(last_disclaimer, field_name)
-                        self.fields[field_name].initial = last_value
+        if self.user is not None and has_expired_disclaimer(self.user):
+            last_disclaimer = OnlineDisclaimer.objects.filter(user=self.user).last()
+            # set initial on all fields except password and confirmation fields
+            # to data from last disclaimer
+            for field_name in self.fields:
+                if field_name not in ["terms_accepted", "password"]:
+                    last_value = getattr(last_disclaimer, field_name)
+                    self.fields[field_name].initial = last_value
         self.helper = FormHelper()
         back_url = reverse("accounts:profile")
 
@@ -223,13 +222,12 @@ class DisclaimerForm(forms.ModelForm):
     def clean_date_of_birth(self):
         date_of_birth = self.cleaned_data.get("date_of_birth")
         age_cutoff_date = (timezone.now() - relativedelta(years=16)).date()
-        if date_of_birth > age_cutoff_date:
-            self.add_error(
-                "date_of_birth",
-                "You must be at least 16 years old to register and book classes",
-            )
-            return
-        return date_of_birth
+        if date_of_birth <= age_cutoff_date:
+            return date_of_birth
+        self.add_error(
+            "date_of_birth",
+            "You must be at least 16 years old to register and book classes",
+        )
 
     def clean_password(self):
         password = self.cleaned_data.get("password")

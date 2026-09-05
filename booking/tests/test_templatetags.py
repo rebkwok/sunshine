@@ -1,16 +1,13 @@
-# -*- coding: utf-8 -*-
-from datetime import datetime, UTC
+from datetime import UTC, datetime
 
 import pytest
-from model_bakery import baker
-
-from django.contrib.auth.models import User, AnonymousUser
-from django.urls import reverse
+from django.contrib.auth.models import AnonymousUser, User
 from django.test import TestCase
+from django.urls import reverse
+from model_bakery import baker
 
 from booking.models import Membership
 from booking.templatetags.bookingtags import book_button_data
-
 
 pytestmark = pytest.mark.django_db
 
@@ -18,7 +15,7 @@ pytestmark = pytest.mark.django_db
 class BookingtagTests(TestCase):
     @classmethod
     def setUpTestData(cls):
-        super(BookingtagTests, cls).setUpTestData()
+        super().setUpTestData()
         cls.user = baker.make(User, is_staff=True)
         cls.user.save()
 
@@ -146,12 +143,12 @@ def test_book_button_data_booked(configured_user, has_membership, members_only):
 @pytest.mark.parametrize(
     "event_date,cancellation_fee,show_warning",
     [
-        # > 24 hrs away
+        # > 24 hrs away, no warning
         (datetime(2026, 2, 23, 12, 0, tzinfo=UTC), 1, False),
-        # < 24 hrs away, no fee
-        (datetime(2026, 2, 23, 12, 0, tzinfo=UTC), 0, False),
-        # < 24 hrs away, has fee
-        (datetime(2026, 2, 23, 12, 0, tzinfo=UTC), 1, False),
+        # < 24 hrs away, no fee, no warning
+        (datetime(2026, 2, 23, 8, 0, tzinfo=UTC), 0, False),
+        # < 24 hrs away, has fee, show warning
+        (datetime(2026, 2, 23, 8, 0, tzinfo=UTC), 1, True),
     ],
 )
 def test_book_button_data_cancellation_warning(

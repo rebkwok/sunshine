@@ -1,7 +1,7 @@
 from django.conf import settings
-from django.core.mail import send_mail
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
+from django.core.mail import send_mail
 from django.template.loader import get_template
 
 
@@ -25,7 +25,7 @@ def send_processed_payment_emails(invoice):
     # send email to studio
     if settings.SEND_ALL_STUDIO_EMAILS:
         send_mail(
-            "{} Payment processed".format(settings.ACCOUNT_EMAIL_SUBJECT_PREFIX),
+            f"{settings.ACCOUNT_EMAIL_SUBJECT_PREFIX} Payment processed",
             get_template(
                 "stripe_payments/email/payment_processed_to_studio.txt"
             ).render(ctx),

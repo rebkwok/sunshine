@@ -1,9 +1,6 @@
-# -*- coding: utf-8 -*-
-
 from django import template
 
 from booking.models import Booking, WaitingListUser
-
 
 register = template.Library()
 
@@ -24,20 +21,13 @@ def format_cancellation(value):
     hours = weeks_remainder % HOURS_CONVERSION["days"]
 
     if value <= 24:
-        return "{} hour{}".format(value, plural_format(value))
+        return f"{value} hour{plural_format(value)}"
     elif weeks == 0 and hours == 0:
-        return "{} day{}".format(days, plural_format(days))
+        return f"{days} day{plural_format(days)}"
     elif days == 0 and hours == 0:
-        return "{} week{}".format(weeks, plural_format(weeks))
+        return f"{weeks} week{plural_format(weeks)}"
     else:
-        return "{} week{}, {} day{} and {} hour{}".format(
-            weeks,
-            plural_format(weeks),
-            days,
-            plural_format(days),
-            hours,
-            plural_format(hours),
-        )
+        return f"{weeks} week{plural_format(weeks)}, {days} day{plural_format(days)} and {hours} hour{plural_format(hours)}"
 
 
 def plural_format(value):

@@ -1,31 +1,28 @@
-# -*- coding: utf-8 -*-
 from datetime import timedelta
-from model_bakery import baker
 from unittest.mock import patch
 
 from django.contrib.sites.models import Site
-from django.urls import reverse
 from django.test import TestCase
+from django.urls import reverse
 from django.utils import timezone
-
+from model_bakery import baker
 from stripe import InvalidRequestError
 
 from booking.models import (
     Booking,
     Event,
-    TotalVoucher,
     ItemVoucher,
-    MembershipType,
     Membership,
+    MembershipType,
+    TotalVoucher,
 )
 from conftest import (
-    make_disclaimer_content,
+    get_mock_payment_intent,
     make_data_privacy_agreement,
+    make_disclaimer_content,
     make_online_disclaimer,
 )
 from stripe_payments.models import Invoice, Seller, StripePaymentIntent
-
-from conftest import get_mock_payment_intent
 
 
 class ShoppingBasketMixin:

@@ -1,30 +1,27 @@
-from datetime import datetime
-from datetime import timezone as dt_timezone
-
+from datetime import UTC, datetime
 from unittest.mock import Mock, patch
 
 import pytest
-from model_bakery import baker
-
-from django.core import mail
-from django.contrib.auth.models import User
 from django.contrib.admin.sites import AdminSite
+from django.contrib.auth.models import User
+from django.core import mail
 from django.test import TestCase
 from django.urls import reverse
+from model_bakery import baker
 
 from activitylog.models import ActivityLog
-import booking.admin as admin
+from booking import admin
 from booking.models import (
-    Event,
     Booking,
+    Event,
     GiftVoucher,
     ItemVoucher,
     Membership,
     MembershipType,
     Private,
+    RegularClass,
     TotalVoucher,
     Workshop,
-    RegularClass,
 )
 from stripe_payments.models import Invoice, StripeRefund
 
@@ -43,7 +40,7 @@ class EventAdminTests(TestCase):
         # default value
         filter = admin.EventDateListFilter(None, {}, Event, admin.EventAdmin)
         events = filter.queryset(None, Event.objects.all())
-        assert len(events), 1
+        assert len(events) == 1
         event = events[0]
         assert event.name == "future"
 
@@ -79,7 +76,7 @@ class EventAdminTests(TestCase):
     def test_event_date_display(self):
         event = baker.make_recipe(
             "booking.future_EV",
-            date=datetime(2019, 1, 23, 18, 0, tzinfo=dt_timezone.utc),
+            date=datetime(2019, 1, 23, 18, 0, tzinfo=UTC),
         )
         baker.make_recipe("booking.booking", event=event, _quantity=3)
 
@@ -88,7 +85,7 @@ class EventAdminTests(TestCase):
         assert ev_admin.get_date(ev_query) == "Wed 23 Jan 2019 18:00 (GMT)"
 
         # BST datetime
-        event.date = datetime(2019, 7, 23, 17, 0, tzinfo=dt_timezone.utc)
+        event.date = datetime(2019, 7, 23, 17, 0, tzinfo=UTC)
         event.save()
         ev_query = ev_admin.get_queryset(None)[0]
         assert ev_admin.get_date(ev_query) == "Tue 23 Jul 2019 18:00 (BST)"
@@ -99,7 +96,7 @@ class EventAdminTests(TestCase):
             baker.make_recipe(
                 "booking.booking",
                 event=event,
-                user__email="test{}@test.test".format(i),
+                user__email=f"test{i}@test.test",
                 paid=True,
             )
         assert event.bookings.filter(status="OPEN").count() == 3
@@ -194,7 +191,7 @@ class EventAdminTests(TestCase):
         event = baker.make_recipe("booking.future_EV", max_participants=5)
         for i in range(3):
             baker.make_recipe(
-                "booking.booking", event=event, user__email="test{}@test.test".format(i)
+                "booking.booking", event=event, user__email=f"test{i}@test.test"
             )
         baker.make_recipe(
             "booking.booking", event=event, no_show=True, user__email="test3@test.test"
@@ -272,7 +269,7 @@ class EventAdminTests(TestCase):
             baker.make_recipe(
                 "booking.booking",
                 event=event,
-                user__email="test{}@test.test".format(i),
+                user__email=f"test{i}@test.test",
                 paid=False,
                 status="CANCELLED",
             )
@@ -433,7 +430,7 @@ class EventProxyAdminTests(TestCase):
         event = baker.make_recipe("booking.future_EV", max_participants=5)
         for i in range(3):
             baker.make_recipe(
-                "booking.booking", event=event, user__email="test{}@test.test".format(i)
+                "booking.booking", event=event, user__email=f"test{i}@test.test"
             )
         assert event.bookings.filter(status="OPEN").count() == 3
 
@@ -461,7 +458,7 @@ class EventProxyAdminTests(TestCase):
         event = baker.make_recipe("booking.future_PC", max_participants=5)
         for i in range(3):
             baker.make_recipe(
-                "booking.booking", event=event, user__email="test{}@test.test".format(i)
+                "booking.booking", event=event, user__email=f"test{i}@test.test"
             )
         assert event.bookings.filter(status="OPEN").count() == 3
 
@@ -480,7 +477,7 @@ class EventProxyAdminTests(TestCase):
         event = baker.make_recipe("booking.future_PV", max_participants=5)
         for i in range(3):
             baker.make_recipe(
-                "booking.booking", event=event, user__email="test{}@test.test".format(i)
+                "booking.booking", event=event, user__email=f"test{i}@test.test"
             )
         assert event.bookings.filter(status="OPEN").count() == 3
 
@@ -595,7 +592,7 @@ class BookingAdminTests(TestCase):
         assert booking_admin.event_name(booking_query) == booking.event.name
         assert booking_admin.get_date(booking_query) == booking.event.date
         assert booking_admin.get_user(booking_query) == "Test User (testuser)"
-        assert booking_admin.get_cost(booking_query) == "\u00a3{}.00".format(event.cost)
+        assert booking_admin.get_cost(booking_query) == f"\u00a3{event.cost}.00"
         assert booking_admin.refunded(booking_query) == "-"
 
         baker.make(StripeRefund, booking_id=booking.id)

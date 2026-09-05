@@ -1,17 +1,15 @@
 from decimal import Decimal
-from booking.models import Booking, GiftVoucher, Membership
-import pytest
 
+import pytest
 from django.contrib.admin import AdminSite
 from django.urls import reverse
-
 from model_bakery import baker
 
+from booking.models import Booking, GiftVoucher, Membership
+from conftest import get_mock_payment_intent, get_mock_refund
 from stripe_payments.models import Invoice, StripePaymentIntent, StripeRefund
 
-from ..admin import StripePaymentIntentAdmin, StripeRefundAdmin, InvoiceAdmin
-
-from conftest import get_mock_payment_intent, get_mock_refund
+from ..admin import InvoiceAdmin, StripePaymentIntentAdmin, StripeRefundAdmin
 
 pytestmark = pytest.mark.django_db
 
@@ -51,7 +49,7 @@ def test_invoice_display_items():
         Booking, event__name="test event", event__cost=10, invoice=invoice
     )
     invoice_admin = InvoiceAdmin(Invoice, AdminSite())
-    assert invoice_admin.items(invoice) == f"<ul><li>{str(booking.event)}</li></ul>"
+    assert invoice_admin.items(invoice) == f"<ul><li>{booking.event!s}</li></ul>"
 
 
 def test_payment_intent_admin_display():
@@ -84,9 +82,9 @@ def test_payment_intent_admin_display():
     assert payment_intent_admin.inv(pi) == f'<a href="{inv_admin_url}">foo123</a>'
     assert payment_intent_admin.items(pi) == (
         "<ul>"
-        f"<li>{str(booking.event)}</li>"
-        f"<li>{str(membership)}</li>"
-        f"<li>{str(gift_voucher)}</li>"
+        f"<li>{booking.event!s}</li>"
+        f"<li>{membership!s}</li>"
+        f"<li>{gift_voucher!s}</li>"
         "</ul>"
     )
 

@@ -8,7 +8,7 @@ from .models import GalleryCategory, GalleryImage, TeamMember, Testimonial
 class GalleryCategoryAdmin(admin.ModelAdmin):
     list_display = ("name",)
 
-    fieldsets = [
+    fieldsets = (
         (
             None,
             {
@@ -16,7 +16,7 @@ class GalleryCategoryAdmin(admin.ModelAdmin):
                 "description": ("Gallery category, used to filter images"),
             },
         ),
-    ]
+    )
 
 
 @admin.register(GalleryImage)
@@ -32,7 +32,7 @@ class GalleryImageAdmin(admin.ModelAdmin):
     @mark_safe
     def image_img(self, obj):
         if obj.photo:
-            return '<img src="%s"  height="60px"/>' % obj.photo.url
+            return f'<img src="{obj.photo.url}"  height="60px"/>'
         else:
             return "-"
 
@@ -46,7 +46,7 @@ class TeamMemberAdmin(admin.ModelAdmin):
     @mark_safe
     def image_img(self, obj):
         if obj.photo:
-            return '<img src="%s"  height="60px"/>' % obj.photo.url
+            return f'<img src="{obj.photo.url}"  height="60px"/>'
         else:
             return "-"
 

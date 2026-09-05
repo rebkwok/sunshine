@@ -1,19 +1,17 @@
-# -*- coding: utf-8 -*-
-from datetime import datetime, timedelta
-from datetime import timezone as dt_timezone
-
+from datetime import UTC, datetime, timedelta
 from unittest.mock import patch
-from model_bakery import baker
 
 from django.contrib.auth.models import User
 from django.core import mail
+from django.test import RequestFactory, TestCase
 from django.urls import reverse
 from django.utils import timezone
-from django.test import RequestFactory, TestCase
+from model_bakery import baker
 
 from booking.models import Event, WaitingListUser
-from studioadmin.views.register import process_event_booking_updates
 from studioadmin.forms import AddRegisterBookingForm
+from studioadmin.views.register import process_event_booking_updates
+
 from .helpers import TestPermissionMixin
 
 
@@ -34,7 +32,7 @@ class EventRegisterListViewTests(TestPermissionMixin, TestCase):
         """
         self.client.logout()
         resp = self.client.get(self.url)
-        redirected_url = reverse("admin:login") + "?next={}".format(self.url)
+        redirected_url = reverse("admin:login") + f"?next={self.url}"
         self.assertEqual(resp.status_code, 302)
         self.assertIn(redirected_url, resp.url)
 
@@ -96,11 +94,11 @@ class EventRegisterListViewTests(TestPermissionMixin, TestCase):
 
     @patch("studioadmin.views.register.timezone")
     def test_register_shows_event_dates_in_local_time(self, mock_tz):
-        mock_tz.now.return_value = datetime(2020, 7, 28, 18, 0, tzinfo=dt_timezone.utc)
+        mock_tz.now.return_value = datetime(2020, 7, 28, 18, 0, tzinfo=UTC)
         # event during BST
         baker.make_recipe(
             "booking.future_PC",
-            date=datetime(2020, 8, 1, 18, 0, tzinfo=dt_timezone.utc),
+            date=datetime(2020, 8, 1, 18, 0, tzinfo=UTC),
         )
         resp = self.client.get(self.url)
         self.assertIn("Sat 01 Aug, 19:00", resp.rendered_content)
@@ -129,18 +127,14 @@ class RegisterViewTests(TestPermissionMixin, TestCase):
         self.client.logout()
         resp = self.client.get(self.pc_url)
         self.assertEqual(resp.status_code, 302)
-        self.assertEqual(
-            resp.url, reverse("account_login") + "?next={}".format(self.pc_url)
-        )
+        self.assertEqual(resp.url, reverse("account_login") + f"?next={self.pc_url}")
 
     def test_staff_or_instructor_required(self):
         self.client.logout()
         self.client.login(username=self.user.username, password="test")
         resp = self.client.get(self.pc_url)
         self.assertEqual(resp.status_code, 302)
-        self.assertEqual(
-            resp.url, reverse("admin:login") + "?next={}".format(self.pc_url)
-        )
+        self.assertEqual(resp.url, reverse("admin:login") + f"?next={self.pc_url}")
 
         self.client.login(username=self.staff_user.username, password="test")
         resp = self.client.get(self.pc_url)
@@ -274,16 +268,12 @@ class RegisterAjaxAddBookingViewsTests(TestPermissionMixin, TestCase):
         self.client.logout()
         resp = self.client.get(self.pc_url)
         self.assertEqual(resp.status_code, 302)
-        self.assertEqual(
-            resp.url, reverse("account_login") + "?next={}".format(self.pc_url)
-        )
+        self.assertEqual(resp.url, reverse("account_login") + f"?next={self.pc_url}")
 
         self.client.login(username=self.user.username, password="test")
         resp = self.client.get(self.pc_url)
         self.assertEqual(resp.status_code, 302)
-        self.assertEqual(
-            resp.url, reverse("admin:login") + "?next={}".format(self.pc_url)
-        )
+        self.assertEqual(resp.url, reverse("admin:login") + f"?next={self.pc_url}")
 
         self.client.login(username=self.staff_user.username, password="test")
         resp = self.client.get(self.pc_url)
@@ -460,9 +450,9 @@ class RegisterAjaxDisplayUpdateTests(TestPermissionMixin, TestCase):
 
     @patch("booking.models.timezone")
     def test_ajax_toggle_no_show_outside_cancellation_period(self, mock_tz):
-        mock_tz.now.return_value = datetime(2020, 3, 4, 18, 30, tzinfo=dt_timezone.utc)
+        mock_tz.now.return_value = datetime(2020, 3, 4, 18, 30, tzinfo=UTC)
         # event > 24hrs in future
-        self.booking.event.date = datetime(2020, 3, 7, 18, 30, tzinfo=dt_timezone.utc)
+        self.booking.event.date = datetime(2020, 3, 7, 18, 30, tzinfo=UTC)
         self.booking.event.save()
         self.client.post(self.toggle_attended_url, {"attendance": "no-show"})
         self.booking.refresh_from_db()
@@ -472,9 +462,9 @@ class RegisterAjaxDisplayUpdateTests(TestPermissionMixin, TestCase):
 
     @patch("booking.models.timezone")
     def test_ajax_toggle_no_show_inside_cancellation_period(self, mock_tz):
-        mock_tz.now.return_value = datetime(2020, 3, 4, 18, 30, tzinfo=dt_timezone.utc)
+        mock_tz.now.return_value = datetime(2020, 3, 4, 18, 30, tzinfo=UTC)
         # event < 12hrs in future
-        self.booking.event.date = datetime(2020, 3, 4, 8, 30, tzinfo=dt_timezone.utc)
+        self.booking.event.date = datetime(2020, 3, 4, 8, 30, tzinfo=UTC)
         self.booking.event.save()
         self.client.post(self.toggle_attended_url, {"attendance": "no-show"})
         self.booking.refresh_from_db()

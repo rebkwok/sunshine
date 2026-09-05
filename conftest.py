@@ -1,23 +1,22 @@
 import random
-from datetime import datetime, UTC
+from datetime import UTC, datetime
 
-from model_bakery import baker
 import pytest
 import stripe
-
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
 from django.utils import timezone
+from model_bakery import baker
 
 from accounts.models import (
     ArchivedDisclaimer,
+    DataPrivacyPolicy,
     DisclaimerContent,
     OnlineDisclaimer,
-    DataPrivacyPolicy,
     SignedDataPrivacy,
 )
 from accounts.utils import has_active_data_privacy_agreement
-from booking.models import GiftVoucher, MembershipType, GiftVoucherType
+from booking.models import GiftVoucher, GiftVoucherType, MembershipType
 from stripe_payments.models import Seller
 
 

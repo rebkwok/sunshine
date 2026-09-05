@@ -1,16 +1,14 @@
-from unittest.mock import patch, Mock
 import json
-import pytest
+from unittest.mock import Mock, patch
 
+import pytest
 from django.conf import settings
 from django.contrib.sites.models import Site
 from django.core import mail
 from django.shortcuts import reverse
-
 from model_bakery import baker
 
 from ..models import Seller, StripePaymentIntent
-
 
 pytestmark = pytest.mark.django_db
 

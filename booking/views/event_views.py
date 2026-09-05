@@ -1,22 +1,20 @@
 import logging
-
 from collections import OrderedDict
 from zoneinfo import ZoneInfo
 
 from django.core.paginator import Paginator
+from django.http import Http404
 from django.shortcuts import get_object_or_404
-from django.views.generic import ListView, DetailView
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
-from django.http import Http404
-from booking.email_helpers import email_waiting_lists
+from django.views.generic import DetailView, ListView
 
+from booking.email_helpers import email_waiting_lists
 from booking.forms import EventsFilter
 from booking.models import Booking, Event, WaitingListUser
 from booking.utils import host_from_request
 from timetable.models import Venue
-
 
 logger = logging.getLogger(__name__)
 
@@ -54,7 +52,7 @@ class BaseEventListView(ListView):
         name = self.request.GET.get("name", "all").strip()
         level = self.request.GET.get("level")
         if name and level:
-            self.event_name = "{} ({})".format(name, level.strip())
+            self.event_name = f"{name} ({level.strip()})"
         else:
             self.event_name = name
         self.event_day = self.request.GET.get("day", "").strip()
@@ -74,8 +72,8 @@ class BaseEventListView(ListView):
             events = events.filter(name=self.event_name)
 
         # select day/time
-        if self.event_day in DAYS.keys() and self.event_time:
-            weekday = list(DAYS.keys()).index(self.event_day)
+        if self.event_day in DAYS and self.event_time:
+            weekday = list(DAYS).index(self.event_day)
             try:
                 event_time = self.event_time.split(":")
                 hour = int(event_time[0])
@@ -263,7 +261,7 @@ class EventDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         # Call the base implementation first to get a context
-        context = super(EventDetailView, self).get_context_data()
+        context = super().get_context_data()
         event = self.object
         event_type = "class" if event.event_type == "regular_session" else "workshop"
         user = self.request.user
@@ -303,34 +301,32 @@ class EventDetailView(DetailView):
             context["bookable"] = event.bookable
             if booked:
                 context["bookable"] = False
-                booking_info_text = "You have booked for this {}.".format(event_type)
+                booking_info_text = f"You have booked for this {event_type}."
                 context["booked"] = True
             else:
                 if cancelled:
                     context["cancelled"] = True
                     cancelled_text = (
                         "You have previously booked "
-                        "for this {} and your booking "
+                        f"for this {event_type} and your booking "
                         "has been "
-                        "cancelled.".format(event_type)
+                        "cancelled."
                     )
                     context["booking_info_text_cancelled"] = cancelled_text
 
                 if event.spaces_left <= 0:
-                    booking_info_text = "This {} is now full.".format(event_type)
+                    booking_info_text = f"This {event_type} is now full."
         else:
-            login_url_str = "/accounts/login?next=/booking/{}s/{}".format(
-                event_type, event.slug
-            )
+            login_url_str = f"/accounts/login?next=/booking/{event_type}s/{event.slug}"
             if event.spaces_left <= 0:
                 booking_info_text = mark_safe(
-                    "This {} is now full.  "
-                    "Please <a href='{}'>log in</a> to join the waiting "
-                    "list.".format(event_type, login_url_str)
+                    f"This {event_type} is now full.  "
+                    f"Please <a href='{login_url_str}'>log in</a> to join the waiting "
+                    "list."
                 )
             else:
                 booking_info_text = mark_safe(
-                    "Please <a href='{}'>log in</a> to book.".format(login_url_str)
+                    f"Please <a href='{login_url_str}'>log in</a> to book."
                 )
         context["booking_info_text"] = booking_info_text
         return context

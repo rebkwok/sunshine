@@ -1,9 +1,9 @@
 from zoneinfo import ZoneInfo
 
 from django import template
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
-from django.urls import reverse
 
 from booking.models import Booking
 
@@ -25,21 +25,21 @@ def abbr_name(name):
         split_name = name.split("-")
         return mark_safe("{}-</br>{}".format(split_name[0], "-".join(split_name[1:])))
     if len(name) > 12:
-        return mark_safe("{}-</br>{}".format(name[:8], name[8:]))
+        return mark_safe(f"{name[:8]}-</br>{name[8:]}")
     return name
 
 
 @register.filter
 def abbr_username(user):
     if len(user) > 15:
-        return mark_safe("{}-</br>{}".format(user[:12], user[12:]))
+        return mark_safe(f"{user[:12]}-</br>{user[12:]}")
     return user
 
 
 @register.filter
 def abbr_email(email):
     if len(email) > 25:
-        return "{}...".format(email[:22])
+        return f"{email[:22]}..."
     return email
 
 

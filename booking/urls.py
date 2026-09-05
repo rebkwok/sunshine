@@ -1,32 +1,30 @@
 from django.urls import path
 from django.views.generic import RedirectView
 
-
 from booking.views import (
+    BookingHistoryListView,
+    BookingListView,
+    EventDetailView,
+    GiftVoucherDetailView,
+    GiftVoucherPurchaseView,
+    GiftVoucherUpdateView,
+    MembershipDetailView,
+    MembershipListView,
+    PrivateClassesEventListView,
     RegularClassesEventListView,
     WorkshopEventListView,
-    EventDetailView,
-    PrivateClassesEventListView,
-    BookingListView,
-    BookingHistoryListView,
-    toggle_waiting_list,
-    shopping_basket_view,
-    guest_shopping_basket,
-    stripe_checkout,
+    ajax_add_membership_to_basket,
     ajax_cart_item_delete,
     check_total,
-    ajax_add_membership_to_basket,
+    guest_shopping_basket,
     membership_purchase_view,
-    MembershipListView,
-    MembershipDetailView,
-    GiftVoucherUpdateView,
-    GiftVoucherPurchaseView,
-    GiftVoucherDetailView,
-    voucher_details,
+    shopping_basket_view,
+    stripe_checkout,
     toggle_booking,
+    toggle_waiting_list,
+    voucher_details,
 )
 from booking.views.user_invoices_views import UserInvoiceListView
-
 
 app_name = "booking"
 
