@@ -37,7 +37,9 @@ environ.Env.read_env(root(".env"))  # reading .env file
 
 TESTING = env("TESTING")
 if not TESTING:  # pragma: no cover
-    TESTING = any(test_str in arg for arg in sys.argv for test_str in ["test", "pytest"])
+    TESTING = any(
+        test_str in arg for arg in sys.argv for test_str in ["test", "pytest"]
+    )
 
 BASE_DIR = root()
 

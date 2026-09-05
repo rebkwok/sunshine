@@ -1,4 +1,3 @@
-
 """
 Check for unpaid bookings and delete where:
 booking.status = OPEN

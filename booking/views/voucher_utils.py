@@ -29,8 +29,7 @@ def validate_voucher_max_total_uses(
             }
             # we count used items plus user unpaid
             used_items_to_count = {
-                k: v | user_unpaid_items[k]
-                for k, v in all_used_items.items()
+                k: v | user_unpaid_items[k] for k, v in all_used_items.items()
             }
         else:
             used_items_to_count = all_used_items

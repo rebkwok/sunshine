@@ -127,18 +127,14 @@ class RegisterViewTests(TestPermissionMixin, TestCase):
         self.client.logout()
         resp = self.client.get(self.pc_url)
         self.assertEqual(resp.status_code, 302)
-        self.assertEqual(
-            resp.url, reverse("account_login") + f"?next={self.pc_url}"
-        )
+        self.assertEqual(resp.url, reverse("account_login") + f"?next={self.pc_url}")
 
     def test_staff_or_instructor_required(self):
         self.client.logout()
         self.client.login(username=self.user.username, password="test")
         resp = self.client.get(self.pc_url)
         self.assertEqual(resp.status_code, 302)
-        self.assertEqual(
-            resp.url, reverse("admin:login") + f"?next={self.pc_url}"
-        )
+        self.assertEqual(resp.url, reverse("admin:login") + f"?next={self.pc_url}")
 
         self.client.login(username=self.staff_user.username, password="test")
         resp = self.client.get(self.pc_url)
@@ -272,16 +268,12 @@ class RegisterAjaxAddBookingViewsTests(TestPermissionMixin, TestCase):
         self.client.logout()
         resp = self.client.get(self.pc_url)
         self.assertEqual(resp.status_code, 302)
-        self.assertEqual(
-            resp.url, reverse("account_login") + f"?next={self.pc_url}"
-        )
+        self.assertEqual(resp.url, reverse("account_login") + f"?next={self.pc_url}")
 
         self.client.login(username=self.user.username, password="test")
         resp = self.client.get(self.pc_url)
         self.assertEqual(resp.status_code, 302)
-        self.assertEqual(
-            resp.url, reverse("admin:login") + f"?next={self.pc_url}"
-        )
+        self.assertEqual(resp.url, reverse("admin:login") + f"?next={self.pc_url}")
 
         self.client.login(username=self.staff_user.username, password="test")
         resp = self.client.get(self.pc_url)

@@ -82,9 +82,7 @@ class Event(models.Model):
         ordering = ("-date",)
         verbose_name = "Workshop/Class"
         verbose_name_plural = "Workshops/Classes"
-        indexes = (
-            models.Index(fields=["date", "event_type"]),
-        )
+        indexes = (models.Index(fields=["date", "event_type"]),)
 
     @property
     def spaces_left(self):
@@ -294,10 +292,9 @@ class ItemVoucher(BaseVoucher):
 
     def valid_for(self):
         event_type_readable = dict(GIFT_VOUCHER_EVENT_TYPES)
-        return (
-            [f"Membership - {mem.name}" for mem in self.membership_types.all()] +
-            [f"{event_type_readable[ev_type]} booking" for ev_type in self.event_types]
-        )
+        return [f"Membership - {mem.name}" for mem in self.membership_types.all()] + [
+            f"{event_type_readable[ev_type]} booking" for ev_type in self.event_types
+        ]
 
     def used_items(self, user=None):
         used_items = {

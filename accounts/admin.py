@@ -33,9 +33,7 @@ class PolicyAdminFormMixin:
                 self.fields["content"].initial = current_policy.content
                 self.fields[
                     "version"
-                ].help_text = (
-                    f"Current version is {current_policy.version}.  Leave blank for next major version"
-                )
+                ].help_text = f"Current version is {current_policy.version}.  Leave blank for next major version"
             else:
                 self.fields["version"].initial = 1.0
 

@@ -42,8 +42,7 @@ class DeleteExpiredDisclaimersTests(TestCase):
         activitylogs = ActivityLog.objects.values_list("log", flat=True)
 
         online_users = [
-            f"{user.first_name} {user.last_name}"
-            for user in [self.user, self.user1]
+            f"{user.first_name} {user.last_name}" for user in [self.user, self.user1]
         ]
 
         self.assertIn(

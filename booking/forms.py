@@ -18,9 +18,7 @@ from booking.models import (
 class BookingCreateForm(forms.ModelForm):
     class Meta:
         model = Booking
-        fields = (
-            "event",
-        )
+        fields = ("event",)
 
 
 day = 24

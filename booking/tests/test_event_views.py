@@ -241,13 +241,9 @@ class EventListViewTests(TestCase):
     @patch("booking.views.event_views.timezone.now")
     def test_event_list_with_name_day_and_time(self, mock_now):
         mock_now.return_value = datetime(2019, 1, 1, 18, 0, tzinfo=UTC)
-        self.reg_class1.date = datetime(
-            2019, 1, 23, 18, 0, tzinfo=UTC
-        )  # Wed
+        self.reg_class1.date = datetime(2019, 1, 23, 18, 0, tzinfo=UTC)  # Wed
         self.reg_class1.save()
-        self.reg_class2.date = datetime(
-            2019, 1, 24, 18, 0, tzinfo=UTC
-        )  # Thurs
+        self.reg_class2.date = datetime(2019, 1, 24, 18, 0, tzinfo=UTC)  # Thurs
         self.reg_class2.save()
         reg_class3 = baker.make_recipe(
             "booking.future_PC",
@@ -266,13 +262,9 @@ class EventListViewTests(TestCase):
     @patch("booking.views.event_views.timezone.now")
     def test_event_list_with_day_and_time_errors(self, mock_now):
         mock_now.return_value = datetime(2019, 1, 1, 18, 0, tzinfo=UTC)
-        self.reg_class1.date = datetime(
-            2019, 1, 23, 18, 0, tzinfo=UTC
-        )  # Wed
+        self.reg_class1.date = datetime(2019, 1, 23, 18, 0, tzinfo=UTC)  # Wed
         self.reg_class1.save()
-        self.reg_class2.date = datetime(
-            2019, 1, 24, 18, 0, tzinfo=UTC
-        )  # Thurs
+        self.reg_class2.date = datetime(2019, 1, 24, 18, 0, tzinfo=UTC)  # Thurs
         self.reg_class2.save()
         reg_class3 = baker.make_recipe(
             "booking.future_PC",
@@ -292,13 +284,9 @@ class EventListViewTests(TestCase):
     @patch("booking.views.event_views.timezone.now")
     def test_event_list_with_day_and_time_including_daylight_savings(self, mock_now):
         mock_now.return_value = datetime(2019, 1, 1, 18, 0, tzinfo=UTC)
-        self.reg_class1.date = datetime(
-            2019, 1, 23, 18, 0, tzinfo=UTC
-        )  # Wed
+        self.reg_class1.date = datetime(2019, 1, 23, 18, 0, tzinfo=UTC)  # Wed
         self.reg_class1.save()
-        self.reg_class2.date = datetime(
-            2019, 1, 24, 18, 0, tzinfo=UTC
-        )  # Thurs
+        self.reg_class2.date = datetime(2019, 1, 24, 18, 0, tzinfo=UTC)  # Thurs
         self.reg_class2.save()
         reg_class3 = baker.make_recipe(
             "booking.future_PC",

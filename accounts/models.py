@@ -90,9 +90,7 @@ class CookiePolicy(models.Model):
             # if no version specified, go to next major version
             self.version = floor(CookiePolicy.current_version() + 1)
         super().save(**kwargs)
-        ActivityLog.objects.create(
-            log=f"CookiePolicy version {self.version} created"
-        )
+        ActivityLog.objects.create(log=f"CookiePolicy version {self.version} created")
 
 
 @has_readonly_fields
@@ -251,9 +249,7 @@ class OnlineDisclaimer(BaseOnlineDisclaimer):
     date_updated = models.DateTimeField(null=True, blank=True)
 
     class Meta:
-        indexes = (
-            models.Index(fields=["user"]),
-        )
+        indexes = (models.Index(fields=["user"]),)
 
     def __str__(self):
         return "{} {} ({}) - V{} - {}".format(

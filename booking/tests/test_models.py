@@ -266,9 +266,7 @@ class BookingTests(TestCase):
             status="CANCELLED",
             date_rebooked=datetime(2015, 1, 1, tzinfo=UTC),
         )
-        self.assertEqual(
-            booking.date_rebooked, datetime(2015, 1, 1, tzinfo=UTC)
-        )
+        self.assertEqual(booking.date_rebooked, datetime(2015, 1, 1, tzinfo=UTC))
         booking.status = "OPEN"
         booking.save()
         booking.refresh_from_db()
@@ -514,9 +512,7 @@ def test_membership(membership_type):
     assert str(past_membership) == "test - February 2022"
     assert past_membership.str_with_abbreviated_month() == "test - Feb 2022"
     assert past_membership.start_date() == datetime(2022, 2, 1, tzinfo=UTC)
-    assert past_membership.expiry_date() == datetime(
-        2022, 2, 28, tzinfo=UTC
-    )
+    assert past_membership.expiry_date() == datetime(2022, 2, 28, tzinfo=UTC)
     assert past_membership.month_str == "February"
     assert not past_membership.current_or_future()
     assert current_membership.current_or_future()
