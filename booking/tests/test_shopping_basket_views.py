@@ -983,6 +983,30 @@ class StripeCheckoutTests(ShoppingBasketMixin, TestCase):
         # redirects to basket, which will do the redirect to guest basket
         assert resp.url == reverse("booking:shopping_basket")
 
+    def test_cardholder_email_required_for_anon_user_only(self):
+        email_input = 'id="cardholder-email" type="email"'
+        mock_payment_intent_obj = get_mock_payment_intent(id="foo")
+
+        baker.make(Booking, event=self.private, user=self.user)
+        with patch(
+            "booking.views.shopping_basket.stripe.PaymentIntent"
+        ) as mock_payment_intent:
+            mock_payment_intent.create.return_value = mock_payment_intent_obj
+            resp = self.client.post(self.url, data={"cart_total": 30})
+        assert f"{email_input}>" in resp.content.decode("utf-8")
+
+        self.client.logout()
+        gift_voucher = baker.make_recipe("booking.gift_voucher_10")
+        session = self.client.session
+        session.update({"purchases": {"gift_vouchers": [gift_voucher.id]}})
+        session.save()
+        with patch(
+            "booking.views.shopping_basket.stripe.PaymentIntent"
+        ) as mock_payment_intent:
+            mock_payment_intent.create.return_value = mock_payment_intent_obj
+            resp = self.client.post(self.url, data={"cart_total": 10})
+        assert f"{email_input} required>" in resp.content.decode("utf-8")
+
     def test_validates_total_voucher(self):
         session = self.client.session
         gift_voucher = baker.make_recipe("booking.gift_voucher_10")
