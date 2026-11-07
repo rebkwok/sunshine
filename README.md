@@ -45,6 +45,12 @@ http://127.0.0.1:7100/payments/stripe/oauth/callback/
 Connect an account: go to localhost http://localhost:7100/payments/stripe/connect
 Click "skip this form" to connect to a dummy test connected account.
 
+Only one account can be connected at a time; disconnect it at
+http://localhost:7100/payments/stripe/disconnect/ to connect a different one. The connect pages are for superusers.
+
+In production, set STRIPE_CONNECT_PAGES_ENABLED=False in .env once the account is connected, to disable the
+connect and disconnect pages. To connect a different account, enable them again and restart the server.
+
 Use the stripe CLI to test webhooks:
 ```
 stripe login
