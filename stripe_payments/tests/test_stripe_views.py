@@ -284,6 +284,80 @@ def test_return_with_matching_invoice_and_gift_voucher_anon_user(client):
     assert "Gift Voucher" in mail.outbox[2].subject
 
 
+def _make_guest_invoice_and_payment_intent(**payment_intent_params):
+    invoice = baker.make(
+        Invoice,
+        invoice_id="foo",
+        amount=10,
+        username="",
+        stripe_payment_intent_id="mock-intent-id",
+    )
+    metadata = {
+        "invoice_id": "foo",
+        "invoice_signature": invoice.signature(),
+        **invoice.items_metadata(),
+    }
+    return invoice, get_mock_payment_intent(metadata=metadata, **payment_intent_params)
+
+
+def test_return_guest_invoice_retrieves_billing_email(client, seller):
+    invoice, payment_intent = _make_guest_invoice_and_payment_intent()
+    with patch(
+        "stripe_payments.views.stripe.PaymentIntent", autospec=stripe.PaymentIntent
+    ) as mock_payment_intent:
+        mock_payment_intent.retrieve.return_value = payment_intent
+        resp = client.post(
+            complete_url, data={"payload": json.dumps({"id": "mock-intent-id"})}
+        )
+    assert "Payment Processed" in resp.content.decode("utf-8")
+    mock_payment_intent.retrieve.assert_called_with(
+        "mock-intent-id",
+        expand=["latest_charge"],
+        stripe_account=seller.stripe_user_id,
+    )
+    invoice.refresh_from_db()
+    assert invoice.username == "stripe-payer@test.com"
+
+
+@pytest.mark.usefixtures("seller")
+def test_return_guest_invoice_no_billing_email(client):
+    invoice, payment_intent = _make_guest_invoice_and_payment_intent(
+        latest_charge={"id": "mock-charge-id", "billing_details": {"email": None}}
+    )
+    with patch(
+        "stripe_payments.views.stripe.PaymentIntent", autospec=stripe.PaymentIntent
+    ) as mock_payment_intent:
+        mock_payment_intent.retrieve.return_value = payment_intent
+        resp = client.post(
+            complete_url, data={"payload": json.dumps({"id": "mock-intent-id"})}
+        )
+    assert "Payment Processed" in resp.content.decode("utf-8")
+    invoice.refresh_from_db()
+    assert invoice.username == ""
+    assert invoice.paid is True
+
+
+@pytest.mark.usefixtures("seller")
+def test_return_guest_invoice_error_retrieving_billing_email(client):
+    invoice, payment_intent = _make_guest_invoice_and_payment_intent()
+    with patch(
+        "stripe_payments.views.stripe.PaymentIntent", autospec=stripe.PaymentIntent
+    ) as mock_payment_intent:
+        mock_payment_intent.retrieve.side_effect = [
+            payment_intent,
+            stripe.APIConnectionError("no network"),
+        ]
+        resp = client.post(
+            complete_url, data={"payload": json.dumps({"id": "mock-intent-id"})}
+        )
+    assert resp.status_code == 200
+    assert "Payment Processed" not in resp.content.decode("utf-8")
+    invoice.refresh_from_db()
+    assert invoice.paid is False
+    assert len(mail.outbox) == 1
+    assert mail.outbox[0].to == [settings.SUPPORT_EMAIL]
+
+
 @pytest.mark.usefixtures("seller", "send_all_studio_emails")
 def test_return_with_matching_invoice_booking_membership_gift_voucher_merch(
     client, configured_user

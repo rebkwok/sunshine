@@ -203,7 +203,10 @@ def get_mock_payment_intent(**params):
         "metadata": {},
         "currency": "gbp",
         "client_secret": "secret",
-        "charges": {"data": [{"billing_details": {"email": "stripe-payer@test.com"}}]},
+        "latest_charge": {
+            "id": "mock-charge-id",
+            "billing_details": {"email": "stripe-payer@test.com"},
+        },
     }
     object.update(params)
     return stripe.PaymentIntent.construct_from(object, "dummy-api-key")

@@ -51,7 +51,6 @@ def stripe_payment_complete(request):
 
     payload = json.loads(payload)
     logger.info("Processing payment intent from payload %s", payload)
-    stripe.api_key = settings.STRIPE_SECRET_KEY
     seller = Seller.objects.filter(site=Site.objects.get_current(request)).first()
     stripe_account = seller.stripe_user_id
     payment_intent = stripe.PaymentIntent.retrieve(
@@ -61,7 +60,7 @@ def stripe_payment_complete(request):
 
     if payment_intent.status == "succeeded":
         invoice = get_invoice_from_payment_intent(
-            payment_intent, raise_immediately=False
+            payment_intent, stripe_account, raise_immediately=False
         )
         if invoice is not None:
             try:
@@ -100,7 +99,6 @@ def stripe_payment_complete(request):
 
 @csrf_exempt
 def stripe_webhook(request):
-    stripe.api_key = settings.STRIPE_SECRET_KEY
     payload = request.body
     sig_header = request.META["HTTP_STRIPE_SIGNATURE"]
 
@@ -166,7 +164,7 @@ def stripe_webhook(request):
 
         payment_intent = event_object
         invoice = get_invoice_from_payment_intent(
-            payment_intent, raise_immediately=True
+            payment_intent, site_seller.stripe_user_id, raise_immediately=True
         )
         # invoice can be None; this means there was no invoice info in the payment intent
         # metadata, which isn't an error; it's probably a transaction that happened outside

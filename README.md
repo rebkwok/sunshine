@@ -50,7 +50,37 @@ Use the stripe CLI to test webhooks:
 stripe login
 stripe accounts retrieve (to set your account API keys)
 stripe config --list (to check)
-stripe listen --forward-connect-to localhost:7100/payments/stripe/webhook/
+stripe listen --latest \
+  --events payment_intent.succeeded,payment_intent.payment_failed,payment_intent.requires_action,payment_intent.canceled,payment_intent.created,payment_intent.processing,account.application.authorized,account.application.deauthorized \
+  --forward-connect-to localhost:7100/payments/stripe/webhook/
 ```
 
-It will print a webhook signing secret - add it to you .env's STRIPE_ENDPOINT_SECRET and restart the dev server. 
+It will print a webhook signing secret - add it to you .env's STRIPE_ENDPOINT_SECRET and restart the dev server.
+
+`--latest` sends events in the latest API version. Without it, they use the account's default API version.
+
+### Testing with a real sandbox webhook
+
+`stripe listen` can't send events in a specific API version. To test with the same API version as the live
+webhook endpoint, use a sandbox webhook endpoint with a zrok tunnel to the local server.
+
+Set up the zrok namespace (only needed once):
+```
+zrok2 create name sunshine
+```
+
+Run the tunnel, and note the public URL:
+```
+zrok2 share public localhost:7100 -n public:sunshine
+```
+
+In the stripe dashboard in sandbox mode, add a webhook endpoint:
+- Listen to events on connected accounts
+- Use the same API version and events as the live webhook endpoint
+- Set the URL to `<zrok public URL>/payments/stripe/webhook/`
+
+Add the endpoint's signing secret to your .env's STRIPE_ENDPOINT_SECRET and restart the dev server. Use this secret
+instead of the one from `stripe listen`, and stop `stripe listen` if it's running.
+
+The tunnel needs `LOCAL` set in your .env, so that the dev server accepts the zrok host. Disable the webhook endpoint
+when you've finished testing. 

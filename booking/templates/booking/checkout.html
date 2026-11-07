@@ -58,7 +58,7 @@
             </div>
             <div class="sr-form-row">
               <label for="cardholder-email">Cardholder email</label>
-                <input class="sr-input sr-card-element" id="cardholder-email" type="email">
+                <input class="sr-input sr-card-element" id="cardholder-email" type="email"{% if not request.user.is_authenticated %} required{% endif %}>
             </div>
             <div class="sr-form-row">
               <label for="card-element">Payment details</label>

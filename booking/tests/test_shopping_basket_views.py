@@ -983,6 +983,30 @@ class StripeCheckoutTests(ShoppingBasketMixin, TestCase):
         # redirects to basket, which will do the redirect to guest basket
         assert resp.url == reverse("booking:shopping_basket")
 
+    def test_cardholder_email_required_for_anon_user_only(self):
+        email_input = 'id="cardholder-email" type="email"'
+        mock_payment_intent_obj = get_mock_payment_intent(id="foo")
+
+        baker.make(Booking, event=self.private, user=self.user)
+        with patch(
+            "booking.views.shopping_basket.stripe.PaymentIntent"
+        ) as mock_payment_intent:
+            mock_payment_intent.create.return_value = mock_payment_intent_obj
+            resp = self.client.post(self.url, data={"cart_total": 30})
+        assert f"{email_input}>" in resp.content.decode("utf-8")
+
+        self.client.logout()
+        gift_voucher = baker.make_recipe("booking.gift_voucher_10")
+        session = self.client.session
+        session.update({"purchases": {"gift_vouchers": [gift_voucher.id]}})
+        session.save()
+        with patch(
+            "booking.views.shopping_basket.stripe.PaymentIntent"
+        ) as mock_payment_intent:
+            mock_payment_intent.create.return_value = mock_payment_intent_obj
+            resp = self.client.post(self.url, data={"cart_total": 10})
+        assert f"{email_input} required>" in resp.content.decode("utf-8")
+
     def test_validates_total_voucher(self):
         session = self.client.session
         gift_voucher = baker.make_recipe("booking.gift_voucher_10")
@@ -1038,6 +1062,9 @@ class StripeCheckoutTests(ShoppingBasketMixin, TestCase):
             resp = self.client.post(self.url, data={"cart_total": 30})
         assert resp.status_code == 200
         assert resp.context_data["cart_total"] == 30.00
+        create_kwargs = mock_payment_intent.create.call_args.kwargs
+        assert create_kwargs["allowed_payment_method_types"] == ["card"]
+        assert "payment_method_types" not in create_kwargs
         membership.refresh_from_db()
         booking.refresh_from_db()
 
@@ -1252,6 +1279,9 @@ class StripeCheckoutTests(ShoppingBasketMixin, TestCase):
         ) as mock_payment_intent:
             mock_payment_intent.modify.return_value = mock_payment_intent_obj
             resp = self.client.post(self.url, data={"cart_total": 30})
+        modify_kwargs = mock_payment_intent.modify.call_args.kwargs
+        assert modify_kwargs["allowed_payment_method_types"] == ["card"]
+        assert "payment_method_types" not in modify_kwargs
         booking.refresh_from_db()
         assert Invoice.objects.count() == 1
         assert booking.invoice == invoice

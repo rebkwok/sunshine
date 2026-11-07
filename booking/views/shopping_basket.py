@@ -411,7 +411,6 @@ def stripe_checkout(request):
     invoice = checked_dict["invoice"]
     logger.info("Stripe checkout for invoice id %s", invoice.invoice_id)
     # Create the Stripe PaymentIntent
-    stripe.api_key = settings.STRIPE_SECRET_KEY
     seller = Seller.objects.filter(site=Site.objects.get_current(request)).first()
 
     context = {}
@@ -424,7 +423,7 @@ def stripe_checkout(request):
         total_as_int = int(total * 100)
 
         payment_intent_data = {
-            "payment_method_types": ["card"],
+            "allowed_payment_method_types": ["card"],
             "amount": total_as_int,
             "currency": "gbp",
             "stripe_account": stripe_account,
