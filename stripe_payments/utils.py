@@ -1,7 +1,6 @@
 import logging
 
 import stripe
-from django.conf import settings
 from django.contrib.sites.models import Site
 
 from activitylog.models import ActivityLog
@@ -107,7 +106,6 @@ def process_refund(request, booking):
             # send warning email to tech support
             send_invalid_request_email(request, booking, "Payment intent not found")
         else:
-            stripe.api_key = settings.STRIPE_SECRET_KEY
             seller = Seller.objects.filter(
                 site=Site.objects.get_current(request)
             ).first()

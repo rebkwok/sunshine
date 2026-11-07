@@ -51,7 +51,6 @@ def stripe_payment_complete(request):
 
     payload = json.loads(payload)
     logger.info("Processing payment intent from payload %s", payload)
-    stripe.api_key = settings.STRIPE_SECRET_KEY
     seller = Seller.objects.filter(site=Site.objects.get_current(request)).first()
     stripe_account = seller.stripe_user_id
     payment_intent = stripe.PaymentIntent.retrieve(
@@ -100,7 +99,6 @@ def stripe_payment_complete(request):
 
 @csrf_exempt
 def stripe_webhook(request):
-    stripe.api_key = settings.STRIPE_SECRET_KEY
     payload = request.body
     sig_header = request.META["HTTP_STRIPE_SIGNATURE"]
 
