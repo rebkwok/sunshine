@@ -1,0 +1,21 @@
+{%  extends "website/_base.html" %}
+
+{% block title %}
+    {% include "website/includes/header.html" with title="Disconnect Stripe Account" %}
+{% endblock %}
+
+{% block content %}
+
+<div class="container  mt-20">
+    <p>
+        Are you sure you want to disconnect the Stripe account <strong>{{ site_seller.stripe_user_id }}</strong>?
+        Card payments can't be taken until a Stripe account is connected again.
+    </p>
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-sunshine">Yes, disconnect it</button>
+        <a href="{% url 'stripe_payments:connect_stripe' %}">No, go back</a>
+    </form>
+</div>
+{% endblock content %}
+{% block extrascripts %}{% endblock %}

@@ -528,6 +528,8 @@ STRIPE_CONNECT_CLIENT_ID = env("STRIPE_CONNECT_CLIENT_ID")
 STRIPE_ENDPOINT_SECRET = env("STRIPE_ENDPOINT_SECRET")
 # Set explicitly so that upgrading the SDK doesn't change the API version we use
 STRIPE_API_VERSION = "2026-09-30.endive"
+# Set to False to disable the connect pages (e.g. once the account is connected)
+STRIPE_CONNECT_PAGES_ENABLED = env.bool("STRIPE_CONNECT_PAGES_ENABLED", default=True)
 INVOICE_KEY = env("INVOICE_KEY")
 
 CART_TIMEOUT_MINUTES = env("CART_TIMEOUT_MINUTES", default=15)

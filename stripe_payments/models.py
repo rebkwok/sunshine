@@ -137,8 +137,6 @@ class Seller(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     site = models.OneToOneField(Site, on_delete=models.CASCADE, null=True, blank=True)
     stripe_user_id = models.CharField(max_length=255, blank=True)
-    stripe_access_token = models.CharField(max_length=255, blank=True)
-    stripe_refresh_token = models.CharField(max_length=255, blank=True)
 
     def __str__(self):
         return self.user.email
