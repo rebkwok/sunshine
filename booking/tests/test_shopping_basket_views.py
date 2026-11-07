@@ -1038,6 +1038,9 @@ class StripeCheckoutTests(ShoppingBasketMixin, TestCase):
             resp = self.client.post(self.url, data={"cart_total": 30})
         assert resp.status_code == 200
         assert resp.context_data["cart_total"] == 30.00
+        create_kwargs = mock_payment_intent.create.call_args.kwargs
+        assert create_kwargs["allowed_payment_method_types"] == ["card"]
+        assert "payment_method_types" not in create_kwargs
         membership.refresh_from_db()
         booking.refresh_from_db()
 
@@ -1252,6 +1255,9 @@ class StripeCheckoutTests(ShoppingBasketMixin, TestCase):
         ) as mock_payment_intent:
             mock_payment_intent.modify.return_value = mock_payment_intent_obj
             resp = self.client.post(self.url, data={"cart_total": 30})
+        modify_kwargs = mock_payment_intent.modify.call_args.kwargs
+        assert modify_kwargs["allowed_payment_method_types"] == ["card"]
+        assert "payment_method_types" not in modify_kwargs
         booking.refresh_from_db()
         assert Invoice.objects.count() == 1
         assert booking.invoice == invoice

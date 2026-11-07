@@ -424,7 +424,7 @@ def stripe_checkout(request):
         total_as_int = int(total * 100)
 
         payment_intent_data = {
-            "payment_method_types": ["card"],
+            "allowed_payment_method_types": ["card"],
             "amount": total_as_int,
             "currency": "gbp",
             "stripe_account": stripe_account,
