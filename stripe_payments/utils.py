@@ -14,7 +14,18 @@ from .models import Invoice, Seller, StripePaymentIntent, StripeRefund
 logger = logging.getLogger(__name__)
 
 
-def get_invoice_from_payment_intent(payment_intent, raise_immediately=False):
+def _get_billing_email(payment_intent, stripe_account):
+    # A payment intent from a webhook event has the webhook endpoint's API version, so
+    # retrieve it to make sure we have the latest_charge
+    payment_intent = stripe.PaymentIntent.retrieve(
+        payment_intent.id, expand=["latest_charge"], stripe_account=stripe_account
+    )
+    return payment_intent.latest_charge.billing_details.email
+
+
+def get_invoice_from_payment_intent(
+    payment_intent, stripe_account, raise_immediately=False
+):
     # Don't raise exception shere so we don't expose it to the user; leave it for the webhook
     invoice_id = getattr(payment_intent.metadata, "invoice_id", None)
     if not invoice_id:
@@ -27,15 +38,21 @@ def get_invoice_from_payment_intent(payment_intent, raise_immediately=False):
 
     try:
         invoice = Invoice.objects.get(invoice_id=invoice_id)
-        if not invoice.username:
+        if not invoice.username and payment_intent.status == "succeeded":
             # if there's no username on the invoice, it's from a guest checkout
             # Add the username from the billing email
-            billing_email = payment_intent.charges.data[0]["billing_details"]["email"]
-            invoice.username = billing_email
-            invoice.save()
+            billing_email = _get_billing_email(payment_intent, stripe_account)
+            if billing_email:
+                invoice.username = billing_email
+                invoice.save()
         return invoice
     except Invoice.DoesNotExist:
         error_msg = f"Error processing stripe payment intent {payment_intent.id}; could not find invoice matching id from metadata '{invoice_id}'"
+        logger.error(error_msg)
+        if raise_immediately:
+            raise StripeProcessingError(error_msg)
+    except stripe.StripeError as error:
+        error_msg = f"Error retrieving billing email for stripe payment intent {payment_intent.id}: {error}"
         logger.error(error_msg)
         if raise_immediately:
             raise StripeProcessingError(error_msg)

@@ -61,7 +61,7 @@ def stripe_payment_complete(request):
 
     if payment_intent.status == "succeeded":
         invoice = get_invoice_from_payment_intent(
-            payment_intent, raise_immediately=False
+            payment_intent, stripe_account, raise_immediately=False
         )
         if invoice is not None:
             try:
@@ -166,7 +166,7 @@ def stripe_webhook(request):
 
         payment_intent = event_object
         invoice = get_invoice_from_payment_intent(
-            payment_intent, raise_immediately=True
+            payment_intent, site_seller.stripe_user_id, raise_immediately=True
         )
         # invoice can be None; this means there was no invoice info in the payment intent
         # metadata, which isn't an error; it's probably a transaction that happened outside

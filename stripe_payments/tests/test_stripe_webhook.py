@@ -2,13 +2,16 @@ import json
 from unittest.mock import Mock, patch
 
 import pytest
+import stripe
 from django.conf import settings
 from django.contrib.sites.models import Site
 from django.core import mail
 from django.shortcuts import reverse
 from model_bakery import baker
 
-from ..models import Seller, StripePaymentIntent
+from conftest import get_mock_payment_intent
+
+from ..models import Invoice, Seller, StripePaymentIntent
 
 pytestmark = pytest.mark.django_db
 
@@ -31,7 +34,8 @@ def mock_stripe_payload(seller):
         account = object_data.pop("seller", seller).stripe_user_id
         match event_type:
             case (
-                "payment_intent.payment_failed"
+                "payment_intent.created"
+                | "payment_intent.payment_failed"
                 | "payment_intent.requires_action"
                 | "payment_intent.succeeded"
             ):
@@ -43,11 +47,7 @@ def mock_stripe_payload(seller):
                     "status": "succeeded",
                     "description": "",
                     "client_secret": "secret",
-                    "charges": {
-                        "data": [
-                            {"billing_details": {"email": "stripe-payer@test.com"}}
-                        ]
-                    },
+                    "latest_charge": "mock-charge-id",
                     **object_data,
                 }
             case "payment_intent.refunded":
@@ -379,6 +379,128 @@ def test_webhook_payment_requires_action(
     assert invoice.paid is False
     # not an error, no emails sent
     assert len(mail.outbox) == 0
+
+
+@pytest.fixture
+def guest_invoice():
+    yield baker.make(
+        Invoice,
+        invoice_id="foo",
+        amount=10,
+        username="",
+        stripe_payment_intent_id="mock-intent-id",
+    )
+
+
+def _invoice_metadata(invoice):
+    return {
+        "invoice_id": invoice.invoice_id,
+        "invoice_signature": invoice.signature(),
+        **invoice.items_metadata(),
+    }
+
+
+def test_webhook_guest_invoice_username_from_billing_email(
+    mock_stripe_verify_header,
+    mock_stripe_payload,
+    client,
+    guest_invoice,
+    seller,
+):
+    retrieved_payment_intent = get_mock_payment_intent()
+    payload = mock_stripe_payload(
+        "payment_intent.succeeded", metadata=_invoice_metadata(guest_invoice)
+    )
+    with patch(
+        "stripe_payments.utils.stripe.PaymentIntent", autospec=stripe.PaymentIntent
+    ) as mock_payment_intent:
+        mock_payment_intent.retrieve.return_value = retrieved_payment_intent
+        resp = post_to_webhook(client, payload)
+    assert resp.status_code == 200
+    mock_payment_intent.retrieve.assert_called_once_with(
+        "mock-intent-id",
+        expand=["latest_charge"],
+        stripe_account=seller.stripe_user_id,
+    )
+    guest_invoice.refresh_from_db()
+    assert guest_invoice.username == "stripe-payer@test.com"
+    assert guest_invoice.paid is True
+
+
+def test_webhook_guest_invoice_old_api_version_payload(
+    mock_stripe_verify_header, mock_stripe_payload, client, guest_invoice
+):
+    # The webhook endpoint's API version can be older than the SDK's; events on versions
+    # before 2022-11-15 have charges instead of latest_charge
+    retrieved_payment_intent = get_mock_payment_intent()
+    payload = mock_stripe_payload(
+        "payment_intent.succeeded", metadata=_invoice_metadata(guest_invoice)
+    )
+    del payload["data"]["object"]["latest_charge"]
+    payload["data"]["object"]["charges"] = {
+        "data": [{"billing_details": {"email": "old-payload@test.com"}}]
+    }
+    with patch(
+        "stripe_payments.utils.stripe.PaymentIntent", autospec=stripe.PaymentIntent
+    ) as mock_payment_intent:
+        mock_payment_intent.retrieve.return_value = retrieved_payment_intent
+        resp = post_to_webhook(client, payload)
+    assert resp.status_code == 200
+    guest_invoice.refresh_from_db()
+    assert guest_invoice.username == "stripe-payer@test.com"
+    assert guest_invoice.paid is True
+
+
+@pytest.mark.parametrize(
+    "event_type,status",
+    [
+        ("payment_intent.created", "requires_payment_method"),
+        ("payment_intent.requires_action", "requires_action"),
+    ],
+)
+@patch("stripe_payments.utils.stripe.PaymentIntent", autospec=stripe.PaymentIntent)
+def test_webhook_guest_invoice_payment_not_succeeded(
+    mock_payment_intent,
+    mock_stripe_verify_header,
+    mock_stripe_payload,
+    client,
+    guest_invoice,
+    event_type,
+    status,
+):
+    payload = mock_stripe_payload(
+        event_type, metadata=_invoice_metadata(guest_invoice), status=status
+    )
+    # no charge exists yet
+    del payload["data"]["object"]["latest_charge"]
+    payload["data"]["object"]["charges"] = {"data": []}
+    resp = post_to_webhook(client, payload)
+    assert resp.status_code == 200
+    mock_payment_intent.retrieve.assert_not_called()
+    guest_invoice.refresh_from_db()
+    assert guest_invoice.username == ""
+    assert len(mail.outbox) == 0
+
+
+@patch("stripe_payments.utils.stripe.PaymentIntent", autospec=stripe.PaymentIntent)
+def test_webhook_guest_invoice_error_retrieving_billing_email(
+    mock_payment_intent,
+    mock_stripe_verify_header,
+    mock_stripe_payload,
+    client,
+    guest_invoice,
+):
+    mock_payment_intent.retrieve.side_effect = stripe.APIConnectionError("no network")
+    payload = mock_stripe_payload(
+        "payment_intent.succeeded", metadata=_invoice_metadata(guest_invoice)
+    )
+    resp = post_to_webhook(client, payload)
+    assert resp.status_code == 200
+    guest_invoice.refresh_from_db()
+    assert guest_invoice.paid is False
+    assert len(mail.outbox) == 1
+    assert mail.outbox[0].to == [settings.SUPPORT_EMAIL]
+    assert "Error retrieving billing email" in mail.outbox[0].body
 
 
 @patch("stripe_payments.views.stripe.Account")
