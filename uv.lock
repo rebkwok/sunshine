@@ -1396,7 +1396,7 @@ requires-dist = [
     { name = "pillow", specifier = "<=13.0.0" },
     { name = "psycopg2", specifier = "<=2.9.13" },
     { name = "pymemcache", specifier = "<=4.0.0" },
-    { name = "python-dateutil", specifier = "<=2.9.0.post0" },
+    { name = "python-dateutil", specifier = "<=3.0.0" },
     { name = "shortuuid", specifier = "<=1.0.13" },
     { name = "stripe", specifier = "<=16.1.0" },
     { name = "whitenoise", specifier = "<=6.12.0" },
