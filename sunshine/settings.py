@@ -294,31 +294,29 @@ TEMPLATES = [
     },
 ]
 
-if env("LOCAL") or env("CI"):
-    MAILERS = {"default": {"BACKEND": "django.core.mail.backends.console.EmailBackend"}}
-# MAILCATCHER
-elif env("USE_MAILCATCHER"):  # pragma: no cover
-    MAILERS = {
-        "default": {
-            "BACKEND": "django.core.mail.backends.smtp.EmailBackend",
-            "OPTIONS": {
-                "host": "127.0.0.1",
-                "host_user": "",
-                "host_password": "",
-                "port": 1024,
-                "use_tls": False,
-            },
+# Tests always use an in-memory backend, we don't need to worry about settings here
+if env("LOCAL"):  # pragma: no cover
+    if env("USE_MAILCATCHER"):
+        MAILERS = {
+            "default": {
+                "BACKEND": "django.core.mail.backends.smtp.EmailBackend",
+                "OPTIONS": {"host": "127.0.0.1", "port": 1025, "use_tls": False},
+            }
         }
-    }
+    else:
+        MAILERS = {
+            "default": {"BACKEND": "django.core.mail.backends.console.EmailBackend"}
+        }
 else:  # pragma: no cover
-    AWS_SES_ACCESS_KEY_ID = env("AWS_SES_ACCESS_KEY_ID")
-    AWS_SES_SECRET_ACCESS_KEY = env("AWS_SES_SECRET_ACCESS_KEY")
-    AWS_SES_REGION_NAME = env("AWS_SES_REGION_NAME")
-    AWS_SES_REGION_ENDPOINT = env("AWS_SES_REGION_ENDPOINT")
-    MAILERS = {
-        "default": {"BACKEND": "django_ses.SESBackend"},
-    }
-
+    # Required, except in tests
+    ses_default = "" if TESTING else environ.Env.NOTSET
+    AWS_SES_ACCESS_KEY_ID = env.str("AWS_SES_ACCESS_KEY_ID", default=ses_default)
+    AWS_SES_SECRET_ACCESS_KEY = env.str(
+        "AWS_SES_SECRET_ACCESS_KEY", default=ses_default
+    )
+    AWS_SES_REGION_NAME = env.str("AWS_SES_REGION_NAME", default=ses_default)
+    AWS_SES_REGION_ENDPOINT = env.str("AWS_SES_REGION_ENDPOINT", default=ses_default)
+    MAILERS = {"default": {"BACKEND": "django_ses.SESBackend"}}
 
 DEFAULT_FROM_EMAIL = "booking@sunshinefitness.co.uk"
 DEFAULT_STUDIO_EMAIL = "sunshinefitnessfife@gmail.com"
