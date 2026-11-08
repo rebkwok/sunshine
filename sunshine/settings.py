@@ -527,7 +527,14 @@ DYNAMIC_FORMS_CUSTOM_JS = ""
 STRIPE_PUBLISHABLE_KEY = env("STRIPE_PUBLISHABLE_KEY")
 STRIPE_SECRET_KEY = env("STRIPE_SECRET_KEY")
 STRIPE_CONNECT_CLIENT_ID = env("STRIPE_CONNECT_CLIENT_ID")
-STRIPE_ENDPOINT_SECRET = env("STRIPE_ENDPOINT_SECRET")
+# Comma-separated, so that events from more than one webhook endpoint are accepted
+# (e.g. while upgrading the webhook endpoint's API version)
+STRIPE_ENDPOINT_SECRETS = [
+    secret.strip() for secret in env.list("STRIPE_ENDPOINT_SECRET")
+]
+# The API version of the webhook events to process; events from endpoints with other
+# API versions are ignored
+STRIPE_WEBHOOK_API_VERSION = env.str("STRIPE_WEBHOOK_API_VERSION", default="2020-08-27")
 # Set explicitly so that upgrading the SDK doesn't change the API version we use
 STRIPE_API_VERSION = "2026-09-30.endive"
 # Set to False to disable the connect pages (e.g. once the account is connected)

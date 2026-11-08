@@ -180,15 +180,23 @@ def stripe_payment_complete(request):
         return render(request, "stripe_payments/non_valid_payment.html")
 
 
+def _construct_event(payload, sig_header):
+    # Each webhook endpoint has its own signing secret
+    for secret in settings.STRIPE_ENDPOINT_SECRETS:
+        try:
+            return stripe.Webhook.construct_event(payload, sig_header, secret)
+        except stripe.error.SignatureVerificationError as error:
+            last_error = error
+    raise last_error
+
+
 @csrf_exempt
 def stripe_webhook(request):
     payload = request.body
     sig_header = request.headers.get("Stripe-Signature")
 
     try:
-        event = stripe.Webhook.construct_event(
-            payload, sig_header, settings.STRIPE_ENDPOINT_SECRET
-        )
+        event = _construct_event(payload, sig_header)
     except stripe.error.SignatureVerificationError as e:
         # Invalid signature
         logger.error(e)
@@ -197,6 +205,21 @@ def stripe_webhook(request):
         # Invalid payload
         logger.error(e)
         return HttpResponse("Unable to contruct webhook event", status=400)
+
+    # While upgrading the webhook endpoint's API version, events are sent to an endpoint
+    # for each version. Only process events with the configured version.
+    # https://docs.stripe.com/webhooks/versioning
+    event_version = event.api_version[:10]
+    processed_version = settings.STRIPE_WEBHOOK_API_VERSION[:10]
+    if event_version > processed_version:
+        # From the new endpoint, before switching to it
+        logger.info("Stripe event %s ignored: API version %s", event.id, event_version)
+        return HttpResponse("Ignored: newer API version", status=200)
+    if event_version < processed_version:
+        # From the old endpoint, after switching to the new one. Return an error so
+        # Stripe retries it, in case we switch back.
+        logger.info("Stripe event %s ignored: API version %s", event.id, event_version)
+        return HttpResponse("Ignored: older API version", status=400)
 
     event_object = event.data.object
     if event.type == "account.application.authorized":

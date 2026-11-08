@@ -1,4 +1,5 @@
 import json
+import time
 from unittest.mock import Mock, patch
 
 import pytest
@@ -286,6 +287,89 @@ def test_guest_username_update_does_not_overwrite_paid(guest_invoice):
     guest_invoice.refresh_from_db()
     assert guest_invoice.username == "stripe-payer@test.com"
     assert guest_invoice.paid is True
+
+
+def _signature(payload, secret):
+    timestamp = int(time.time())
+    signature = stripe.WebhookSignature._compute_signature(
+        f"{timestamp}.{payload}", secret
+    )
+    return f"t={timestamp},v1={signature}"
+
+
+@pytest.mark.parametrize("secret", ["whsec_old", "whsec_new"])
+def test_webhook_accepts_each_endpoint_secret(
+    client, mock_stripe_payload, invoice, settings, secret
+):
+    settings.STRIPE_ENDPOINT_SECRETS = ["whsec_old", "whsec_new"]
+    payload = json.dumps(
+        mock_stripe_payload(
+            "payment_intent.succeeded", metadata=_invoice_metadata(invoice)
+        )
+    )
+    resp = client.post(
+        webhook_url,
+        data=payload,
+        content_type="application/json",
+        HTTP_STRIPE_SIGNATURE=_signature(payload, secret),
+    )
+    assert resp.status_code == 200
+    invoice.refresh_from_db()
+    assert invoice.paid is True
+
+
+def test_webhook_rejects_other_secret(client, mock_stripe_payload, invoice, settings):
+    settings.STRIPE_ENDPOINT_SECRETS = ["whsec_old", "whsec_new"]
+    payload = json.dumps(
+        mock_stripe_payload(
+            "payment_intent.succeeded", metadata=_invoice_metadata(invoice)
+        )
+    )
+    resp = client.post(
+        webhook_url,
+        data=payload,
+        content_type="application/json",
+        HTTP_STRIPE_SIGNATURE=_signature(payload, "whsec_other"),
+    )
+    assert resp.status_code == 400
+    assert resp.content.decode() == "Invalid webhook signature"
+    invoice.refresh_from_db()
+    assert invoice.paid is False
+
+
+@pytest.mark.parametrize(
+    "event_version,processed_version,status_code,content,paid",
+    [
+        # before switching to the new endpoint
+        ("2020-08-27", "2020-08-27", 200, "", True),
+        ("2026-09-30.endive", "2020-08-27", 200, "Ignored: newer API version", False),
+        # after switching to the new endpoint
+        ("2026-09-30.endive", "2026-09-30.endive", 200, "", True),
+        ("2020-08-27", "2026-09-30.endive", 400, "Ignored: older API version", False),
+    ],
+)
+def test_webhook_only_processes_configured_api_version(
+    mock_stripe_verify_header,
+    mock_stripe_payload,
+    client,
+    invoice,
+    settings,
+    event_version,
+    processed_version,
+    status_code,
+    content,
+    paid,
+):
+    settings.STRIPE_WEBHOOK_API_VERSION = processed_version
+    payload = mock_stripe_payload(
+        "payment_intent.succeeded", metadata=_invoice_metadata(invoice)
+    )
+    payload["api_version"] = event_version
+    resp = post_to_webhook(client, payload)
+    assert resp.status_code == status_code
+    assert resp.content.decode() == content
+    invoice.refresh_from_db()
+    assert invoice.paid is paid
 
 
 def test_webhook_with_invalid_payload(mock_stripe_verify_header, client):
