@@ -482,7 +482,9 @@ def show_toolbar(request):  # pragma: no cover
     return True
 
 
-if TESTING or env("CI"):  # use local cache for tests
+if (
+    TESTING or env("CI") or env("LOCAL")
+):  # use local cache for tests and running locally
     CACHES = {
         "default": {
             "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
@@ -492,8 +494,10 @@ if TESTING or env("CI"):  # use local cache for tests
 else:  # pragma: no cover
     CACHES = {
         "default": {
-            "BACKEND": "django.core.cache.backends.filebased.FileBasedCache",
-            "LOCATION": root("cache"),
+            "BACKEND": "django.core.cache.backends.memcached.PyMemcacheCache",
+            "LOCATION": "127.0.0.1:11211",
+            # in case memcached is shared with other sites on the server
+            "KEY_PREFIX": "sunshine",
         }
     }
 
