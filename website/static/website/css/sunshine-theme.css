@@ -1168,9 +1168,12 @@ a.btn {
 .btn-tra-01, 
 .scroll .btn-tra-01, 
 .white-color .btn-tra-01,
-.tra-01-hover:hover, 
-.scroll .tra-01-hover:hover, 
-.white-color .tra-01-hover:hover {
+.tra-01-hover:hover,
+.scroll .tra-01-hover:hover,
+.white-color .tra-01-hover:hover,
+.tra-01-hover:focus-visible,
+.scroll .tra-01-hover:focus-visible,
+.white-color .tra-01-hover:focus-visible {
   color: #727475!important;
   background-color: transparent;
   border-color: #727475!important;
