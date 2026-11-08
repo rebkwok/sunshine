@@ -9,9 +9,12 @@ from django.core import mail
 from django.shortcuts import reverse
 from model_bakery import baker
 
+from activitylog.models import ActivityLog
 from conftest import get_mock_payment_intent
 
 from ..models import Invoice, Seller, StripePaymentIntent
+from ..utils import get_invoice_from_payment_intent
+from ..views import _process_completed_stripe_payment
 
 pytestmark = pytest.mark.django_db
 
@@ -50,9 +53,10 @@ def mock_stripe_payload(seller):
                     "latest_charge": "mock-charge-id",
                     **object_data,
                 }
-            case "payment_intent.refunded":
+            case "charge.refunded":
                 object = {
-                    "id": "mock-refund-id",
+                    "id": "mock-charge-id",
+                    "object": "charge",
                     "amount": 800,
                     "status": "succeeded",
                     "metadata": {},
@@ -149,7 +153,10 @@ def test_webhook_with_no_account_on_event(
 
     resp = post_to_webhook(client, payload)
     assert resp.status_code == 200
-    assert resp.content.decode() == ""
+    assert resp.content.decode() == "Ignored: Mismatched seller account"
+    invoice.refresh_from_db()
+    assert invoice.paid is False
+    assert len(mail.outbox) == 0
 
 
 def test_webhook_already_processed(
@@ -170,6 +177,115 @@ def test_webhook_already_processed(
     assert resp.status_code == 200
     # already processed, no emails sent
     assert len(mail.outbox) == 0
+
+
+def test_webhook_no_signature_header(client):
+    resp = client.post(webhook_url, data="{}", content_type="application/json")
+    assert resp.status_code == 400
+    assert resp.content.decode() == "Invalid webhook signature"
+
+
+def test_webhook_no_seller(
+    mock_stripe_verify_header, mock_stripe_payload, client, invoice
+):
+    payload = mock_stripe_payload(
+        "payment_intent.succeeded", metadata=_invoice_metadata(invoice)
+    )
+    Seller.objects.all().delete()
+    resp = post_to_webhook(client, payload)
+    assert resp.status_code == 200
+    assert resp.content.decode() == "Ignored: No seller"
+    invoice.refresh_from_db()
+    assert invoice.paid is False
+    assert len(mail.outbox) == 0
+
+
+def test_webhook_ignores_unhandled_event_types(
+    mock_stripe_verify_header, mock_stripe_payload, client
+):
+    payload = mock_stripe_payload("payment_intent.created")
+    payload["type"] = "balance.available"
+    # not all objects have metadata
+    assert "metadata" not in payload["data"]["object"]
+    resp = post_to_webhook(client, payload)
+    assert resp.status_code == 200
+    assert len(mail.outbox) == 0
+
+
+def test_webhook_unexpected_error_returns_500_and_can_be_retried(
+    mock_stripe_verify_header, mock_stripe_payload, client, invoice, membership
+):
+    payload = mock_stripe_payload(
+        "payment_intent.succeeded", metadata=_invoice_metadata(invoice)
+    )
+    with patch(
+        "stripe_payments.views.StripePaymentIntent.update_or_create_payment_intent_instance",
+        side_effect=Exception("database error"),
+    ):
+        resp = post_to_webhook(client, payload)
+    assert resp.status_code == 500
+    assert mail.outbox[0].to == [settings.SUPPORT_EMAIL]
+    assert "database error" in mail.outbox[0].body
+    # the changes are rolled back
+    invoice.refresh_from_db()
+    membership.refresh_from_db()
+    assert invoice.paid is False
+    assert membership.paid is False
+
+    resp = post_to_webhook(client, payload)
+    assert resp.status_code == 200
+    invoice.refresh_from_db()
+    membership.refresh_from_db()
+    assert invoice.paid is True
+    assert membership.paid is True
+    assert StripePaymentIntent.objects.filter(invoice=invoice).exists()
+
+
+def test_webhook_error_sending_emails_does_not_fail_payment(
+    mock_stripe_verify_header, mock_stripe_payload, client, invoice, membership
+):
+    payload = mock_stripe_payload(
+        "payment_intent.succeeded", metadata=_invoice_metadata(invoice)
+    )
+    with patch(
+        "stripe_payments.utils.send_processed_payment_emails",
+        side_effect=Exception("mail error"),
+    ):
+        resp = post_to_webhook(client, payload)
+    assert resp.status_code == 200
+    invoice.refresh_from_db()
+    assert invoice.paid is True
+    assert StripePaymentIntent.objects.filter(invoice=invoice).exists()
+    assert ActivityLog.objects.filter(log__contains="paid by Stripe").exists()
+
+
+def test_process_completed_payment_checks_paid_on_locked_invoice(invoice):
+    # The invoice was paid by another process after this one retrieved it
+    stale_invoice = Invoice.objects.get(pk=invoice.pk)
+    Invoice.objects.filter(pk=invoice.pk).update(paid=True)
+
+    _process_completed_stripe_payment(get_mock_payment_intent(), stale_invoice)
+
+    assert not StripePaymentIntent.objects.exists()
+    assert len(mail.outbox) == 0
+
+
+def test_guest_username_update_does_not_overwrite_paid(guest_invoice):
+    metadata = {"invoice_id": guest_invoice.invoice_id}
+
+    def paid_by_another_process(payment_intent, stripe_account):
+        Invoice.objects.filter(pk=guest_invoice.pk).update(paid=True)
+        return "stripe-payer@test.com"
+
+    with patch("stripe_payments.utils._get_billing_email", paid_by_another_process):
+        invoice = get_invoice_from_payment_intent(
+            get_mock_payment_intent(metadata=metadata), "id123"
+        )
+
+    assert invoice.username == "stripe-payer@test.com"
+    guest_invoice.refresh_from_db()
+    assert guest_invoice.username == "stripe-payer@test.com"
+    assert guest_invoice.paid is True
 
 
 def test_webhook_with_invalid_payload(mock_stripe_verify_header, client):
@@ -257,7 +373,7 @@ def test_webhook_exception_retrieving_invoice(
     assert mail.outbox[0].to == [settings.SUPPORT_EMAIL]
     assert "WARNING: Something went wrong with a payment!" in mail.outbox[0].subject
     assert (
-        "Error processing stripe payment intent mock-intent-id; could not find invoice matching id from metadata 'bar'"
+        "Error processing stripe object mock-intent-id; could not find invoice matching id from metadata 'bar'"
         in mail.outbox[0].body
     )
 
@@ -284,7 +400,7 @@ def test_webhook_refunded(
         "invoice_signature": invoice.signature(),
         **invoice.items_metadata(),
     }
-    payload = mock_stripe_payload("payment_intent.refunded", metadata=metadata)
+    payload = mock_stripe_payload("charge.refunded", metadata=metadata)
     resp = post_to_webhook(client, payload)
     assert resp.status_code == 200
     membership.refresh_from_db()
@@ -296,6 +412,34 @@ def test_webhook_refunded(
     assert len(mail.outbox) == 1
     assert mail.outbox[0].to == [settings.SUPPORT_EMAIL]
     assert "WARNING: Payment refund processed" in mail.outbox[0].subject
+
+
+def test_webhook_refunded_no_invoice_metadata(
+    mock_stripe_verify_header, mock_stripe_payload, client
+):
+    payload = mock_stripe_payload("charge.refunded", metadata={})
+    resp = post_to_webhook(client, payload)
+    assert resp.status_code == 200
+    assert len(mail.outbox) == 0
+
+
+def test_webhook_payment_failed_no_decline_code(
+    client, mock_stripe_verify_header, mock_stripe_payload, invoice
+):
+    # e.g. failed 3DS authentication
+    payload = mock_stripe_payload(
+        "payment_intent.payment_failed",
+        metadata=_invoice_metadata(invoice),
+        last_payment_error={
+            "type": "invalid_request_error",
+            "code": "payment_intent_authentication_failure",
+        },
+    )
+    resp = post_to_webhook(client, payload)
+    assert resp.status_code == 200
+    invoice.refresh_from_db()
+    assert invoice.paid is False
+    assert len(mail.outbox) == 0
 
 
 def test_webhook_payment_failed_unexpected_error(
@@ -495,12 +639,12 @@ def test_webhook_guest_invoice_error_retrieving_billing_email(
         "payment_intent.succeeded", metadata=_invoice_metadata(guest_invoice)
     )
     resp = post_to_webhook(client, payload)
-    assert resp.status_code == 200
+    # returns an error so Stripe retries
+    assert resp.status_code == 500
     guest_invoice.refresh_from_db()
     assert guest_invoice.paid is False
-    assert len(mail.outbox) == 1
     assert mail.outbox[0].to == [settings.SUPPORT_EMAIL]
-    assert "Error retrieving billing email" in mail.outbox[0].body
+    assert "no network" in mail.outbox[0].body
 
 
 @patch("stripe_payments.views.stripe.Account")

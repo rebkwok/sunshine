@@ -22,39 +22,52 @@ def _get_billing_email(payment_intent, stripe_account):
     return payment_intent.latest_charge.billing_details.email
 
 
-def get_invoice_from_payment_intent(
-    payment_intent, stripe_account, raise_immediately=False
-):
+def get_invoice_from_stripe_object(stripe_object, raise_immediately=False):
     # Don't raise exception shere so we don't expose it to the user; leave it for the webhook
-    invoice_id = getattr(payment_intent.metadata, "invoice_id", None)
+    invoice_id = getattr(stripe_object.metadata, "invoice_id", None)
     if not invoice_id:
         #  No invoice id in the metadata is unlikely to be an error; more likely it's a payment not made via the
         # site.
-        logger.warning(
-            "No invoice ID found for stripe payment intent %s", payment_intent.id
-        )
-        return
+        logger.warning("No invoice ID found for stripe object %s", stripe_object.id)
+        return None
 
     try:
-        invoice = Invoice.objects.get(invoice_id=invoice_id)
-        if not invoice.username and payment_intent.status == "succeeded":
-            # if there's no username on the invoice, it's from a guest checkout
-            # Add the username from the billing email
-            billing_email = _get_billing_email(payment_intent, stripe_account)
-            if billing_email:
-                invoice.username = billing_email
-                invoice.save()
-        return invoice
+        return Invoice.objects.get(invoice_id=invoice_id)
     except Invoice.DoesNotExist:
-        error_msg = f"Error processing stripe payment intent {payment_intent.id}; could not find invoice matching id from metadata '{invoice_id}'"
+        error_msg = f"Error processing stripe object {stripe_object.id}; could not find invoice matching id from metadata '{invoice_id}'"
         logger.error(error_msg)
         if raise_immediately:
             raise StripeProcessingError(error_msg)
-    except stripe.StripeError as error:
-        error_msg = f"Error retrieving billing email for stripe payment intent {payment_intent.id}: {error}"
-        logger.error(error_msg)
-        if raise_immediately:
-            raise StripeProcessingError(error_msg)
+    return None
+
+
+def get_invoice_from_payment_intent(
+    payment_intent, stripe_account, raise_immediately=False
+):
+    invoice = get_invoice_from_stripe_object(payment_intent, raise_immediately)
+    if (
+        invoice is not None
+        and not invoice.username
+        and payment_intent.status == "succeeded"
+    ):
+        # if there's no username on the invoice, it's from a guest checkout
+        # Add the username from the billing email
+        try:
+            billing_email = _get_billing_email(payment_intent, stripe_account)
+        except stripe.StripeError as error:
+            logger.error(
+                "Error retrieving billing email for stripe payment intent %s: %s",
+                payment_intent.id,
+                error,
+            )
+            if raise_immediately:
+                raise
+            return None
+        if billing_email:
+            invoice.username = billing_email
+            # Only update the username; the invoice could have been paid since we got it
+            Invoice.objects.filter(pk=invoice.pk).update(username=billing_email)
+    return invoice
 
 
 def check_stripe_data(payment_intent, invoice):
@@ -71,7 +84,7 @@ def check_stripe_data(payment_intent, invoice):
         )
 
 
-def process_invoice_items(invoice, payment_method, transaction_id=None, request=None):
+def mark_invoice_paid(invoice, payment_method):
     for booking in invoice.bookings.all():
         booking.paid = True
         booking.save()
@@ -85,13 +98,15 @@ def process_invoice_items(invoice, payment_method, transaction_id=None, request=
 
     invoice.paid = True
     invoice.save()
-    # SEND EMAILS
-    send_processed_payment_emails(invoice)
-    for gift_voucher in invoice.gift_vouchers.all():
-        send_gift_voucher_email(gift_voucher, request=request)
     ActivityLog.objects.create(
         log=f"Invoice {invoice.invoice_id} (user {invoice.username}) paid by {payment_method}"
     )
+
+
+def send_invoice_paid_emails(invoice, request=None):
+    send_processed_payment_emails(invoice)
+    for gift_voucher in invoice.gift_vouchers.all():
+        send_gift_voucher_email(gift_voucher, request=request)
 
 
 def process_refund(request, booking):
