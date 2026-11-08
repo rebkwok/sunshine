@@ -13,7 +13,10 @@ SECRET_KEY='dummy_secret'
 STRIPE_PUBLISHABLE_KEY=changeme
 STRIPE_CONNECT_CLIENT_ID=changeme
 STRIPE_SECRET_KEY=changeme
+# one or more webhook secrets, comma-separated. Only events from one with an api version matching
+# STRIPE_WEBHOOK_API_VERSION are handled; this allows for upgrading webhooks to new API versions
 STRIPE_ENDPOINT_SECRET=changeme
+STRIPE_WEBHOOK_API_VERSION=2020-08-27
 STRIPE_CONNECT_PAGES_ENABLED=True
 INVOICE_KEY=changeme
 

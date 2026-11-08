@@ -86,7 +86,8 @@ In the stripe dashboard in sandbox mode, add a webhook endpoint:
 - Set the URL to `<zrok public URL>/payments/stripe/webhook/`
 
 Add the endpoint's signing secret to your .env's STRIPE_ENDPOINT_SECRET and restart the dev server. Use this secret
-instead of the one from `stripe listen`, and stop `stripe listen` if it's running.
+instead of the one from `stripe listen`, and stop `stripe listen` if it's running. Set STRIPE_WEBHOOK_API_VERSION to
+the endpoint's API version, if it isn't the default (the live endpoint's version).
 
 The tunnel needs `LOCAL` set in your .env, so that the dev server accepts the zrok host. Disable the webhook endpoint
 when you've finished testing.
@@ -105,3 +106,24 @@ To test a refund, cancel a paid booking. A failed or declined payment should be 
 support.
 
 See https://docs.stripe.com/testing for more test cards.
+
+## Upgrading the webhook endpoint's API version
+
+Each Stripe webhook endpoint has an API version, which sets the format of the events sent to it. To upgrade it without
+missing events, run a new endpoint alongside the old one, then switch to it
+(https://docs.stripe.com/webhooks/versioning):
+
+1. In the stripe dashboard, add a webhook endpoint for events on connected accounts, with the new API version and the
+   same events as the old endpoint. Use the same URL, with the version as a query parameter to tell them apart, e.g.
+   `https://<domain>/payments/stripe/webhook/?version=2026-09-30.endive`.
+2. Add its signing secret to STRIPE_ENDPOINT_SECRET, comma-separated after the old one on the same line (in .env, or in
+   the envdir file in production), and restart. Events from both endpoints are accepted, but only those with
+   STRIPE_WEBHOOK_API_VERSION (the old version) are processed; events from the new endpoint are ignored.
+3. Set STRIPE_WEBHOOK_API_VERSION to the new version and restart. Events from the new endpoint are processed. Events
+   from the old endpoint get a 400 response, so Stripe retries them; to switch back, set STRIPE_WEBHOOK_API_VERSION to
+   the old version again.
+4. Once events from the new endpoint are being processed correctly, disable the old endpoint, remove its secret from
+   STRIPE_ENDPOINT_SECRET and restart.
+5. Change the default STRIPE_WEBHOOK_API_VERSION in settings.py (and dev_env) to the new version, and deploy. The
+   STRIPE_WEBHOOK_API_VERSION environment variable can then be removed. Don't change the default before switching
+   over (step 3), or events from the old endpoint will be rejected.
