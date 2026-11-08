@@ -57,7 +57,7 @@ stripe login
 stripe accounts retrieve (to set your account API keys)
 stripe config --list (to check)
 stripe listen --latest \
-  --events payment_intent.succeeded,payment_intent.payment_failed,payment_intent.requires_action,payment_intent.canceled,payment_intent.created,payment_intent.processing,account.application.authorized,account.application.deauthorized \
+  --events payment_intent.succeeded,payment_intent.payment_failed,payment_intent.requires_action,charge.refunded,account.application.authorized,account.application.deauthorized \
   --forward-connect-to localhost:7100/payments/stripe/webhook/
 ```
 
@@ -89,4 +89,19 @@ Add the endpoint's signing secret to your .env's STRIPE_ENDPOINT_SECRET and rest
 instead of the one from `stripe listen`, and stop `stripe listen` if it's running.
 
 The tunnel needs `LOCAL` set in your .env, so that the dev server accepts the zrok host. Disable the webhook endpoint
-when you've finished testing. 
+when you've finished testing.
+
+### Test cards
+
+In sandbox mode, use any future expiry date, any CVC and any postcode with these card numbers:
+
+| Card number | Result |
+|---|---|
+| `4242 4242 4242 4242` | Payment succeeds |
+| `4000 0025 0000 3155` | Asks for 3D Secure authentication; choose to complete or fail it |
+| `4000 0000 0000 0002` | Payment is declined |
+
+To test a refund, cancel a paid booking. A failed or declined payment should be logged, with no failure email to
+support.
+
+See https://docs.stripe.com/testing for more test cards.

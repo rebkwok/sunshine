@@ -42,6 +42,38 @@ def test_return_with_no_matching_invoice(client):
     )
 
 
+def test_return_with_no_seller(client):
+    resp = client.post(
+        complete_url, data={"payload": json.dumps({"id": "mock-intent-id"})}
+    )
+    assert resp.status_code == 200
+    assert "Error Processing Payment" in resp.content.decode("utf-8")
+    assert len(mail.outbox) == 1
+    assert mail.outbox[0].to == [settings.SUPPORT_EMAIL]
+    assert "No seller found for payment intent mock-intent-id" in mail.outbox[0].body
+
+
+@pytest.mark.usefixtures("seller")
+def test_return_with_error_retrieving_payment_intent(client):
+    with patch(
+        "stripe_payments.views.stripe.PaymentIntent", autospec=stripe.PaymentIntent
+    ) as mock_payment_intent:
+        mock_payment_intent.retrieve.side_effect = stripe.APIConnectionError(
+            "no network"
+        )
+        resp = client.post(
+            complete_url, data={"payload": json.dumps({"id": "mock-intent-id"})}
+        )
+    assert resp.status_code == 200
+    assert "Error Processing Payment" in resp.content.decode("utf-8")
+    assert len(mail.outbox) == 1
+    assert mail.outbox[0].to == [settings.SUPPORT_EMAIL]
+    assert (
+        "Error retrieving payment intent mock-intent-id: no network"
+        in mail.outbox[0].body
+    )
+
+
 @pytest.mark.usefixtures("seller", "send_all_studio_emails")
 def test_return_with_no_payload(client):
     payment_intent = get_mock_payment_intent()
