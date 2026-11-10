@@ -534,7 +534,9 @@ STRIPE_ENDPOINT_SECRETS = [
 ]
 # The API version of the webhook events to process; events from endpoints with other
 # API versions are ignored
-STRIPE_WEBHOOK_API_VERSION = env.str("STRIPE_WEBHOOK_API_VERSION", default="2020-08-27")
+STRIPE_WEBHOOK_API_VERSION = env.str(
+    "STRIPE_WEBHOOK_API_VERSION", default="2026-09-30.endive"
+)
 # Set explicitly so that upgrading the SDK doesn't change the API version we use
 STRIPE_API_VERSION = "2026-09-30.endive"
 # Set to False to disable the connect pages (e.g. once the account is connected)
