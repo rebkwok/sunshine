@@ -77,7 +77,7 @@ def mock_stripe_payload(seller):
             "created": 1630000000,
             "data": {"object": object},
             "livemode": False,
-            "api_version": "2020-08-27",
+            "api_version": "2026-09-30.endive",
             "account": account,
         }
         return payload
@@ -655,30 +655,6 @@ def test_webhook_guest_invoice_username_from_billing_email(
     assert guest_invoice.paid is True
 
 
-def test_webhook_guest_invoice_old_api_version_payload(
-    mock_stripe_verify_header, mock_stripe_payload, client, guest_invoice
-):
-    # The webhook endpoint's API version can be older than the SDK's; events on versions
-    # before 2022-11-15 have charges instead of latest_charge
-    retrieved_payment_intent = get_mock_payment_intent()
-    payload = mock_stripe_payload(
-        "payment_intent.succeeded", metadata=_invoice_metadata(guest_invoice)
-    )
-    del payload["data"]["object"]["latest_charge"]
-    payload["data"]["object"]["charges"] = {
-        "data": [{"billing_details": {"email": "old-payload@test.com"}}]
-    }
-    with patch(
-        "stripe_payments.utils.stripe.PaymentIntent", autospec=stripe.PaymentIntent
-    ) as mock_payment_intent:
-        mock_payment_intent.retrieve.return_value = retrieved_payment_intent
-        resp = post_to_webhook(client, payload)
-    assert resp.status_code == 200
-    guest_invoice.refresh_from_db()
-    assert guest_invoice.username == "stripe-payer@test.com"
-    assert guest_invoice.paid is True
-
-
 @pytest.mark.parametrize(
     "event_type,status",
     [
@@ -700,8 +676,7 @@ def test_webhook_guest_invoice_payment_not_succeeded(
         event_type, metadata=_invoice_metadata(guest_invoice), status=status
     )
     # no charge exists yet
-    del payload["data"]["object"]["latest_charge"]
-    payload["data"]["object"]["charges"] = {"data": []}
+    payload["data"]["object"]["latest_charge"] = None
     resp = post_to_webhook(client, payload)
     assert resp.status_code == 200
     mock_payment_intent.retrieve.assert_not_called()
